@@ -1,0 +1,4 @@
+Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
+WebGL beginner's guide: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL
+
+Placeholder: ga.js line 151.
