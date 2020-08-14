@@ -1,4 +1,7 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 WebGL beginner's guide: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL
+mat4: http://glmatrix.net/docs/module-mat4.html
 
-Placeholder: ga.js line 151.
+Placeholder: ga.js lines:
+	246 (gameLoop())	315 (update())
+				1934 (ga.render())
