@@ -1,5 +1,10 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
-Placeholder: ga.js lines:
-	246 (gameLoop())	315 (update())
-				1934 (ga.render())
+Lines marked with "// TODO"
+
+After finishing the code:
+1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
+2) Go through all the umbra.js code to make sure there isn't anything dumb in it.
+3) Go through Ga bug reports to see if there's anything that can be improved.
+4) Write documentation.
+5) Uglify to umbra.min.js
