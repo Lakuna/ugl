@@ -10,7 +10,6 @@ class Name {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -18,22 +17,24 @@ class Name {
 	// Setter methods.
 
 	// Other methods.
-
 }
 */
 
 class Umbra {
-	constructor(_setup, _title = "Umbra", _assetPaths = [], _fps = 60, _bounds = { x: innerWidth, y: innerHeight }) {
+	constructor(_setup, _load, _title = "Umbra", assetPaths = [], _fps = 60, _bounds = { x: innerWidth, y: innerHeight }) {
 		// Parameter checkers.
 		// if (typeof _setup != "function") { throw new Error("_setup must be a function."); }
+		// if (typeof _load != "function" && typeof _load != "undefined") { throw new Error("_load must be a function or undefined."); }
 		// if (typeof _title != "string") { throw new Error("_title must be a string."); }
-		// if (!Array.isArray(_assetPaths)) { throw new Error("_assetPaths must be an array."); }
+		// if (!Array.isArray(assetPaths)) { throw new Error("assetPaths must be an array."); }
 		// if (typeof _fps != "number") { throw new Error("_fps must be a number"); }
 		// if (typeof _bounds != "object") { throw new Error("_bounds must be an object."); }
 
 		// Public properties.
+		this.assetPaths = assetPaths;
 		this.canvas = document.createElement("canvas");
 		this.context = this.canvas.getContext("2d");
+		this.audioContext = new AudioContext(); // TODO move to start() so that it's created after a user gesture on the page.
 		this.scene = new Sprite(this);
 		this.pointer = new Pointer(this);
 		this.draggables = []; // Drag-and-drop-enabled sprites.
@@ -45,6 +46,11 @@ class Umbra {
 		let _startTime = Date.now(); // Start time of the current frame.
 		const _frameDuration = 1000 / _fps; // Duration of a frame in milliseconds.
 		let _lag = 0; // Time to make up for with updates.
+		const _imageExtensions = ["png", "jpg", "gif", "webp"];
+		const _fontExtensions = ["ttf", "otf", "ttc", "woff"];
+		const _audioExtensions = ["mp3", "ogg", "wav", "webm"];
+		const _jsonExtensions = ["json"];
+		let _loadedAssets = 0; // Number of assets loaded.
 
 		// Private methods.
 		const _gameLoop = () => {
@@ -86,7 +92,14 @@ class Umbra {
 			if (this.state) { this.state(); } // TODO see if this is actually necessary.
 
 			// Run user-defined update functions.
-			this.updates.forEach(update => update());
+			this.updates.forEach((update) => update());
+		}
+		const _onAssetLoaded = () => {
+			_loadedAssets++;
+			if (_loadedAssets == this.assetPaths.length) { _onAllAssetsLoaded(); }
+		}
+		const _onAllAssetsLoaded = () => {
+			// TODO - ga.js line 378
 		}
 
 		// Setup.
@@ -94,7 +107,6 @@ class Umbra {
 		document.body.style = `margin:0;`;
 		document.body.appendChild(this.canvas);
 		this.canvas.style = `width:${_bounds.x};height:${_bounds.y};background-color:black;touch-action:none;`;
-		this.scene.size = { x: this.canvas.width, y: this.canvas.height };
 	}
 
 	// Getter methods.
@@ -106,13 +118,61 @@ class Umbra {
 		// Start the game.
 		// TODO - ga.js line 373, 2071
 	}
+	loadAssets() {
+		// Load assets.
+		for (let i = _loaded; i < this.assetPaths.length; i++) {
+			const source = this.assetPaths[i];
+			const extenson = source.split('.').pop();
+
+			if (_imageExtensions.indexOf(extenson) > -1) {
+				// Make an image.
+				const image = new Image(); // Equivalent to document.createElement("img");
+
+				// Define a handler for after the image loads.
+				image.addEventListener("load", () => {
+					// When image finishes loading.
+					this[source] = image; // assets["path/to/image.png"] will point to the image.
+					_onAssetLoaded();
+				});
+
+				// Define image source so that it starts loading.
+				image.src = source;
+			} else if (_fontExtensions.indexOf(extension) > -1) {
+				// Set fontFamily name to font file name.
+				const fontFamily = source.split("/").pop().split(".")[0];
+
+				// Append a new @font-face style rule.
+				const style = document.createElement('style');
+				style.innerHtml = `@font-face{font-family:${fontFamily};src:url(${source});}`;
+				document.head.appendChild(style);
+
+				// When font finishes loading.
+				_onAssetLoaded();
+			} else if (_audioExtensions.indexOf(extension) > -1) {
+				// Load audio.
+				const audio = new SoundAsset(this.audioContext, source, _onAssetLoaded);
+				this[source] = audio; // assets["path/to/audio.ogg"] will point to the audio.
+			} else if (_jsonExtensions.indexOf(extension) > -1) {
+				// JSON.
+				const req = new XMLHttpRequest();
+				req.open("GET", source);
+				req.addEventListener("readystatechange", () => {
+					if (req.status != 200 || req.readyState != 4) { return; }
+					const json = JSON.parse(req.responseText);
+					this[source] = json;
+					_onAssetLoaded();
+				});
+				req.send();
+			}
+		}
+	}
 }
 
 // TODO make sprite class. Most of the original can be left out. Use global position as normal, and relative position as special. - ga.js line 493
 class Sprite {
-	constructor(umbra) {
+	constructor(_umbra) {
 		// Parameter checkers.
-		// if (!umbra instanceof Umbra) throw new Error("umbra must be an Umbra.");
+		// if (!_umbra instanceof Umbra) throw new Error("_umbra must be an Umbra.");
 
 		// Public properties.
 
@@ -141,7 +201,7 @@ class Sprite {
 }
 
 // TODO - ga.js line 1182
-class Rectangle extends Sprite {
+class RectSprite extends Sprite {
 	constructor() {
 		// Parameter checkers.
 
@@ -152,7 +212,6 @@ class Rectangle extends Sprite {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -160,11 +219,10 @@ class Rectangle extends Sprite {
 	// Setter methods.
 
 	// Other methods.
-
 }
 
 // TODO - ga.js line 1284
-class Line extends Sprite {
+class LineSprite extends Sprite {
 	constructor() {
 		// Parameter checkers.
 
@@ -175,7 +233,6 @@ class Line extends Sprite {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -183,11 +240,10 @@ class Line extends Sprite {
 	// Setter methods.
 
 	// Other methods.
-
 }
 
 // TODO - ga.js line 1330
-class Text extends Sprite {
+class TextSprite extends Sprite {
 	constructor() {
 		// Parameter checkers.
 
@@ -198,7 +254,6 @@ class Text extends Sprite {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -206,30 +261,6 @@ class Text extends Sprite {
 	// Setter methods.
 
 	// Other methods.
-
-}
-
-// TODO - ga.js line 1396
-class Image {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
-
 }
 
 // TODO - ga.js line 1468, 1798
@@ -244,7 +275,6 @@ class ImageSprite extends Sprite {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -252,14 +282,13 @@ class ImageSprite extends Sprite {
 	// Setter methods.
 
 	// Other methods.
-
 }
 
 // TODO - ga.js line 2298
 class Pointer {
-	constructor(umbra) {
+	constructor(_umbra) {
 		// Parameter checkers.
-		// if (!umbra instanceof Umbra) throw new Error("umbra must be an Umbra.");
+		// if (!_umbra instanceof Umbra) throw new Error("_umbra must be an Umbra.");
 
 		// Public properties.
 
@@ -268,7 +297,6 @@ class Pointer {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -294,7 +322,6 @@ class Key {
 		// Private methods.
 
 		// Setup.
-
 	}
 
 	// Getter methods.
@@ -302,5 +329,76 @@ class Key {
 	// Setter methods.
 
 	// Other methods.
+}
 
+// TODO try mimic SoundAsset with asset loading - ga.js line 1396
+class ImageAsset {
+	constructor() {
+		// Parameter checkers.
+
+		// Public properties.
+
+		// Private properties.
+
+		// Private methods.
+
+		// Setup.
+	}
+
+	// Getter methods.
+
+	// Setter methods.
+
+	// Other methods.
+}
+
+// TODO - plugins.js line 4758
+class SoundAsset {
+	constructor(_context, _source, _onload) {
+		// Parameter checkers.
+		// if (!_context instanceof AudioContext) throw new Error("_context must be an AudioContext.");
+		// if (typeof _source != "string") { throw new Error("_source must be a string."); }
+		// if (typeof _onload != "function" && typeof _onload != "undefined") { throw new Error("_onload must be a function or undefined."); }
+
+		// Public properties.
+		this.volumeNode = _context.createGain();
+		this.soundNode = null;
+
+		// Private properties.
+		let _buffer = null; // Loaded sound.
+
+		// Private methods.
+		_load = () => {
+			const req = new XMLHttpRequest();
+			req.open("GET", _source);
+			req.responseType = "arraybuffer";
+			req.addEventListener("load", () => {
+				_context.decodeAudioData(req.response, (buffer) => {
+					_buffer = buffer;
+					if (_onload) { _onload(); }
+				});
+			});
+			req.send();
+		}
+
+		// Setup.
+		_load();
+	}
+
+	// Getter methods.
+
+	// Setter methods.
+
+	// Other methods.
+	play() {
+		this.soundNode = _context.createBufferSource();
+		this.soundNode.buffer = _buffer; // Set sound node buffer to loaded sound.
+
+		// Connect sound node to audio output.
+		this.soundNode.connect(this.volumeNode); // Enable volume transforms.
+		this.volumeNode.connect(_context.destination);
+
+		// Play the audio.
+		this.soundNode.start();
+	}
 }

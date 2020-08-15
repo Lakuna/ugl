@@ -2,6 +2,10 @@ Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
 Lines marked with "// TODO"
 
+Look at plugins.js to see what you want to implement
+- progress bar?
+- particles?
+
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
 2) Go through all the umbra.js code to make sure there isn't anything dumb in it.
