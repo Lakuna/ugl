@@ -4,30 +4,23 @@ const UMBRA = {}; // Export.
 UMBRA.VER = "1.0";
 
 UMBRA.Umbra = class {
-	constructor(setup, load = undefined, assetPaths = [], fps = 60, bounds = { x: window.innerWidth, y: window.innerHeight }, title = "Umbra", fovDegrees = 45) {
+	constructor(
+			setup, load = undefined, assetPaths = [], fps = 60,
+			bounds = { x: window.innerWidth, y: window.innerHeight },
+			title = "Umbra", fovDegrees = 45
+	) {
 		// Setup DOM.
 		this.canvas = document.createElement("canvas"); // Canvas.
-		this.canvas.style = `width: ${bounds.x}px; height: ${bounds.y}px; background-color: #000000; touch-action: none;`; // Stylize canvas.
-		this.context = this.canvas.getContext("webgl"); // WebGL context.
-		this.context.clearColor(0.0, 0.0, 0.0, 1.0); // Clear everything to black.
-		this.context.clearDepth(1.0); // Clear everything.
-		this.context.enable(this.context.DEPTH_TEST) // Enable depth testing.
-		this.context.depthFunc(this.context.LEQUAL); // Make near things obscure far things.
+		this.canvas.style = `
+				width: ${bounds.x}px;
+				height: ${bounds.y}px;
+				background-color: #000000;
+				touch-action: none;
+		`; // Stylize canvas.
+		this.context = this.canvas.getContext("2d"); // 2D context.
 		document.title = title;
 		document.body.style = `margin: 0px;`; // Remove default margins on page.
 		document.body.appendChild(this.canvas); // Add canvas to page.
-
-		// Setup perspective.
-		const fov = fovDegrees * Math.PI / 180; // Field-of-view in degrees.
-		const aspect = this.canvas.clientWidth / this.canvas.clientHeight; // Aspect ratio of canvas.
-		const zMin = 0.1; // Minimum distance from screen to display.
-		const zMax = 100.0; // Maximum distance from screen to display.
-		const projectionMatrix = mat4.create();
-		mat4.perspective(projectionMatrix, fov, aspect, zMin, zMax);
-
-		// Setup drawing position.
-		const modelViewMatrix = mat4.create(); // Set drawing position to center of screen.
-		// TODO
 
 		// Public properties.
 		this.scene = new UMBRA.Sprite(this);
@@ -62,9 +55,7 @@ UMBRA.Umbra = class {
 	}
 
 	render() {
-		this.context.clear(this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT); // Clear screen.
-
-		for (let i = 0; i < this.scene.children.length; i++) { this.scene.children[i].display(); }
+		// TODO
 	}
 }
 
@@ -94,84 +85,6 @@ UMBRA.Sprite = class {
 		let _interactive = false; // See interactive.
 		let _prevPos = { x: 0, y: 0 }; // Position of sprite last frame.
 		let _renderPos = { x: 0, y: 0 }; // Render position of sprite.
-
-		// Private methods.
-		const _createShaderProgram = (vertexSource, fragmentSource) => {
-			const loadShader = (type, source) => {
-				const shader = umbra.context.createShader(type);
-				umbra.context.shaderSource(shader, source);
-				umbra.context.compileShader(shader);
-
-				if (!umbra.context.getShaderParameter(shader, umbra.context.COMPILE_STATUS)) {
-					throw new Error(`An error occured while compiling a shader: ${umbra.context.getShaderInfoLog(shader)}`);
-					umbra.context.deleteShader(shader);
-					return null;
-				}
-
-				return shader;
-			}
-
-			const vertexShader = loadShader(umbra.context.VERTEX_SHADER, vertexSource);
-			const fragmentShader = loadShader(umbra.context.FRAGMENT_SHADER, fragmentSource);
-
-			const shaderProgram = umbra.context.createProgram();
-			umbra.context.attachShader(shaderProgram, vertexShader);
-			umbra.context.attachShader(shaderProgram, fragmentShader);
-			umbra.context.linkProgram(shaderProgram);
-
-			if (!umbra.context.getProgramParameter(shaderProgram, umbra.context.LINK_STATUS)) {
-				throw new Error(`Unable to initialize the shader program: ${umbra.context.getProgramInfoLog(shaderProgram)}`);
-				return null;
-			}
-
-			return shaderProgram;
-		}
-
-		const _createBuffers = (positions) => {
-			// Position buffer.
-			const positionBuffer = umbra.context.createBuffer();
-			umbra.context.bindBuffer(umbra.context.ARRAY_BUFFER, positionBuffer);
-			umbra.context.bufferData(umbra.context.ARRAY_BUFFER, new Float32Array(positions), umbra.context.STATIC_DRAW);
-
-			return { position: positionBuffer }
-		}
-
-		// Shader program for sprite.
-		const _shaderProgram = _createShaderProgram(
-				`
-						attribute vec4 aVertexPosition;
-
-						uniform mat4 uModelViewMatrix;
-						uniform mat4 uProjectionMatrix;
-
-						void main() {
-							gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-						}
-				`,
-				`
-						void main() {
-							gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-						}
-				`
-		);
-
-		// Shader program information for sprite.
-		const _shaderProgramInfo = {
-			program: _shaderProgram,
-			aLocations: { vertexPosition: umbra.context.getAttribLocation(_shaderProgram, 'aVertexPosition') },
-			uLocations: {
-				projectionMatrix: umbra.context.getUniformLocation(_shaderProgram, 'uProjectionMatrix'),
-				modelViewMatrix: umbra.context.getUniformLocation(_shaderProgram, 'uModelViewMatrix')
-			}
-		};
-
-		// Buffers for sprite.
-		const _buffers = _createBuffers([
-				-1.0, 1.0,
-				1.0, 1.0,
-				-1.0, -1.0,
-				1.0, -1.0
-		]);
 	}
 
 	// Position of sprite relative to parent.
@@ -223,7 +136,14 @@ UMBRA.Sprite = class {
 				this.gPos.y + this.size.y >= -this.size.y
 		)) { return; } // Don't display if not visible on screen.
 
-		if (umbra.interpolate) { _renderPos = { x: (_pos.x - _prevPos.x) * lagOffset + _prevPos.x, y: (_pos.y - _prevPos.y) * lagOffset + _prevPos.y }; } else { _renderPos = _pos; }
+		if (umbra.interpolate) {
+			_renderPos = {
+					x: (_pos.x - _prevPos.x) * lagOffset + _prevPos.x,
+					y: (_pos.y - _prevPos.y) * lagOffset + _prevPos.y
+			};
+		} else { _renderPos = _pos; }
+
+		// TODO
 	}
 }
 
@@ -245,8 +165,16 @@ UMBRA.Pointer = class {
 
 		// Private methods.
 		const _eventPosition = (e) => { // Returns position of pointer event.
-			if (e.targetTouches) { return { x: e.targetTouches[0].pageX - umbra.canvas.offsetLeft, y: e.targetTouches[0].pageY - umbra.canvas.offsetTop }; }
-			return { x: e.pageX - e.target.offsetLeft, y: e.pageY - e.target.offsetTop };
+			if (e.targetTouches) {
+				return {
+						x: e.targetTouches[0].pageX - umbra.canvas.offsetLeft,
+						y: e.targetTouches[0].pageY - umbra.canvas.offsetTop
+				};
+			}
+			return {
+					x: e.pageX - e.target.offsetLeft,
+					y: e.pageY - e.target.offsetTop
+			};
 		}
 		const _moveHandler = (e) => {
 			_pos = _eventPosition(e);
@@ -287,7 +215,13 @@ UMBRA.Pointer = class {
 	get draggedSprite() { return _draggedSprite; }
 	get dragOffset() { return _dragOffset; }
 
-	touchingSprite(sprite) { return _pos.x > sprite.gPos.x && _pos.x < sprite.gPos.x + sprite.size.x && _pos.y > sprite.gPos.y && _pos.y < sprite.gPos.y + sprite.size.y; }
+	touchingSprite(sprite) {
+		return
+				_pos.x > sprite.gPos.x &&
+				_pos.x < sprite.gPos.x + sprite.size.x &&
+				_pos.y > sprite.gPos.y &&
+				_pos.y < sprite.gPos.y + sprite.size.y;
+	}
 
 	dragUpdate() {
 		if (_down) {
