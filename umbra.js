@@ -21,7 +21,7 @@ class Name {
 */
 
 class Umbra {
-	constructor(_setup, _load, _title = "Umbra", assetPaths = [], _fps = 60, _bounds = { x: innerWidth, y: innerHeight }) {
+	constructor(_setup, _load, _title = "Umbra", _assetPaths = [], _fps = 60, _bounds = { x: innerWidth, y: innerHeight }) {
 		// Parameter checkers.
 		// if (typeof _setup != "function") { throw new Error("_setup must be a function."); }
 		// if (typeof _load != "function" && typeof _load != "undefined") { throw new Error("_load must be a function or undefined."); }
@@ -31,16 +31,16 @@ class Umbra {
 		// if (typeof _bounds != "object") { throw new Error("_bounds must be an object."); }
 
 		// Public properties.
-		this.assetPaths = assetPaths;
+		this.assets = [];
 		this.canvas = document.createElement("canvas");
 		this.context = this.canvas.getContext("2d");
-		this.audioContext = new AudioContext(); // TODO move to start() so that it's created after a user gesture on the page.
+		this.audioContext = new AudioContext();
 		this.scene = new Sprite(this);
 		this.pointer = new Pointer(this);
 		this.draggables = []; // Drag-and-drop-enabled sprites.
 		this.clickables = []; // Click-enabled sprites.
-		this.state = undefined; // Game state.
 		this.updates = []; // Functions to run inside of the main game loop.
+		this.paused = false; // Whether the game is paused.
 
 		// Private properties.
 		let _startTime = Date.now(); // Start time of the current frame.
@@ -88,18 +88,60 @@ class Umbra {
 			// Update draggables.
 			if (this.draggables.length > 0) { this.pointer.dragUpdate(); }
 
-			// Run current state function.
-			if (this.state) { this.state(); } // TODO see if this is actually necessary.
-
 			// Run user-defined update functions.
-			this.updates.forEach((update) => update());
+			if (!this.paused) { this.updates.forEach((update) => update()); }
+		}
+		const _loadAssets = () => {
+			// Load assets.
+			for (let i = _loaded; i < _assetPaths.length; i++) {
+				const source = _assetPaths[i];
+				const extenson = source.split('.').pop();
+
+				if (_imageExtensions.indexOf(extenson) > -1) {
+					// Make an image.
+					const image = new Image(); // Equivalent to document.createElement("img");
+
+					// Define a handler for after the image loads.
+					image.addEventListener("load", () => {
+						// When image finishes loading.
+						this[source] = image; // assets["path/to/image.png"] will point to the image.
+						_onAssetLoaded();
+					});
+
+					// Define image source so that it starts loading.
+					image.src = source;
+				} else if (_fontExtensions.indexOf(extension) > -1) {
+					// Set fontFamily name to font file name.
+					const fontFamily = source.split("/").pop().split(".")[0];
+
+					// Append a new @font-face style rule.
+					const style = document.createElement('style');
+					style.innerHTML = `@font-face{font-family:${fontFamily};src:url(${source});}`;
+					document.head.appendChild(style);
+
+					// When font finishes loading.
+					_onAssetLoaded();
+				} else if (_audioExtensions.indexOf(extension) > -1) {
+					// Load audio.
+					const audio = new SoundAsset(this.audioContext, source, _onAssetLoaded);
+					this[source] = audio; // assets["path/to/audio.ogg"] will point to the audio.
+				} else if (_jsonExtensions.indexOf(extension) > -1) {
+					// JSON.
+					const req = new XMLHttpRequest();
+					req.open("GET", source);
+					req.addEventListener("readystatechange", () => {
+						if (req.status != 200 || req.readyState != 4) { return; }
+						const json = JSON.parse(req.responseText);
+						this[source] = json;
+						_onAssetLoaded();
+					});
+					req.send();
+				}
+			}
 		}
 		const _onAssetLoaded = () => {
 			_loadedAssets++;
-			if (_loadedAssets == this.assetPaths.length) { _onAllAssetsLoaded(); }
-		}
-		const _onAllAssetsLoaded = () => {
-			// TODO - ga.js line 378
+			if (_loadedAssets == _assetPaths.length) { _setup(); } // Run setup method when all assets are loaded.
 		}
 
 		// Setup.
@@ -116,55 +158,8 @@ class Umbra {
 	// Other methods.
 	start() {
 		// Start the game.
-		// TODO - ga.js line 373, 2071
-	}
-	loadAssets() {
-		// Load assets.
-		for (let i = _loaded; i < this.assetPaths.length; i++) {
-			const source = this.assetPaths[i];
-			const extenson = source.split('.').pop();
-
-			if (_imageExtensions.indexOf(extenson) > -1) {
-				// Make an image.
-				const image = new Image(); // Equivalent to document.createElement("img");
-
-				// Define a handler for after the image loads.
-				image.addEventListener("load", () => {
-					// When image finishes loading.
-					this[source] = image; // assets["path/to/image.png"] will point to the image.
-					_onAssetLoaded();
-				});
-
-				// Define image source so that it starts loading.
-				image.src = source;
-			} else if (_fontExtensions.indexOf(extension) > -1) {
-				// Set fontFamily name to font file name.
-				const fontFamily = source.split("/").pop().split(".")[0];
-
-				// Append a new @font-face style rule.
-				const style = document.createElement('style');
-				style.innerHtml = `@font-face{font-family:${fontFamily};src:url(${source});}`;
-				document.head.appendChild(style);
-
-				// When font finishes loading.
-				_onAssetLoaded();
-			} else if (_audioExtensions.indexOf(extension) > -1) {
-				// Load audio.
-				const audio = new SoundAsset(this.audioContext, source, _onAssetLoaded);
-				this[source] = audio; // assets["path/to/audio.ogg"] will point to the audio.
-			} else if (_jsonExtensions.indexOf(extension) > -1) {
-				// JSON.
-				const req = new XMLHttpRequest();
-				req.open("GET", source);
-				req.addEventListener("readystatechange", () => {
-					if (req.status != 200 || req.readyState != 4) { return; }
-					const json = JSON.parse(req.responseText);
-					this[source] = json;
-					_onAssetLoaded();
-				});
-				req.send();
-			}
-		}
+		if (_assetPaths.length > 0) { _loadAssets(); } else { _setup(); }
+		_gameLoop();
 	}
 }
 
