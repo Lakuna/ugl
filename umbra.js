@@ -1,82 +1,90 @@
-/*
-class Name {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
-}
-*/
-
 class Umbra {
-	constructor(_setup, _load, _title = "Umbra", _assetPaths = [], _fps = 60, _bounds = { x: innerWidth, y: innerHeight }) {
-		// Parameter checkers.
-		if (typeof _setup != "function") { throw new Error("_setup must be a function."); }
-		if (typeof _load != "function" && typeof _load != "undefined") { throw new Error("_load must be a function or undefined."); }
-		if (typeof _title != "string") { throw new Error("_title must be a string."); }
+	constructor(setup, load, title = "Umbra", assetPaths = [], fps = 60, bounds = { x: innerWidth, y: innerHeight }) {
+		// Check parameters.
+		if (typeof setup != "function" && typeof setup != "undefined") { throw new Error("setup must be a function or undefined."); }
+		if (typeof load != "function" && typeof load != "undefined") { throw new Error("load must be a function or undefined."); }
+		if (typeof title != "string") { throw new Error("title must be a string."); }
 		if (!Array.isArray(assetPaths)) { throw new Error("assetPaths must be an array."); }
-		if (typeof _fps != "number") { throw new Error("_fps must be a number"); }
-		if (typeof _bounds != "object") { throw new Error("_bounds must be an object."); }
-		if (!"x" in _bounds) { throw new Error("_bounds must have an x value."); }
-		if (!"y" in _bounds) { throw new Error("_bounds must have a y value."); }
+		if (typeof fps != "number") { throw new Error("fps must be a number"); }
+		if (typeof bounds != "object") { throw new Error("bounds must be an object."); }
+		if (!"x" in bounds) { throw new Error("bounds must have an x value."); }
+		if (!"y" in bounds) { throw new Error("bounds must have a y value."); }
 
-		// Public properties.
+		// Save parameters.
+		this.setup = setup; // The function to be run after all assets are loaded and the game loop has started. The starting point for a game.
+		this.load = load; // The function to loop while loading. Useful for making a loading progress bar.
+		this.assetPaths = assetPaths; // Paths to files that are to be loaded as assets.
+		this.frameDuration = 1000 / fps; // The duration of a frame in milliseconds.
+
+		// Setup document.
+		document.title = title;
+		document.body.style = "margin:0;";
+
+		// Setup canvas.
+		this.canvas = document.createElement("canvas"); // The canvas that the game is drawn on.
+		this.context = this.canvas.getContext("2d"); // The context that the game is drawn on.
+		this.canvas.style = `width:${bounds.x};height:${bounds.y};background-color:black;touch-action:none;`;
+		document.body.appendChild(this.canvas);
+
+		// Create scene.
+		this.scene = new Sprite(this); // The main object which holds all others that are currently active.
+
+		// Setup audio.
+		this.audioContext = new AudioContext(); // The context used to play all game audio.
+		if (this.audioContext.state == "suspended") {
+			// Create button to ask user to enable audio.
+			const button = document.createElement("button");
+			button.style = "position:fixed;top:0;left:0;width:150;height:50;";
+			button.innerHTML = "Click to enable audio.";
+			button.onclick = () => this.audioContext.resume().then(() => document.body.removeChild(button));
+			document.body.appendChild(button);
+		}
+
+		// Setup pointer.
+		this.pointer = new Pointer(this); // Mouse pointer and touchscreen unifier.
+
+		// Load assets.
 		this.assets = {}; // List of loaded assets in object form, so that assets can be retrieved through assets["path/to/asset"].
-		this.canvas = document.createElement("canvas");
-		this.context = this.canvas.getContext("2d");
-		this.audioContext = new AudioContext();
-		this.scene = new Sprite(this);
-		this.pointer = new Pointer(this);
-		this.camera = undefined; // Must be defined after the canvas is resized.
+
+		// Setup camera.
+		this.camera = new Camera(this); // The main viewpoint from which the game is rendered.
+
+		// Create lists of objects.
 		this.draggables = []; // Drag-and-drop-enabled sprites.
 		this.clickables = []; // Click-enabled sprites.
-		this.updates = []; // Functions to run inside of the main game loop.
+
+		// Setup timing stuff.
+		this.lastFrameTime = Date.now(); // Start time of the last frame.
+		this.lag = 0; // Current lag time to be made up for with updates next frame.
+
+		// Setup main game loop.
 		this.paused = false; // Whether the game is paused.
+		this.state = undefined; // The main function to run in the game loop.
+		this.updates = []; // Functions to run inside of the game loop, outside of primary functionality.
+	}
 
-		// Private properties.
-		let _startTime = Date.now(); // Start time of the current frame.
-		const _frameDuration = 1000 / _fps; // Duration of a frame in milliseconds.
-		let _lag = 0; // Time to make up for with updates.
-		const _imageExtensions = ["png", "jpg", "gif", "webp"];
-		const _fontExtensions = ["ttf", "otf", "ttc", "woff"];
-		const _audioExtensions = ["mp3", "ogg", "wav", "webm"];
-		const _jsonExtensions = ["json"];
-		let _loadedAssets = 0; // Number of assets loaded.
-
-		// Private methods.
-		const _gameLoop = () => {
-			// Loop method.
-			requestAnimationFrame(gameLoop, this.canvas);
-
-			// Space out frames correctly.
-			const now = Date.now();
-			let elapsed = now - _startTime;
-			if (elapsed > 1000) { elapsed = _frameDuration; }
-			_startTime = now;
-			_lag += elapsed;
-
-			// Update as many times as necessary to make up for lag time.
-			while (_lag >= _frameDuration) {
-				_update();
-				_lag -= _frameDuration;
-			}
-
-			// Render canvas.
-			_render();
+	// Start the game.
+	start = () => {
+		if (this.assetPaths.length > 0) { this.loadAssets(); } else {
+			if (this.setup) { this.setup(); }
 		}
-		const _update = () => {
+		this.gameLoop();
+	}
+
+	// Game loop.
+	gameLoop = () => {
+		// Repeat function.
+		requestAnimationFrame(this.gameLoop, this.canvas);
+
+		// Space out frames correctly.
+		const now = Date.now();
+		let elapsed = now - this.lastFrameTime;
+		if (elapsed > 1000) { elapsed = this.frameDuration; }
+		this.lastFrameTime = now;
+		this.lag += elapsed;
+
+		// Update as many times as necessary to make up for lag time.
+		while (this.lag >= this.frameDuration) {
 			// Update clickables.
 			if (this.clickables.length > 0) {
 				this.canvas.style.cursor = "auto";
@@ -90,127 +98,135 @@ class Umbra {
 			// Update draggables.
 			if (this.draggables.length > 0) { this.pointer.dragUpdate(); }
 
-			// Parts of the update after this point should not run while the game is paused.
-			if (this.paused) { return; }
-
 			// Run user-defined update functions.
 			this.updates.forEach((update) => update());
-		}
-		const _loadAssets = () => {
-			// Load assets.
-			for (let i = _loaded; i < _assetPaths.length; i++) {
-				const source = _assetPaths[i];
-				const extenson = source.split('.').pop();
 
-				if (_imageExtensions.indexOf(extenson) > -1) {
-					// Make an image.
-					const image = new Image(); // Equivalent to document.createElement("img");
+			// Run the main functionality of the game.
+			if (!this.paused && this.state) { this.state(); }
 
-					// Define a handler for after the image loads.
-					image.addEventListener("load", () => {
-						// When image finishes loading.
-						this.assets[source] = image; // assets["path/to/image.png"] will point to the image.
-						_onAssetLoaded();
-					});
-
-					// Define image source so that it starts loading.
-					image.src = source;
-				} else if (_fontExtensions.indexOf(extension) > -1) {
-					// Set fontFamily name to font file name.
-					const fontFamily = source.split("/").pop().split(".")[0];
-
-					// Append a new @font-face style rule.
-					const style = document.createElement('style');
-					style.innerHTML = `@font-face{font-family:${fontFamily};src:url(${source});}`;
-					document.head.appendChild(style);
-
-					// When font finishes loading.
-					_onAssetLoaded();
-				} else if (_audioExtensions.indexOf(extension) > -1) {
-					// Load audio.
-					const audio = new SoundAsset(this.audioContext, source, _onAssetLoaded);
-					this.assets[source] = audio; // assets["path/to/audio.ogg"] will point to the audio.
-				} else if (_jsonExtensions.indexOf(extension) > -1) {
-					// JSON.
-					const req = new XMLHttpRequest();
-					req.open("GET", source);
-					req.addEventListener("readystatechange", () => {
-						if (req.status != 200 || req.readyState != 4) { return; }
-						const json = JSON.parse(req.responseText);
-						this.assets[source] = json;
-						_onAssetLoaded();
-					});
-					req.send();
-				}
-			}
-		}
-		const _onAssetLoaded = () => {
-			_loadedAssets++;
-			if (_loadedAssets == _assetPaths.length) { _setup(); } // Run setup method when all assets are loaded.
-		}
-		const _render = () => {
-			// Clear screen.
-			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-			// Render the scene with an offset based on the time between frames.
-			this.scene.render(_lag / _frameDuration);
+			this.lag -= this.frameDuration;
 		}
 
-		// Setup.
-		document.title = _title;
-		document.body.style = `margin:0;`;
-		document.body.appendChild(this.canvas);
-		this.canvas.style = `width:${_bounds.x};height:${_bounds.y};background-color:black;touch-action:none;`;
-		this.camera = new Camera(this);
+		// Clear screen.
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+		// Render the scene with an offset based on the time between frames (for interpolation).
+		this.scene.display(this.lag / this.frameDuration);
 	}
 
-	// Getter methods.
+	loadAssets = () => {
+		// Define file types.
+		const imageExtensions = ["png", "jpg", "gif", "webp"];
+		const fontExtensions = ["ttf", "otf", "ttc", "woff"];
+		const audioExtensions = ["mp3", "ogg", "wav", "webm"];
+		const jsonExtensions = ["json"];
 
-	// Setter methods.
+		// Begin counting loaded assets.
+		let loaded = 0; // Number of assets loaded.
 
-	// Other methods.
-	start() {
-		// Start the game.
-		if (_assetPaths.length > 0) { _loadAssets(); } else { _setup(); }
-		_gameLoop();
+		// Define a function to run when an asset is loaded.
+		const onLoad = () => {
+			loaded++;
+			if (loaded >= this.assetPaths.length) {
+				this.state = undefined;
+				if (this.setup) { this.setup(); } // Run setup method when all assets are loaded.
+			}
+		}
+
+		// Run loading function while loading.
+		this.state = this.load;
+
+		// Load assets.
+		for (let i = 0; i < this.assetPaths.length; i++) {
+			const source = this.assetPaths[i];
+			const extenson = source.split('.').pop();
+
+			if (imageExtensions.indexOf(extenson) > -1) {
+				// Make an image.
+				const image = new Image(); // Equivalent to document.createElement("img");
+
+				// Define a handler for after the image loads.
+				image.addEventListener("load", () => {
+					// When image finishes loading.
+					this.assets[source] = image; // assets["path/to/image.png"] will point to the image.
+					onLoad();
+				});
+
+				// Define image source so that it starts loading.
+				image.src = source;
+			} else if (fontExtensions.indexOf(extension) > -1) {
+				// Set fontFamily name to font file name.
+				const fontFamily = source.split("/").pop().split(".")[0];
+
+				// Append a new @font-face style rule.
+				const style = document.createElement('style');
+				style.innerHTML = `@font-face{font-family:${fontFamily};src:url(${source});}`;
+				document.head.appendChild(style);
+
+				// When font finishes loading.
+				onLoad();
+			} else if (_audioExtensions.indexOf(extension) > -1) {
+				// Load audio.
+				const audio = new SoundAsset(this.audioContext, source, onLoad);
+				this.assets[source] = audio; // assets["path/to/audio.ogg"] will point to the audio.
+			} else if (_jsonExtensions.indexOf(extension) > -1) {
+				// JSON.
+				const req = new XMLHttpRequest();
+				req.open("GET", source);
+				req.addEventListener("readystatechange", () => {
+					if (req.status != 200 || req.readyState != 4) { return; }
+					const json = JSON.parse(req.responseText);
+					this.assets[source] = json;
+					onLoad();
+				});
+				req.send();
+			}
+		}
 	}
 }
 
 class Camera {
-	constructor(_umbra) {
-		// Parameter checkers.
-		if (!_umbra instanceof Umbra) throw new Error("_umbra must be an Umbra.");
+	constructor(umbra) {
+		// Parameter checker.
+		if (!umbra instanceof Umbra) throw new Error("umbra must be an Umbra.");
 
-		// Public properties.
+		// Save parameter.
+		this.umbra = umbra; // Instance of Umbra which this camera is attached to.
+
+		// Setup position and size of viewport.
 		this.pos = { x: 0, y: 0 }; // Center position of the screen.
-		this.range = { x: _umbra.canvas.width, y: _umbra.canvas.height }; // View size of camera.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
+		this.range = { x: umbra.canvas.width, y: umbra.canvas.height }; // View size of camera.
 	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
 }
 
-// TODO make sprite class. Most of the original can be left out. Use global position as normal, and relative position as special. - ga.js line 493
 class Sprite {
-	constructor(_umbra) {
-		// Parameter checkers.
-		if (!_umbra instanceof Umbra) throw new Error("_umbra must be an Umbra.");
+	constructor(umbra) {
+		// Parameter checker.
+		if (!umbra instanceof Umbra) throw new Error("umbra must be an Umbra.");
 
-		// Public properties.
+		// Save parameter.
+		this.umbra = umbra; // The instance of Umbra which this Sprite belongs to.
+
+		// Properties.
+		this.pos = { x: 0, y: 0 }; // Global position value. Only set through setPosition().
+		this.prev = { x: 0, y: 0 }; // Previous position.
 		this.v = { x: 0, y: 0 }; // Velocity.
 		this.size = { x: 0, y: 0 }; // Width and height.
+
+		// Setup relationships.
+		this.children = []; // Children Sprites.
+		this.parent = undefined; // Parent Sprite. Only set through setParent().
+		this.layer = 0; // Higher layer values are drawn over lower ones. Only set through setLayer().
+		this.childBox = {
+			min: { x: 0, y: 0 }, // Upper-left corner of outermost child.
+			max: { x: 0, y: 0 } // Bottom-right corner of outermost child.
+		};
+
+		// Setup rendering variables.
+		this.render = undefined; // Render function. Typically defined by subclasses.
 		this.scale = { x: 1, y: 1 }; // Scale.
 		this.pivot = { x: 0.5, y: 0.5 }; // Center of rotation for sprite. 0.01 - 0.99.
-		this.rotation = 0; // Rotation of sprite.
+		this.rotation = 0; // Rotation of sprite in radians (clockwise).
 		this.visible = true; // Whether the Sprite is visible.
 		this.shadow = {
 			enabled: false, // Whether the sprite emits a shadow.
@@ -220,59 +236,33 @@ class Sprite {
 		}
 		this.compositeOperation = undefined; // context.globalCompositeOperation to use when rendering this sprite.
 		this.alpha = 1; // Opacity value.
-		this.layer = 0; // Higher layer values are drawn over lower ones.
-		this.children = []; // Children Sprites.
-		this.childBox = {
-			min: { x: 0, y: 0 }, // Upper-left corner of outermost child.
-			max: { x: 0, y: 0 } // Bottom-right corner of outermost child.
-		};
 
-		// Private properties.
-		let _pos = { x: 0, y: 0 }; // See pos.
-		let _rPos = { x: 0, y: 0 }; // See rPos.
-		let _parent = undefined; // See parent.
-		let _draggable = false; // See draggable.
-		let _interactive = false; // See interactive.
-		let _prev = { x: 0, y: 0 }; // Previous position.
-		let _sPos = { x: 0, y: 0 }; // See sPos.
-
-		// Private methods.
-
-		// Setup.
-		// TODO sort children by layer - ga.js line 2692
+		// Setup interactivity variables.
+		this.draggable = false; // Whether this sprite can be drag-and-dropped. Only set through setDraggable().
+		this.interactive = false; // Whether this sprite can be interacted with by the pointer.
+		this.state = "up"; // State of this Sprite in relation to the pointer.
+		this.press = undefined; // User-defined function to run on click if interactive.
+		this.release = undefined; // User-defined function to run on releasing a click if interactive.
+		this.over = undefined; // User-defined function to run on mouseover if interactive.
+		this.out = undefined; // User-defined function to run on leaving mouseover if interactive.
+		this.tap = undefined; // User-defined function to run on quick click if interactive.
 	}
 
-	// Getter methods.
-	get pos() { return _pos; } // Global position value.
-	get rPos() { return _rPos; } // Position of Sprite relative to its parent (relative position).
-	get parent() { return _parent; } // Parent Sprite.
-	get draggable() { return _draggable; } // Whether this sprite can be drag-and-dropped.
-	get interactive() { return _interactive; } // Whether this sprite can be interacted with by the pointer.
-	get sPos() { return _sPos; } // The position of this sprite on the screen (screen position).
-
-	// Setter methods.
-	set pos(value) {
+	setPosition = (position) => {
 		// Parameter checkers.
-		if (!"x" in value) { throw new Error("value must have an x value."); }
-		if (!"y" in value) { throw new Error("value must have a y value."); }
+		if (!"x" in position) { throw new Error("position must have an x value."); }
+		if (!"y" in position) { throw new Error("position must have a y value."); }
 
-		_prev = this.pos;
-		_pos = value;
+		this.prev = this.pos;
+		this.pos = position;
 	}
-	set rPos(value) {
-		// Parameter checkers.
-		if (!"x" in value) { throw new Error("value must have an x value."); }
-		if (!"y" in value) { throw new Error("value must have a y value."); }
 
-		_rPos = value;
-		this.pos = { x: this.parent.pos.x + this.rPos.x, y: this.parent.pos.y + this.rPos.y };
-	}
-	set parent(value) {
-		// Parameter checkers.
-		if (!value instanceof Sprite && !typeof value == "undefined") { throw new Error("value must be an instance of Sprite or undefined."); }
+	setParent = (parent) => {
+		// Parameter checker.
+		if (!parent instanceof Sprite && typeof parent != "undefined") { throw new Error("parent must be an instance of Sprite or undefined."); }
 
 		if (this.parent) { this.parent.children.splice(this.parent.children.indexOf(this), 1); }
-		this.parent = value;
+		this.parent = parent;
 		if (this.parent) {
 			this.parent.children.push(this);
 			this.parent.childBox.min.x = Math.min(this.parent.childBox.min.x, this.x);
@@ -281,48 +271,93 @@ class Sprite {
 			this.parent.childBox.max.y = Math.max(this.parent.childBox.max.y, this.y + this.height);
 		}
 	}
-	set draggable(value) {
-		// Parameter checkers.
-		if (!typeof value == "boolean") { throw new Error("value must be a boolean."); }
 
-		_draggable = value;
-		if (value) { _umbra.draggables.push(this); } else { _umbra.draggables.splice(_umbra.draggables.indexOf(this), 1); }
+	setDraggable = (draggable) => {
+		// Parameter checker.
+		if (typeof draggable != "boolean") { throw new Error("draggable must be a boolean."); }
+
+		this.draggable = draggable;
+		if (this.draggable) { this.umbra.draggables.push(this); } else { this.umbra.draggables.splice(this.umbra.draggables.indexOf(this), 1); }
 	}
-	set interactive(value) {
-		// Parameter checkers.
-		if (!typeof value == "boolean") { throw new Error("value must be a boolean."); }
 
-		_interactive = value;
-		if (value) { _umbra.clickables.push(this); } else { _umbra.clickables.splice(_umbra.clickables.indexOf(this), 1); }
+	setLayer = (layer) => {
+		// Parameter checker.
+		if (typeof layer != "number") { throw new Error("layer must be a number."); }
+
+		this.layer = layer;
+		if (this.parent) {
+			// Sort parent's children by layer.
+			this.parent.children.sort((a, b) => {
+				if (a.layer < b.layer) { return -1; }
+				return 1;
+			});
+		}
+	}
+
+	setInteractive = (interactive) => {
+		// Parameter checker.
+		if (typeof interactive != "boolean") { throw new Error("interactive must be a boolean."); }
+
+		this.interactive = interactive;
+		if (this.interactive) { this.umbra.clickables.push(this); } else { this.umbra.clickables.splice(this.umbra.clickables.indexOf(this), 1); }
 	}
 
 	// Other methods.
-	render(bounds, offset) {
-		// Parameter checkers.
-		if (!"min" in bounds) { throw new Error("bounds must have a min value."); }
-		if (!"x" in bounds.min || typeof bounds.min.x != "number") { throw new Error("min must have a (number) x value."); }
-		if (!"y" in bounds.min || typeof bounds.min.y != "number") { throw new Error("min must have a (number) y value."); }
-		if (!"max" in bounds) { throw new Error("bounds must have a max value."); }
-		if (!"x" in bounds.max || typeof bounds.max.x != "number") { throw new Error("max must have a (number) x value."); }
-		if (!"y" in bounds.max || typeof bounds.max.y != "number") { throw new Error("max must have a (number) y value."); }
-		if (!typeof value == "number") { throw new Error("offset must be a number."); }
+	display(offset) {
+		// Parameter checker.
+		if (typeof offset != "number") { throw new Error("offset must be a number."); }
+
+		// Save context to shorter variable name due to usage frequency here.
+		const ctx = this.umbra.context;
 
 		// Check if sprite is visible by the camera.
 		if (
-				this.visible && (
-						this.pos.x + this.size.x >= bounds.min.x ||
-						this.pos.x < bounds.max.x
-				) && (
-						this.pos.y + this.size.y >= bounds.min.y ||
-						this.pos.y < bounds.max.y
-				)
-		) {
-			// Render sprite onto canvas.
+			!this.visible || (
+				this.pos.x + this.size.x < this.childBox.min.x &&
+				this.pos.x > this.childBox.max.x
+			) || (
+				this.pos.y + this.size.y < this.childBox.min.y &&
+				this.pos.y > this.childBox.max.y
+			)
+		) { return; }
+
+		// Save current context state.
+		ctx.save();
+
+		const iPos = { // Get interpolated position of sprite.
+			x: (this.pos.x - this.prev.x) * offset + this.prev.x,
+			y: (this.pos.y - this.prev.y) * offset + this.prev.y
+		};
+		const sPos = { // Get screen position of sprite.
+			x: iPos.x - (this.umbra.camera.pos.x - this.umbra.camera.range.x / 2),
+			y: iPos.y - (this.umbra.camera.pos.y - this.umbra.camera.range.y / 2)
+		};
+
+		// Draw the sprite.
+		ctx.translate(sPos.x + (this.size.x * this.pivot.x), sPos.y + (this.size.y * this.pivot.y));
+		ctx.globalAlpha = this.alpha;
+		ctx.rotate(this.rotation);
+		ctx.scale(this.scale.x, this.scale.y);
+
+		// Draw the shadow.
+		if (this.shadow.enabled) {
+			ctx.shadowColor = this.shadow.color;
+			ctx.shadowOffsetX = this.shadow.offset.x;
+			ctx.shadowOffsetY = this.shadow.offset.y;
+			ctx.shadowBlur = this.shadow.blur;
 		}
 
-		// Still try to render children if sprite isn't visible.
+		// Add the blend mode.
+		if (this.compositeOperation) { ctx.globalCompositeOperation = this.compositeOperation; }
 
-		// TODO - ga.js line 1934, 1951
+		// Render the sprite.
+		if (this.render) { this.render(); }
+
+		// Display children.
+		this.children.forEach((child) => child.display(offset));
+
+		// Restore context after children have been rendered so that they have the same rotation and alpha.
+		ctx.restore();
 	}
 	checkPointer() {
 		// Detect if pointer is interacting with clickable.
@@ -332,108 +367,28 @@ class Sprite {
 
 // TODO - ga.js line 1182
 class RectSprite extends Sprite {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
 // TODO - ga.js line 1284
 class LineSprite extends Sprite {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
 // TODO - ga.js line 1330
 class TextSprite extends Sprite {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
 // TODO - ga.js line 1468, 1798
 class ImageSprite extends Sprite {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
 // TODO - ga.js line 2298
 class Pointer {
-	constructor(_umbra) {
-		// Parameter checkers.
-		// if (!_umbra instanceof Umbra) throw new Error("_umbra must be an Umbra.");
+	constructor(umbra) { }
 
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
 	dragUpdate() {
 		// Update drag-and-drop functionality.
 		// TODO - ga.js line 2527
@@ -442,91 +397,49 @@ class Pointer {
 
 // TODO - ga.js line 2617
 class Key {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
 // TODO try mimic SoundAsset with asset loading - ga.js line 1396
 class ImageAsset {
-	constructor() {
-		// Parameter checkers.
-
-		// Public properties.
-
-		// Private properties.
-
-		// Private methods.
-
-		// Setup.
-	}
-
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
+	constructor() { }
 }
 
-// TODO - plugins.js line 4758
 class SoundAsset {
-	constructor(_context, _source, _onload) {
+	constructor(context, source, onload) {
 		// Parameter checkers.
-		// if (!_context instanceof AudioContext) throw new Error("_context must be an AudioContext.");
-		// if (typeof _source != "string") { throw new Error("_source must be a string."); }
-		// if (typeof _onload != "function" && typeof _onload != "undefined") { throw new Error("_onload must be a function or undefined."); }
+		if (!context instanceof AudioContext) throw new Error("context must be an AudioContext.");
+		if (typeof source != "string") { throw new Error("source must be a string."); }
+		if (typeof onload != "function" && typeof onload != "undefined") { throw new Error("onload must be a function or undefined."); }
 
-		// Public properties.
-		this.volumeNode = _context.createGain();
-		this.soundNode = null;
+		// Save parameter.
+		this.context = context;
 
-		// Private properties.
-		let _buffer = null; // Loaded sound.
+		// Sound nodes.
+		this.volumeNode = this.context.createGain(); // Controls volume.
+		this.soundNode = null; // Controls everything else.
+		this.buffer = null; // Loaded sound data.
 
-		// Private methods.
-		_load = () => {
-			const req = new XMLHttpRequest();
-			req.open("GET", _source);
-			req.responseType = "arraybuffer";
-			req.addEventListener("load", () => {
-				_context.decodeAudioData(req.response, (buffer) => {
-					_buffer = buffer;
-					if (_onload) { _onload(); }
-				});
+		// Load audio.
+		const req = new XMLHttpRequest();
+		req.open("GET", this.source);
+		req.responseType = "arraybuffer";
+		req.addEventListener("load", () => {
+			this.context.decodeAudioData(req.response, (buffer) => {
+				this.buffer = buffer;
+				if (onload) { onload(); }
 			});
-			req.send();
-		}
-
-		// Setup.
-		_load();
+		});
+		req.send();
 	}
 
-	// Getter methods.
-
-	// Setter methods.
-
-	// Other methods.
 	play() {
-		this.soundNode = _context.createBufferSource();
-		this.soundNode.buffer = _buffer; // Set sound node buffer to loaded sound.
+		this.soundNode = this.context.createBufferSource();
+		this.soundNode.buffer = this.buffer; // Set sound node buffer to loaded sound.
 
 		// Connect sound node to audio output.
 		this.soundNode.connect(this.volumeNode); // Enable volume transforms.
-		this.volumeNode.connect(_context.destination);
+		this.volumeNode.connect(this.context.destination);
 
 		// Play the audio.
 		this.soundNode.start();

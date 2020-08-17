@@ -1,5 +1,7 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
+MOVE ALL PRIVATE VARIABLES TO PUBLIC. PRIVATE VARIABLES DON'T ACTUALLY EXIST IN JS.
+
 Complete sections marked with "// TODO".
 
 Make a "Tap to allow audio." button appear if AudioContext is muted.
@@ -21,7 +23,8 @@ After finishing the code:
 
 Umbra Builder:
 - Include only necessary parts of the code from a UI.
-- Mark code with "// UMBRATAG <TAG(s, separated by space)>" to help write a builder with only one source file.
+- Mark code with "// UMBRATAGSTART/UMBRATAGEND <TAG(s, separated by space)>" to help write a builder with only one source file.
+- Tags should be treated as ANDs if declared on separate lines, and ORs if declared on the same line.
 - Mark code with "// UMBRATAGDESC <Description>" to add descriptions to tags, to be displayed in Umbra Builder. Probably put at the top.
 - Make tag "REQUIRED" non-optional.
 - Get newest umbra.js from online with builder, so it can be a one-file program.
