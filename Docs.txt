@@ -1,0 +1,51 @@
+WIP: ga.js 493
+
+Original files:
+ga.js		https://github.com/kittykatattack/ga/blob/master/ga.js
+plugins.js	https://github.com/kittykatattack/ga/blob/master/plugins.js
+
+Tags
+REQUIRED	Main module.
+GRAPHICS	Drawing to the screen.
+POINTER		Unified mouse/touch input.
+KEYBOARD	Keyboard input.
+INTERACT	Interactive sprites.
+DRAG		Drag-and-drop sprites.
+ASSETS		Loading assets from files.
+
+DEVELOPMENT (Larger file for development purposes. Checks parameter types and logs some information.)
+Umbra UMBRA						Global game instance.							ga.js 104	REQUIRED
+Vector2		(number x, number y)														REQUIRED
+		get set	number				x		The first numeric value.						REQUIRED
+		get set	number				y		The second numeric value.						REQUIRED
+Bounds		(Vector2 min, Vector2 max)													REQUIRED
+		get set	Vector2				min		The upper-left point on a boundary.					REQUIRED
+		get set	Vector2				max		The lower-right point on a boundary.					REQUIRED
+Umbra		(function setup, function load, string title, string[] assetPaths, number fps, Vector2 size)			ga.js 121	REQUIRED
+		get	HTMLCanvasElement		canvas		Canvas on which the game is rendered.			ga.js 134	GRAPHICS
+		get	CanvasRenderingContext2D	canvas.ctx	Context of canvas.					ga.js 141	GRAPHICS
+		get set	UObject				scene		Currently active main parent object.			ga.js 145	GRAPHICS
+		get	Pointer				pointer		Active Pointer.						ga.js 148	POINTER
+		get	Key[]				keys		List of all Keys.					ga.js 151	KEYBOARD
+		get	UObject[]			interactables	List of all interactable UObjects.			ga.js 154	INTERACT
+		get	UObject[]			draggables	List of all draggable UObjects.				ga.js 162	DRAG
+		get set	function			state		Main function to run in game loop.			ga.js 168	REQUIRED
+		get set	function			load		Function to loop while loading assets.			ga.js 171	ASSETS
+		private	function			setup		Function to run when game is ready.			ga.js 172	REQUIRED
+		private string[]			assetPaths	Paths to asset files to load.				ga.js 184	ASSETS
+		get set	boolean				paused		Whether to run the state function.			ga.js 187	REQUIRED
+		private	number				fps		Frames per second.					ga.js 192	REQUIRED
+		private	number				lastFrameTime	Time of the last frame.					ga.js 193	REQUIRED
+		private	number				frameDuration	The duration in milliseconds of one frame.		ga.js 194	REQUIRED
+		private	number				lag		Lagged time to make up for.				ga.js 195	REQUIRED
+		get	function[]			updates		Functions that should run in game loop.			ga.js 204	REQUIRED
+		private	gameLoop()			Loops to run the game.							ga.js 246	REQUIRED
+		public	start()				To be called by the user to start the game.				ga.js 373	REQUIRED
+			private loadAssets()		Begins loading assets from files.					ga.js 2090	ASSETS
+Camera																		GRAPHICS
+		get set	Bounds				bounds		Bounds of the camera viewport.						GRAPHICS
+		public	sPosToPos(Vector2 position)			Converts a point on the screen to a global position.			GRAPHICS
+		public	render(number interpolationOffset)		Renders all of the UObjects in view.					GRAPHICS
+UObject																ga.js 493	GRAPHICS
+
+PRODUCTION (Smaller, no safety nets. Everything that works in DEVELOPMENT will work in this.)

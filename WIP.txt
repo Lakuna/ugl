@@ -1,10 +1,16 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
-MOVE ALL PRIVATE VARIABLES TO PUBLIC. PRIVATE VARIABLES DON'T ACTUALLY EXIST IN JS.
-
 Complete sections marked with "// TODO".
 
-Make a "Tap to allow audio." button appear if AudioContext is muted.
+Move to:
+Object.defineProperties(this, {
+	thing: {
+		get: () => {
+		}
+		set: () => {
+		}
+	}
+});
 
 Look at plugins.js to see what you want to implement
 - progress bar?
@@ -12,27 +18,43 @@ Look at plugins.js to see what you want to implement
 
 Look through other frameworks for features that should be implemented.
 
-Make an ABSOLUTE MINIMUM version (u.js)
-
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
 2) Go through all the umbra.js code to make sure there isn't anything dumb in it.
 3) Go through Ga bug reports to see if there's anything that can be improved.
 4) Write documentation.
-5) Uglify to umbra.min.js (for version 1. Use Umbra Builder after that).
+5) Umbra Builder.
 
 Umbra Builder:
 - Include only necessary parts of the code from a UI.
-- Mark code with "// UMBRATAGSTART/UMBRATAGEND <TAG(s, separated by space)>" to help write a builder with only one source file.
-- Tags should be treated as ANDs if declared on separate lines, and ORs if declared on the same line.
+- Mark code with "// UMBRATAGSTART/UMBRATAGEND <TAG>" to help write a builder with only one source file.
+- Multiple tags should be treated as ANDs.
 - Mark code with "// UMBRATAGDESC <Description>" to add descriptions to tags, to be displayed in Umbra Builder. Probably put at the top.
+- Mark code with "// UMBRATAGREQ <TAG> <TAG>" to make the former tag require the inclusion of the latter. Probably put at the top.
 - Make tag "REQUIRED" non-optional.
 - Get newest umbra.js from online with builder, so it can be a one-file program.
 - Show un-uglified byte count (WITHOUT COMMENTS) for each tag.
 - Probably write in Java Swing.
 - Automatically uglify when done.
 
+Tag		Requires		Description
+REQUIRED				Umbra constructor, game loop.
+SAFETY					Parameter checkers and such to make sure you don't mess up.
+GRAPHICS				Canvas, context, Camera, Sprite.
+ASSETS					Loading assets (minus audio).
+AUDIO		ASSETS			Loading and playing audio.
+POINTER					Mouse and touch support.
+DRAGGABLE	POINTER			Drag-and-drop.
+CLICKABLE	POINTER			Interactive sprites (buttons).
+SHAPE		GRAPHICS		Shape.
+RECTANGLE	SHAPE			RectSprite.
+CIRCLE		SHAPE			CircleSprite.
+LINE		GRAPHICS		LineSprite.
+TEXT		GRAPHICS		TextSprite.
+IMAGE		GRAPHICS, ASSETS	ImageSprite, ImageAsset.
+KEYBOARD				Key.
+
 Documentation:
-- Video documentation.
+- Video documentation / tutorials.
 - Make it like the documentation for Discord.js.
 - Include required Umbra Builder tag in article.

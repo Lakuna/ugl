@@ -1,3 +1,4 @@
 rem Host test on python server.
-python -m http.server
-start "" "https://localhost:8000/example"
+rem CTRL+F5 when refreshing to clear cache.
+start "Python Server" python -m http.server
+start "" "http://localhost:8000/example"
