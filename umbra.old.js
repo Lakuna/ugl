@@ -50,6 +50,8 @@ class Umbra {
 		this.paused = false; // Whether the game is paused.
 		this.state = undefined; // The main function to run in the game loop.
 		this.updates = []; // Functions to run inside of the game loop, outside of primary functionality.
+
+		// UMBRA = this;
 	}
 
 	// Start the game.
