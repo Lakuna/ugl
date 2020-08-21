@@ -66,17 +66,18 @@ UShadow(string color, Vector2 offset, number blur)																								ga.js 
 			get set		Vector2						offset								The offset of the shadow from its object.				ga.js 533	ADVGRAPH
 			get set		number						blur								Numeric value of the amount of blur on the shadow.		ga.js 535	ADVGRAPH
 UObject(Bounds bounds, UObject parent)																											ga.js 493	GRAPHICS
-			get set		Bounds						bounds								Global position, width, and height of the object.		ga.js 496	GRAPHICS
-			get			number						x									Convenience. Returns bounds.min.x.									GRAPHICS
-			get			number						y									Convenience. Returns bounds.min.y.									GRAPHICS
+			get set		Bounds						bounds								Global position of the object.							ga.js 496	GRAPHICS
+			get set		number						x									Convenience. bounds.min.x.											GRAPHICS
+			get set		number						y									Convenience. bounds.min.y.											GRAPHICS
+			get set		Vector2						size								Convenience. Difference between max/min x/y.						GRAPHICS
 			get set		boolean						active								Whether the sprite is active in the scene.				ga.js 518	GRAPHICS
-			get set		UObject						parent								The parent UObject of this object.						ga.js 522	GRAPHICS
 			get set		number						layer								Depth layer of the sprite (higher over lower).			ga.js 546	GRAPHICS
 			private		Vector2						prev								Position of the sprite at the beginning of the frame.	ga.js 558	GRAPHICS
 			get			function					markPosition()						Save the current position to prev.						ga.js 297	GRAPHICS
+			get set		UObject						parent								The parent UObject of this object.						ga.js 522	GRAPHICS
 			get			UObject[]					children							Child UObjects of the object.							ga.js 566	GRAPHICS
 			get			Bounds						childBox							Boundaries of this object and its children (etc.)					GRAPHICS
-			get			function					display()							Display this sprite on the canvas.						ga.js 1951	GRAPHICS
+			get			function					display(number lagOffset)			Display this sprite on the canvas.						ga.js 1951	GRAPHICS
 			get set		function					render								Tells the context how to draw this object.							GRAPHICS
 			get set		Vector2						scale								Scale factor of the object's size.						ga.js 508	ADVGRAPH
 			get set		Vector2						pivot								The pivot point (center of rotation) of the sprite.		ga.js 513	ADVGRAPH
@@ -85,56 +86,60 @@ UObject(Bounds bounds, UObject parent)																											ga.js 493	GRAPH
 			get set		string						compositeOperation					The global composite operation to use when rendering.	ga.js 538	ADVGRAPH
 			get set		number						alpha								The opacity of the object.								ga.js 542	ADVGRAPH
 			get set		boolean						draggable							Whether the sprite can use drag-and-drop.				ga.js 543	DRAG
-			get set		boolean						interactive							Whether the sprite can be clicked.						ga.js 554	INTERACT
+			get set		boolean						interactable						Whether the sprite can be clicked.						ga.js 554	INTERACT
 			get set		function					press								Function to run when object is pressed.					ga.js 1654	INTERACT
 			get set		function					release								Function to run when object is released.				ga.js 1655	INTERACT
 			get set		function					over								Function to run when object is hovered.					ga.js 1656	INTERACT
 			get set		function					out									Function to run when mouse leaves object.				ga.js 1657	INTERACT
 			get set		function					tap									Function to run when mouse quickly presses object.		ga.js 1658	INTERACT
-			private		string						state								State of object in relation to the mouse.				ga.js 1662	INTERACT
-			private		boolean						pressed								Whether the object is being pressed by the mouse.		ga.js 1670	INTERACT
+			private		boolean						down								Whether the object is being pressed by the mouse.		ga.js 1670	INTERACT
 			private		boolean						hovered								Whether the object is being hovered by the mouse.		ga.js 1677	INTERACT
 			get			function					update()							Update the state of the interactable object.			ga.js 1685	INTERACT
-UObject.UShape(Bounds bounds)																																SHAPE
+UObject.UShape(Bounds bounds, UObject parent)																												SHAPE
 			get			boolean						clip								Whether to use this shape to clip the context.			ga.js 1189	SHAPE
 			get			string						fillColor							String representing the color to fill the shape.		ga.js 1194	SHAPE
 			get			string						lineColor							String representing the color to outline the shape.		ga.js 1195	SHAPE
 			get			number						lineWidth							Width of the outline.									ga.js 1196	SHAPE
-UShape.URect(Bounds bounds)																														ga.js 1182	RECT
-UShape.UCircle(Bounds bounds)																													ga.js 1232	CIRCLE
-UObject.ULine(Bounds endpoints)																													ga.js 1284	LINE
-			get set		Bounds						endpoints							Endpoints of the line.									ga.js 1295	LINE
+UShape.URect(Bounds bounds, UObject parent)																										ga.js 1182	RECT
+UShape.UCircle(Bounds bounds, UObject parent)																									ga.js 1232	CIRCLE
+UObject.ULine(Bounds bounds, UObject parent)																									ga.js 1284	LINE
 			get set		string						color								String representation of the line color.				ga.js 1299	LINE
-			get set		number						width								Width of the line.										ga.js 1300	LINE
+			get set		number						thickness							Width of the line.										ga.js 1300	LINE
 			get set		string						lineJoin							How the context should join the line.					ga.js 1304	LINE
-UObject.UText(string text)																														ga.js 1330	TEXT
+UObject.UText(string text, Bounds bounds, UObject parent)																						ga.js 1330	TEXT
 			get set		string						text								Display text.											ga.js 1337	TEXT
 			get set		string						font								String representation of the font.						ga.js 1338	TEXT
 			get set		string						color								Color of the text.										ga.js 1339	TEXT
 			get set		string						baseline							Baseline of the text.									ga.js 1340	TEXT
 USpritesheet(HTMLImageElement source, Vector2 frameSize)																						ga.js 1428	IMAGE
-			private		HTMLImageElement			image								Image asset of the spritesheet.							ga.js 1429	IMAGE
+			get			HTMLImageElement			source								Image asset of the spritesheet.							ga.js 1429	IMAGE
 			get			Vector2[]					positions							Positions of each frame in the spritesheet.				ga.js 1430	IMAGE
-			get			Vector2						size								Number of rows and columns in the spritesheet.			ga.js 1433	IMAGE
-USprite(USpritesheet sheet)																														ga.js 1468	IMAGE
+			private		Vector2						size								Number of rows and columns in the spritesheet.			ga.js 1433	IMAGE
+UObject.USprite(USpritesheet sheet, Bounds bounds, UObject parent)																				ga.js 1468	IMAGE
 			private		USpritesheet				sheet								USpritesheet to get sprite from.						ga.js 1476	IMAGE
 			get set		boolean						loop								Whether to loop the sprite frames.						ga.js 1476	IMAGE
+			get set		Vector2						loopRange							The frame indexes between which to loop.				ga.js 1801	IMAGE
+			get set		number						fps									Spritesheet frames per second when animated.			ga.js 1862	IMAGE
 			get set		number						frame								Index of the current frame in the spritesheet.			ga.js 1478	IMAGE
+			private		Vector2						current								Coordinates of the current frame on the spritesheet.	ga.js 1546	IMAGE
+			private		number						interval							The animation interval of the sprite.					ga.js 1870	IMAGE
 UPointer()																																		ga.js 2298	POINTER
 			get			Vector2						pos									Position of the pointer.								ga.js 2300	POINTER
 			get			boolean						down								Whether the pointer is being pressed.					ga.js 2350	POINTER
 			private		number						downTime							Time that the pointer became pressed.					ga.js 2355	POINTER
 			private		number						elapsedTime							Time that the pointer has been pressed.					ga.js 2356	POINTER
+			private		HTMLCanvasElement			canvas								The canvas that this pointer is bound to.							POINTER
 			get set		function					press								Function to run when pointer becomes pressed.			ga.js 2359	POINTER
 			get set		function					release								Function to run when pointer is released.				ga.js 2360	POINTER
 			get set		function					tap									Function to run when pointer is pressed quickly.		ga.js 2361	POINTER
-			get			UObject						draggedObject						The currently dragged object.							ga.js 2364	POINTER
-			private		Vector2						dragOffset							Distance dragged object has been dragged.				ga.js 2367	POINTER
+			private		function					eventPosition()						Returns position of a pointer event.								POINTER
 			private		function					moveHandler()						Function to run when pointer is moved.					ga.js 2372	POINTER
 			private		function					downHandler()						Function to run when pointer is pressed.				ga.js 2395	POINTER
 			private		function					upHandler()							Function to run when pointer is released.				ga.js 2439	POINTER
 			get			function					touching(UObject object)			Check if pointer is touching UObject.					ga.js 2494	POINTER
-			get			function					update()							Update drag-and-drop functionality.						ga.js 2527	POINTER
+			get			UObject						draggedObject						The currently dragged object.							ga.js 2364	DRAG
+			private		Vector2						dragOffset							Distance dragged object has been dragged.				ga.js 2367	DRAG
+			get			function					update()							Update drag-and-drop functionality.						ga.js 2527	DRAG
 UKey(number code)																																ga.js 2617	KEYBOARD
 			private		number						code								ASCII key code of the key.								ga.js 2619	KEYBOARD
 			get			boolean						down								Whether the key is being pressed.						ga.js 2620	KEYBOARD
@@ -143,9 +148,12 @@ UKey(number code)																																ga.js 2617	KEYBOARD
 			private		function					downHandler()						Function to run when the key is pressed.				ga.js 2626	KEYBOARD
 			private		function					upHandler()							Function to run when the key is released.				ga.js 2636	KEYBOARD
 UEcho(number delay, number filter)																												pl.js 4801	ADVAUDIO
-			get set		number						delay								Delay time to echo.										pl.js 4802	ADVAUDIO
-			get set		GainNode					feedback							Feedback controller.									pl.js 4803	ADVAUDIO
-			get set		number						filter								Filter value.											pl.js 4804	ADVAUDIO
+			private		number						delayValue							Delay time to echo.										pl.js 4802	ADVAUDIO
+			private		number						feedbackValue						Feedback value.														ADVAUDIO
+			private		number						filterValue							Filter value.											pl.js 4804	ADVAUDIO
+			get			DelayNode					delay								Add delay.												pl.js 4776	ADVAUDIO
+			get			GainNode					feedback							Feedback controller.									pl.js 4803	ADVAUDIO
+			get			BiquadFilterNode			filter								Biquad filter node.										pl.js 4778	ADVAUDIO
 USound(string source, function onLoad)																											pl.js 4758	AUDIO
 			get			GainNode					volume								Volume controller.										pl.js 4767	AUDIO
 			get			AudioBufferSourceNode		sound								Audio source.											pl.js 4780	AUDIO
@@ -154,8 +162,6 @@ USound(string source, function onLoad)																											pl.js 4758	AUDI
 			get set		boolean						playing								Whether the audio is playing.							pl.js 4784	AUDIO
 			private		function					onLoad								Function to run when the audio is loaded.				pl.js 4787	AUDIO
 			get			PannerNode					pan									Control audio in 3D space.								pl.js 4772	ADVAUDIO
-			get			DelayNode					delay								Add delay.												pl.js 4776	ADVAUDIO
-			get			BiquadFilterNode			filter								Biquad filter node.										pl.js 4778	ADVAUDIO
 			get			ConvolverNode				convolver							Add convolution effects.								pl.js 4779	ADVAUDIO
 			get set		UEcho						echo								Echo properties.										pl.js 4801	ADVAUDIO
 			get set		AudioBuffer					reverb								Reverb audio buffer.									pl.js 4808	ADVAUDIO
