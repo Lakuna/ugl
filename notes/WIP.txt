@@ -2,22 +2,6 @@ Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
 Complete sections marked with "// TODO".
 
-Move to:
-Object.defineProperties(this, {
-	thing: {
-		get: () => {
-		}
-		set: () => {
-		}
-	}
-});
-
-Look at plugins.js to see what you want to implement
-- progress bar?
-- particles?
-
-Look through other frameworks for features that should be implemented.
-
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
 2) Go through all the umbra.js code to make sure there isn't anything dumb in it.
@@ -36,23 +20,6 @@ Umbra Builder:
 - Show un-uglified byte count (WITHOUT COMMENTS) for each tag.
 - Probably write in Java Swing.
 - Automatically uglify when done.
-
-Tag		Requires		Description
-REQUIRED				Umbra constructor, game loop.
-SAFETY					Parameter checkers and such to make sure you don't mess up.
-GRAPHICS				Canvas, context, Camera, Sprite.
-ASSETS					Loading assets (minus audio).
-AUDIO		ASSETS			Loading and playing audio.
-POINTER					Mouse and touch support.
-DRAGGABLE	POINTER			Drag-and-drop.
-CLICKABLE	POINTER			Interactive sprites (buttons).
-SHAPE		GRAPHICS		Shape.
-RECTANGLE	SHAPE			RectSprite.
-CIRCLE		SHAPE			CircleSprite.
-LINE		GRAPHICS		LineSprite.
-TEXT		GRAPHICS		TextSprite.
-IMAGE		GRAPHICS, ASSETS	ImageSprite, ImageAsset.
-KEYBOARD				Key.
 
 Documentation:
 - Video documentation / tutorials.

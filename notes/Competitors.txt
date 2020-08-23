@@ -1,103 +1,102 @@
-Engine	Feature								Inclusion
-Ox									https://github.com/ThaisRobba/ox
-	Entity system.							TODO
-	Fixed time step game loop.					TODO
-	Transparent canvas context.					NO
-	Animated sprites.						TODO
-	Scene manager.							TODO
-	Asset preloading.						TODO
-	Automated asset management + live server reload.		TODO
-Mibbu									https://github.com/michalbe/mibbu
-	Render using DOM when canvas isn't available.			NO
+Engine	Feature														Inclusion
+Ox																	https://github.com/ThaisRobba/ox
+	Entity system.													DONE
+	Fixed time step game loop.										DONE
+	Transparent canvas context.										NO
+	Animated sprites.												TODO
+	Scene manager.													DONE
+	Asset preloading.												DONE
+	Automated asset management + live server reload.				NO
+Mibbu																https://github.com/michalbe/mibbu
+	Render using DOM when canvas isn't available.					NO
 	Sprite animation using canvas, DM, or CSS animation in webkit.	TODO
-	Collision detection.						NO
-	Background manager.						NO
-	Callbacks after given number of frames.				NO
-	Method chaining.						NO
-allegro.js								http://allegrojs.net/
-	Load and draw images.						TODO
-	Load and play sounds.						TODO
-	Draw primitives.						TODO
-	Load fonts and display text.					TODO
-	Timed interrupts.						TODO
-	Read mouse input.						TODO
-	Read keyboard input.						TODO
-	Calculations.							NO
-	Log to console.							TODO
-	Wait for load and display progress bar.				TODO
-Ocelot									https://github.com/geoffb/ocelot
-	Entities.							TODO
-	Tweening.							NO
-	Asset loading.							TODO
-Ga									https://github.com/kittykatattack/ga
-	Rectangles.							TODO
-	Circles.							TODO
-	Lines.								TODO
-	Text.								TODO
-	Images.								TODO
-	Animated sprites.						TODO
-	Custom sprites.							TODO
-	Complete scene graph with nested parent-child hierarchies.	TODO
-	Game loop with definable fps.					TODO
-	Pause/resume.							TODO
-	Tileset (spritesheet) support.					TODO
-	Texture atlas support for Texture Packer format.		TODO
-	Keyframe animation and state manager for sprites.		TODO
-	Interactive button sprites.					TODO
-	Keyboard key bindings.						TODO
-	Universal pointer.						TODO
-	Conveniently position in relation to other sprites.		NO
-	Universal asset loader.						TODO
-	Load state for a loading progress bar.				TODO
-	Canvas-based rendering engine.					TODO
-	Fixed-timestamp game loop.					TODO
-Ga plugins								https://github.com/kittykatattack/ga
-	Import and play sounds.						TODO
-	Generate custom sound effets from code.				MAYBE
-	Shake sprites.							NO
-	Tweening functions.						NO
-	Sprite waypoints.						MAYBE
-	Sprites can follow other sprites.				NO
-	Sprites can rotate around points.				NO
-	Collisions.							TODO
-	Progress bar.							NO
-	Make sprites shoot.						NO
-	Plot sprites in a grid formation.				MAYBE
-	Scrolling background.						NO
-	Particle effects.						MAYBE
-responsiveTouchGameFramework						https://github.com/xem/responsiveTouchGameFramework
-	Mouse/touch input.						TODO
-Kontra									https://straker.github.io/kontra/
-	Animation							TODO
-	Asset loading.							TODO
-	Buttons.							TODO
-	Events.								TODO
-	Objects.							TODO
-	Grid.								MAYBE
-	Keyboard.							TODO
-	Pointer.							TODO
-	Pool.								MAYBE
-	Quadtree.							MAYBE
-	Sprites.							TODO
-	SpriteSheet.							TODO
-	Text.								TODO
-	TileEngine.							MAYBE
-floppy									https://github.com/lpagg/floppy
-	Primitives.							TODO
-	Interaction.							TODO
-	Generated sound.						TODO
-	Web editor.							TODO
-CSS3Dframework								https://github.com/xem/CSS3Dframework
-	Super-advanced camera.						TODO
-Jabo Micro Game Engine							https://jabo-bernardo.github.io/jabo-micro-game-engine/
-	Scene management.						TODO
-	Sprites.							TODO
-	Sound.								TODO
-	Animations.							TODO
-	Objects.							TODO
-craters.js								https://github.com/swashvirus/craters.js
-	Rigid body physics.						NO
-	Tile engine.							TODO
-	Sprites.							TODO
-	Load assets.							TODO
-	
+	Collision detection.											NO
+	Background manager.												NO
+	Callbacks after given number of frames.							NO
+	Method chaining.												NO
+allegro.js															http://allegrojs.net/
+	Load and draw images.											TODO
+	Load and play sounds.											DONE
+	Draw primitives.												TODO
+	Load fonts and display text.									TODO
+	Timed interrupts.												NO
+	Read mouse input.												DONE
+	Read keyboard input.											DONE
+	Calculations.													NO
+	Log to console.													NO
+	Wait for load and display progress bar.							NO
+Ocelot																https://github.com/geoffb/ocelot
+	Entities.														DONE
+	Tweening.														NO
+	Asset loading.													DONE
+Ga																	https://github.com/kittykatattack/ga
+	Rectangles.														TODO
+	Circles.														TODO
+	Lines.															TODO
+	Text.															TODO
+	Images.															TODO
+	Animated sprites.												TODO
+	Custom sprites.													DONE
+	Complete scene graph with nested parent-child hierarchies.		DONE
+	Game loop with definable fps.									DONE
+	Pause/resume.													DONE
+	Tileset (spritesheet) support.									DONE
+	Texture atlas support for Texture Packer format.				NO
+	Keyframe animation and state manager for sprites.				DONE
+	Interactive button sprites.										DONE
+	Keyboard key bindings.											DONE
+	Universal pointer.												DONE
+	Conveniently position in relation to other sprites.				NO
+	Universal asset loader.											DONE
+	Load state for a loading progress bar.							DONE
+	Canvas-based rendering engine.									DONE
+	Fixed-timestamp game loop.										DONE
+Ga plugins															https://github.com/kittykatattack/ga
+	Import and play sounds.											DONE
+	Generate custom sound effets from code.							NO
+	Shake sprites.													NO
+	Tweening functions.												NO
+	Sprite waypoints.												NO
+	Sprites can follow other sprites.								NO
+	Sprites can rotate around points.								NO
+	Collisions.														DONE
+	Progress bar.													NO
+	Make sprites shoot.												NO
+	Plot sprites in a grid formation.								NO
+	Scrolling background.											NO
+	Particle effects.												NO
+responsiveTouchGameFramework										https://github.com/xem/responsiveTouchGameFramework
+	Mouse/touch input.												DONE
+Kontra																https://straker.github.io/kontra/
+	Animation														DONE
+	Asset loading.													DONE
+	Buttons.														DONE
+	Events.															DONE
+	Objects.														DONE
+	Grid.															NO
+	Keyboard.														DONE
+	Pointer.														DONE
+	Pool.															NO
+	Quadtree.														NO
+	Sprites.														DONE
+	SpriteSheet.													DONE
+	Text.															TODO
+	TileEngine.														NO
+floppy																https://github.com/lpagg/floppy
+	Primitives.														TODO
+	Interaction.													DONE
+	Generated sound.												NO
+	Web editor.														NO
+CSS3Dframework														https://github.com/xem/CSS3Dframework
+	Super-advanced camera.											NO
+Jabo Micro Game Engine												https://jabo-bernardo.github.io/jabo-micro-game-engine/
+	Scene management.												DONE
+	Sprites.														DONE
+	Sound.															DONE
+	Animations.														DONE
+	Objects.														DONE
+craters.js															https://github.com/swashvirus/craters.js
+	Rigid body physics.												NO
+	Tile engine.													NO
+	Sprites.														DONE
+	Load assets.													DONE
