@@ -2,9 +2,10 @@ let umbra;
 let pointer;
 let camera;
 let testRect;
+let circles = [];
 
 window.onload = () => {
-	umbra = new Umbra(setup, load, "Example", [], 1);
+	umbra = new Umbra(setup, load, "Example");
 	pointer = umbra.pointer;
 	umbra.camera = new UCamera(new Bounds(new Vector2(), new Vector2(umbra.canvas.width / 2, umbra.canvas.height / 2))); // 2x scale camera.
 	camera = umbra.camera;
@@ -20,14 +21,15 @@ const setup = () => {
 
 	testRect = new URect(new Bounds(new Vector2(100, 100), new Vector2(150, 150)));
 
-	pointer.tap = logTestRect;
+	pointer.tap = tap;
 }
 
 const load = () => console.log("Load");
 
 const moveCamera = (offset) => camera.bounds.translate(offset);
 
-const logTestRect = () => {
-	rPos = camera.gBToS(testRect.bounds);
-	console.log(`Test rectangle render position: (${rPos.min.x}, ${rPos.min.y}) - (${rPos.max.x}, ${rPos.max.y}).`);
+const tap = () => {
+	sPos = camera.sPToG(pointer.pos);
+	circles.push(new UCircle(new Bounds(sPos, new Vector2(sPos.x + 10, sPos.y + 10))));
+	circles.forEach((circle) => circle.fillColor = "#" + Math.floor(Math.random() * 16777215).toString(16));
 }

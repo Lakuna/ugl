@@ -230,6 +230,7 @@ class Umbra {
 				// UTAGSET START INTERACT
 				// Update clickable objects.
 				if (this.interactables.length > 0) {
+					console.log("HELLO");
 					this.canvas.style.cursor = "auto";
 					for (let i = this.interactables.length - 1; i >= 0; i--) {
 						// Iterate from top to bottom so that the top element is checked first.
@@ -314,8 +315,8 @@ class Umbra {
 		const _start = () => { // UTAGSET LINE REQUIRED
 			// UTAGSET START ASSETS
 			// Load assets.
-			this.state = _load;
 			const _loadAssets = () => {
+				this.state = _load;
 				let loaded = 0; // Number of assets that have been loaded.
 
 				// Run when an asset is loaded.
@@ -643,7 +644,7 @@ class UObject {
 			const ctx = Umbra.instance.context;
 
 			// Check if object is visible.
-			if (!(this.active && cam.bounds.intersects(this.childBox))) { return; }
+			if (!(this.active && new Bounds(new Vector2(), new Vector2(ctx.canvas.width, ctx.canvas.height)).intersects(this.childBox))) { return; }
 
 			// Save context so that it can be returned to - to have different settings for each object.
 			ctx.save();
