@@ -222,11 +222,6 @@ class Umbra {
 			while (_lag > _frameDuration) {
 				// UTAGSET END REQUIRED
 
-				// UTAGSET START GRAPHICS
-				// Mark each object's position at the beginning of the frame.
-				this.scene.markPosition();
-				// UTAGSET END GRAPHICS
-
 				// UTAGSET START INTERACT
 				// Update clickable objects.
 				if (this.interactables.length > 0) {
@@ -607,11 +602,6 @@ class UObject {
 		// Rendering properties.
 		let _active = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
-		let _prev; // The position of this object at the start of the frame.
-		const _markPosition = () => {
-			_prev = this.bounds.min; // Set _prev.
-			this.children.forEach((child) => child.markPosition());
-		}
 
 		// Move object.
 		const _translate = (offset) => {
@@ -642,15 +632,13 @@ class UObject {
 			// Shorten variable names to save characters.
 			const cam = Umbra.instance.camera;
 			const ctx = Umbra.instance.context;
+			const d = this.drawBounds;
 
 			// Check if object is visible.
 			if (!(this.active && new Bounds(new Vector2(), new Vector2(ctx.canvas.width, ctx.canvas.height)).intersects(this.childBox))) { return; }
 
 			// Save context so that it can be returned to - to have different settings for each object.
 			ctx.save();
-
-			// Interpolate and get render position.
-			const rPos = cam.gPToS(new Vector2((this.bounds.min.x - _prev.x) * offset + _prev.x, (this.bounds.min.y - _prev.y) * offset + _prev.y));
 
 			let pivot = new Vector2(0.5, 0.5);
 			// UTAGSET END GRAPHICS
@@ -662,7 +650,7 @@ class UObject {
 
 			// UTAGSET START GRAPHICS
 			// Move context drawing point to object's center of rotation.
-			ctx.translate(rPos.x + (this.bounds.width * pivot.x), rPos.y + (this.bounds.height * pivot.y));
+			ctx.translate(d.min.x + (d.width * pivot.x), d.min.y + (d.height * pivot.y));
 			// UTAGSET END GRAPHICS
 
 			// UTAGSET START ADVGRAPH
@@ -694,7 +682,7 @@ class UObject {
 			// Draw children.
 			if (this.children.length > 0) {
 				// Move context back to upper-left corner of parent object.
-				ctx.translate(-this.bounds.width * pivot.x, -this.bounds.height * pivot.y);
+				ctx.translate(-d.width * pivot.x, -d.height * pivot.y);
 
 				this.children.forEach((child) => child.display(offset));
 			}
@@ -771,6 +759,7 @@ class UObject {
 					this.translate(offset);
 				}
 			},
+			drawBounds: { get: () => Umbra.instance.camera.gBToS(this.bounds) },
 			translate: { get: () => _translate },
 			active: {
 				get: () => _active,
@@ -791,7 +780,6 @@ class UObject {
 					this.parent.children.sort((a, b) => a.layer < b.layer ? -1 : 1);
 				}
 			},
-			markPosition: { get: () => _markPosition },
 			parent: {
 				get: () => _parent,
 				set: (value) => {
@@ -1003,14 +991,15 @@ class URect extends UShape {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const drawBounds = Umbra.instance.camera.gBToS(this.bounds);
+			// Shorten variable names to save characters.
+			const d = this.drawBounds;
 
 			ctx.strokeStyle = this.lineColor;
 			ctx.lineWidth = this.lineWidth;
 			ctx.fillStyle = this.fillColor;
 			ctx.beginPath();
 
-			ctx.rect(-drawBounds.width * this.pivot.x, -drawBounds.height * this.pivot.y, drawBounds.width, drawBounds.height);
+			ctx.rect(-d.width * this.pivot.x, -d.height * this.pivot.y, d.width, d.height);
 			if (this.clip) { ctx.clip(); } else {
 				if (this.lineColor != "none") { ctx.stroke(); }
 				if (this.fillColor != "none") { ctx.fill(); }
@@ -1031,9 +1020,7 @@ class UCircle extends UShape {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const drawBounds = Umbra.instance.camera.gBToS(this.bounds);
-
-			const d = Math.max(drawBounds.width, drawBounds.height);
+			const d = Math.max(this.drawBounds.width, this.drawBounds.height);
 			const r = d / 2;
 
 			ctx.strokeStyle = this.lineColor;
@@ -1095,15 +1082,16 @@ class ULine extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const drawBounds = Umbra.instance.camera.gBToS(this.bounds);
+			// Shorten variable names to save characters.
+			const d = this.drawBounds;
 
 			ctx.strokeStyle = this.lineColor;
 			ctx.lineWidth = this.lineWidth;
 			ctx.lineJoin = this.lineJoin;
 			ctx.beginPath();
 
-			ctx.moveTo(drawBounds.min.x, drawBounds.min.y);
-			ctx.lineTo(drawBounds.max.x, drawBounds.max.y);
+			ctx.moveTo(d.min.x, d.min.y);
+			ctx.lineTo(d.max.x, d.max.y);
 
 			if (this.lineColor != "none") { ctx.stroke(); }
 		}
@@ -1123,7 +1111,7 @@ class UText extends UObject {
 		if (typeof _text != "string") { throw new Error("_text must be a string."); }
 
 		// Display properties.
-		let _font = "12px courier"; // String representation of the font.
+		let _font = "12px serif"; // String representation of the font.
 		let _color = "#fff"; // Font color.
 		let _baseline = "top"; // Baseline.
 
@@ -1165,17 +1153,20 @@ class UText extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const drawBounds = Umbra.instance.camera.gBToS(this.bounds);
+			// Shorten variable names to save characters.
+			const d = this.drawBounds;
 
 			ctx.strokeStyle = this.lineColor;
 			ctx.lineWidth = this.lineWidth;
 			ctx.fillStyle = this.fillColor;
 
 			// Resize text object based on content.
-			if (drawBounds.width == 0) { drawBounds.width = ctx.measureText(this.text).width; }
-			if (drawBounds.height == 0) { drawBounds.height = ctx.measureText("M").width; }
+			d.width = ctx.measureText(this.text).width;
+			d.height = ctx.measureText("M").width;
 
-			ctx.translate(-drawBounds.width * this.pivot.x, -drawBounds.height * this.pivot.y);
+			console.log(`(${d.min.x}, ${d.min.y}) - (${d.max.x}, ${d.max.y})`);
+
+			ctx.translate(-d.width * this.pivot.x, -d.height * this.pivot.y);
 			ctx.font = this.font;
 			ctx.textBaseline = this.baseline;
 			ctx.fillText(this.text, 0, 0);
@@ -1283,7 +1274,8 @@ class USprite extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const drawBounds = Umbra.instance.camera.gBToS(this.bounds);
+			// Shorten variable names to save characters.
+			const d = this.drawBounds;
 
 			ctx.drawImage(
 					this.sheet.source,
@@ -1291,10 +1283,10 @@ class USprite extends UObject {
 					_current.y,
 					this.sheet.frameSize.x,
 					this.sheet.frameSize.y,
-					-drawBounds.width * this.pivot.x,
-					-drawBounds.height * this.pivot.y,
-					drawBounds.width,
-					drawBounds.height
+					-d.width * this.pivot.x,
+					-d.height * this.pivot.y,
+					d.width,
+					d.height
 			);
 		}
 	}

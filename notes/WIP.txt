@@ -1,7 +1,8 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
 Fix mouse pointer not lining up with clicks when screen is not at origin.
-- Check eventPosition() method.
+- Check childBox.
+- Check every instance of this.bounds (maybe replace with this.drawBounds).
 
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
