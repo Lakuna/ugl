@@ -11,7 +11,7 @@
 
 // UTAGDEF DESC POINTER Unified mouse and touchscreen input.
 // UTAGDEF REQU POINTER GRAPHICS
-// UTAGDEF SIZE ???
+// UTAGDEF SIZE POINTER ???
 
 // UTAGDEF DESC KEYBOARD Keyboard input from the user.
 // UTAGDEF SIZE KEYBOARD ???
