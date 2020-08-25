@@ -1,8 +1,7 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
-Fix mouse pointer not lining up with clicks when screen is not at origin.
-Fix shapes scaling up when camera moves.
-Fix images disappearing when camera goes too far to the right.
+Move interactables into pointer event code to reduce lag.
+Re-implement draggables and move them into pointer event code.
 
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.

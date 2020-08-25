@@ -577,8 +577,6 @@ class UObject {
 		if (!_parent instanceof UObject && _parent != undefined) { throw new Error("_parent must be a UObject."); }
 
 		// Rendering properties.
-		let _drawBounds; // The location on the screen to draw the object.
-		let _camPos; // The position of the camera at the last time _drawBounds was cached.
 		let _active = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
 		let _clip = false; // Whether to use this object to clip the context.
@@ -591,7 +589,6 @@ class UObject {
 			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
 
 			this.bounds.translate(offset);
-			_drawBounds = Umbra.instance.camera.gBToS(this.bounds);
 
 			// Reposition children and resize childbox.
 			_childBox = this.bounds;
@@ -616,7 +613,7 @@ class UObject {
 			// Shorten variable names to save characters.
 			const cam = Umbra.instance.camera;
 			const ctx = Umbra.instance.context;
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 
 			// Check if object is visible.
 			if (!(this.active && new Bounds(new Vector2(), new Vector2(ctx.canvas.width, ctx.canvas.height)).intersects(this.childBox))) { return; }
@@ -728,16 +725,6 @@ class UObject {
 
 					const offset = new Vector2(value.min.x - this.bounds.min.x, value.min.y - this.bounds.min.y);
 					this.translate(offset);
-				}
-			},
-			drawBounds: {
-				get: () => {
-					if (!(_drawBounds && _camPos == Umbra.instance.camera.bounds.min)) {
-						_drawBounds = Umbra.instance.camera.gBToS(this.bounds);
-						_camPos = Umbra.instance.camera.bounds.min;
-						console.log("HELLO!");
-					}
-					return _drawBounds;
 				}
 			},
 			translate: { get: () => _translate },
@@ -921,7 +908,7 @@ class URect extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 			ctx.rect(d.min.x, d.min.y, d.width, d.height);
 		}
 	}
@@ -939,7 +926,7 @@ class UCircle extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 			const r = Math.max(d.width, d.height) / 2;
 			ctx.arc(d.min.x + r, d.min.y + r, r, 0, Math.PI * 2);
 		}
@@ -972,7 +959,7 @@ class ULine extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 			ctx.moveTo(d.min.x, d.min.y);
 			ctx.lineTo(d.max.x, d.max.y);
 		}
@@ -1026,7 +1013,7 @@ class UText extends UObject {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
 			// Shorten variable names to save characters.
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 
 			// Resize text object based on content.
 			d.width = ctx.measureText(this.text).width;
@@ -1141,7 +1128,7 @@ class USprite extends UObject {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
 			// Shorten variable names to save characters.
-			const d = this.drawBounds;
+			const d = Umbra.instance.camera.gBToS(this.bounds);
 
 			ctx.drawImage(
 					this.sheet.source,
@@ -1219,7 +1206,7 @@ class UPointer {
 		const _touching = (object) => {
 			if (!object instanceof UObject) { throw new Error("object must be a UObject."); }
 
-			return object.drawBounds.contains(this.pos);
+			return Umbra.instance.camera.gBToS(object.bounds).contains(this.pos);
 		}
 		// UTAGSET END POINTER
 
