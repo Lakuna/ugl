@@ -27,16 +27,12 @@
 // UTAGDEF DESC ASSETS Import JSON objects from files.
 // UTAGDEF SIZE ASSETS ???
 
-// UTAGDEF DESC SHAPE Shared functionality for preset shape object types.
-// UTAGDEF REQU SHAPE GRAPHICS
-// UTAGDEF SIZE SHAPE ???
-
 // UTAGDEF DESC RECT Rectangle preset object type.
-// UTAGDEF REQU RECT SHAPE
+// UTAGDEF REQU RECT GRAPHICS
 // UTAGDEF SIZE RECT ???
 
 // UTAGDEF DESC CIRCLE Circle preset object type.
-// UTAGDEF REQU CIRCLE SHAPE
+// UTAGDEF REQU CIRCLE GRAPHICS
 // UTAGDEF SIZE CIRCLE ???
 
 // UTAGDEF DESC LINE Line preset object type.
@@ -602,6 +598,10 @@ class UObject {
 		// Rendering properties.
 		let _active = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
+		let _clip = false; // Whether to use this object to clip the context.
+		let _fillColor = "white"; // Color to fill the object.
+		let _lineColor = "white"; // Color of the object's outline.
+		let _lineWidth = 1; // Width of the object's outline.
 
 		// Move object.
 		const _translate = (offset) => {
@@ -639,18 +639,6 @@ class UObject {
 
 			// Save context so that it can be returned to - to have different settings for each object.
 			ctx.save();
-
-			let pivot = new Vector2(0.5, 0.5);
-			// UTAGSET END GRAPHICS
-
-			// UTAGSET START ADVGRAPH
-			// Set pivot to use with or without ADVGRAPH
-			if (this.pivot) { pivot = this.pivot; }
-			// UTAGSET END ADVGRAPH
-
-			// UTAGSET START GRAPHICS
-			// Move context drawing point to object's center of rotation.
-			ctx.translate(d.min.x + (d.width * pivot.x), d.min.y + (d.height * pivot.y));
 			// UTAGSET END GRAPHICS
 
 			// UTAGSET START ADVGRAPH
@@ -676,16 +664,22 @@ class UObject {
 			// UTAGSET END ADVGRAPH
 
 			// UTAGSET START GRAPHICS
+			// Color object.
+			ctx.strokeStyle = this.lineColor;
+			ctx.lineWidth = this.lineWidth;
+			ctx.fillStyle = this.fillColor;
+
 			// Draw the object.
+			ctx.beginPath();
 			if (this.render) { this.render(ctx); }
+			if (this.clip) { ctx.clip(); } else {
+				if (this.lineColor != "none") { ctx.stroke(); }
+				if (this.fillColor != "none") { ctx.fill(); }
+			}
+			ctx.stroke();
 
 			// Draw children.
-			if (this.children.length > 0) {
-				// Move context back to upper-left corner of parent object.
-				ctx.translate(-d.width * pivot.x, -d.height * pivot.y);
-
-				this.children.forEach((child) => child.display(offset));
-			}
+			this.children.forEach((child) => child.display(offset));
 
 			// Restore context state after children are drawn so that traits are inherited.
 			ctx.restore();
@@ -696,8 +690,6 @@ class UObject {
 		// UTAGSET START ADVGRAPH
 		// Advanced rendering properties.
 		let _scale = new Vector2(1, 1); // Width/height multiplier.
-		let _pivot = new Vector2(0.5, 0.5); // Center of rotation.
-		let _rotation = 0; // Rotation in radians (clockwise).
 		let _shadow; // Shadow cast by the object.
 		let _compositeOperation; // Global composite operation used when rendering this object.
 		let _alpha = 1; // Opacity.
@@ -780,6 +772,38 @@ class UObject {
 					this.parent.children.sort((a, b) => a.layer < b.layer ? -1 : 1);
 				}
 			},
+			clip: {
+				get: () => _clip,
+				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
+					_clip = value;
+				}
+			},
+			fillColor: {
+				get: () => _fillColor,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_fillColor = value;
+				}
+			},
+			lineColor: {
+				get: () => _lineColor,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_lineColor = value;
+				}
+			},
+			lineWidth: {
+				get: () => _lineWidth,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
+					_lineWidth = value;
+				}
+			},
 			parent: {
 				get: () => _parent,
 				set: (value) => {
@@ -810,22 +834,6 @@ class UObject {
 					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
 
 					_scale = value;
-				}
-			},
-			pivot: {
-				get: () => _pivot,
-				set: (value) => {
-					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
-
-					_pivot = value;
-				}
-			},
-			rotation: {
-				get: () => _rotation,
-				set: (value) => {
-					if (typeof value != "number") { throw new Error("value must be a number."); }
-
-					_rotation = value;
 				}
 			},
 			shadow: {
@@ -928,60 +936,8 @@ class UObject {
 	} // UTAGSET LINE GRAPHICS
 } // UTAGSET LINE GRAPHICS
 
-// UTAGSET START SHAPE
-class UShape extends UObject {
-	constructor(
-			_bounds = new Bounds(), // Passed to UObject parent constructor.
-			_parent = Umbra.instance.scene // Passed to UObject parent constructor.
-	) {
-		super(_bounds, _parent);
-
-		// Rendering properties.
-		let _clip = false; // Whether to use this shape to clip the context.
-		let _fillColor = "#fff"; // Color to fill the shape.
-		let _lineColor = "none"; // Color of the shape's outline.
-		let _lineWidth = 0; // Width of the shape's outline.
-
-		Object.defineProperties(this, {
-			clip: {
-				get: () => _clip,
-				set: (value) => {
-					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
-
-					_clip = value;
-				}
-			},
-			fillColor: {
-				get: () => _fillColor,
-				set: (value) => {
-					if (typeof value != "string") { throw new Error("value must be a string."); }
-
-					_fillColor = value;
-				}
-			},
-			lineColor: {
-				get: () => _lineColor,
-				set: (value) => {
-					if (typeof value != "string") { throw new Error("value must be a string."); }
-
-					_lineColor = value;
-				}
-			},
-			lineWidth: {
-				get: () => _lineWidth,
-				set: (value) => {
-					if (typeof value != "number") { throw new Error("value must be a number."); }
-
-					_lineWidth = value;
-				}
-			}
-		});
-	}
-}
-// UTAGSET END SHAPE
-
 // UTAGSET START RECT
-class URect extends UShape {
+class URect extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
 			_parent = Umbra.instance.scene // Passed to parent constructor.
@@ -991,26 +947,15 @@ class URect extends UShape {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			// Shorten variable names to save characters.
 			const d = this.drawBounds;
-
-			ctx.strokeStyle = this.lineColor;
-			ctx.lineWidth = this.lineWidth;
-			ctx.fillStyle = this.fillColor;
-			ctx.beginPath();
-
-			ctx.rect(-d.width * this.pivot.x, -d.height * this.pivot.y, d.width, d.height);
-			if (this.clip) { ctx.clip(); } else {
-				if (this.lineColor != "none") { ctx.stroke(); }
-				if (this.fillColor != "none") { ctx.fill(); }
-			}
+			ctx.rect(d.min.x, d.min.y, d.max.x, d.max.y);
 		}
 	}
 }
 // UTAGSET END RECT
 
 // UTAGSET START CIRCLE
-class UCircle extends UShape {
+class UCircle extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
 			_parent = Umbra.instance.scene // Passed to parent constructor.
@@ -1020,19 +965,8 @@ class UCircle extends UShape {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			const d = Math.max(this.drawBounds.width, this.drawBounds.height);
-			const r = d / 2;
-
-			ctx.strokeStyle = this.lineColor;
-			ctx.lineWidth = this.lineWidth;
-			ctx.fillStyle = this.fillColor;
-			ctx.beginPath();
-
-			ctx.arc(r + (-d * this.pivot.x), r + (-d * this.pivot.y), r, 0, 2 * Math.PI);
-			if (this.clip) { ctx.clip(); } else {
-				if (this.lineColor != "none") { ctx.stroke(); }
-				if (this.fillColor != "none") { ctx.fill(); }
-			}
+			const d = this.drawBounds;
+			ctx.arc(d.min.x, d.min.y, d.max.x, 0, Math.PI * 2);
 		}
 	}
 }
@@ -1046,28 +980,9 @@ class ULine extends UObject {
 	) {
 		super(_bounds, _parent);
 
-		// Rendering properties.
-		let _color = "#fff"; // Font color.
-		let _thickness = 0; // Width of the line.
 		let _lineJoin; // How the context should join the line.
 
 		Object.defineProperties(this, {
-			color: {
-				get: () => _color,
-				set: (value) => {
-					if (typeof value != "string") { throw new Error("value must be a string."); }
-
-					_color = value;
-				}
-			},
-			thickness: {
-				get: () => _thickness,
-				set: (value) => {
-					if (typeof value != "number") { throw new Error("value must be a number."); }
-
-					_thickness = value;
-				}
-			},
 			lineJoin: {
 				get: () => _lineJoin,
 				set: (value) => {
@@ -1082,18 +997,9 @@ class ULine extends UObject {
 		this.render = (ctx) => {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
-			// Shorten variable names to save characters.
 			const d = this.drawBounds;
-
-			ctx.strokeStyle = this.lineColor;
-			ctx.lineWidth = this.lineWidth;
-			ctx.lineJoin = this.lineJoin;
-			ctx.beginPath();
-
 			ctx.moveTo(d.min.x, d.min.y);
 			ctx.lineTo(d.max.x, d.max.y);
-
-			if (this.lineColor != "none") { ctx.stroke(); }
 		}
 	}
 }
@@ -1112,7 +1018,6 @@ class UText extends UObject {
 
 		// Display properties.
 		let _font = "12px serif"; // String representation of the font.
-		let _color = "#fff"; // Font color.
 		let _baseline = "top"; // Baseline.
 
 		Object.defineProperties(this, {
@@ -1132,14 +1037,6 @@ class UText extends UObject {
 					_font = value;
 				}
 			},
-			color: {
-				get: () => _color,
-				set: (value) => {
-					if (typeof value != "string") { throw new Error("value must be a string."); }
-
-					_color = value;
-				}
-			},
 			baseline: {
 				get: () => _baseline,
 				set: (value) => {
@@ -1156,20 +1053,14 @@ class UText extends UObject {
 			// Shorten variable names to save characters.
 			const d = this.drawBounds;
 
-			ctx.strokeStyle = this.lineColor;
-			ctx.lineWidth = this.lineWidth;
-			ctx.fillStyle = this.fillColor;
-
 			// Resize text object based on content.
 			d.width = ctx.measureText(this.text).width;
 			d.height = ctx.measureText("M").width;
 
-			console.log(`(${d.min.x}, ${d.min.y}) - (${d.max.x}, ${d.max.y})`);
-
-			ctx.translate(-d.width * this.pivot.x, -d.height * this.pivot.y);
 			ctx.font = this.font;
 			ctx.textBaseline = this.baseline;
-			ctx.fillText(this.text, 0, 0);
+
+			ctx.fillText(this.text, d.min.x, d.min.y);
 		}
 	}
 }
@@ -1283,8 +1174,8 @@ class USprite extends UObject {
 					_current.y,
 					this.sheet.frameSize.x,
 					this.sheet.frameSize.y,
-					-d.width * this.pivot.x,
-					-d.height * this.pivot.y,
+					d.min.x,
+					d.min.y,
 					d.width,
 					d.height
 			);

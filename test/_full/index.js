@@ -1,38 +1,30 @@
 let umbra;
 let pointer;
 let camera;
-let testText;
 
 window.onload = () => {
-	umbra = new Umbra(setup, load, "Example", [], 30);
+	umbra = new Umbra(setup, load, "Example", ["test.png"], 30);
 	pointer = umbra.pointer;
-	umbra.camera = new UCamera(new Bounds(new Vector2(), new Vector2(umbra.canvas.width, umbra.canvas.height))); // 2x scale camera.
+	umbra.camera = new UCamera(new Bounds(new Vector2(), new Vector2(umbra.canvas.width * 2, umbra.canvas.height * 2))); // 2x scale camera.
 	camera = umbra.camera;
 
 	umbra.start();
 }
 
 const setup = () => {
-	new UKey(37).press = () => moveCamera(new Vector2(-10, 0)); // Left
-	new UKey(38).press = () => moveCamera(new Vector2(0, -10)); // Up
-	new UKey(39).press = () => moveCamera(new Vector2(10, 0)); // Right
-	new UKey(40).press = () => moveCamera(new Vector2(0, 10)); // Down
+	// Setup arrow keys.
+	const moveCamera = (offset) => camera.bounds.translate(offset);
+	new UKey(65).press = () => moveCamera(new Vector2(-10, 0)); // Left
+	new UKey(87).press = () => moveCamera(new Vector2(0, -10)); // Up
+	new UKey(68).press = () => moveCamera(new Vector2(10, 0)); // Right
+	new UKey(83).press = () => moveCamera(new Vector2(0, 10)); // Down
 
-	testText = new UText("Hello, world!");
-
-	umbra.updates.push(followPointer)
-
-	pointer.tap = tap;
+	// TODO Add border lines to initial screen.
+	new URect(new Bounds(new Vector2(100, 100), new Vector2(10, 10))).fillColor = "red";
+	new UCircle(new Bounds(new Vector2(150, 100), new Vector2(10, 10))).fillColor = "green";
+	new ULine(new Bounds(new Vector2(200, 100), new Vector2(200, 150))).lineColor = "blue";
+	new UText("Hello, world!", new Bounds(new Vector2(100, 200), new Vector2())).fillColor = "purple";
+	new USprite(new USpritesheet(umbra.assets["test.png"], new Vector2(750, 750)), new Bounds(new Vector2(100, 300), new Vector2(1100, 1300)));
 }
 
 const load = () => console.log("Load");
-
-const moveCamera = (offset) => camera.bounds.translate(offset);
-
-const followPointer = () => {
-	testText.bounds = new Bounds(camera.sPToG(pointer.pos), new Vector2());
-}
-
-const tap = () => {
-	console.log(`(${testText.bounds.min.x}, ${testText.bounds.min.y}) - (${testText.bounds.max.x}, ${testText.bounds.max.y})`)
-}
