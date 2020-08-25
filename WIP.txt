@@ -1,8 +1,5 @@
 Ga reference: https://github.com/kittykatattack/ga/blob/master/ga.js
 
-Move interactables into pointer event code to reduce lag.
-Re-implement draggables and move them into pointer event code.
-
 After finishing the code:
 1) Go through all the ga.js code again to make sure you didn't miss anything on accident.
 2) Go through all the umbra.js code to make sure there isn't anything dumb in it.

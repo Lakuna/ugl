@@ -5,7 +5,7 @@ let pointer;
 let camera;
 
 window.onload = () => {
-	umbra = new Umbra(setup, undefined, "Example", ["test.png", "test.wav"], FPS);
+	umbra = new Umbra(setup, undefined, "Example", ["test.png", "test.wav", "test.ttf"], FPS);
 	pointer = umbra.pointer;
 	umbra.camera = new UCamera(new Bounds(new Vector2(), new Vector2(umbra.canvas.width, umbra.canvas.height))); // 2x scale camera.
 	camera = umbra.camera;
@@ -36,17 +36,15 @@ const setup = () => {
 	line.lineColor = "blue";
 	text.fillColor = "purple";
 
+	// Loaded font.
+	text.font = "20px test";
+
 	// Audio button.
 	const beepButton = new URect(new Bounds(new Vector2(500, 300), new Vector2(660, 320)));
 	const beepText = new UText("Click to Beep", beepButton.bounds, beepButton);
 	beepText.fillColor = "black";
-	beepButton.interactable = true;
 	const beep = umbra.assets["test.wav"];
-	beepButton.press = () => {
-		beep.playing = true;
-		beep.sound.loop = true;
-	}
-	beepButton.release = () => beep.playing = false;
+	beepButton.onClick = () => beep.isPlaying = true;
 }
 
 const setupArrows = () => {
@@ -60,9 +58,9 @@ const setupArrows = () => {
 	const speed = 1 / FPS;
 
 	umbra.updates.push(() => {
-		if (up.down) { camera.bounds.translate(new Vector2(0, -speed)); }
-		if (left.down) { camera.bounds.translate(new Vector2(-speed, 0)); }
-		if (down.down) { camera.bounds.translate(new Vector2(0, speed)); }
-		if (right.down) { camera.bounds.translate(new Vector2(speed, 0)); }
+		if (up.isDown) { camera.bounds.translate(new Vector2(0, -speed)); }
+		if (left.isDown) { camera.bounds.translate(new Vector2(-speed, 0)); }
+		if (down.isDown) { camera.bounds.translate(new Vector2(0, speed)); }
+		if (right.isDown) { camera.bounds.translate(new Vector2(speed, 0)); }
 	});
 }

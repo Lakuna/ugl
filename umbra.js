@@ -16,10 +16,6 @@
 // UTAGDEF DESC KEYBOARD Keyboard input from the user.
 // UTAGDEF SIZE KEYBOARD ???
 
-// UTAGDEF DESC INTERACT Create objects that can interact with the pointer.
-// UTAGDEF REQU INTERACT POINTER
-// UTAGDEF SIZE INTERACT ???
-
 // UTAGDEF DESC ASSETS Import JSON objects from files.
 // UTAGDEF SIZE ASSETS ???
 
@@ -163,20 +159,22 @@ class Bounds {
 }
 
 class Umbra {
+	static VERSION = 1.0;
+
 	// The global instance of the game.
 	static instance;
 
 	// An instance of a game.
 	constructor(
 			_setup, // The function to run when the framework is ready.
-			_load, // The function to use as the state while loading.
+			_loadState, // The function to use as the state while loading.
 			_title = "Umbra", // The title of the window.
 			_assetPaths = [], // List of paths to assets that should be loaded.
 			_fps = 60, // Target frames per second of the game loop.
 			_size = new Vector2(innerWidth, innerHeight) // The size of the canvas.
 	) {
 		if (typeof _setup != "function" && _setup != undefined) { throw new Error("_setup must be a function."); }
-		if (typeof _load != "function" && _load != undefined) { throw new Error("_load must be a function."); }
+		if (typeof _loadState != "function" && _loadState != undefined) { throw new Error("_loadState must be a function."); }
 		if (typeof _title != "string") { throw new Error("_title must be a string."); }
 		if (!Array.isArray(_assetPaths)) { throw new Error("_assetPaths must be an array."); }
 		_assetPaths.forEach(value => { if (typeof value != "string") { throw new Error("_assetPaths must contain only strings."); } });
@@ -189,7 +187,7 @@ class Umbra {
 
 		// Game state properties.
 		let _state; // The main function to run in the game loop.
-		let _paused = false; // Whether the game loop should run the main function.
+		let _isPaused = false; // Whether the game loop should run the main function.
 
 		// Frame time properties.
 		let _lastFrameTime = Date.now(); // Time that the last frame happened.
@@ -212,22 +210,6 @@ class Umbra {
 
 			// Update to make up for lag time.
 			while (_lag > _frameDuration) {
-				// UTAGSET END REQUIRED
-
-				// UTAGSET START INTERACT
-				// Update clickable objects.
-				if (this.interactables.length > 0) {
-					this.canvas.style.cursor = "auto";
-					for (let i = this.interactables.length - 1; i >= 0; i--) {
-						// Iterate from top to bottom so that the top element is checked first.
-						const clickable = this.interactables[i];
-						clickable.update();
-						if (clickable.hovered) { this.canvas.style.cursor = "pointer"; }
-					}
-				}
-				// UTAGSET END INTERACT
-
-				// UTAGSET START REQUIRED
 				this.updates.forEach((update) => update());
 
 				if (!this.paused && this.state) { this.state(); }
@@ -270,17 +252,8 @@ class Umbra {
 		// UTAGSET START POINTER
 		// Unified mouse and touchscreen input.
 		let _pointer; // The main pointer.
+		let _interactableObjects = []; // List of all objects that can be interacted with.
 		// UTAGSET END POINTER
-
-		// UTAGSET START KEYBOARD
-		// Keyboard input.
-		const _keys = []; // List of bound keys.
-		// UTAGSET END KEYBOARD
-
-		// UTAGSET START INTERACT
-		// Objects that can interact with the pointer.
-		const _interactables = []; // List of interactable objects.
-		// UTAGSET END INTERACT
 
 		// UTAGSET START ASSETS
 		// Loading assets from files.
@@ -292,7 +265,7 @@ class Umbra {
 			// UTAGSET START ASSETS
 			// Load assets.
 			const _loadAssets = () => {
-				this.state = _load;
+				this.state = _loadState;
 				let loaded = 0; // Number of assets that have been loaded.
 
 				// Run when an asset is loaded.
@@ -388,12 +361,12 @@ class Umbra {
 					_state = value;
 				}
 			},
-			paused: {
-				get: () => _paused,
+			isPaused: {
+				get: () => _isPaused,
 				set: (value) => {
 					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
 
-					_paused = value;
+					_isPaused = value;
 				}
 			},
 			updates: { get: () => _updates },
@@ -426,15 +399,8 @@ class Umbra {
 
 			// UTAGSET START POINTER
 			pointer: { get: () => _pointer },
+			interactableObjects: { get: () => _interactableObjects },
 			// UTAGSET END POINTER
-
-			// UTAGSET START KEYBOARD
-			keys: { get: () => _keys },
-			// UTAGSET END KEYBOARD
-
-			// UTAGSET START INTERACT
-			interactables: { get: () => _interactables },
-			// UTAGSET END INTERACT
 
 			// UTAGSET START ASSETS
 			assets: { get: () => _assets },
@@ -577,9 +543,9 @@ class UObject {
 		if (!_parent instanceof UObject && _parent != undefined) { throw new Error("_parent must be a UObject."); }
 
 		// Rendering properties.
-		let _active = true; // Whether the object should be rendered.
+		let _isActive = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
-		let _clip = false; // Whether to use this object to clip the context.
+		let _doClip = false; // Whether to use this object to clip the context.
 		let _fillColor = "white"; // Color to fill the object.
 		let _lineColor = "white"; // Color of the object's outline.
 		let _lineWidth = 1; // Width of the object's outline.
@@ -616,7 +582,7 @@ class UObject {
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 
 			// Check if object is visible.
-			if (!(this.active && new Bounds(new Vector2(), new Vector2(ctx.canvas.width, ctx.canvas.height)).intersects(this.childBox))) { return; }
+			if (!(this.isActive && new Bounds(new Vector2(), new Vector2(ctx.canvas.width, ctx.canvas.height)).intersects(this.childBox))) { return; }
 
 			// Save context so that it can be returned to - to have different settings for each object.
 			ctx.save();
@@ -653,7 +619,7 @@ class UObject {
 			// Draw the object.
 			ctx.beginPath();
 			if (this.render) { this.render(ctx); }
-			if (this.clip) { ctx.clip(); } else {
+			if (this.doClip) { ctx.clip(); } else {
 				if (this.lineColor != "none") { ctx.stroke(); }
 				if (this.fillColor != "none") { ctx.fill(); }
 			}
@@ -676,47 +642,19 @@ class UObject {
 		let _alpha = 1; // Opacity.
 		// UTAGSET END ADVGRAPH
 
-		// UTAGSET START INTERACT
-		// Pointer interaction properties.
-		let _interactable = false; // Whether the pointer can interact with this object.
-		let _press; // Function to run when the sprite is pressed.
-		let _release; // Function to run when the sprite is released.
-		let _over; // Function to run when the pointer is over the sprite.
-		let _out; // Function to run when the pointer leaves the sprite.
-		let _tap; // Function to run when the pointer quickly presses the sprite.
-		let _down = false; // Whether the object is being pressed.
-		let _hovered = false; // Whether the pointer is over the object.
-		const _update = () => {
-			if (!this.active) { return; }
-
-			const pointer = Umbra.instance.pointer;
-
-			if (pointer.touching(this)) {
-				if (!_hovered) {
-					_hovered = true;
-					if (this.over) { this.over(); }
-				}
-				if (pointer.down) {
-					if (!_down) {
-						_down = true;
-						if (this.press) { this.press(); }
-					}
-				} else if (_down) {
-					_down = false;
-					if (this.release) { this.release(); }
-					if (pointer.tapped && this.tap) { this.tap(); }
-				}
+		// UTAGSET START GRAPHICS
+		// Interactability properties.
+		let _isDown = false;
+		let _onClick; // Function to run when the sprite is pressed.
+		let _onRelease; // Function to run when the sprite is released.
+		const _addToInteractables = () => {
+			if (this.onClick || this.onRelease) {
+				Umbra.instance.interactableObjects.push(this);
 			} else {
-				if (_hovered) {
-					_hovered = false;
-					if (this.out) { this.out(); }
-				}
-				_down = false;
+				Umbra.instance.interactableObjects.splice(Umbra.instance.interactableObjects.indexOf(this), 1);
 			}
 		}
-		// UTAGSET END INTERACT
 
-		// UTAGSET START GRAPHICS
 		Object.defineProperties(this, {
 			bounds: {
 				get: () => _bounds,
@@ -728,12 +666,12 @@ class UObject {
 				}
 			},
 			translate: { get: () => _translate },
-			active: {
-				get: () => _active,
+			isActive: {
+				get: () => _isActive,
 				set: (value) => {
 					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
 
-					_active = value;
+					_isActive = value;
 				}
 			},
 			layer: {
@@ -747,12 +685,12 @@ class UObject {
 					this.parent.children.sort((a, b) => a.layer < b.layer ? -1 : 1);
 				}
 			},
-			clip: {
-				get: () => _clip,
+			doClip: {
+				get: () => _doClip,
 				set: (value) => {
 					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
 
-					_clip = value;
+					_doClip = value;
 				}
 			},
 			fillColor: {
@@ -837,65 +775,37 @@ class UObject {
 			},
 			// UTAGSET END ADVGRAPH
 
-			// UTAGSET START INTERACT
-			interactable: {
-				get: () => _interactable,
+			// UTAGSET START GRAPHICS
+			isDown: {
+				get: () => _isDown,
 				set: (value) => {
-					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+					if (!typeof value == "boolean") { throw new Error("value must be a boolean."); }
 
-					_interactable = value;
-
-					const umbra = Umbra.instance;
-					if (this.interactable) { umbra.interactables.push(this); } else { umbra.interactables.splice(umbra.interactables.indexOf(this), 1); }
+					_isDown = value;
 				}
 			},
-			press: {
-				get: () => _press,
+			onClick: {
+				get: () => _onClick,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_press = value;
+					_onClick = value;
+					_addToInteractables();
 				}
 			},
-			release: {
-				get: () => _release,
+			onRelease: {
+				get: () => _onRelease,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_release = value;
+					_onRelease = value;
+					_addToInteractables();
 				}
-			},
-			over: {
-				get: () => _over,
-				set: (value) => {
-					if (typeof value != "function") { throw new Error("value must be a function."); }
-
-					_over = value;
-				}
-			},
-			out: {
-				get: () => _out,
-				set: (value) => {
-					if (typeof value != "function") { throw new Error("value must be a function."); }
-
-					_out = value;
-				}
-			},
-			tap: {
-				get: () => _tap,
-				set: (value) => {
-					if (typeof value != "function") { throw new Error("value must be a function."); }
-
-					_tap = value;
-				}
-			},
-			down: { get: () => _down },
-			hovered: { get: () => _hovered },
-			update: { get: () => _update }
-			// UTAGSET END INTERACT
-		}); // UTAGSET LINE GRAPHICS
-	} // UTAGSET LINE GRAPHICS
-} // UTAGSET LINE GRAPHICS
+			}
+		});
+	}
+}
+// UTAGSET END GRAPHICS
 
 // UTAGSET START RECT
 class URect extends UObject {
@@ -1066,7 +976,7 @@ class USprite extends UObject {
 		if (!_sheet instanceof USpritesheet) { throw new Error("_sheet must be a USpritesheet."); }
 
 		// Display properties.
-		let _loop = false; // Whether to run the animation on a loop.
+		let _doLoop = false; // Whether to run the animation on a loop.
 		let _loopRange = new Vector2(0, _sheet.positions.length); // Range of frames between which to loop.
 		let _fps = 1; // Spritesheet frames per second when animated.
 		let _frame = 0; // Index of the current frame in the spritesheet.
@@ -1075,15 +985,15 @@ class USprite extends UObject {
 
 		Object.defineProperties(this, {
 			sheet: { get: () => _sheet },
-			loop: {
-				get: () => _loop,
+			doLoop: {
+				get: () => _doLoop,
 				set: (value) => {
 					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
 
-					_loop = value;
+					_doLoop = value;
 
 					// Set/clear interval.
-					if (this.loop) {
+					if (this.doLoop) {
 						_interval = setInterval(() => {
 							let temp = this.frame;
 							if (temp > this.sheet.positions.length) { temp = 0; }
@@ -1151,16 +1061,13 @@ class UPointer {
 	constructor() {
 		// Pointer state variables.
 		let _pos = new Vector2(); // The position of the pointer on the screen.
-		let _down = false; // Whether the pointer is being held down.
-		let _tapped = false; // Whether the pointer was tapped.
-		let _downTime = 0; // Time that the pointer became pressed.
-		let _elapsedTime = 0; // Time that the pointer has been pressed.
+		let _isDown = false; // Whether the pointer is being held down.
+		let _isTapped = false; // Whether the pointer was tapped.
 		const _canvas = Umbra.instance.canvas; // Shorten to reduce character count.
 
 		// User-defined event functions.
-		let _press; // Pointer became pressed.
-		let _release; // Pointer stopped being pressed.
-		let _tap; // Pointer was pressed quickly.
+		let _onPress; // Pointer became pressed.
+		let _onRelease; // Pointer stopped being pressed.
 
 		// Mouse and touchscreen event handlers.
 		const _eventPosition = (e) => {
@@ -1178,19 +1085,25 @@ class UPointer {
 		}
 		const _downHandler = (e) => {
 			_pos = _eventPosition(e);
-			_down = true;
-			_downTime = Date.now();
-			if (this.press) { this.press(); }
+			_isDown = true;
+			if (this.onPress) { this.onPress(); }
+			Umbra.instance.interactableObjects.forEach((object) => {
+				if (this.isTouching(object) && !object.isDown) {
+					object.isDown = true;
+					if (object.onClick) { object.onClick(); }
+				}
+			});
 			e.preventDefault(); // Prevent the user from selecting the canvas.
 		}
 		const _upHandler = (e) => {
-			_elapsedTime = Math.abs(_downTime - Date.now());
-			if (_elapsedTime <= 200) {
-				_tapped = true;
-				if (this.tap) { this.tap(); }
-			}
-			_down = false;
-			if (this.release) { this.release(); }
+			_isDown = false;
+			if (this.onRelease) { this.onRelease(); }
+			Umbra.instance.interactableObjects.forEach((object) => {
+				if (this.isTouching(object) && object.isDown) {
+					object.isDown = false;
+					if (object.onRelease) { object.onRelease(); }
+				}
+			});
 			e.preventDefault(); // Prevent the user from selecting the canvas.
 		}
 
@@ -1203,44 +1116,33 @@ class UPointer {
 		window.addEventListener("touchend", _upHandler); // Touchscreen up.
 
 		// Check if mouse is touching an object.
-		const _touching = (object) => {
+		const _isTouching = (object) => {
 			if (!object instanceof UObject) { throw new Error("object must be a UObject."); }
 
 			return Umbra.instance.camera.gBToS(object.bounds).contains(this.pos);
 		}
-		// UTAGSET END POINTER
 
-		// UTAGSET START POINTER
 		Object.defineProperties(this, {
 			pos: { get: () => _pos },
-			tapped: { get: () => _tapped },
-			down: { get: () => _down },
-			press: {
-				get: () => _press,
+			isTapped: { get: () => _isTapped },
+			isDown: { get: () => _isDown },
+			onPress: {
+				get: () => _onPress,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_press = value;
+					_onPress = value;
 				}
 			},
-			release: {
-				get: () => _release,
+			onRelease: {
+				get: () => _onRelease,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_release = value;
+					_onRelease = value;
 				}
 			},
-			tap: {
-				get: () => _tap,
-				set: (value) => {
-					if (typeof value != "function") { throw new Error("value must be a function."); }
-
-					_tap = value;
-				}
-			},
-			touching: { get: () => _touching },
-			update: { get: () => _update }
+			isTouching: { get: () => _isTouching }
 		});
 	}
 }
@@ -1254,42 +1156,42 @@ class UKey {
 		if (typeof _code != "number") { throw new Error("_code must be a number."); }
 
 		// State properties.
-		let _down = false; // Whether the key is being held down.
+		let _isDown = false; // Whether the key is being held down.
 
 		// User-defined event functions.
-		let _press; // Key is pressed.
-		let _release; // Key is released.
+		let _onPress; // Key is pressed.
+		let _onRelease; // Key is released.
 
 		// Event handlers.
 		window.addEventListener("keydown", (e) => {
 			if (e.keyCode != _code) { return; }
-			if (!this.down && this.press) { this.press(); }
-			_down = true;
+			if (!this.isDown && this.onPress) { this.onPress(); }
+			_isDown = true;
 			e.preventDefault();
 		});
 		window.addEventListener("keyup", (e) => {
 			if (e.keyCode != _code) { return; }
-			if (this.down && this.release) { this.release(); }
-			_down = false;
+			if (this.isDown && this.onRelease) { this.onRelease(); }
+			_isDown = false;
 			e.preventDefault();
 		});
 
 		Object.defineProperties(this, {
-			down: { get: () => _down },
-			press: {
-				get: () => _press,
+			isDown: { get: () => _isDown },
+			onPress: {
+				get: () => _onPress,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_press = value;
+					_onPress = value;
 				}
 			},
-			release: {
-				get: () => _release,
+			onRelease: {
+				get: () => _onRelease,
 				set: (value) => {
 					if (typeof value != "function") { throw new Error("value must be a function."); }
 
-					_release = value;
+					_onRelease = value;
 				}
 			}
 		});
@@ -1340,7 +1242,7 @@ class USound {
 		let _volume = _actx.createGain(); // Volume node.
 		let _sound; // Audio source.
 		let _buffer; // Audio data.
-		let _playing = false; // Whether the audio is playing.
+		let _isPlaying = false; // Whether the audio is playing.
 		// UTAGSET END AUDIO
 
 		// UTAGSET START ADVAUDIO
@@ -1355,15 +1257,15 @@ class USound {
 		Object.defineProperties(this, {
 			volume: { get: () => _volume },
 			sound: { get: () => _sound },
-			playing: {
-				get: () => _playing,
+			isPlaying: {
+				get: () => _isPlaying,
 				set: (value) => {
 					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
 
-					_playing = value;
+					_isPlaying = value;
 
 					// Play/pause audio.
-					if (this.playing) {
+					if (this.isPlaying) {
 						_sound = _actx.createBufferSource();
 						this.sound.buffer = _buffer;
 						this.sound.connect(this.volume);
