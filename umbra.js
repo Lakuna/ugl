@@ -20,10 +20,6 @@
 // UTAGDEF REQU INTERACT POINTER
 // UTAGDEF SIZE INTERACT ???
 
-// UTAGDEF DESC DRAG Create objects that can be dragged by the pointer.
-// UTAGDEF REQU DRAG POINTER
-// UTAGDEF SIZE DRAG ???
-
 // UTAGDEF DESC ASSETS Import JSON objects from files.
 // UTAGDEF SIZE ASSETS ???
 
@@ -221,7 +217,6 @@ class Umbra {
 				// UTAGSET START INTERACT
 				// Update clickable objects.
 				if (this.interactables.length > 0) {
-					console.log("HELLO");
 					this.canvas.style.cursor = "auto";
 					for (let i = this.interactables.length - 1; i >= 0; i--) {
 						// Iterate from top to bottom so that the top element is checked first.
@@ -231,11 +226,6 @@ class Umbra {
 					}
 				}
 				// UTAGSET END INTERACT
-
-				// UTAGSET START DRAG
-				// Update draggable objects.
-				if (this.draggables.length > 0) { this.pointer.update(); }
-				// UTAGSET END DRAG
 
 				// UTAGSET START REQUIRED
 				this.updates.forEach((update) => update());
@@ -291,11 +281,6 @@ class Umbra {
 		// Objects that can interact with the pointer.
 		const _interactables = []; // List of interactable objects.
 		// UTAGSET END INTERACT
-
-		// UTAGSET START DRAG
-		// Objects that can be dragged by the pointer.
-		const _draggables = []; // List of draggable objects.
-		// UTAGSET END DRAG
 
 		// UTAGSET START ASSETS
 		// Loading assets from files.
@@ -369,7 +354,7 @@ class Umbra {
 
 					// UTAGSET START AUDIO
 					else if (audioExtensions.indexOf(extension) > -1) {
-						const audio = new SoundAsset(source, _onLoad);
+						const audio = new USound(source, _onLoad);
 						this.assets[source] = audio;
 					}
 					// UTAGSET END AUDIO
@@ -450,10 +435,6 @@ class Umbra {
 			// UTAGSET START INTERACT
 			interactables: { get: () => _interactables },
 			// UTAGSET END INTERACT
-
-			// UTAGSET START DRAG
-			draggables: { get: () => _draggables },
-			// UTAGSET END DRAG
 
 			// UTAGSET START ASSETS
 			assets: { get: () => _assets },
@@ -596,6 +577,8 @@ class UObject {
 		if (!_parent instanceof UObject && _parent != undefined) { throw new Error("_parent must be a UObject."); }
 
 		// Rendering properties.
+		let _drawBounds; // The location on the screen to draw the object.
+		let _camPos; // The position of the camera at the last time _drawBounds was cached.
 		let _active = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
 		let _clip = false; // Whether to use this object to clip the context.
@@ -608,6 +591,7 @@ class UObject {
 			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
 
 			this.bounds.translate(offset);
+			_drawBounds = Umbra.instance.camera.gBToS(this.bounds);
 
 			// Reposition children and resize childbox.
 			_childBox = this.bounds;
@@ -695,11 +679,6 @@ class UObject {
 		let _alpha = 1; // Opacity.
 		// UTAGSET END ADVGRAPH
 
-		// UTAGSET START DRAG
-		// Drag-and-drop properties.
-		let _draggable = false; // Whether the object can be dragged by the pointer.
-		// UTAGSET END DRAG
-
 		// UTAGSET START INTERACT
 		// Pointer interaction properties.
 		let _interactable = false; // Whether the pointer can interact with this object.
@@ -751,7 +730,16 @@ class UObject {
 					this.translate(offset);
 				}
 			},
-			drawBounds: { get: () => Umbra.instance.camera.gBToS(this.bounds) },
+			drawBounds: {
+				get: () => {
+					if (!(_drawBounds && _camPos == Umbra.instance.camera.bounds.min)) {
+						_drawBounds = Umbra.instance.camera.gBToS(this.bounds);
+						_camPos = Umbra.instance.camera.bounds.min;
+						console.log("HELLO!");
+					}
+					return _drawBounds;
+				}
+			},
 			translate: { get: () => _translate },
 			active: {
 				get: () => _active,
@@ -809,7 +797,7 @@ class UObject {
 				set: (value) => {
 					if (!value instanceof UObject) { throw new Error("value must be a UObject."); }
 
-					if (this.parent) { this.parent.children.splice(this.parent.children.inexOf(this), 1); }
+					if (this.parent) { this.parent.children.splice(this.parent.children.indexOf(this), 1); }
 					_parent = value;
 					if (this.parent) { this.parent.children.push(this); }
 				}
@@ -861,20 +849,6 @@ class UObject {
 				}
 			},
 			// UTAGSET END ADVGRAPH
-
-			// UTAGSET START DRAG
-			draggable: {
-				get: () => _draggable,
-				set: (value) => {
-					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
-
-					_draggable = value;
-
-					const umbra = Umbra.instance;
-					if (this.draggable) { umbra.draggables.push(this); } else { umbra.draggables.splice(umbra.draggables.indexOf(this), 1); }
-				}
-			},
-			// UTAGSET END DRAG
 
 			// UTAGSET START INTERACT
 			interactable: {
@@ -931,7 +905,7 @@ class UObject {
 			down: { get: () => _down },
 			hovered: { get: () => _hovered },
 			update: { get: () => _update }
-			// UTAGSET END DRAG
+			// UTAGSET END INTERACT
 		}); // UTAGSET LINE GRAPHICS
 	} // UTAGSET LINE GRAPHICS
 } // UTAGSET LINE GRAPHICS
@@ -948,7 +922,7 @@ class URect extends UObject {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
 			const d = this.drawBounds;
-			ctx.rect(d.min.x, d.min.y, d.max.x, d.max.y);
+			ctx.rect(d.min.x, d.min.y, d.width, d.height);
 		}
 	}
 }
@@ -966,7 +940,8 @@ class UCircle extends UObject {
 			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
 
 			const d = this.drawBounds;
-			ctx.arc(d.min.x, d.min.y, d.max.x, 0, Math.PI * 2);
+			const r = Math.max(d.width, d.height) / 2;
+			ctx.arc(d.min.x + r, d.min.y + r, r, 0, Math.PI * 2);
 		}
 	}
 }
@@ -1017,7 +992,7 @@ class UText extends UObject {
 		if (typeof _text != "string") { throw new Error("_text must be a string."); }
 
 		// Display properties.
-		let _font = "12px serif"; // String representation of the font.
+		let _font = "20px courier"; // String representation of the font.
 		let _baseline = "top"; // Baseline.
 
 		Object.defineProperties(this, {
@@ -1244,41 +1219,9 @@ class UPointer {
 		const _touching = (object) => {
 			if (!object instanceof UObject) { throw new Error("object must be a UObject."); }
 
-			return object.bounds.contains(this.pos);
+			return object.drawBounds.contains(this.pos);
 		}
 		// UTAGSET END POINTER
-
-		// UTAGSET START DRAG
-		// Drag-and-drop properties.
-		let _draggedObject; // Currently dragging object.
-
-		// Update drag-and-drop.
-		const _update = () => {
-			const umbra = Umbra.instance;
-			if (this.down) {
-				if (this.draggedObject) { this.draggedObject.pos = umbra.camera.sPToG(this.pos); } else {
-					for (let i = umbra.draggables.length - 1; i >= 0; i++) { // Iterate backwards to get top object first.
-						const object = umbra.draggables[i];
-						if (object.draggable && this.touching(object)) {
-							this.draggedObject = object;
-
-							// Move object to the end of its parent's child array.
-							object.parent = object.parent;
-
-							// Move object to the end of the draggables array.
-							object.draggable = true;
-
-							break;
-						}
-					}
-				}
-			} else { this.draggedObject = null; } // Drop dragged object.
-
-			umbra.draggables.some((object) => {
-				if (object.draggable && this.touching(object)) { umbra.canvas.style.cursor = "pointer"; } else { umbra.canvas.style.cursor = "auto"; }
-			});
-		}
-		// UTAGSET END DRAG
 
 		// UTAGSET START POINTER
 		Object.defineProperties(this, {
@@ -1310,13 +1253,6 @@ class UPointer {
 				}
 			},
 			touching: { get: () => _touching },
-			// UTAGSET END POINTER
-
-			// UTAGSET START DRAG
-			draggedObject: { get: () => _draggedObject },
-			// UTAGSET END DRAG
-
-			// UTAGSET START POINTER
 			update: { get: () => _update }
 		});
 	}
