@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Umbra framework distribution builder.",
   "main": "index.js",
-  "scripts": {
-    "start": "electron ."
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/T3rrabyte/Umbra.git"
@@ -16,9 +14,6 @@
     "url": "https://github.com/T3rrabyte/Umbra/issues"
   },
   "homepage": "https://github.com/T3rrabyte/Umbra#readme",
-  "devDependencies": {
-    "electron": "^10.0.0"
-  },
   "dependencies": {
     "request": "^2.88.2"
   }

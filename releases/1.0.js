@@ -1,52 +1,56 @@
 // Umbra tag definitions. Used by the Umbra Builder to create customized distributions.
 // UTAGDEF DESC REQUIRED Minimal Umbra framework functionality.
-// UTAGDEF SIZE REQUIRED ???
+// UTAGDEF SIZE REQUIRED 724b
 
 // UTAGDEF DESC GRAPHICS Basic features that allow interaction with the screen.
-// UTAGDEF SIZE GRAPHICS ???
+// UTAGDEF SIZE GRAPHICS 821b
 
 // UTAGDEF DESC ADVGRAPH Advanced features that allow interaction with the screen.
 // UTAGDEF REQU ADVGRAPH GRAPHICS
-// UTAGDEF SIZE ADVGRAPH ???
+// UTAGDEF SIZE ADVGRAPH 117b
 
 // UTAGDEF DESC POINTER Unified mouse and touchscreen input.
 // UTAGDEF REQU POINTER GRAPHICS
-// UTAGDEF SIZE POINTER ???
+// UTAGDEF SIZE POINTER 279b
 
 // UTAGDEF DESC KEYBOARD Keyboard input from the user.
-// UTAGDEF SIZE KEYBOARD ???
+// UTAGDEF SIZE KEYBOARD 109b
 
 // UTAGDEF DESC ASSETS Import JSON objects from files.
-// UTAGDEF SIZE ASSETS ???
+// UTAGDEF SIZE ASSETS 250b
 
 // UTAGDEF DESC RECT Rectangle preset object type.
 // UTAGDEF REQU RECT GRAPHICS
-// UTAGDEF SIZE RECT ???
+// UTAGDEF SIZE RECT 41b
 
 // UTAGDEF DESC CIRCLE Circle preset object type.
 // UTAGDEF REQU CIRCLE GRAPHICS
-// UTAGDEF SIZE CIRCLE ???
+// UTAGDEF SIZE CIRCLE 64b
 
 // UTAGDEF DESC LINE Line preset object type.
 // UTAGDEF REQU LINE GRAPHICS
-// UTAGDEF SIZE LINE ???
+// UTAGDEF SIZE LINE 55b
 
 // UTAGDEF DESC TEXT Import and use fonts.
 // UTAGDEF REQU TEXT GRAPHICS
-// UTAGDEF SIZE TEXT ???
+// UTAGDEF REQU TEXT ASSETS
+// UTAGDEF SIZE TEXT 217b
 
 // UTAGDEF DESC IMAGE Import and display images from files.
 // UTAGDEF REQU IMAGE GRAPHICS
 // UTAGDEF REQU IMAGE ASSETS
-// UTAGDEF SIZE IMAGE ???
+// UTAGDEF SIZE IMAGE 347b
 
 // UTAGDEF DESC AUDIO Import and play audio from files.
 // UTAGDEF REQU AUDIO ASSETS
-// UTAGDEF SIZE AUDIO ???
+// UTAGDEF SIZE AUDIO 376b
 
 // UTAGDEF DESC ADVAUDIO Advanced audio transformations.
 // UTAGDEF REQU ADVAUDIO AUDIO
-// UTAGDEF SIZE ADVAUDIO ???
+// UTAGDEF REQU ADVAUDIO ASSETS
+// UTAGDEF SIZE ADVAUDIO 203b
+
+// Note: Package sizes are approximate. Although the packages add up to 3603b, a full installation is only 3402b.
 
 // Code start.
 // UTAGSET START REQUIRED
