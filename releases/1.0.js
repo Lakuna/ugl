@@ -52,7 +52,7 @@
 // Note: Package sizes are approximate. Although the packages add up to 3603b, a full installation is only 3402b.
 
 // Code start.
-// UTAGSET START REQUIRED
+// UTAGSET START GRAPHICS
 class Vector2 {
 	// Used to specify a point or range.
 	constructor(
@@ -118,7 +118,9 @@ class Bounds {
 		});
 	}
 }
+// UTAGSET END GRAPHICS
 
+// UTAGSET START REQUIRED
 class Umbra {
 	// An instance of a game.
 	constructor(
@@ -127,7 +129,7 @@ class Umbra {
 			_title = "Umbra", // The title of the window.
 			_assetPaths = [], // List of paths to assets that should be loaded.
 			_fps = 60, // Target frames per second of the game loop.
-			_size = new Vector2(innerWidth, innerHeight) // The size of the canvas.
+			_size = { x: innerWidth, y: innerHeight } // The size of the canvas. Not a Vector2 so that Vector2 isn't REQUIRED - but can be a Vector2.
 	) {
 		// Define global instance.
 		Umbra.instance = this;
@@ -164,7 +166,14 @@ class Umbra {
 				_lag -= _frameDuration;
 			}
 
+			// UTAGSET END REQUIRED
+
+			// UTAGSET START GRAPHICS
+			// Render the viewport of the camera.
 			this.camera.render(_lag / _frameDuration);
+			// UTAGSET END GRAPHICS
+
+			// UTAGSET START REQUIRED
 		}
 
 		// Setup document.
@@ -851,7 +860,7 @@ class USound {
 
 					// Play/pause audio.
 					if (this.isPlaying) {
-						_sound = _actx.createBufferSource();
+						this.sound = _actx.createBufferSource();
 						this.sound.buffer = _buffer;
 						this.sound.connect(this.volume);
 						// UTAGSET END AUDIO
