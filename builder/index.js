@@ -17,7 +17,7 @@ class Line {
 
 const readline = require('readline');
 const request = require('request');
-const uglifyjs = require('uglify-js');
+const uglifyjs = require('uglify-es');
 const fs = require('fs');
 
 const API = 'https://lakuna.pw/api/umbra/umbra.json';

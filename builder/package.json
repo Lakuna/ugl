@@ -15,6 +15,7 @@
   },
   "homepage": "https://github.com/T3rrabyte/Umbra#readme",
   "dependencies": {
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "uglify-es": "^3.3.9"
   }
 }
