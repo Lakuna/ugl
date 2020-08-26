@@ -47,7 +47,6 @@
 
 // UTAGDEF DESC ADVAUDIO Advanced audio transformations.
 // UTAGDEF REQU ADVAUDIO AUDIO
-// UTAGDEF REQU ADVAUDIO ASSETS
 // UTAGDEF SIZE ADVAUDIO 203b
 
 // Note: Package sizes are approximate. Although the packages add up to 3603b, a full installation is only 3402b.

@@ -4,6 +4,7 @@ class Tag {
 		this.description = '';
 		this.size = '';
 		this.requires = [];
+		this.requiresText = '';
 	}
 }
 
@@ -19,6 +20,7 @@ const readline = require('readline');
 const request = require('request');
 const uglifyjs = require('uglify-es');
 const fs = require('fs');
+const columnify = require('columnify');
 
 const API = 'https://lakuna.pw/api/umbra/umbra.json';
 
@@ -90,26 +92,17 @@ request(API, (err, res, body) => {
 			lines.push(parsedLine);
 		});
 
-		// Log script information.
-		console.log('\nAll Tags:');
+		// Make requiresText line for pretty-printing tag requirements.
 		for (let i = 0; i < allTags.length; i++) {
 			const tag = allTags[i];
-			let requiresLine = '[';
-			tag.requires.forEach((tag) => requiresLine += tag.name + ', ');
-			requiresLine = requiresLine.substring(0, requiresLine.length - 2) + ']';
-			console.log(`${tag.name}\t${tag.size}\t${tag.description}\t\t${requiresLine}`);
+			let requiresText = '[';
+			tag.requires.forEach((tag) => requiresText += tag.name + ', ');
+			requiresText = requiresText.substring(0, requiresText.length - 2) + ']';
+			if (requiresText == ']') { requiresText = ''; }
+			tag.requiresText = requiresText;
 		}
-
-		/*
-		console.log('\nAll Lines:');
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-			let tagLine = '[';
-			line.tags.forEach((tag) => tagLine += tag.name + ', ');
-			tagLine = tagLine.substring(0, tagLine.length - 2) + ']';
-			console.log(`${i}\t${tagLine}\t\t${line.text}\t\t${line.comment}`);
-		}
-		*/
+		console.log(columnify(allTags, { columns: ['name', 'description', 'size', 'requiresText'] }));
+		console.log('\nThe REQUIRED tag is automatically included. Tag dependencies are automatically included.');
 
 		// List of tags to include in output.
 		const includedTags = [];
@@ -119,17 +112,18 @@ request(API, (err, res, body) => {
 		if (!requiredTag) { console.log('REQUIRED tag is missing!'); } else { includedTags.push(requiredTag); }
 
 		// Add other tags based on user input.
+		const addRequirements = (tag, array) => { // For recursively adding requirements.
+			array.push(tag);
+			tag.requires.forEach((tag) => addRequirements(tag, array));
+		}
 		const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-		rl.question('Included tags (space-separated): ', (input) => {
+		rl.question('Included tags (space-separated, CASE SENSITIVE): ', (input) => {
 			const tagNames = input.split(/ +/);
 			tagNames.forEach((tagName) => {
 				const tag = allTags.find((tag) => tag.name == tagName);
 				if (!tag) {
 					if (tagName != '') { console.log(`Unknown tag '${tagName}'.`); }
-				} else {
-					includedTags.push(tag);
-					tag.requires.forEach((tag) => includedTags.push(tag));
-				}
+				} else { addRequirements(tag, includedTags); } // Recursively add requirements.
 			});
 
 			rl.close();
