@@ -317,7 +317,19 @@ class Bounds {
  * @since 1.0
  */
 class Umbra {
-	// An instance of a game.
+	/**
+	 * @constructs
+	 * @description Create an Umbra instance.
+	 * @example new Umbra(() => { }, () => { }, "Title", ["picture.png"], 30, new Vector2(500, 500));
+	 * @param {!function} setup - The function to run when the framework is ready to start.
+	 * @param {!function} loadState - The game state to use while loading assets.
+	 * @param {!string} title - The tab title.
+	 * @param {!string[]} assetPaths - List of paths to asset files to preload.
+	 * @param {!number} fps - The target frames per second of the game loop.
+	 * @param {!Vector2} size - The size of the canvas.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
 			_setup, // The function to run when the framework is ready.
 			_loadState, // The function to use as the state while loading.
@@ -722,6 +734,14 @@ class Umbra {
  * @since 1.0
  */
 class UCamera {
+	/**
+	 * @constructs
+	 * @description Create a camera.
+	 * @example new UCamera();
+	 * @param {!Bounds} bounds - Initial size of the camera's viewport.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
 			_bounds = new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)) // The default boundaries of the camera.
 	) {
@@ -869,6 +889,16 @@ class UCamera {
  * @since 1.0
  */
 class UShadow {
+	/**
+	 * @constructs
+	 * @description Create a shadow for an object.
+	 * @example new UObject().shadow = new UShadow();
+	 * @param {!string} [color = "rgba(100, 100, 100, 0.5)"] - Shadow color.
+	 * @param {!Vector2} [offset = new Vector2(3, 3)] - Offset of the shadow from its caster.
+	 * @param {!number} [blur = 3] - How blurred the shadow is.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
 			_color = "rgba(100, 100, 100, 0.5)", // Color of the shadow.
 			_offset = new Vector2(3, 3), // Offset of the shadow from the caster.
@@ -930,20 +960,23 @@ class UShadow {
 	}
 }
 
-// TODO
 /**
- * @augments ParentClass
- * @class {type} name
- * @classdesc Description.
- * @ignore [remove tag if member should be documented.]
- * @memberof Namespace [delete if not in a namespace.]
- * @namespace [delete if nothing contained needs to be documented.]
- * @readonly [remove if user should change.]
- * @see Text. [copy for each reference.]
+ * @class
+ * @classdesc An object in a game scene.
+ * @namespace
+ * @readonly
  * @since 1.0
- * @summary Description. [remove if description is already short.]
  */
 class UObject {
+	/**
+	 * @constructs
+	 * @description Create a new object.
+	 * @example new UObject(new Bounds(), Umbra.instance.scene);
+	 * @param {!Bounds} [bounds = new Bounds()] - The inital size and position of the object.
+	 * @param {UObject} parent - The initial parent object of the object.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
 			_bounds = new Bounds(), // Min and max coordinates of object.
 			_parent = undefined // Parent object.
@@ -1068,18 +1101,11 @@ class UObject {
 
 		Object.defineProperties(this, {
 			/**
-			 * @constant {type} name [remove if not constant.]
-			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
-			 * @description Description.
-			 * @ignore [remove tag if member should be documented.]
-			 * @member {type} name
-			 * @memberof Namespace [delete if not in a namespace.]
-			 * @override [delete if doesn't override a property of the parent.]
-			 * @readonly [remove if user should change.]
-			 * @see Text. [copy for each reference.]
+			 * @default new Bounds()
+			 * @description The size of the object.
+			 * @member {!Bounds} bounds
+			 * @memberof UObject
 			 * @since 1.0
-			 * @static [remove if not static.]
-			 * @summary Description. [remove if description is already short.]
 			 */
 			bounds: {
 				get: () => _bounds,
@@ -1092,38 +1118,23 @@ class UObject {
 			},
 
 			/**
-			 * @callback Namespace~callbackName [remove if not callback.]
-			 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
-			 * @description Description.
-			 * @example Example.
-			 * @function Name
-			 * @ignore [remove tag if member should be documented.]
-			 * @memberof Namespace [delete if not in a namespace.]
-			 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
-			 * @override [delete if doesn't override a property of the parent.]
-			 * @param {type} name - Description. [copy for each parameter.]
-			 * @readonly [remove if user should change.]
-			 * @returns {type} Description. [remove if doesn't return a value.]
-			 * @see Text. [copy for each reference.]
+			 * @description Translate the object by global coordinates.
+			 * @example new UObject().translate(new Vector2(5, 5));
+			 * @function
+			 * @memberof UObject
+			 * @param {!Vector2} offset - The offset to translate the object by.
+			 * @readonly
+			 * @see Bounds.translate
 			 * @since 1.0
-			 * @static [remove if not static.]
-			 * @summary Description. [remove if description is already short.]
 			 */
 			translate: { get: () => _translate },
 
 			/**
-			 * @constant {type} name [remove if not constant.]
-			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
-			 * @description Description.
-			 * @ignore [remove tag if member should be documented.]
-			 * @member {type} name
-			 * @memberof Namespace [delete if not in a namespace.]
-			 * @override [delete if doesn't override a property of the parent.]
-			 * @readonly [remove if user should change.]
-			 * @see Text. [copy for each reference.]
+			 * @default true
+			 * @description Whether the object should be rendered.
+			 * @member {!boolean} isActive
+			 * @memberof UObject
 			 * @since 1.0
-			 * @static [remove if not static.]
-			 * @summary Description. [remove if description is already short.]
 			 */
 			isActive: {
 				get: () => _isActive,
@@ -1135,18 +1146,11 @@ class UObject {
 			},
 
 			/**
-			 * @constant {type} name [remove if not constant.]
-			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
-			 * @description Description.
-			 * @ignore [remove tag if member should be documented.]
-			 * @member {type} name
-			 * @memberof Namespace [delete if not in a namespace.]
-			 * @override [delete if doesn't override a property of the parent.]
-			 * @readonly [remove if user should change.]
-			 * @see Text. [copy for each reference.]
+			 * @default 0
+			 * @description The z-layer of the object. Higher values display above lower ones.
+			 * @member {!number} layer
+			 * @memberof UObject
 			 * @since 1.0
-			 * @static [remove if not static.]
-			 * @summary Description. [remove if description is already short.]
 			 */
 			layer: {
 				get: () => _layer,
@@ -1160,6 +1164,7 @@ class UObject {
 				}
 			},
 
+			// TODO
 			/**
 			 * @constant {type} name [remove if not constant.]
 			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
@@ -1544,6 +1549,24 @@ class UObject {
  * @summary Description. [remove if description is already short.]
  */
 class URect extends UObject {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
 			_parent = Umbra.instance.scene // Passed to parent constructor.
@@ -1575,6 +1598,24 @@ class URect extends UObject {
  * @summary Description. [remove if description is already short.]
  */
 class UCircle extends UObject {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
 			_parent = Umbra.instance.scene // Passed to parent constructor.
@@ -1607,6 +1648,24 @@ class UCircle extends UObject {
  * @summary Description. [remove if description is already short.]
  */
 class ULine extends UObject {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
 			_parent = Umbra.instance.scene // Passed to UObject parent constructor.
@@ -1667,6 +1726,24 @@ class ULine extends UObject {
  * @summary Description. [remove if description is already short.]
  */
 class UText extends UObject {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_text, // Text displayed on the object.
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
@@ -1785,6 +1862,24 @@ class UText extends UObject {
  * @summary Description. [remove if description is already short.]
  */
 class USpritesheet {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_source, // Image source.
 			_frameSize = new Vector2() // Dimensions of one frame on the spritesheet.
@@ -1882,6 +1977,24 @@ class USpritesheet {
  * @summary Description. [remove if description is already short.]
  */
 class USprite extends UObject {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_sheet, // The spritesheet to draw frames from.
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
@@ -2061,6 +2174,24 @@ class USprite extends UObject {
  * @summary Description. [remove if description is already short.]
  */
 class UPointer {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor() {
 		// Pointer state variables.
 		let _pos = new Vector2(); // The position of the pointer on the screen.
@@ -2259,6 +2390,24 @@ class UPointer {
  * @summary Description. [remove if description is already short.]
  */
 class UKey {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_code // ASCII key code.
 	) {
@@ -2367,6 +2516,24 @@ class UKey {
  * @summary Description. [remove if description is already short.]
  */
 class UEcho {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_delayValue = 0.3, // Delay until echo starts.
 			_feedbackValue = 0.3, // Feedback volume.
@@ -2453,6 +2620,24 @@ class UEcho {
  * @summary Description. [remove if description is already short.]
  */
 class USound {
+	/**
+	 * @callback Namespace~callbackName [remove if not callback.]
+	 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+	 * @description Description.
+	 * @example Example.
+	 * @function Name
+	 * @ignore [remove tag if member should be documented.]
+	 * @memberof Namespace [delete if not in a namespace.]
+	 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+	 * @override [delete if doesn't override a property of the parent.]
+	 * @param {type} name - Description. [copy for each parameter.]
+	 * @readonly [remove if user should change.]
+	 * @returns {type} Description. [remove if doesn't return a value.]
+	 * @see Text. [copy for each reference.]
+	 * @since 1.0
+	 * @static [remove if not static.]
+	 * @summary Description. [remove if description is already short.]
+	 */
 	constructor(
 			_source, // Path to the source file.
 			_onLoad // Function to run when file is loaded.
