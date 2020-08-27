@@ -16,6 +16,7 @@ Umbra Framework Documentation
 	:caption: Classes:
 
 	classes/vector2
+	classes/bounds
 
 Indices and Tables
 ==================

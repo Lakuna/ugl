@@ -103,6 +103,13 @@ class Vector2 {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @default 0
+			 * @description The lowest value in a range or the horizontal component of a coordinate.
+			 * @member {!number} x
+			 * @memberof Vector2
+			 * @since 1.0
+			 */
 			x: {
 				get: () => _x,
 				set: (value) => {
@@ -110,6 +117,14 @@ class Vector2 {
 					_x = value;
 				}
 			},
+
+			/**
+			 * @default 0
+			 * @description The highest value in a range or the vertical component of a coordinate.
+			 * @member {!number} y
+			 * @memberof Vector2
+			 * @since 1.0
+			 */
 			y: {
 				get: () => _y,
 				set: (value) => {
@@ -141,8 +156,23 @@ class Vector2 {
 	}
 }
 
+/**
+ * @class
+ * @classdesc Contains two Vector2s which represent an area.
+ * @namespace
+ * @readonly
+ * @since 1.0
+ */
 class Bounds {
-	// Used to specify a range between two points.
+	/**
+	 * @constructs
+	 * @description Create a Bounds.
+	 * @example new Bounds(new Vector2(10, 10), new Vector2(20, 20));
+	 * @param {!Vector2} [min = new Vector2()] - The upper-left corner of a boundary.
+	 * @param {!Vector2} [max = new Vector2()] - The lower-right corner of a boundary.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
 			_min = new Vector2(), // First point.
 			_max = new Vector2() // Second point.
@@ -173,6 +203,13 @@ class Bounds {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @default new Vector2();
+			 * @description The upper-left corner of the boundary.
+			 * @member {!Vector2} min
+			 * @memberof Bounds
+			 * @since 1.0
+			 */
 			min: {
 				get: () => _min,
 				set: (value) => {
@@ -181,6 +218,14 @@ class Bounds {
 					_min = value;
 				}
 			},
+
+			/**
+			 * @default new Vector2();
+			 * @description The lower-right corner of the boundary.
+			 * @member {!Vector2} max
+			 * @memberof Bounds
+			 * @since 1.0
+			 */
 			max: {
 				get: () => _max,
 				set: (value) => {
@@ -189,6 +234,14 @@ class Bounds {
 					_max = value;
 				}
 			},
+
+			/**
+			 * @description The difference between the upper and lower horizontal coordinates.
+			 * @member {!number} width
+			 * @memberof Bounds
+			 * @readonly
+			 * @since 1.0
+			 */
 			width: {
 				get: () => this.max.x - this.min.x,
 				set: (value) => {
@@ -197,6 +250,14 @@ class Bounds {
 					this.max.x = this.min.x + value;
 				}
 			},
+
+			/**
+			 * @description The difference between the upper and lower vertical coordinates.
+			 * @member {!number} height
+			 * @memberof Bounds
+			 * @readonly
+			 * @since 1.0
+			 */
 			height: {
 				get: () => this.max.y - this.min.y,
 				set: (value) => {
@@ -205,8 +266,41 @@ class Bounds {
 					this.max.y = this.min.y + value;
 				}
 			},
+
+			/**
+			 * @description Check whether a point falls within the boundary.
+			 * @example return new Bounds(new Vector2(50, 50), new Vector2(100, 100)).contains(new Vector2(75, 75)); // Returns true.
+			 * @function
+			 * @memberof Bounds
+			 * @param {!Vector2} [point] - The point to check.
+			 * @readonly
+			 * @returns {!boolean} Whether the boundary contains the point.
+			 * @since 1.0
+			 */
 			contains: { get: () => _contains },
+
+			/**
+			 * @description Check whether two boundaries touch each other.
+			 * @example return new Bounds(new Vector2(-50, -50), new Vector2(50, 50)).intersects(new Bounds(new Vector2(0, 0), new Vector2(100, 100))); // Returns true.
+			 * @function
+			 * @memberof Bounds
+			 * @param {!Bounds} boundary - The boundary to check.
+			 * @readonly
+			 * @returns {!boolean} Whether the boundaries share any points.
+			 * @since 1.0
+			 */
 			intersects: { get: () => _intersects },
+
+			/**
+			 * @description Translate an entire boundary.
+			 * @example new Boundary().translate(new Vector2(5, 5));
+			 * @function
+			 * @memberof Bounds
+			 * @param {!Vector2} offset - The values to translate the boundary by.
+			 * @readonly
+			 * @see Vector2.translate
+			 * @since 1.0
+			 */
 			translate: { get: () => _translate }
 		});
 	}
@@ -215,6 +309,13 @@ class Bounds {
 // UTAGSET END GRAPHICS
 // UTAGSET START REQUIRED
 
+/**
+ * @class
+ * @classdesc Represents an instance of a game.
+ * @namespace
+ * @readonly
+ * @since 1.0
+ */
 class Umbra {
 	// An instance of a game.
 	constructor(
@@ -433,6 +534,12 @@ class Umbra {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @description The main function run in the game loop.
+			 * @member {!function} state
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			state: {
 				get: () => _state,
 				set: (value) => {
@@ -441,6 +548,14 @@ class Umbra {
 					_state = value;
 				}
 			},
+
+			/**
+			 * @default false
+			 * @description Whether the state should be run in the game loop.
+			 * @member {!boolean} isPaused
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			isPaused: {
 				get: () => _isPaused,
 				set: (value) => {
@@ -449,13 +564,48 @@ class Umbra {
 					_isPaused = value;
 				}
 			},
+
+			/**
+			 * @default []
+			 * @description A list of functions to run in the game loop even while paused.
+			 * @member {!function[]} updates
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			updates: { get: () => _updates },
 
 			// UTAGSET END REQUIRED
 			// UTAGSET START GRAPHICS
 
+			/**
+			 * @default document.createElement("canvas")
+			 * @description The canvas that the game is drawn on.
+			 * @member {!HTMLCanvasElement} canvas
+			 * @memberof Umbra
+			 * @readonly
+			 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement|HTMLCanvasElement}
+			 * @since 1.0
+			 */
 			canvas: { get: () => _canvas },
+
+			/**
+			 * @default this.canvas.getContext("2d")
+			 * @description The 2D context that the game is drawn on.
+			 * @member {!CanvasRenderingContext2D} context
+			 * @memberof Umbra
+			 * @readonly
+			 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|CanvasRenderingContext2D}
+			 * @since 1.0
+			 */
 			context: { get: () => _context },
+
+			/**
+			 * @default new UObject()
+			 * @description The currently-loaded scene.
+			 * @member {!UObject} scene
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			scene: {
 				get: () => _scene,
 				set: (value) => {
@@ -464,6 +614,14 @@ class Umbra {
 					_scene = value;
 				}
 			},
+
+			/**
+			 * @default new UCamera()
+			 * @description The main camera to render the scene from.
+			 * @member {!UCamera} camera
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			camera: {
 				get: () => _camera,
 				set: (value) => {
@@ -476,22 +634,63 @@ class Umbra {
 			// UTAGSET END GRAPHICS
 			// UTAGSET START AUDIO
 
+			/**
+			 * @default new AudioContext()
+			 * @description The context from which all game audio is played.
+			 * @member {!AudioContext} actx
+			 * @memberof Umbra
+			 * @readonly
+			 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/AudioContext|AudioContext}
+			 * @since 1.0
+			 */
 			actx: { get: () => _actx },
 
 			// UTAGSET END AUDIO
 			// UTAGSET START POINTER
 
+			/**
+			 * @default new UPointer()
+			 * @description The main integrated touch/mouse pointer for the game.
+			 * @member {!UPointer} pointer
+			 * @memberof Umbra
+			 * @readonly
+			 * @since 1.0
+			 */
 			pointer: { get: () => _pointer },
+
+			/**
+			 * @default []
+			 * @description A list of objects which can be clicked.
+			 * @member {!UObject[]} interactableObjects
+			 * @memberof Umbra
+			 * @since 1.0
+			 */
 			interactableObjects: { get: () => _interactableObjects },
 
 			// UTAGSET END POINTER
 			// UTAGSET START ASSETS
 
+			/**
+			 * @default {}
+			 * @description An object which holds all of the preloaded assets.
+			 * @member {!object} assets
+			 * @memberof Umbra
+			 * @readonly
+			 * @since 1.0
+			 */
 			assets: { get: () => _assets },
 
 			// UTAGSET END ASSETS
 			// UTAGSET START REQUIRED
 
+			/**
+			 * @description The method which must be called to start the game.
+			 * @example new Umbra().start();
+			 * @function
+			 * @memberof Umbra
+			 * @readonly
+			 * @since 1.0
+			 */
 			start: { get: () => _start }
 		});
 
@@ -515,6 +714,13 @@ class Umbra {
 // UTAGSET END REQUIRED
 // UTAGSET START GRAPHICS
 
+/**
+ * @class
+ * @classdesc A viewport to render the game from.
+ * @namespace
+ * @readonly
+ * @since 1.0
+ */
 class UCamera {
 	constructor(
 			_bounds = new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)) // The default boundaries of the camera.
@@ -560,14 +766,21 @@ class UCamera {
 		}
 
 		// Render all UObjects within the bounds.
-		const _render = (offset) => {
+		const _render = () => {
 			const canvas = Umbra.instance.canvas;
 			Umbra.instance.context.clearRect(0, 0, canvas.width, canvas.height);
 
-			Umbra.instance.scene.display(offset);
+			Umbra.instance.scene.display();
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @default new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)
+			 * @description The viewport boundary.
+			 * @member {!Bounds} bounds
+			 * @memberof UCamera
+			 * @since 1.0
+			 */
 			bounds: {
 				get: () => _bounds,
 				set: (value) => {
@@ -576,16 +789,85 @@ class UCamera {
 					_bounds = value;
 				}
 			},
+
+			/**
+			 * @description The scale at which objects are rendered due to the size of the viewport compared to the canvas.
+			 * @member {!Vector2} scale
+			 * @memberof UCamera
+			 * @readonly
+			 * @since 1.0
+			 */
 			scale: { get: () => new Vector2(Umbra.instance.canvas.width / this.bounds.width, Umbra.instance.canvas.height / this.bounds.height) },
+
+			/**
+			 * @description Convert a screen point to a global point.
+			 * @example new UCamera().sPToG(new Vector2());
+			 * @function
+			 * @memberof UCamera
+			 * @param {!Vector2} point - The screen point to convert.
+			 * @readonly
+			 * @returns {!Vector2} The global point.
+			 * @since 1.0
+			 */
 			sPToG: { get: () => _sPToG },
+
+			/**
+			 * @description Convert a global point to a screen point.
+			 * @example new UCamera().gPToS(new Vector2());
+			 * @function
+			 * @memberof UCamera
+			 * @param {!Vector2} point - The global point to convert.
+			 * @readonly
+			 * @returns {!Vector2} The screen point.
+			 * @since 1.0
+			 */
 			gPToS: { get: () => _gPToS },
+
+			/**
+			 * @description Convert a screen boundary to a global boundary.
+			 * @example new UCamera().sBToG(new Vector2());
+			 * @function
+			 * @memberof UCamera
+			 * @param {!Bounds} bounds - The screen boundary to convert.
+			 * @readonly
+			 * @returns {!Bounds} The global bounds.
+			 * @since 1.0
+			 */
 			sBToG: { get: () => _sBToG },
+
+			/**
+			 * @description Convert a global boundary to a screen boundary.
+			 * @example new UCamera().gBToS(new Vector2());
+			 * @function
+			 * @memberof UCamera
+			 * @param {!Bounds} bounds - The global boundary to convert.
+			 * @readonly
+			 * @returns {!Bounds} The screen bounds.
+			 * @since 1.0
+			 */
 			gBToS: { get: () => _gBToS },
+
+			/**
+			 * @description Render all objects in the scene within the viewport onto the canvas.
+			 * @example new UCamera().render();
+			 * @function
+			 * @memberof UCamera
+			 * @readonly
+			 * @see UObject.display
+			 * @since 1.0
+			 */
 			render: { get: () => _render }
 		});
 	}
 }
 
+/**
+ * @class
+ * @classdesc A shadow that follows an object.
+ * @namespace UShadow
+ * @readonly
+ * @since 1.0
+ */
 class UShadow {
 	constructor(
 			_color = "rgba(100, 100, 100, 0.5)", // Color of the shadow.
@@ -597,6 +879,13 @@ class UShadow {
 		if (typeof _blur != "number") { throw new Error("_blur must be a number."); }
 
 		Object.defineProperties(this, {
+			/**
+			 * @default "rgba(100, 100, 100, 0.5)"
+			 * @description The color of the shadow.
+			 * @member {!string} color
+			 * @memberof UShadow
+			 * @since 1.0
+			 */
 			color: {
 				get: () => _color,
 				set: (value) => {
@@ -605,6 +894,14 @@ class UShadow {
 					_color = value;
 				}
 			},
+
+			/**
+			 * @default new Vector2(3, 3)
+			 * @description The shadow's offset from the caster object.
+			 * @member {!Vector2} offset
+			 * @memberof UShadow
+			 * @since 1.0
+			 */
 			offset: {
 				get: () => _offset,
 				set: (value) => {
@@ -613,6 +910,14 @@ class UShadow {
 					_offset = value;
 				}
 			},
+
+			/**
+			 * @default 3
+			 * @description The amount of blur to apply to the shadow.
+			 * @member {!number} blur
+			 * @memberof UShadow
+			 * @since 1.0
+			 */
 			blur: {
 				get: () => _blur,
 				set: (value) => {
@@ -625,6 +930,19 @@ class UShadow {
 	}
 }
 
+// TODO
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UObject {
 	constructor(
 			_bounds = new Bounds(), // Min and max coordinates of object.
@@ -664,9 +982,7 @@ class UObject {
 		if (_parent) { _parent.children.push(this); } // Add to parent's children array.
 
 		// Display the sprite on the canvas.
-		const _display = (offset) => {
-			if (typeof offset != "number") { throw new Error("offset must be a number."); }
-
+		const _display = () => {
 			// Shorten variable names to save characters.
 			const cam = Umbra.instance.camera;
 			const ctx = Umbra.instance.context;
@@ -719,7 +1035,7 @@ class UObject {
 			ctx.stroke();
 
 			// Draw children.
-			this.children.forEach((child) => child.display(offset));
+			this.children.forEach((child) => child.display());
 
 			// Restore context state after children are drawn so that traits are inherited.
 			ctx.restore();
@@ -751,6 +1067,20 @@ class UObject {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			bounds: {
 				get: () => _bounds,
 				set: (value) => {
@@ -760,7 +1090,41 @@ class UObject {
 					this.translate(offset);
 				}
 			},
+
+			/**
+			 * @callback Namespace~callbackName [remove if not callback.]
+			 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+			 * @description Description.
+			 * @example Example.
+			 * @function Name
+			 * @ignore [remove tag if member should be documented.]
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @param {type} name - Description. [copy for each parameter.]
+			 * @readonly [remove if user should change.]
+			 * @returns {type} Description. [remove if doesn't return a value.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			translate: { get: () => _translate },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isActive: {
 				get: () => _isActive,
 				set: (value) => {
@@ -769,6 +1133,21 @@ class UObject {
 					_isActive = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			layer: {
 				get: () => _layer,
 				set: (value) => {
@@ -780,6 +1159,21 @@ class UObject {
 					this.parent.children.sort((a, b) => a.layer < b.layer ? -1 : 1);
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			doClip: {
 				get: () => _doClip,
 				set: (value) => {
@@ -788,6 +1182,21 @@ class UObject {
 					_doClip = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			fillColor: {
 				get: () => _fillColor,
 				set: (value) => {
@@ -796,6 +1205,21 @@ class UObject {
 					_fillColor = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			lineColor: {
 				get: () => _lineColor,
 				set: (value) => {
@@ -804,6 +1228,21 @@ class UObject {
 					_lineColor = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			lineWidth: {
 				get: () => _lineWidth,
 				set: (value) => {
@@ -812,6 +1251,21 @@ class UObject {
 					_lineWidth = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			parent: {
 				get: () => _parent,
 				set: (value) => {
@@ -822,9 +1276,77 @@ class UObject {
 					if (this.parent) { this.parent.children.push(this); }
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			children: { get: () => _children },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			childBox: { get: () => _childBox },
+
+			/**
+			 * @callback Namespace~callbackName [remove if not callback.]
+			 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+			 * @description Description.
+			 * @example Example.
+			 * @function Name
+			 * @ignore [remove tag if member should be documented.]
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @param {type} name - Description. [copy for each parameter.]
+			 * @readonly [remove if user should change.]
+			 * @returns {type} Description. [remove if doesn't return a value.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			display: { get: () => _display },
+
+			/**
+			 * @callback Namespace~callbackName [remove if not callback.]
+			 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+			 * @description Description.
+			 * @example Example.
+			 * @function Name
+			 * @ignore [remove tag if member should be documented.]
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @param {type} name - Description. [copy for each parameter.]
+			 * @readonly [remove if user should change.]
+			 * @returns {type} Description. [remove if doesn't return a value.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			render: {
 				get: () => _render,
 				set: (value) => {
@@ -837,6 +1359,20 @@ class UObject {
 			// UTAGSET END GRAPHICS
 			// UTAGSET START ADVGRAPH
 
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			scale: {
 				get: () => _scale,
 				set: (value) => {
@@ -845,6 +1381,21 @@ class UObject {
 					_scale = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			shadow: {
 				get: () => _shadow,
 				set: (value) => {
@@ -853,6 +1404,21 @@ class UObject {
 					_shadow = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			compositeOperation: {
 				get: () => _compositeOperation,
 				set: (value) => {
@@ -861,6 +1427,21 @@ class UObject {
 					_compositeOperation = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			alpha: {
 				get: () => _alpha,
 				set: (value) => {
@@ -873,6 +1454,20 @@ class UObject {
 			// UTAGSET END ADVGRAPH
 			// UTAGSET START GRAPHICS
 
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isDown: {
 				get: () => _isDown,
 				set: (value) => {
@@ -881,6 +1476,21 @@ class UObject {
 					_isDown = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onClick: {
 				get: () => _onClick,
 				set: (value) => {
@@ -890,6 +1500,21 @@ class UObject {
 					_addToInteractables();
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onRelease: {
 				get: () => _onRelease,
 				set: (value) => {
@@ -906,6 +1531,18 @@ class UObject {
 // UTAGSET END GRAPHICS
 // UTAGSET START RECT
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class URect extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
@@ -925,6 +1562,18 @@ class URect extends UObject {
 // UTAGSET END RECT
 // UTAGSET START CIRCLE
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UCircle extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
@@ -945,6 +1594,18 @@ class UCircle extends UObject {
 // UTAGSET END CIRCLE
 // UTAGSET START LINE
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class ULine extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
@@ -955,6 +1616,20 @@ class ULine extends UObject {
 		let _lineJoin; // How the context should join the line.
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			lineJoin: {
 				get: () => _lineJoin,
 				set: (value) => {
@@ -979,6 +1654,18 @@ class ULine extends UObject {
 // UTAGSET END LINE
 // UTAGSET START TEXT
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UText extends UObject {
 	constructor(
 			_text, // Text displayed on the object.
@@ -994,6 +1681,20 @@ class UText extends UObject {
 		let _baseline = "top"; // Baseline.
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			text: {
 				get: () => _text,
 				set: (value) => {
@@ -1002,6 +1703,21 @@ class UText extends UObject {
 					_text = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			font: {
 				get: () => _font,
 				set: (value) => {
@@ -1010,6 +1726,21 @@ class UText extends UObject {
 					_font = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			baseline: {
 				get: () => _baseline,
 				set: (value) => {
@@ -1041,6 +1772,18 @@ class UText extends UObject {
 // UTAGSET END TEXT
 // UTAGSET START IMAGE
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class USpritesheet {
 	constructor(
 			_source, // Image source.
@@ -1059,14 +1802,85 @@ class USpritesheet {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			source: { get: () => _source },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			frameSize: { get: () => _frameSize },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			positions: { get: () => _positions },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			size: { get: () => _size }
 		});
 	}
 }
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class USprite extends UObject {
 	constructor(
 			_sheet, // The spritesheet to draw frames from.
@@ -1086,7 +1900,36 @@ class USprite extends UObject {
 		let _interval; // Interval for animation.
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			sheet: { get: () => _sheet },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			doLoop: {
 				get: () => _doLoop,
 				set: (value) => {
@@ -1104,6 +1947,21 @@ class USprite extends UObject {
 					} else { clearInterval(_interval); }
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			loopRange: {
 				get: () => _loopRange,
 				set: (value) => {
@@ -1114,6 +1972,21 @@ class USprite extends UObject {
 					_loopRange = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			fps: {
 				get: () => _fps,
 				set: (value) => {
@@ -1122,6 +1995,21 @@ class USprite extends UObject {
 					_fps = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			frame: {
 				get: () => _frame,
 				set: (value) => {
@@ -1160,6 +2048,18 @@ class USprite extends UObject {
 // UTAGSET END IMAGE
 // UTAGSET START POINTER
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UPointer {
 	constructor() {
 		// Pointer state variables.
@@ -1226,9 +2126,68 @@ class UPointer {
 		}
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			pos: { get: () => _pos },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isTapped: { get: () => _isTapped },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isDown: { get: () => _isDown },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onPress: {
 				get: () => _onPress,
 				set: (value) => {
@@ -1237,6 +2196,21 @@ class UPointer {
 					_onPress = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onRelease: {
 				get: () => _onRelease,
 				set: (value) => {
@@ -1245,6 +2219,25 @@ class UPointer {
 					_onRelease = value;
 				}
 			},
+
+			/**
+			 * @callback Namespace~callbackName [remove if not callback.]
+			 * @constructs [name not necessary if immediately following the class that it constructs. remove if not constructor.]
+			 * @description Description.
+			 * @example Example.
+			 * @function Name
+			 * @ignore [remove tag if member should be documented.]
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @namespace Name [delete if nothing contained needs to be documented. name not recommended.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @param {type} name - Description. [copy for each parameter.]
+			 * @readonly [remove if user should change.]
+			 * @returns {type} Description. [remove if doesn't return a value.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isTouching: { get: () => _isTouching }
 		});
 	}
@@ -1253,6 +2246,18 @@ class UPointer {
 // UTAGSET END POINTER
 // UTAGSET START KEYBOARD
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UKey {
 	constructor(
 			_code // ASCII key code.
@@ -1281,7 +2286,36 @@ class UKey {
 		});
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isDown: { get: () => _isDown },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onPress: {
 				get: () => _onPress,
 				set: (value) => {
@@ -1290,6 +2324,21 @@ class UKey {
 					_onPress = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			onRelease: {
 				get: () => _onRelease,
 				set: (value) => {
@@ -1305,6 +2354,18 @@ class UKey {
 // UTAGSET END KEYBOARD
 // UTAGSET START ADVAUDIO
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class UEcho {
 	constructor(
 			_delayValue = 0.3, // Delay until echo starts.
@@ -1325,8 +2386,52 @@ class UEcho {
 		_filter.frequency.value = _filterValue;
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			delay: { get: () => _delay },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			feedback: { get: () => _feedback },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			filter: { get: () => _filter }
 		});
 	}
@@ -1335,6 +2440,18 @@ class UEcho {
 // UTAGSET END ADVAUDIO
 // UTAGSET START AUDIO
 
+/**
+ * @augments ParentClass
+ * @class {type} name
+ * @classdesc Description.
+ * @ignore [remove tag if member should be documented.]
+ * @memberof Namespace [delete if not in a namespace.]
+ * @namespace [delete if nothing contained needs to be documented.]
+ * @readonly [remove if user should change.]
+ * @see Text. [copy for each reference.]
+ * @since 1.0
+ * @summary Description. [remove if description is already short.]
+ */
 class USound {
 	constructor(
 			_source, // Path to the source file.
@@ -1363,8 +2480,52 @@ class USound {
 		// UTAGSET START AUDIO
 
 		Object.defineProperties(this, {
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			volume: { get: () => _volume },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			sound: { get: () => _sound },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			isPlaying: {
 				get: () => _isPlaying,
 				set: (value) => {
@@ -1418,8 +2579,52 @@ class USound {
 			// UTAGSET END AUDIO
 			// UTAGSET START ADVAUDIO
 
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			pan: { get: () => _pan },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			convolver: { get: () => _convolver },
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			echo: {
 				get: () => _echo,
 				set: (value) => {
@@ -1428,6 +2633,21 @@ class USound {
 					_echo = value;
 				}
 			},
+
+			/**
+			 * @constant {type} name [remove if not constant.]
+			 * @default [value if assigned value is not a string, number, boolean, or null. Don't include tag if no default exists (undefined).]
+			 * @description Description.
+			 * @ignore [remove tag if member should be documented.]
+			 * @member {type} name
+			 * @memberof Namespace [delete if not in a namespace.]
+			 * @override [delete if doesn't override a property of the parent.]
+			 * @readonly [remove if user should change.]
+			 * @see Text. [copy for each reference.]
+			 * @since 1.0
+			 * @static [remove if not static.]
+			 * @summary Description. [remove if description is already short.]
+			 */
 			reverb: {
 				get: () => _reverb,
 				set: (value) => {
