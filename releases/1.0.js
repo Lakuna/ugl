@@ -165,7 +165,6 @@ class Umbra {
 
 				_lag -= _frameDuration;
 			}
-
 			// UTAGSET END REQUIRED
 
 			// UTAGSET START GRAPHICS
@@ -289,7 +288,6 @@ class Umbra {
 					// UTAGSET END AUDIO
 
 					// UTAGSET START ASSETS
-					else { throw new Error("Tried to load an asset with an unknown extension."); }
 				}
 			}
 
@@ -365,10 +363,6 @@ class UCamera {
 
 			Umbra.instance.scene.display(offset);
 		}
-
-		Object.defineProperties(this, {
-			scale: { get: () => new Vector2(Umbra.instance.canvas.width / this.bounds.width, Umbra.instance.canvas.height / this.bounds.height) }
-		});
 	}
 }
 
@@ -399,6 +393,8 @@ class UObject {
 
 		// Move object.
 		this.translate = (offset) => {
+			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
+
 			this.bounds.translate(offset);
 
 			// Reposition children and resize childbox.
@@ -414,7 +410,7 @@ class UObject {
 
 		// Parent-child hierarchy properties.
 		this.children = []; // List of children.
-		this.childBox = this.bounds; // Bounds of this object and its children.
+		this.childBox = _bounds; // Bounds of this object and its children.
 		if (this.parent) { this.parent.children.push(this); } // Add to parent's children array.
 
 		// Display the sprite on the canvas.
@@ -502,8 +498,7 @@ class UObject {
 			bounds: {
 				get: () => _bounds,
 				set: (value) => {
-					const offset = new Vector2(value.min.x - this.bounds.min.x, value.min.y - this.bounds.min.y);
-					this.translate(offset);
+					this.translate(new Vector2(value.min.x - this.bounds.min.x, value.min.y - this.bounds.min.y));
 				}
 			},
 			layer: {
@@ -518,6 +513,8 @@ class UObject {
 			parent: {
 				get: () => _parent,
 				set: (value) => {
+					if (!value instanceof UObject) { throw new Error("value must be a UObject."); }
+
 					if (this.parent) { this.parent.children.splice(this.parent.children.indexOf(this), 1); }
 					_parent = value;
 					if (this.parent) { this.parent.children.push(this); }
@@ -526,6 +523,8 @@ class UObject {
 			onClick: {
 				get: () => _onClick,
 				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
 					_onClick = value;
 					_addToInteractables();
 				}
@@ -533,6 +532,8 @@ class UObject {
 			onRelease: {
 				get: () => _onRelease,
 				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
 					_onRelease = value;
 					_addToInteractables();
 				}
@@ -638,11 +639,11 @@ class USpritesheet {
 
 		// Spritesheet properties.
 		this.positions = []; // Corner point of each frame.
-		this.size = new Vector2(this.source.width / this.frameSize.x, this.source.height / this.frameSize.y); // Number of columns, rows in the spritesheet.
+		this.size = new Vector2(_source.width / _frameSize.x, _source.height / _frameSize.y); // Number of columns, rows in the spritesheet.
 
 		// Find frame positions.
-		for (var x = 0; x < this.size.x; x++) {
-			for (var y = 0; y < this.size.y; y++) { this.positions.push(new Vector2(x * this.frameSize.x, y * this.frameSize.y)); }
+		for (var x = 0; x < _size.x; x++) {
+			for (var y = 0; y < _size.y; y++) { _positions.push(new Vector2(x * _frameSize.x, y * _frameSize.y)); }
 		}
 	}
 }
@@ -658,7 +659,7 @@ class USprite extends UObject {
 		this.sheet = sheet;
 
 		// Display properties.
-		let _doLoop = false; // Whether to run the animation on a loop.
+		this.doLoop = false; // Whether to run the animation on a loop.
 		this.loopRange = new Vector2(0, _sheet.positions.length); // Range of frames between which to loop.
 		this.fps = 1; // Spritesheet frames per second when animated.
 		let _frame = 0; // Index of the current frame in the spritesheet.
@@ -854,8 +855,6 @@ class USound {
 			isPlaying: {
 				get: () => _isPlaying,
 				set: (value) => {
-					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
-
 					_isPlaying = value;
 
 					// Play/pause audio.
@@ -899,7 +898,7 @@ class USound {
 		});
 
 		const req = new XMLHttpRequest();
-		req.open("GET", _source);
+		req.open("GET", this.source);
 		req.responseType = "arraybuffer";
 		req.addEventListener("load", () => {
 			_actx.decodeAudioData(req.response, (buffer) => {
