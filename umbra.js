@@ -1,3 +1,19 @@
+/*
+ * Documentation Links
+ * JSDoc:				https://jsdoc.app
+ * Sphinx:				https://www.sphinx-doc.org/
+ * sphinx-js:			https://github.com/mozilla/sphinx-js
+ * Read the Docs:		https://readthedocs.org/
+ * reStructuredText:	https://docutils.sourceforge.io/rst.html
+ */
+
+/**
+ * @author Travis Martin
+ * @copyright Travis Martin 2020
+ * @file All of the code for the Umbra Framework.
+ * @license APGL-3.0-or-later
+ */
+
 // Umbra tag definitions. Used by the Umbra Builder to create customized distributions.
 // UTAGDEF DESC REQUIRED Minimal Umbra framework functionality.
 // UTAGDEF SIZE REQUIRED 724b
@@ -49,15 +65,32 @@
 // UTAGDEF REQU ADVAUDIO AUDIO
 // UTAGDEF SIZE ADVAUDIO 203b
 
-// Note: Package sizes are approximate. Although the packages add up to 3603b, a full installation is only 3402b.
+// Note: Package sizes are approximate.
 
 // Code start.
+
 // UTAGSET START GRAPHICS
+
+/**
+ * @class
+ * @classdesc Contains two numerical values which represent a coordinate or range.
+ * @namespace
+ * @readonly
+ * @since 1.0
+ */
 class Vector2 {
-	// Used to specify a point or range.
+	/**
+	 * @constructs
+	 * @description Creates a Vector2.
+	 * @example new Vector2(5, 10);
+	 * @param {!number} [x = 0] - The lowest value in a range or the horizontal component of a coordinate.
+	 * @param {!number} [y = 0] - The highest value in a range or the vertical component of a coordinate.
+	 * @readonly
+	 * @since 1.0
+	 */
 	constructor(
-			_x = 0, // First value.
-			_y = 0 // Second value.
+			_x = 0,
+			_y = 0
 	) {
 		if (typeof _x != "number") { throw new Error("_x must be a number."); }
 		if (typeof _y != "number") { throw new Error("_y must be a number."); }
@@ -84,7 +117,25 @@ class Vector2 {
 					_y = value;
 				}
 			},
+
+			/**
+			 * @description The difference between the minimum and maximum values in a range.
+			 * @member {!number} range
+			 * @memberof Vector2
+			 * @readonly
+			 * @since 1.0
+			 */
 			range: { get: () => Math.abs(this.x - this.y) },
+
+			/**
+			 * @description Apply a translation effect.
+			 * @example new Vector2(5, 10).translate(new Vector2(5, 10)); // Creates a new Vector2 at (10, 20).
+			 * @function
+			 * @memberof Vector2
+			 * @param {Vector2} offset - The values by which this point should be translated.
+			 * @readonly
+			 * @since 1.0
+			 */
 			translate: { get: () => _translate }
 		});
 	}
@@ -160,9 +211,10 @@ class Bounds {
 		});
 	}
 }
-// UTAGSET END GRAPHICS
 
+// UTAGSET END GRAPHICS
 // UTAGSET START REQUIRED
+
 class Umbra {
 	// An instance of a game.
 	constructor(
@@ -218,22 +270,25 @@ class Umbra {
 
 				_lag -= _frameDuration;
 			}
-			// UTAGSET END REQUIRED
 
+			// UTAGSET END REQUIRED
 			// UTAGSET START GRAPHICS
+
 			// Render the viewport of the camera.
 			this.camera.render(_lag / _frameDuration);
-			// UTAGSET END GRAPHICS
 
+			// UTAGSET END GRAPHICS
 			// UTAGSET START REQUIRED
+
 		}
 
 		// Setup document.
 		document.title = _title;
 		document.body.style = "margin:0;";
-		// UTAGSET END REQUIRED
 
+		// UTAGSET END REQUIRED
 		// UTAGSET START GRAPHICS
+
 		// Canvas setup.
 		const _canvas = document.createElement("canvas"); // The canvas on which the game is rendered.
 		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
@@ -243,9 +298,10 @@ class Umbra {
 		document.body.appendChild(_canvas);
 		let _scene = new UObject(); // The scene to render on the canvas.
 		let _camera; // The main camera from which to render the canvas. Defined after canvas is made public.
-		// UTAGSET END GRAPHICS
 
+		// UTAGSET END GRAPHICS
 		// UTAGSET START AUDIO
+
 		const _actx = new AudioContext();
 		if (_actx.state == "suspended") {
 			// Create a button to ask the user to enable audio.
@@ -255,22 +311,29 @@ class Umbra {
 			_button.onclick = () => _actx.resume().then(() => document.body.removeChild(_button));
 			document.body.appendChild(_button);
 		}
-		// UTAGSET END AUDIO
 
+		// UTAGSET END AUDIO
 		// UTAGSET START POINTER
+
 		// Unified mouse and touchscreen input.
 		let _pointer; // The main pointer.
 		let _interactableObjects = []; // List of all objects that can be interacted with.
-		// UTAGSET END POINTER
 
+		// UTAGSET END POINTER
 		// UTAGSET START ASSETS
+
 		// Loading assets from files.
 		const _assets = { }; // Object with references to all loaded assets.
+
 		// UTAGSET END ASSETS
+		// UTAGSET START REQUIRED
 
 		// Start the framework.
-		const _start = () => { // UTAGSET LINE REQUIRED
+		const _start = () => { 
+
+			// UTAGSET END REQUIRED
 			// UTAGSET START ASSETS
+
 			// Load assets.
 			const _loadAssets = () => {
 				this.state = _loadState;
@@ -308,9 +371,10 @@ class Umbra {
 						});
 						req.send();
 					}
-					// UTAGSET END ASSETS
 
+					// UTAGSET END ASSETS
 					// UTAGSET START TEXT
+
 					else if (fontExtensions.indexOf(extension) > -1) {
 						// Load fonts.
 						const fontFamily = source.split("/").pop().split(".")[0];
@@ -319,9 +383,10 @@ class Umbra {
 						document.head.appendChild(style);
 						_onLoad();
 					}
-					// UTAGSET END TEXT
 
+					// UTAGSET END TEXT
 					// UTAGSET START IMAGE
+
 					else if (imageExtensions.indexOf(extension) > -1) {
 						// Load images.
 						const image = new Image();
@@ -331,31 +396,38 @@ class Umbra {
 						});
 						image.src = source; // Start loading the image.
 					}
-					// UTAGSET END IMAGE
 
+					// UTAGSET END IMAGE
 					// UTAGSET START AUDIO
+
 					else if (audioExtensions.indexOf(extension) > -1) {
 						const audio = new USound(source, _onLoad);
 						this.assets[source] = audio;
 					}
-					// UTAGSET END AUDIO
 
+					// UTAGSET END AUDIO
 					// UTAGSET START ASSETS
+
 					else { throw new Error("Tried to load an asset with an unknown extension."); }
 				}
 			}
 
 			// Start loading assets.
 			if (_assetPaths.length > 0) { _loadAssets(); } else {
-				// UTAGSET END ASSETS
 
+				// UTAGSET END ASSETS
 				// UTAGSET START REQUIRED
+
 				// Run the startup function.
 				if (_setup) { _setup(); }
-				// UTAGSET END REQUIRED
-			} // UTAGSET LINE ASSETS
 
+				// UTAGSET END REQUIRED
+				// UTAGSET START ASSETS
+			}
+
+			// UTAGSET END ASSETS
 			// UTAGSET START REQUIRED
+
 			// Start the game loop.
 			_gameLoop();
 		}
@@ -378,9 +450,10 @@ class Umbra {
 				}
 			},
 			updates: { get: () => _updates },
-			// UTAGSET END REQUIRED
 
+			// UTAGSET END REQUIRED
 			// UTAGSET START GRAPHICS
+
 			canvas: { get: () => _canvas },
 			context: { get: () => _context },
 			scene: {
@@ -399,39 +472,49 @@ class Umbra {
 					_camera = value;
 				}
 			},
+
 			// UTAGSET END GRAPHICS
-
 			// UTAGSET START AUDIO
-			actx: { get: () => _actx },
-			// UTAGSET END AUDIO
 
+			actx: { get: () => _actx },
+
+			// UTAGSET END AUDIO
 			// UTAGSET START POINTER
+
 			pointer: { get: () => _pointer },
 			interactableObjects: { get: () => _interactableObjects },
+
 			// UTAGSET END POINTER
-
 			// UTAGSET START ASSETS
-			assets: { get: () => _assets },
-			// UTAGSET END ASSETS
 
+			assets: { get: () => _assets },
+
+			// UTAGSET END ASSETS
 			// UTAGSET START REQUIRED
+
 			start: { get: () => _start }
 		});
-		// UTAGSET END REQUIRED
 
+		// UTAGSET END REQUIRED
 		// UTAGSET START GRAPHICS
+
 		// Define camera after canvas is made public.
 		_camera = new UCamera();
-		// UTAGSET END GRAPHICS
 
+		// UTAGSET END GRAPHICS
 		// UTAGSET START POINTER
+
 		// Define pointer after canvas is made public.
 		_pointer = new UPointer();
-		// UTAGSET END POINTER
-	} // UTAGSET LINE REQUIRED
-} // UTAGSET LINE REQUIRED
 
+		// UTAGSET END POINTER
+		// UTAGSET START REQUIRED
+	}
+}
+
+// UTAGSET END REQUIRED
 // UTAGSET START GRAPHICS
+
 class UCamera {
 	constructor(
 			_bounds = new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)) // The default boundaries of the camera.
@@ -594,9 +677,10 @@ class UObject {
 
 			// Save context so that it can be returned to - to have different settings for each object.
 			ctx.save();
-			// UTAGSET END GRAPHICS
 
+			// UTAGSET END GRAPHICS
 			// UTAGSET START ADVGRAPH
+
 			// Set opacity.
 			ctx.globalAlpha = this.alpha;
 
@@ -616,9 +700,10 @@ class UObject {
 
 			// Setup advanced rendering options.
 			if (this.compositeOperation) { ctx.globalCompositeOperation = this.compositeOperation; }
-			// UTAGSET END ADVGRAPH
 
+			// UTAGSET END ADVGRAPH
 			// UTAGSET START GRAPHICS
+
 			// Color object.
 			ctx.strokeStyle = this.lineColor;
 			ctx.lineWidth = this.lineWidth;
@@ -640,17 +725,19 @@ class UObject {
 			ctx.restore();
 		}
 		let _render; // Function to use when rendering the object.
-		// UTAGSET END GRAPHICS
 
+		// UTAGSET END GRAPHICS
 		// UTAGSET START ADVGRAPH
+
 		// Advanced rendering properties.
 		let _scale = new Vector2(1, 1); // Width/height multiplier.
 		let _shadow; // Shadow cast by the object.
 		let _compositeOperation; // Global composite operation used when rendering this object.
 		let _alpha = 1; // Opacity.
-		// UTAGSET END ADVGRAPH
 
+		// UTAGSET END ADVGRAPH
 		// UTAGSET START GRAPHICS
+
 		// Interactability properties.
 		let _isDown = false;
 		let _onClick; // Function to run when the sprite is pressed.
@@ -746,9 +833,10 @@ class UObject {
 					_render = value;
 				}
 			},
-			// UTAGSET END GRAPHICS
 
+			// UTAGSET END GRAPHICS
 			// UTAGSET START ADVGRAPH
+
 			scale: {
 				get: () => _scale,
 				set: (value) => {
@@ -781,9 +869,10 @@ class UObject {
 					_alpha = value;
 				}
 			},
-			// UTAGSET END ADVGRAPH
 
+			// UTAGSET END ADVGRAPH
 			// UTAGSET START GRAPHICS
+
 			isDown: {
 				get: () => _isDown,
 				set: (value) => {
@@ -813,9 +902,10 @@ class UObject {
 		});
 	}
 }
-// UTAGSET END GRAPHICS
 
+// UTAGSET END GRAPHICS
 // UTAGSET START RECT
+
 class URect extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
@@ -831,9 +921,10 @@ class URect extends UObject {
 		}
 	}
 }
-// UTAGSET END RECT
 
+// UTAGSET END RECT
 // UTAGSET START CIRCLE
+
 class UCircle extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to parent constructor.
@@ -850,9 +941,10 @@ class UCircle extends UObject {
 		}
 	}
 }
-// UTAGSET END CIRCLE
 
+// UTAGSET END CIRCLE
 // UTAGSET START LINE
+
 class ULine extends UObject {
 	constructor(
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
@@ -883,9 +975,10 @@ class ULine extends UObject {
 		}
 	}
 }
-// UTAGSET END LINE
 
+// UTAGSET END LINE
 // UTAGSET START TEXT
+
 class UText extends UObject {
 	constructor(
 			_text, // Text displayed on the object.
@@ -944,9 +1037,10 @@ class UText extends UObject {
 		}
 	}
 }
-// UTAGSET END TEXT
 
+// UTAGSET END TEXT
 // UTAGSET START IMAGE
+
 class USpritesheet {
 	constructor(
 			_source, // Image source.
@@ -1062,9 +1156,10 @@ class USprite extends UObject {
 		}
 	}
 }
-// UTAGSET END IMAGE
 
+// UTAGSET END IMAGE
 // UTAGSET START POINTER
+
 class UPointer {
 	constructor() {
 		// Pointer state variables.
@@ -1154,9 +1249,10 @@ class UPointer {
 		});
 	}
 }
-// UTAGSET END POINTER
 
+// UTAGSET END POINTER
 // UTAGSET START KEYBOARD
+
 class UKey {
 	constructor(
 			_code // ASCII key code.
@@ -1205,9 +1301,10 @@ class UKey {
 		});
 	}
 }
-// UTAGSET END KEYBOARD
 
+// UTAGSET END KEYBOARD
 // UTAGSET START ADVAUDIO
+
 class UEcho {
 	constructor(
 			_delayValue = 0.3, // Delay until echo starts.
@@ -1234,9 +1331,10 @@ class UEcho {
 		});
 	}
 }
-// UTAGSET END ADVAUDIO
 
+// UTAGSET END ADVAUDIO
 // UTAGSET START AUDIO
+
 class USound {
 	constructor(
 			_source, // Path to the source file.
@@ -1251,17 +1349,19 @@ class USound {
 		let _sound; // Audio source.
 		let _buffer; // Audio data.
 		let _isPlaying = false; // Whether the audio is playing.
-		// UTAGSET END AUDIO
 
+		// UTAGSET END AUDIO
 		// UTAGSET START ADVAUDIO
+
 		// Advanced audio properties.
 		let _pan = _actx.createPanner(); // Controls audio in 3D space.
 		let _convolver = _actx.createConvolver(); // Adds convolution effects.
 		let _echo; // Echo properties.
 		let _reverb; // Reverb audio buffer.
-		// UTAGSET END ADVAUDIO
 
+		// UTAGSET END ADVAUDIO
 		// UTAGSET START AUDIO
+
 		Object.defineProperties(this, {
 			volume: { get: () => _volume },
 			sound: { get: () => _sound },
@@ -1277,22 +1377,25 @@ class USound {
 						_sound = _actx.createBufferSource();
 						this.sound.buffer = _buffer;
 						this.sound.connect(this.volume);
-						// UTAGSET END AUDIO
 
+						// UTAGSET END AUDIO
 						// UTAGSET START ADVAUDIO
+
 						if (this.reverb) {
 							this.volume.connect(this.convolver);
 							this.convolver.connect(this.pan);
 							this.convolver.buffer = this.reverb;
 						} else { this.volume.connect(this.pan); }
 						if (this.pan) { this.pan.connect(_actx.destination); } else {
+
 							// UTAGSET END ADVAUDIO
-
 							// UTAGSET START AUDIO
-							this.volume.connect(_actx.destination);
-							// UTAGSET END AUDIO
 
+							this.volume.connect(_actx.destination);
+
+							// UTAGSET END AUDIO
 							// UTAGSET START ADVAUDIO
+
 						}
 						if (this.echo) {
 							this.echo.delay.connect(this.echo.feedback);
@@ -1303,16 +1406,18 @@ class USound {
 							this.volume.connect(this.echo.delay);
 							this.echo.delay.connect(this.pan);
 						}
-						// UTAGSET END ADVAUDIO
 
+						// UTAGSET END ADVAUDIO
 						// UTAGSET START AUDIO
+
 						this.sound.start();
 					} else { this.sound.stop(); }
 				}
 			},
-			// UTAGSET END AUDIO
 
+			// UTAGSET END AUDIO
 			// UTAGSET START ADVAUDIO
+
 			pan: { get: () => _pan },
 			convolver: { get: () => _convolver },
 			echo: {
@@ -1331,9 +1436,10 @@ class USound {
 					_reverb = value;
 				}
 			}
-			// UTAGSET END ADVAUDIO
 
+			// UTAGSET END ADVAUDIO
 			// UTAGSET START AUDIO
+
 		});
 
 		const req = new XMLHttpRequest();
@@ -1348,4 +1454,5 @@ class USound {
 		req.send();
 	}
 }
+
 // UTAGSET END AUDIO
