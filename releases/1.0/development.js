@@ -56,19 +56,36 @@
 class Vector2 {
 	// Used to specify a point or range.
 	constructor(
-			x = 0, // First value.
-			y = 0 // Second value.
+			_x = 0, // First value.
+			_y = 0 // Second value.
 	) {
-		this.x = x;
-		this.y = y;
+		if (typeof _x != "number") { throw new Error("_x must be a number."); }
+		if (typeof _y != "number") { throw new Error("_y must be a number."); }
 
-		this.translate = (offset) => {
+		const _translate = (offset) => {
+			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
+
 			this.x += offset.x;
 			this.y += offset.y;
 		}
 
 		Object.defineProperties(this, {
-			range: { get: () => Math.abs(this.x - this.y) }
+			x: {
+				get: () => _x,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+					_x = value;
+				}
+			},
+			y: {
+				get: () => _y,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+					_y = value;
+				}
+			},
+			range: { get: () => Math.abs(this.x - this.y) },
+			translate: { get: () => _translate }
 		});
 	}
 }
@@ -76,29 +93,51 @@ class Vector2 {
 class Bounds {
 	// Used to specify a range between two points.
 	constructor(
-			min = new Vector2(), // First point.
-			max = new Vector2() // Second point.
+			_min = new Vector2(), // First point.
+			_max = new Vector2() // Second point.
 	) {
-		this.min = min;
-		this.max = max;
+		if (!_min instanceof Vector2) { throw new Error("_min must be a Vector2."); }
+		if (!_max instanceof Vector2) { throw new Error("_max must be a Vector2."); }
 
 		// Check if the boundary contains a point.
-		this.contains = (point) => {
+		const _contains = (point) => {
+			if (!point instanceof Vector2) { throw new Error("point must be a Vector2."); }
+
 			return point.x >= this.min.x && point.x <= this.max.x && point.y >= this.min.y && point.y <= this.max.y;
 		}
 
 		// Check if the boundary shares any points with another boundary.
-		this.intersects = (boundary) => {
+		const _intersects = (boundary) => {
+			if (!boundary instanceof Bounds) { throw new Error("boundary must be a Bounds."); }
+
 			return boundary.min.x <= this.max.x && boundary.max.x >= this.min.x && boundary.min.y <= this.max.y && boundary.max.y >= this.min.y;
 		}
 
 		// Move all corners of the bounds.
-		this.translate = (offset) => {
+		const _translate = (offset) => {
+			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
+
 			this.min.translate(offset);
 			this.max.translate(offset);
 		}
 
 		Object.defineProperties(this, {
+			min: {
+				get: () => _min,
+				set: (value) => {
+					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
+
+					_min = value;
+				}
+			},
+			max: {
+				get: () => _max,
+				set: (value) => {
+					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
+
+					_max = value;
+				}
+			},
 			width: {
 				get: () => this.max.x - this.min.x,
 				set: (value) => {
@@ -114,7 +153,10 @@ class Bounds {
 
 					this.max.y = this.min.y + value;
 				}
-			}
+			},
+			contains: { get: () => _contains },
+			intersects: { get: () => _intersects },
+			translate: { get: () => _translate }
 		});
 	}
 }
@@ -131,12 +173,23 @@ class Umbra {
 			_fps = 60, // Target frames per second of the game loop.
 			_size = { x: innerWidth, y: innerHeight } // The size of the canvas. Not a Vector2 so that Vector2 isn't REQUIRED - but can be a Vector2.
 	) {
+		if (typeof _setup != "function" && _setup != undefined) { throw new Error("_setup must be a function."); }
+		if (typeof _loadState != "function" && _loadState != undefined) { throw new Error("_loadState must be a function."); }
+		if (typeof _title != "string") { throw new Error("_title must be a string."); }
+		if (!Array.isArray(_assetPaths)) { throw new Error("_assetPaths must be an array."); }
+		_assetPaths.forEach(value => { if (typeof value != "string") { throw new Error("_assetPaths must contain only strings."); } });
+		if (typeof _fps != "number") { throw new Error("_fps must be a number."); }
+		if (typeof _size != "object") { throw new Error("_size must be an object."); }
+		if (typeof _size.x == "undefined") { throw new Error("_size must have an x value."); }
+		if (typeof _size.y == "undefined") { throw new Error("_size must have a y value."); }
+
 		// Define global instance.
+		if (Umbra.instance) { throw new Error("There is already an instance of Umbra running."); }
 		Umbra.instance = this;
 
 		// Game state properties.
-		this.state; // The main function to run in the game loop.
-		this.isPaused = false; // Whether the game loop should run the main function.
+		let _state; // The main function to run in the game loop.
+		let _isPaused = false; // Whether the game loop should run the main function.
 
 		// Frame time properties.
 		let _lastFrameTime = Date.now(); // Time that the last frame happened.
@@ -144,11 +197,11 @@ class Umbra {
 		let _lag = 0; // Lag time to be made up for with updates.
 
 		// Game loop properties.
-		this.updates = []; // Updates to be run in the game loop.
+		let _updates = []; // Updates to be run in the game loop.
 
 		// The main game loop.
-		this.gameLoop = () => {
-			requestAnimationFrame(this.gameLoop, this.canvas);
+		const _gameLoop = () => {
+			requestAnimationFrame(_gameLoop, this.canvas);
 
 			// Frame timing.
 			const now = Date.now();
@@ -182,41 +235,41 @@ class Umbra {
 
 		// UTAGSET START GRAPHICS
 		// Canvas setup.
-		this.canvas = document.createElement("canvas"); // The canvas on which the game is rendered.
-		this.context = this.canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
-		this.canvas.style = `background-color:#000;touch-action:none;`;
-		this.canvas.width = _size.x;
-		this.canvas.height = _size.y;
-		document.body.appendChild(this.canvas);
-		this.scene = new UObject(); // The scene to render on the canvas.
-		this.camera; // The main camera from which to render the canvas. Defined after canvas is made public.
+		const _canvas = document.createElement("canvas"); // The canvas on which the game is rendered.
+		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
+		_canvas.style = `background-color:#000;touch-action:none;`;
+		_canvas.width = _size.x;
+		_canvas.height = _size.y;
+		document.body.appendChild(_canvas);
+		let _scene = new UObject(); // The scene to render on the canvas.
+		let _camera; // The main camera from which to render the canvas. Defined after canvas is made public.
 		// UTAGSET END GRAPHICS
 
 		// UTAGSET START AUDIO
-		this.actx = new AudioContext();
-		if (this.actx.state == "suspended") {
+		const _actx = new AudioContext();
+		if (_actx.state == "suspended") {
 			// Create a button to ask the user to enable audio.
 			const _button = document.createElement("button");
 			_button.style = "position:fixed;top:0;left:0;width:10%;height:10%;";
 			_button.innerHTML = "Click to enable audio.";
-			_button.onclick = () => this.actx.resume().then(() => document.body.removeChild(_button));
+			_button.onclick = () => _actx.resume().then(() => document.body.removeChild(_button));
 			document.body.appendChild(_button);
 		}
 		// UTAGSET END AUDIO
 
 		// UTAGSET START POINTER
 		// Unified mouse and touchscreen input.
-		this.pointer; // The main pointer.
-		this.interactableObjects = []; // List of all objects that can be interacted with.
+		let _pointer; // The main pointer.
+		let _interactableObjects = []; // List of all objects that can be interacted with.
 		// UTAGSET END POINTER
 
 		// UTAGSET START ASSETS
 		// Loading assets from files.
-		this.assets = { }; // Object with references to all loaded assets.
+		const _assets = { }; // Object with references to all loaded assets.
 		// UTAGSET END ASSETS
 
 		// Start the framework.
-		this.start = () => { // UTAGSET LINE REQUIRED
+		const _start = () => { // UTAGSET LINE REQUIRED
 			// UTAGSET START ASSETS
 			// Load assets.
 			const _loadAssets = () => {
@@ -288,6 +341,7 @@ class Umbra {
 					// UTAGSET END AUDIO
 
 					// UTAGSET START ASSETS
+					else { throw new Error("Tried to load an asset with an unknown extension."); }
 				}
 			}
 
@@ -303,18 +357,76 @@ class Umbra {
 
 			// UTAGSET START REQUIRED
 			// Start the game loop.
-			this.gameLoop();
+			_gameLoop();
 		}
+
+		Object.defineProperties(this, {
+			state: {
+				get: () => _state,
+				set: (value) => {
+					if (typeof value != "function" && value != undefined) { throw new Error("value must be a function."); }
+
+					_state = value;
+				}
+			},
+			isPaused: {
+				get: () => _isPaused,
+				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
+					_isPaused = value;
+				}
+			},
+			updates: { get: () => _updates },
+			// UTAGSET END REQUIRED
+
+			// UTAGSET START GRAPHICS
+			canvas: { get: () => _canvas },
+			context: { get: () => _context },
+			scene: {
+				get: () => _scene,
+				set: (value) => {
+					if (!value instanceof UObject) { throw new Error("value must be a UObject."); }
+
+					_scene = value;
+				}
+			},
+			camera: {
+				get: () => _camera,
+				set: (value) => {
+					if (!value instanceof UCamera) { throw new Error("value must be a UCamera."); }
+
+					_camera = value;
+				}
+			},
+			// UTAGSET END GRAPHICS
+
+			// UTAGSET START AUDIO
+			actx: { get: () => _actx },
+			// UTAGSET END AUDIO
+
+			// UTAGSET START POINTER
+			pointer: { get: () => _pointer },
+			interactableObjects: { get: () => _interactableObjects },
+			// UTAGSET END POINTER
+
+			// UTAGSET START ASSETS
+			assets: { get: () => _assets },
+			// UTAGSET END ASSETS
+
+			// UTAGSET START REQUIRED
+			start: { get: () => _start }
+		});
 		// UTAGSET END REQUIRED
 
 		// UTAGSET START GRAPHICS
 		// Define camera after canvas is made public.
-		this.camera = new UCamera();
+		_camera = new UCamera();
 		// UTAGSET END GRAPHICS
 
 		// UTAGSET START POINTER
 		// Define pointer after canvas is made public.
-		this.pointer = new UPointer();
+		_pointer = new UPointer();
 		// UTAGSET END POINTER
 	} // UTAGSET LINE REQUIRED
 } // UTAGSET LINE REQUIRED
@@ -322,12 +434,14 @@ class Umbra {
 // UTAGSET START GRAPHICS
 class UCamera {
 	constructor(
-			bounds = new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)) // The default boundaries of the camera.
+			_bounds = new Bounds(new Vector2(), new Vector2(Umbra.instance.canvas.width, Umbra.instance.canvas.height)) // The default boundaries of the camera.
 	) {
-		this.bounds = bounds;
+		if (!_bounds instanceof Bounds) { throw new Error("_bounds must be a Bounds."); }
 
 		// Convert a screen point to a global point.
-		this.sPToG = (point) => {
+		const _sPToG = (point) => {
+			if (!point instanceof Vector2) { throw new Error("point must be a Vector2."); }
+
 			const offset = this.bounds.min;
 
 			return new Vector2(
@@ -337,7 +451,9 @@ class UCamera {
 		}
 
 		// Convert a global point to a screen point.
-		this.gPToS = (point) => {
+		const _gPToS = (point) => {
+			if (!point instanceof Vector2) { throw new Error("point must be a Vector2."); }
+
 			const offset = this.bounds.min;
 
 			return new Vector2(
@@ -347,34 +463,82 @@ class UCamera {
 		}
 
 		// Convert a screen bounds to a global bounds.
-		this.sBToG = (bounds) => {
+		const _sBToG = (bounds) => {
+			if (!bounds instanceof Bounds) { throw new Error("bounds must be a Bounds."); }
+
 			return new Bounds(this.sPToG(bounds.min), this.sPToG(bounds.max));
 		}
 
 		// Convert a global bounds to a screen bounds.
-		this.gBToS = (bounds) => {
+		const _gBToS = (bounds) => {
+			if (!bounds instanceof Bounds) { throw new Error("bounds must be a Bounds."); }
+
 			return new Bounds(this.gPToS(bounds.min), this.gPToS(bounds.max));
 		}
 
 		// Render all UObjects within the bounds.
-		this.render = (offset) => {
+		const _render = (offset) => {
 			const canvas = Umbra.instance.canvas;
 			Umbra.instance.context.clearRect(0, 0, canvas.width, canvas.height);
 
 			Umbra.instance.scene.display(offset);
 		}
+
+		Object.defineProperties(this, {
+			bounds: {
+				get: () => _bounds,
+				set: (value) => {
+					if (!value instanceof Bounds) { throw new Error("value must be a Bounds."); }
+
+					_bounds = value;
+				}
+			},
+			scale: { get: () => new Vector2(Umbra.instance.canvas.width / this.bounds.width, Umbra.instance.canvas.height / this.bounds.height) },
+			sPToG: { get: () => _sPToG },
+			gPToS: { get: () => _gPToS },
+			sBToG: { get: () => _sBToG },
+			gBToS: { get: () => _gBToS },
+			render: { get: () => _render }
+		});
 	}
 }
 
 class UShadow {
 	constructor(
-			color = "rgba(100, 100, 100, 0.5)", // Color of the shadow.
-			offset = new Vector2(3, 3), // Offset of the shadow from the caster.
-			blur = 3 // Blur value.
+			_color = "rgba(100, 100, 100, 0.5)", // Color of the shadow.
+			_offset = new Vector2(3, 3), // Offset of the shadow from the caster.
+			_blur = 3 // Blur value.
 	) {
-		this.color = color;
-		this.offset = offset;
-		this.blur = blur;
+		if (typeof _color != "string") { throw new Error("_color must be a string."); }
+		if (!_offset instanceof Vector2) { throw new Error("_offset must be a Vector2."); }
+		if (typeof _blur != "number") { throw new Error("_blur must be a number."); }
+
+		Object.defineProperties(this, {
+			color: {
+				get: () => _color,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_color = value;
+				}
+			},
+			offset: {
+				get: () => _offset,
+				set: (value) => {
+					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
+
+					_offset = value;
+				}
+			},
+			blur: {
+				get: () => _blur,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
+					_blur = value;
+				}
+			}
+		});
 	}
 }
 
@@ -383,38 +547,43 @@ class UObject {
 			_bounds = new Bounds(), // Min and max coordinates of object.
 			_parent = undefined // Parent object.
 	) {
+		if (!_bounds instanceof Bounds) { throw new Error("_bounds must be a Bounds."); }
+		if (!_parent instanceof UObject && _parent != undefined) { throw new Error("_parent must be a UObject."); }
+
 		// Rendering properties.
-		this.isActive = true; // Whether the object should be rendered.
+		let _isActive = true; // Whether the object should be rendered.
 		let _layer = 0; // The z-layer of the object. Higher values are displayed over lower ones.
-		this.doClip = false; // Whether to use this object to clip the context.
-		this.fillColor = "white"; // Color to fill the object.
-		this.lineColor = "white"; // Color of the object's outline.
-		this.lineWidth = 1; // Width of the object's outline.
+		let _doClip = false; // Whether to use this object to clip the context.
+		let _fillColor = "white"; // Color to fill the object.
+		let _lineColor = "white"; // Color of the object's outline.
+		let _lineWidth = 1; // Width of the object's outline.
 
 		// Move object.
-		this.translate = (offset) => {
+		const _translate = (offset) => {
 			if (!offset instanceof Vector2) { throw new Error("offset must be a Vector2."); }
 
 			this.bounds.translate(offset);
 
 			// Reposition children and resize childbox.
-			this.childBox = this.bounds;
+			_childBox = this.bounds;
 			this.children.forEach((child) => {
 				child.translate(offset);
-				this.childBox.min.x = Math.min(this.childBox.min.x, child.childBox.min.x);
-				this.childBox.min.y = Math.min(this.childBox.min.y, child.childBox.min.y);
-				this.childBox.max.x = Math.max(this.childBox.max.x, child.childBox.max.x);
-				this.childBox.max.y = Math.max(this.childBox.max.y, child.childBox.max.y);
+				_childBox.min.x = Math.min(_childBox.min.x, child.childBox.min.x);
+				_childBox.min.y = Math.min(_childBox.min.y, child.childBox.min.y);
+				_childBox.max.x = Math.max(_childBox.max.x, child.childBox.max.x);
+				_childBox.max.y = Math.max(_childBox.max.y, child.childBox.max.y);
 			});
 		}
 
 		// Parent-child hierarchy properties.
-		this.children = []; // List of children.
-		this.childBox = _bounds; // Bounds of this object and its children.
-		if (this.parent) { this.parent.children.push(this); } // Add to parent's children array.
+		let _children = []; // List of children.
+		let _childBox = _bounds; // Bounds of this object and its children.
+		if (_parent) { _parent.children.push(this); } // Add to parent's children array.
 
 		// Display the sprite on the canvas.
-		this.display = (offset) => {
+		const _display = (offset) => {
+			if (typeof offset != "number") { throw new Error("offset must be a number."); }
+
 			// Shorten variable names to save characters.
 			const cam = Umbra.instance.camera;
 			const ctx = Umbra.instance.context;
@@ -470,20 +639,20 @@ class UObject {
 			// Restore context state after children are drawn so that traits are inherited.
 			ctx.restore();
 		}
-		this.render; // Function to use when rendering the object.
+		let _render; // Function to use when rendering the object.
 		// UTAGSET END GRAPHICS
 
 		// UTAGSET START ADVGRAPH
 		// Advanced rendering properties.
-		this.scale = new Vector2(1, 1); // Width/height multiplier.
-		this.shadow; // Shadow cast by the object.
-		this.compositeOperation; // Global composite operation used when rendering this object.
-		this.alpha = 1; // Opacity.
+		let _scale = new Vector2(1, 1); // Width/height multiplier.
+		let _shadow; // Shadow cast by the object.
+		let _compositeOperation; // Global composite operation used when rendering this object.
+		let _alpha = 1; // Opacity.
 		// UTAGSET END ADVGRAPH
 
 		// UTAGSET START GRAPHICS
 		// Interactability properties.
-		this.isDown = false;
+		let _isDown = false;
 		let _onClick; // Function to run when the sprite is pressed.
 		let _onRelease; // Function to run when the sprite is released.
 		const _addToInteractables = () => {
@@ -498,16 +667,62 @@ class UObject {
 			bounds: {
 				get: () => _bounds,
 				set: (value) => {
-					this.translate(new Vector2(value.min.x - this.bounds.min.x, value.min.y - this.bounds.min.y));
+					if (!value instanceof Bounds) { throw new Error("value must be a Bounds."); }
+
+					const offset = new Vector2(value.min.x - this.bounds.min.x, value.min.y - this.bounds.min.y);
+					this.translate(offset);
+				}
+			},
+			translate: { get: () => _translate },
+			isActive: {
+				get: () => _isActive,
+				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
+					_isActive = value;
 				}
 			},
 			layer: {
 				get: () => _layer,
 				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
 					_layer = value;
 
 					// Sort children by layer.
 					this.parent.children.sort((a, b) => a.layer < b.layer ? -1 : 1);
+				}
+			},
+			doClip: {
+				get: () => _doClip,
+				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
+					_doClip = value;
+				}
+			},
+			fillColor: {
+				get: () => _fillColor,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_fillColor = value;
+				}
+			},
+			lineColor: {
+				get: () => _lineColor,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_lineColor = value;
+				}
+			},
+			lineWidth: {
+				get: () => _lineWidth,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
+					_lineWidth = value;
 				}
 			},
 			parent: {
@@ -518,6 +733,63 @@ class UObject {
 					if (this.parent) { this.parent.children.splice(this.parent.children.indexOf(this), 1); }
 					_parent = value;
 					if (this.parent) { this.parent.children.push(this); }
+				}
+			},
+			children: { get: () => _children },
+			childBox: { get: () => _childBox },
+			display: { get: () => _display },
+			render: {
+				get: () => _render,
+				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
+					_render = value;
+				}
+			},
+			// UTAGSET END GRAPHICS
+
+			// UTAGSET START ADVGRAPH
+			scale: {
+				get: () => _scale,
+				set: (value) => {
+					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
+
+					_scale = value;
+				}
+			},
+			shadow: {
+				get: () => _shadow,
+				set: (value) => {
+					if (!value instanceof UShadow) { throw new Error("value must be a UShadow."); }
+
+					_shadow = value;
+				}
+			},
+			compositeOperation: {
+				get: () => _compositeOperation,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_compositeOperation = value;
+				}
+			},
+			alpha: {
+				get: () => _alpha,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
+					_alpha = value;
+				}
+			},
+			// UTAGSET END ADVGRAPH
+
+			// UTAGSET START GRAPHICS
+			isDown: {
+				get: () => _isDown,
+				set: (value) => {
+					if (!typeof value == "boolean") { throw new Error("value must be a boolean."); }
+
+					_isDown = value;
 				}
 			},
 			onClick: {
@@ -552,6 +824,8 @@ class URect extends UObject {
 		super(_bounds, _parent);
 
 		this.render = (ctx) => {
+			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
+
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 			ctx.rect(d.min.x, d.min.y, d.width, d.height);
 		}
@@ -568,6 +842,8 @@ class UCircle extends UObject {
 		super(_bounds, _parent);
 
 		this.render = (ctx) => {
+			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
+
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 			const r = Math.max(d.width, d.height) / 2;
 			ctx.arc(d.min.x + r, d.min.y + r, r, 0, Math.PI * 2);
@@ -584,10 +860,23 @@ class ULine extends UObject {
 	) {
 		super(_bounds, _parent);
 
-		this.lineJoin; // How the context should join the line.
+		let _lineJoin; // How the context should join the line.
+
+		Object.defineProperties(this, {
+			lineJoin: {
+				get: () => _lineJoin,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_lineJoin = value;
+				}
+			}
+		});
 
 		// Set render function.
 		this.render = (ctx) => {
+			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
+
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 			ctx.moveTo(d.min.x, d.min.y);
 			ctx.lineTo(d.max.x, d.max.y);
@@ -599,19 +888,48 @@ class ULine extends UObject {
 // UTAGSET START TEXT
 class UText extends UObject {
 	constructor(
-			text, // Text displayed on the object.
+			_text, // Text displayed on the object.
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
 			_parent = Umbra.instance.scene // Passed to UObject parent constructor.
 	) {
 		super(_bounds, _parent);
 
-		this.text = text;
+		if (typeof _text != "string") { throw new Error("_text must be a string."); }
 
 		// Display properties.
-		this.font = "20px courier"; // String representation of the font.
-		this.baseline = "top"; // Baseline.
+		let _font = "20px courier"; // String representation of the font.
+		let _baseline = "top"; // Baseline.
+
+		Object.defineProperties(this, {
+			text: {
+				get: () => _text,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_text = value;
+				}
+			},
+			font: {
+				get: () => _font,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_font = value;
+				}
+			},
+			baseline: {
+				get: () => _baseline,
+				set: (value) => {
+					if (typeof value != "string") { throw new Error("value must be a string."); }
+
+					_baseline = value;
+				}
+			}
+		});
 
 		this.render = (ctx) => {
+			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
+
 			// Shorten variable names to save characters.
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 
@@ -631,45 +949,55 @@ class UText extends UObject {
 // UTAGSET START IMAGE
 class USpritesheet {
 	constructor(
-			source, // Image source.
-			frameSize = new Vector2() // Dimensions of one frame on the spritesheet.
+			_source, // Image source.
+			_frameSize = new Vector2() // Dimensions of one frame on the spritesheet.
 	) {
-		this.source = source;
-		this.frameSize = frameSize;
+		if (!_source instanceof HTMLImageElement) { throw new Error("_source must be an HTMLImageElement"); }
+		if (!_frameSize instanceof Vector2) { throw new Error("_frameSize must be a Vector2."); }
 
 		// Spritesheet properties.
-		this.positions = []; // Corner point of each frame.
-		this.size = new Vector2(_source.width / _frameSize.x, _source.height / _frameSize.y); // Number of columns, rows in the spritesheet.
+		let _positions = []; // Corner point of each frame.
+		let _size = new Vector2(_source.width / _frameSize.x, _source.height / _frameSize.y); // Number of columns, rows in the spritesheet.
 
 		// Find frame positions.
 		for (var x = 0; x < _size.x; x++) {
 			for (var y = 0; y < _size.y; y++) { _positions.push(new Vector2(x * _frameSize.x, y * _frameSize.y)); }
 		}
+
+		Object.defineProperties(this, {
+			source: { get: () => _source },
+			frameSize: { get: () => _frameSize },
+			positions: { get: () => _positions },
+			size: { get: () => _size }
+		});
 	}
 }
 
 class USprite extends UObject {
 	constructor(
-			sheet, // The spritesheet to draw frames from.
+			_sheet, // The spritesheet to draw frames from.
 			_bounds = new Bounds(), // Passed to UObject parent constructor.
 			_parent = Umbra.instance.scene // Passed to UObject parent constructor.
 	) {
 		super(_bounds, _parent);
 
-		this.sheet = sheet;
+		if (!_sheet instanceof USpritesheet) { throw new Error("_sheet must be a USpritesheet."); }
 
 		// Display properties.
-		this.doLoop = false; // Whether to run the animation on a loop.
-		this.loopRange = new Vector2(0, _sheet.positions.length); // Range of frames between which to loop.
-		this.fps = 1; // Spritesheet frames per second when animated.
+		let _doLoop = false; // Whether to run the animation on a loop.
+		let _loopRange = new Vector2(0, _sheet.positions.length); // Range of frames between which to loop.
+		let _fps = 1; // Spritesheet frames per second when animated.
 		let _frame = 0; // Index of the current frame in the spritesheet.
 		let _current = _sheet.positions[_frame]; // Set current coordinates on the sheet.
 		let _interval; // Interval for animation.
 
 		Object.defineProperties(this, {
+			sheet: { get: () => _sheet },
 			doLoop: {
 				get: () => _doLoop,
 				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
 					_doLoop = value;
 
 					// Set/clear interval.
@@ -682,9 +1010,30 @@ class USprite extends UObject {
 					} else { clearInterval(_interval); }
 				}
 			},
+			loopRange: {
+				get: () => _loopRange,
+				set: (value) => {
+					if (!value instanceof Vector2) { throw new Error("value must be a Vector2."); }
+					if (value.x < 0 || value > this.sheet.positions.length) { throw new Error(`value.x (${value.x}) is out of bounds (0 - ${this.sheet.positions.length})`); }
+					if (value.y < 0 || value > this.sheet.positions.length) { throw new Error(`value.y (${value.y}) is out of bounds (0 - ${this.sheet.positions.length})`); }
+
+					_loopRange = value;
+				}
+			},
+			fps: {
+				get: () => _fps,
+				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+
+					_fps = value;
+				}
+			},
 			frame: {
 				get: () => _frame,
 				set: (value) => {
+					if (typeof value != "number") { throw new Error("value must be a number."); }
+					if (value < 0 || value > this.sheet.positions.length) { throw new Error(`value (${value}) is out of bounds (0 - ${this.sheet.positions.length})`); }
+
 					_frame = value;
 
 					// Set current position.
@@ -694,6 +1043,8 @@ class USprite extends UObject {
 		});
 
 		this.render = (ctx) => {
+			if (!ctx instanceof CanvasRenderingContext2D) { throw new Error("ctx must be a CanvasRenderingContext2D."); }
+
 			// Shorten variable names to save characters.
 			const d = Umbra.instance.camera.gBToS(this.bounds);
 
@@ -717,14 +1068,14 @@ class USprite extends UObject {
 class UPointer {
 	constructor() {
 		// Pointer state variables.
-		this.pos = new Vector2(); // The position of the pointer on the screen.
-		this.isDown = false; // Whether the pointer is being held down.
-		this.isTapped = false; // Whether the pointer was tapped.
+		let _pos = new Vector2(); // The position of the pointer on the screen.
+		let _isDown = false; // Whether the pointer is being held down.
+		let _isTapped = false; // Whether the pointer was tapped.
 		const _canvas = Umbra.instance.canvas; // Shorten to reduce character count.
 
 		// User-defined event functions.
-		this.onPress; // Pointer became pressed.
-		this.onRelease; // Pointer stopped being pressed.
+		let _onPress; // Pointer became pressed.
+		let _onRelease; // Pointer stopped being pressed.
 
 		// Mouse and touchscreen event handlers.
 		const _eventPosition = (e) => {
@@ -737,12 +1088,12 @@ class UPointer {
 			return new Vector2(e.pageX - e.target.offsetLeft, e.pageY - e.target.offsetTop);
 		}
 		const _moveHandler = (e) => {
-			this.pos = _eventPosition(e);
+			_pos = _eventPosition(e);
 			e.preventDefault(); // Prevent the user from selecting the canvas.
 		}
 		const _downHandler = (e) => {
-			this.pos = _eventPosition(e);
-			this.isDown = true;
+			_pos = _eventPosition(e);
+			_isDown = true;
 			if (this.onPress) { this.onPress(); }
 			Umbra.instance.interactableObjects.forEach((object) => {
 				if (this.isTouching(object) && !object.isDown) {
@@ -753,7 +1104,7 @@ class UPointer {
 			e.preventDefault(); // Prevent the user from selecting the canvas.
 		}
 		const _upHandler = (e) => {
-			this.isDown = false;
+			_isDown = false;
 			if (this.onRelease) { this.onRelease(); }
 			Umbra.instance.interactableObjects.forEach((object) => {
 				if (this.isTouching(object) && object.isDown) {
@@ -773,9 +1124,34 @@ class UPointer {
 		window.addEventListener("touchend", _upHandler); // Touchscreen up.
 
 		// Check if mouse is touching an object.
-		this.isTouching = (object) => {
+		const _isTouching = (object) => {
+			if (!object instanceof UObject) { throw new Error("object must be a UObject."); }
+
 			return Umbra.instance.camera.gBToS(object.bounds).contains(this.pos);
 		}
+
+		Object.defineProperties(this, {
+			pos: { get: () => _pos },
+			isTapped: { get: () => _isTapped },
+			isDown: { get: () => _isDown },
+			onPress: {
+				get: () => _onPress,
+				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
+					_onPress = value;
+				}
+			},
+			onRelease: {
+				get: () => _onRelease,
+				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
+					_onRelease = value;
+				}
+			},
+			isTouching: { get: () => _isTouching }
+		});
 	}
 }
 // UTAGSET END POINTER
@@ -785,25 +1161,47 @@ class UKey {
 	constructor(
 			_code // ASCII key code.
 	) {
+		if (typeof _code != "number") { throw new Error("_code must be a number."); }
+
 		// State properties.
-		this.isDown = false; // Whether the key is being held down.
+		let _isDown = false; // Whether the key is being held down.
 
 		// User-defined event functions.
-		this.onPress; // Key is pressed.
-		this.onRelease; // Key is released.
+		let _onPress; // Key is pressed.
+		let _onRelease; // Key is released.
 
 		// Event handlers.
 		window.addEventListener("keydown", (e) => {
 			if (e.keyCode != _code) { return; }
 			if (!this.isDown && this.onPress) { this.onPress(); }
-			this.isDown = true;
+			_isDown = true;
 			e.preventDefault();
 		});
 		window.addEventListener("keyup", (e) => {
 			if (e.keyCode != _code) { return; }
 			if (this.isDown && this.onRelease) { this.onRelease(); }
-			this.isDown = false;
+			_isDown = false;
 			e.preventDefault();
+		});
+
+		Object.defineProperties(this, {
+			isDown: { get: () => _isDown },
+			onPress: {
+				get: () => _onPress,
+				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
+					_onPress = value;
+				}
+			},
+			onRelease: {
+				get: () => _onRelease,
+				set: (value) => {
+					if (typeof value != "function") { throw new Error("value must be a function."); }
+
+					_onRelease = value;
+				}
+			}
 		});
 	}
 }
@@ -816,14 +1214,24 @@ class UEcho {
 			_feedbackValue = 0.3, // Feedback volume.
 			_filterValue = 0 // Filter value.
 	) {
+		if (typeof _delayValue != "number") { throw new Error("_delayValue must be a number."); }
+		if (typeof _feedbackValue != "number") { throw new Error("_feedbackValue must be a number."); }
+		if (typeof _filterValue != "number") { throw new Error("_filterValue must be a number."); }
+
 		// Setup nodes.
 		let _actx = Umbra.instance.actx;
-		this.delay = _actx.createDelay(); // Delay node.
-		this.delay.delayTime.value = _delayValue;
-		this.feedback = _actx.createGain(); // Feedback gain node.
-		this.feedback.gain.value = _feedbackValue;
-		this.filter = _actx.createBiquadFilter(); // Biquad filter node.
-		this.filter.frequency.value = _filterValue;
+		let _delay = _actx.createDelay(); // Delay node.
+		_delay.delayTime.value = _delayValue;
+		let _feedback = _actx.createGain(); // Feedback gain node.
+		_feedback.gain.value = _feedbackValue;
+		let _filter = _actx.createBiquadFilter(); // Biquad filter node.
+		_filter.frequency.value = _filterValue;
+
+		Object.defineProperties(this, {
+			delay: { get: () => _delay },
+			feedback: { get: () => _feedback },
+			filter: { get: () => _filter }
+		});
 	}
 }
 // UTAGSET END ADVAUDIO
@@ -834,32 +1242,39 @@ class USound {
 			_source, // Path to the source file.
 			_onLoad // Function to run when file is loaded.
 	) {
+		if (typeof _source != "string") { throw new Error("_source must be a string."); }
+		if (typeof _onLoad != "function") { throw new Error("_onLoad must be a function."); }
+
 		// Audio properties.
 		const _actx = Umbra.instance.actx; // Bound audio context.
-		this.volume = _actx.createGain(); // Volume node.
-		this.sound; // Audio source.
+		let _volume = _actx.createGain(); // Volume node.
+		let _sound; // Audio source.
 		let _buffer; // Audio data.
 		let _isPlaying = false; // Whether the audio is playing.
 		// UTAGSET END AUDIO
 
 		// UTAGSET START ADVAUDIO
 		// Advanced audio properties.
-		this.pan = _actx.createPanner(); // Controls audio in 3D space.
-		this.convolver = _actx.createConvolver(); // Adds convolution effects.
-		this.echo; // Echo properties.
-		this.reverb; // Reverb audio buffer.
+		let _pan = _actx.createPanner(); // Controls audio in 3D space.
+		let _convolver = _actx.createConvolver(); // Adds convolution effects.
+		let _echo; // Echo properties.
+		let _reverb; // Reverb audio buffer.
 		// UTAGSET END ADVAUDIO
 
 		// UTAGSET START AUDIO
 		Object.defineProperties(this, {
+			volume: { get: () => _volume },
+			sound: { get: () => _sound },
 			isPlaying: {
 				get: () => _isPlaying,
 				set: (value) => {
+					if (typeof value != "boolean") { throw new Error("value must be a boolean."); }
+
 					_isPlaying = value;
 
 					// Play/pause audio.
 					if (this.isPlaying) {
-						this.sound = _actx.createBufferSource();
+						_sound = _actx.createBufferSource();
 						this.sound.buffer = _buffer;
 						this.sound.connect(this.volume);
 						// UTAGSET END AUDIO
@@ -894,11 +1309,35 @@ class USound {
 						this.sound.start();
 					} else { this.sound.stop(); }
 				}
+			},
+			// UTAGSET END AUDIO
+
+			// UTAGSET START ADVAUDIO
+			pan: { get: () => _pan },
+			convolver: { get: () => _convolver },
+			echo: {
+				get: () => _echo,
+				set: (value) => {
+					if (!value instanceof UEcho) { throw new Error("value must be a UEcho."); }
+
+					_echo = value;
+				}
+			},
+			reverb: {
+				get: () => _reverb,
+				set: (value) => {
+					if (!value instanceof AudioBuffer) { throw new Error("value must be an AudioBuffer"); }
+
+					_reverb = value;
+				}
 			}
+			// UTAGSET END ADVAUDIO
+
+			// UTAGSET START AUDIO
 		});
 
 		const req = new XMLHttpRequest();
-		req.open("GET", this.source);
+		req.open("GET", _source);
 		req.responseType = "arraybuffer";
 		req.addEventListener("load", () => {
 			_actx.decodeAudioData(req.response, (buffer) => {
