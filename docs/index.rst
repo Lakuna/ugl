@@ -11,10 +11,11 @@ Documentation
 
 .. toctree::
 	:maxdepth: 2
-	:caption: Tags:
+	:caption: Guides:
 
-	misc/builder
-	misc/tags
+	guides/builder
+	guides/start
+	guides/tags
 
 .. toctree::
 	:maxdepth: 2

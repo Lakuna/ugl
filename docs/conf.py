@@ -53,3 +53,6 @@ html_static_path = ['_static']
 
 # We're documenting only JavaScript, so we can exclude "js:" prefixes.
 primary_domain = 'js'
+
+# Code snippet highlighting
+pygments_style = 'sphinx'
