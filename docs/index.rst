@@ -1,19 +1,17 @@
 Umbra
 =====
-Umbra is a game framework (or engine, depending on your definition) for HTML5-based games. It was created specifically for the JS13KGames Game Jam (https://js13kgames.com).
+See the about page for more information.
 
 Documentation
 =============
 
 .. toctree::
 	:maxdepth: 2
-	:caption: Tutorials:
-
-.. toctree::
-	:maxdepth: 2
 	:caption: Guides:
 
+	guides/about
 	guides/builder
+	guides/license
 	guides/start
 	guides/tags
 
