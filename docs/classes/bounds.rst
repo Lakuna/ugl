@@ -5,33 +5,33 @@ Bounds
 Attributes
 ----------
 
-Min
+min
 ~~~
 .. autoattribute:: Bounds.min
 
-Max
+max
 ~~~
 .. autoattribute:: Bounds.max
 
-Width
+width
 ~~~~~
 .. autoattribute:: Bounds.width
 
-Height
+height
 ~~~~~~
 .. autoattribute:: Bounds.height
 
 Methods
 -------
 
-Contains
+contains
 ~~~~~~~~~
 .. autofunction:: Bounds.contains
 
-Intersects
+intersects
 ~~~~~~~~~~
 .. autofunction:: Bounds.intersects
 
-Translate
+translate
 ~~~~~~~~~
 .. autofunction:: Bounds.translate

@@ -11,7 +11,7 @@ request(API, (err, res, body) => {
 		console.error(`Error accessing Umbra API: ${err}.\nUsing offline mode.`);
 
 		// Offline mode.
-		return chooseVersion({ latest: 'local', releases: [] });
+		return chooseVersion({ latest: 'local', recommended: 'local', releases: [] });
 	}
 
 	return chooseVersion(JSON.parse(body));
@@ -35,13 +35,15 @@ const chooseVersion = (versions) => {
 	info += localVersion.id;
 
 	// Print string.
-	console.log(info);
+	console.log(`${info}\nDefault: ${versions.recommended}`);
 
 	// Make user select a version.
 	const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 	rl.question('Use version: ', (input) => {
 		// Close the input source.
 		rl.close();
+
+		if (input.trim() == '') { input = versions.recommended}
 
 		// Get version information.
 		const version = versionMap.find((version) => version.id == input);
@@ -221,6 +223,7 @@ const chooseTags = (lines, tags) => {
 
 		// Find tags by name.
 		tagNames.forEach((tagName) => {
+			if (tagName.trim() == '') { return; }
 			const tag = tags.find((tag) => tag.name.toLowerCase() == tagName.toLowerCase());
 			if (!tag) { return console.log(`Unknown tag "${tagName}".`); }
 			addRequiredTag(tag, usedTags);

@@ -5,21 +5,21 @@ Vector2
 Attributes
 ----------
 
-X
+x
 ~~~
 .. autoattribute:: Vector2.x
 
-Y
+y
 ~~~
 .. autoattribute:: Vector2.y
 
-Range
+range
 ~~~~~
 .. autoattribute:: Vector2.range
 
 Methods
 -------
 
-Translate
+translate
 ~~~~~~~~~
 .. autofunction:: Vector2.translate

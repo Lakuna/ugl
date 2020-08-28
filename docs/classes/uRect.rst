@@ -1,0 +1,3 @@
+URect
+=====
+.. autoclass:: URect
