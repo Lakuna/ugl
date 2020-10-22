@@ -145,6 +145,23 @@ const parseVersion = (script) => {
 				if (!requiredTag) { return console.error(`Unable to require tag "${data}".`); }
 
 				tag.requiresTags.push(requiredTag);
+			} else if (comment[1] == 'LINK') {
+				// Include code from URL.
+				request(data, (err, res, body) => {
+					if (err) { return console.error(`Error getting link ${data} for tag "${tag.name}".`); }
+
+					// Uglify linked code.
+					let linkedCode = body;
+					const uglified = uglifyjs.minify(linkedCode);
+					if (uglified.error) { return console.error(`Error uglifying code: ${uglified.error}.\nLinking expanded code.`); } else { linkedCode = uglified.code; }
+
+					// Add linked code to file as lines.
+					const linkLine = new Line();
+					linkLine.comment = `Linked from ${body}.`;
+					linkLine.code = linkedCode;
+					linkLine.tags.push(tag);
+					lines.push(linkLine);
+				});
 			} else { return console.error(`Unknown tag property "${comment[1]}".`); }
 		}
 
@@ -220,7 +237,12 @@ const getTagSize = (lines, tag) => {
 }
 
 const chooseTags = (lines, tags) => {
-	console.log(`\n${columnify(tags, { columns: ['name', 'description', 'size', 'requires'] })}\nThe REQUIRED tag is automatically included. Tag dependencies are automatically included.\nUse an asterisk to include every tag.`);
+	console.log(
+			`\n${columnify(tags, { columns: ['name', 'description', 'size', 'requires'] })}\n` +
+			'The REQUIRED tag is automatically included. Tag dependencies are automatically included.\n' +
+			'Use an asterisk ("*") to include every tag.\n' +
+			'Use an exclamation point ("!") to include comments.'
+	);
 
 	// Choose included tags from user input.
 	let usedTags = [];
@@ -247,12 +269,17 @@ const chooseTags = (lines, tags) => {
 		// Get a list of tag names as defined by the user.
 		const tagNames = input.split(/ +/);
 
+		// Whether to include comments in the output.
+		let includeComments = false;
+
 		// Find tags by name.
 		tagNames.forEach((tagName) => {
 			if (tagName.trim() == '') {
 				return;
 			} else if (tagName == '*') {
 				usedTags = [...tags]; // Use all tags.
+			} else if (tagName == '!') {
+				includeComments = true;
 			} else {
 				const tag = tags.find((tag) => tag.name.toLowerCase() == tagName.toLowerCase());
 				if (!tag) { return console.log(`Unknown tag "${tagName}".`); }
@@ -260,16 +287,20 @@ const chooseTags = (lines, tags) => {
 			}
 		});
 
-		return buildFile(lines, usedTags);
+		return buildFile(lines, usedTags, includeComments);
 	});
 }
 
-const buildFile = (lines, tags) => {
+const buildFile = (lines, tags, includeComments) => {
 	let output = '';
 
 	// Add lines that use at least one tag defined by the user.
 	lines.forEach((line) => {
-		if (line.tags.some((tag) => tags.includes(tag))) { output += `${line.code}\n`; }
+		if (line.tags.some((tag) => tags.includes(tag))) {
+			output += line.code;
+			if (includeComments) { output += line.comment; }
+			output += '\n';
+		}
 	});
 
 	// Uglify output.

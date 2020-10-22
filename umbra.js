@@ -52,7 +52,9 @@
 // UTAGDEF DESC ADVAUDIO Advanced audio transformations.
 // UTAGDEF REQU ADVAUDIO AUDIO
 
-// Note: Package sizes are approximate.
+// Include TinyCanvas by bitnenfer (https://github.com/bitnenfer/tiny-canvas).
+// UTAGDEF DESC WEBGL WebGL using TinyCanvas by bitnenfer.
+// UTAGDEF LINK WEBGL https://raw.githubusercontent.com/bitnenfer/tiny-canvas/master/build/tc.js
 
 // Code start.
 
