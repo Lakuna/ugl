@@ -139,9 +139,6 @@ const parseVersion = (script) => {
 			if (comment[1] == 'DESC') {
 				// Assign tag description.
 				tag.description = data;
-			} else if (comment[1] == 'SIZE') {
-				// Assign the tag's module size.
-				tag.size = data;
 			} else if (comment[1] == 'REQU') {
 				// Add a tag requirement.
 				const requiredTag = tags.find((tag) => tag.name == data);
@@ -179,6 +176,8 @@ const parseVersion = (script) => {
 		lines.push(parsedLine);
 	});
 
+	tags.forEach((tag) => tag.size = getTagSize(lines, tag));
+
 	// Make printable version of each Tag object's requirements.
 	for (let i = 0; i < tags.length; i++) {
 		const tag = tags[i];
@@ -196,16 +195,43 @@ const parseVersion = (script) => {
 	return chooseTags(lines, tags);
 }
 
+const getTagSize = (lines, tag) => {
+	let script = '';
+	let tags = [...tag.requiresTags]; // Clone the array instead of referencing it to avoid adding the tag as its own requirement.
+	tags.push(tag);
+	lines.forEach((line) => {
+		if (line.tags.some((lineTag) => tags.includes(lineTag))) { script += `${line.code}\n`; }
+	});
+	let uglified = uglifyjs.minify(script);
+	if (uglified.error) { return console.error(`Error uglifying code: ${uglified.error}.\nMeasuring tag size using expanded code.`); } else { script = uglified.code; }
+	size = script.length;
+
+	// Get size of requirements without tag.
+	script = '';
+	tags = [...tag.requiresTags];
+	lines.forEach((line) => {
+		if (line.tags.some((lineTag) => tags.includes(lineTag))) { script += `${line.code}\n`; }
+	});
+	uglified = uglifyjs.minify(script);
+	if (uglified.error) { return console.error(`Error uglifying code: ${uglified.error}.\nMeasuring tag size using expanded code.`); } else { script = uglified.code; }
+	size -= script.length;
+
+	return size + 'b';
+}
+
 const chooseTags = (lines, tags) => {
-	console.log(`\n${columnify(tags, { columns: ['name', 'description', 'size', 'requires'] })}\nThe REQUIRED tag is automatically included. Tag dependencies are automatically included.`);
+	console.log(`\n${columnify(tags, { columns: ['name', 'description', 'size', 'requires'] })}\nThe REQUIRED tag is automatically included. Tag dependencies are automatically included.\nUse an asterisk to include every tag.`);
 
 	// Choose included tags from user input.
-	const usedTags = [];
+	let usedTags = [];
 
 	// Add tag requirements recursively.
 	const addRequiredTag = (tag, array) => {
 		array.push(tag);
-		tag.requiresTags.forEach((tag) => addRequiredTag(tag, array));
+		tag.requiresTags.forEach((tag) => {
+			if (array.includes(tag)) { return; }
+			addRequiredTag(tag, array);
+		});
 	}
 
 	// Add REQUIRED tag.
@@ -223,10 +249,15 @@ const chooseTags = (lines, tags) => {
 
 		// Find tags by name.
 		tagNames.forEach((tagName) => {
-			if (tagName.trim() == '') { return; }
-			const tag = tags.find((tag) => tag.name.toLowerCase() == tagName.toLowerCase());
-			if (!tag) { return console.log(`Unknown tag "${tagName}".`); }
-			addRequiredTag(tag, usedTags);
+			if (tagName.trim() == '') {
+				return;
+			} else if (tagName == '*') {
+				usedTags = [...tags]; // Use all tags.
+			} else {
+				const tag = tags.find((tag) => tag.name.toLowerCase() == tagName.toLowerCase());
+				if (!tag) { return console.log(`Unknown tag "${tagName}".`); }
+				addRequiredTag(tag, usedTags);
+			}
 		});
 
 		return buildFile(lines, usedTags);
