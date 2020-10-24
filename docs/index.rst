@@ -7,13 +7,19 @@ Documentation
 
 .. toctree::
 	:maxdepth: 2
+	:caption: About:
+
+	about/overview
+	about/builder
+	about/tags
+	about/tinycanvas
+	about/license
+
+.. toctree::
+	:maxdepth: 2
 	:caption: Guides:
 
-	guides/about
-	guides/builder
-	guides/license
 	guides/start
-	guides/tags
 
 .. toctree::
 	:maxdepth: 2

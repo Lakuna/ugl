@@ -72,3 +72,9 @@ Text
 The TEXT tag enables the preset UText object.
 
 Requires GRAPHICS and ASSETS.
+
+TinyCanvas
+----------
+The TINYCANVAS tag includes the TinyCanvas library by Felipe Alfonso (bitnenfer).
+
+More information can be found on the TinyCanvas page.

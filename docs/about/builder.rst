@@ -2,7 +2,7 @@ Umbra Builder
 =============
 Umbra Builder is a tool that can be used to make custom distributions of Umbra, so that you don't have to waste a bunch of project size on useless features.
 
-The newest version can always be downloaded from the Releases page on GitHub. (https://github.com/T3rrabyte/Umbra/releases/latest).
+The newest version can always be downloaded from the releases page on GitHub. (https://github.com/T3Lakuna/Umbra-Builder/releases/latest).
 
 Usage
 -----
@@ -14,9 +14,8 @@ Upon starting Umbra Builder, it will get the newest version of the Umbra script 
 
 Umbra Builder will then search the selected file for tags, and prompt the user to select tags.
 
-- Tags should be written on one line, separated by spaces. Tags are not case-sensitive.
 - The REQUIRED tag will always be included, regardless of user input.
-- Including a tag will automatically also include any tags it requires.
+- Including a tag will automatically also include any tags that it requires.
 - A list of tags and their features can be found on the tags page.
 
 After a version and tags are selected, Umbra Builder will compile your unique distribution to umbra.js in Umbra Builder's directory.
