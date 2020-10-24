@@ -10,7 +10,7 @@ Umbra is an engine/framework for creating HTML5-based games. It was created spec
 
 Travis Martin / Lakuna / T3rrabyte - August 2020
 
-For more information, see the [Umbra website](https://lakuna.pw).
+For more information, see the [Umbra website](https://umbra.lakuna.pw).
 
 # License
 Umbra - A lightweight HTML5 game framework.
