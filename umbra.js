@@ -573,7 +573,7 @@ class Umbra {
 			updates: { get: () => _updates },
 
 			// UTAGSET END REQUIRED
-			// UTAGSET START GRAPHICS
+			// UTAGSET START CANVAS
 
 			/**
 			 * @default document.createElement("canvas")
@@ -584,6 +584,9 @@ class Umbra {
 			 * @since 1.0
 			 */
 			canvas: { get: () => _canvas },
+
+			// UTAGSET END CANVAS
+			// UTAGSET START GRAPHICS
 
 			/**
 			 * @default this.canvas.getContext("2d")
