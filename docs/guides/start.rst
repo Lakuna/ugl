@@ -10,7 +10,7 @@ Project Structure
 An Umbra project contains a minumum of three files, plus as many assets and extra scripts as you want to load.
 
 The following file names can be changed to whatever you want, as long as you update index.html to point to the correct scripts.
-Note that the JS13KGames specifications require the main file to be called index.js.
+Note that the JS13KGames specifications require the main file to be called index.html.
 
 index.html
 ~~~~~~~~~~
