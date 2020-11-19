@@ -1,6 +1,6 @@
 {
-	"latest": 2.1,
-	"recommended": "2.1-production",
+	"latest": 2.2,
+	"recommended": "2.2-production",
 	"releases": [
 		{
 			"release": 2.2,
