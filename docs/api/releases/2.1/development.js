@@ -57,7 +57,7 @@
 // UTAGDEF REQU ADVAUDIO AUDIO
 
 // UTAGDEF DESC TINYCANVAS WebGL using TinyCanvas by bitnenfer.
-// UTAGDEF LINK TINYCANVAS https://raw.githubusercontent.com/bitnenfer/tiny-canvas/master/build/tc.js
+// UTAGDEF LINK TINYCANVAS https://umbra.lakuna.pw/api/releases/tinycanvas.js
 // UTAGDEF REQU TINYCANVAS CANVAS
 
 // Code start.

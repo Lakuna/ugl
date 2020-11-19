@@ -15,50 +15,57 @@
  */
 
 // Umbra tag definitions. Used by the Umbra Builder to create customized distributions.
-
 // UTAGDEF DESC REQUIRED Minimal Umbra framework functionality.
-
-// UTAGDEF DESC CANVAS Creates a canvas to render the game.
+// UTAGDEF SIZE REQUIRED 724b
 
 // UTAGDEF DESC GRAPHICS Basic features that allow interaction with the screen.
-// UTAGDEF REQU GRAPHICS CANVAS
+// UTAGDEF SIZE GRAPHICS 821b
 
 // UTAGDEF DESC ADVGRAPH Advanced features that allow interaction with the screen.
 // UTAGDEF REQU ADVGRAPH GRAPHICS
+// UTAGDEF SIZE ADVGRAPH 117b
 
 // UTAGDEF DESC POINTER Unified mouse and touchscreen input.
 // UTAGDEF REQU POINTER GRAPHICS
+// UTAGDEF SIZE POINTER 279b
 
 // UTAGDEF DESC KEYBOARD Keyboard input from the user.
+// UTAGDEF SIZE KEYBOARD 109b
 
 // UTAGDEF DESC ASSETS Import JSON objects from files.
+// UTAGDEF SIZE ASSETS 250b
 
 // UTAGDEF DESC RECT Rectangle preset object type.
 // UTAGDEF REQU RECT GRAPHICS
+// UTAGDEF SIZE RECT 41b
 
 // UTAGDEF DESC CIRCLE Circle preset object type.
 // UTAGDEF REQU CIRCLE GRAPHICS
+// UTAGDEF SIZE CIRCLE 64b
 
 // UTAGDEF DESC LINE Line preset object type.
 // UTAGDEF REQU LINE GRAPHICS
+// UTAGDEF SIZE LINE 55b
 
 // UTAGDEF DESC TEXT Import and use fonts.
 // UTAGDEF REQU TEXT GRAPHICS
 // UTAGDEF REQU TEXT ASSETS
+// UTAGDEF SIZE TEXT 217b
 
 // UTAGDEF DESC IMAGE Import and display images from files.
 // UTAGDEF REQU IMAGE GRAPHICS
 // UTAGDEF REQU IMAGE ASSETS
+// UTAGDEF SIZE IMAGE 347b
 
 // UTAGDEF DESC AUDIO Import and play audio from files.
 // UTAGDEF REQU AUDIO ASSETS
+// UTAGDEF SIZE AUDIO 376b
 
 // UTAGDEF DESC ADVAUDIO Advanced audio transformations.
 // UTAGDEF REQU ADVAUDIO AUDIO
+// UTAGDEF SIZE ADVAUDIO 203b
 
-// UTAGDEF DESC TINYCANVAS WebGL using TinyCanvas by bitnenfer.
-// UTAGDEF LINK TINYCANVAS https://raw.githubusercontent.com/bitnenfer/tiny-canvas/master/build/tc.js
-// UTAGDEF REQU TINYCANVAS CANVAS
+// Note: Package sizes are approximate.
 
 // Code start.
 
@@ -362,7 +369,7 @@ class Umbra {
 			while (_lag > _frameDuration) {
 				this.updates.forEach((update) => update());
 
-				if (!this.paused && this.state) { this.state(); }
+				if (!this.isPaused && this.state) { this.state(); }
 
 				_lag -= _frameDuration;
 			}
@@ -383,19 +390,15 @@ class Umbra {
 		document.body.style = "margin:0;";
 
 		// UTAGSET END REQUIRED
-		// UTAGSET START CANVAS
+		// UTAGSET START GRAPHICS
 
 		// Canvas setup.
 		const _canvas = document.createElement("canvas"); // The canvas on which the game is rendered.
+		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
 		_canvas.style = `background-color:#000;touch-action:none;`;
 		_canvas.width = _size.x;
 		_canvas.height = _size.y;
 		document.body.appendChild(_canvas);
-
-		// UTAGSET END CANVAS
-		// UTAGSET START GRAPHICS
-
-		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
 		let _scene = new UObject(); // The scene to render on the canvas.
 		let _camera; // The main camera from which to render the canvas. Defined after canvas is made public.
 
@@ -574,7 +577,7 @@ class Umbra {
 			updates: { get: () => _updates },
 
 			// UTAGSET END REQUIRED
-			// UTAGSET START CANVAS
+			// UTAGSET START GRAPHICS
 
 			/**
 			 * @default document.createElement("canvas")
@@ -585,9 +588,6 @@ class Umbra {
 			 * @since 1.0
 			 */
 			canvas: { get: () => _canvas },
-
-			// UTAGSET END CANVAS
-			// UTAGSET START GRAPHICS
 
 			/**
 			 * @default this.canvas.getContext("2d")
@@ -1726,7 +1726,8 @@ class USprite extends UObject {
 					if (this.doLoop) {
 						_interval = setInterval(() => {
 							let temp = this.frame;
-							if (temp > this.sheet.positions.length) { temp = 0; }
+							temp++;
+							if (temp >= this.sheet.positions.length) { temp = 0; }
 							this.frame = temp;
 						}, 1000 / this.fps);
 					} else { clearInterval(_interval); }

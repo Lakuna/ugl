@@ -15,13 +15,9 @@
  */
 
 // Umbra tag definitions. Used by the Umbra Builder to create customized distributions.
-
 // UTAGDEF DESC REQUIRED Minimal Umbra framework functionality.
 
-// UTAGDEF DESC CANVAS Creates a canvas to render the game.
-
 // UTAGDEF DESC GRAPHICS Basic features that allow interaction with the screen.
-// UTAGDEF REQU GRAPHICS CANVAS
 
 // UTAGDEF DESC ADVGRAPH Advanced features that allow interaction with the screen.
 // UTAGDEF REQU ADVGRAPH GRAPHICS
@@ -57,8 +53,7 @@
 // UTAGDEF REQU ADVAUDIO AUDIO
 
 // UTAGDEF DESC TINYCANVAS WebGL using TinyCanvas by bitnenfer.
-// UTAGDEF LINK TINYCANVAS https://raw.githubusercontent.com/bitnenfer/tiny-canvas/master/build/tc.js
-// UTAGDEF REQU TINYCANVAS CANVAS
+// UTAGDEF LINK TINYCANVAS https://umbra.lakuna.pw/api/releases/tinycanvas.js
 
 // Code start.
 
@@ -383,19 +378,15 @@ class Umbra {
 		document.body.style = "margin:0;";
 
 		// UTAGSET END REQUIRED
-		// UTAGSET START CANVAS
+		// UTAGSET START GRAPHICS
 
 		// Canvas setup.
 		const _canvas = document.createElement("canvas"); // The canvas on which the game is rendered.
+		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
 		_canvas.style = `background-color:#000;touch-action:none;`;
 		_canvas.width = _size.x;
 		_canvas.height = _size.y;
 		document.body.appendChild(_canvas);
-
-		// UTAGSET END CANVAS
-		// UTAGSET START GRAPHICS
-
-		const _context = _canvas.getContext('2d'); // The context of the canvas on which the game is rendered.
 		let _scene = new UObject(); // The scene to render on the canvas.
 		let _camera; // The main camera from which to render the canvas. Defined after canvas is made public.
 
@@ -574,7 +565,7 @@ class Umbra {
 			updates: { get: () => _updates },
 
 			// UTAGSET END REQUIRED
-			// UTAGSET START CANVAS
+			// UTAGSET START GRAPHICS
 
 			/**
 			 * @default document.createElement("canvas")
@@ -585,9 +576,6 @@ class Umbra {
 			 * @since 1.0
 			 */
 			canvas: { get: () => _canvas },
-
-			// UTAGSET END CANVAS
-			// UTAGSET START GRAPHICS
 
 			/**
 			 * @default this.canvas.getContext("2d")

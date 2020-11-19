@@ -5,7 +5,7 @@
 version: 1
 
 sphinx:
-  configuration: docs/conf.py
+  configuration: rtd/conf.py
 
 formats:
   - pdf
@@ -13,4 +13,4 @@ formats:
 python:
   version: 3.8
   install:
-    - requirements: docs/requirements.txt
+    - requirements: rtd/requirements.txt

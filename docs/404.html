@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html lang='en-US' class='theme-dark'>
+
+<head>
+	<script src='/s/js/loader.js'></script>
+	<title>404</title>
+	<meta name='description' content='Page not found.' />
+	<meta name='author' content='Travis Martin' />
+	<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+	<meta charset='utf-8' />
+	<link rel='stylesheet' href='/s/css/standard.css' />
+	<link rel='stylesheet' href='/s/css/navbar.css' />
+	<link rel='stylesheet' href='/s/css/dropdown.css' />
+	<link rel='icon' href='/favicon.ico' />
+	<script src='/s/js/topnav.js'></script>
+	<script>
+		addLoadEvent(() => {
+			const href = location.href;
+			const hrefSpan = document.getElementById('href');
+			hrefSpan.innerHTML = href;
+		});
+	</script>
+</head>
+<body>
+	<header>
+		<div id='topnav'></div>
+	</header>
+
+	<main>
+		<!-- Page Content -->
+		<h1>404 - Page Not Found</h1>
+		<hr/>
+
+		<p>You searched for <b id='href'></b>.</p>
+		<p>To view a full list of pages on this website, view the <a href='/sitemap.txt'>sitemap</a>.</p>
+		<p>If you believe that a page should be here that isn't, please contact <a href='mailto:travis@lakuna.pw'>travis@lakuna.pw</a>.</p>
+	</main>
+
+	<footer>
+		<div id='botnav'></div>
+	</footer>
+</body>
+
+</html>
