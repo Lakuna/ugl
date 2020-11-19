@@ -1,7 +1,7 @@
 ![Read the Docs](https://img.shields.io/readthedocs/umbra-framework)
 ![GitHub All Releases](https://img.shields.io/github/downloads/T3Lakuna/Umbra/total)
-![GitHub issues](https://img.shields.io/github/issues/T3rrabyte/Umbra)
-![GitHub](https://img.shields.io/github/license/T3rrabyte/Umbra)
+![GitHub issues](https://img.shields.io/github/issues/T3Lakuna/Umbra)
+![GitHub](https://img.shields.io/github/license/T3Lakuna/Umbra)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/T3Lakuna/Umbra)
 ![GitHub last commit](https://img.shields.io/github/last-commit/T3Lakuna/Umbra)
 
