@@ -2,7 +2,7 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-version: 1
+version: 2
 
 sphinx:
   configuration: rtd/conf.py
@@ -11,6 +11,6 @@ formats:
   - pdf
 
 python:
-  version: 3.8
+  version: 3.9
   install:
     - requirements: rtd/requirements.txt
