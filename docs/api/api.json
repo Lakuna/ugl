@@ -1,9 +1,9 @@
 {
-	"latest": 2.3,
-	"recommended": "2.3-production",
+	"latest": "2.3.1",
+	"recommended": "2.3.1-production",
 	"releases": [
 		{
-			"release": 2.3,
+			"release": "2.3.1",
 			"versions": [
 				{
 					"name": "production",
@@ -16,7 +16,20 @@
 			]
 		},
 		{
-			"release": 2.2,
+			"release": "2.3",
+			"versions": [
+				{
+					"name": "production",
+					"url": "https://umbra.lakuna.pw/api/releases/2.3/production.js"
+				},
+				{
+					"name": "development",
+					"url": "https://umbra.lakuna.pw/api/releases/2.3/development.js"
+				}
+			]
+		},
+		{
+			"release": "2.2",
 			"versions": [
 				{
 					"name": "production",
@@ -29,7 +42,7 @@
 			]
 		},
 		{
-			"release": 2.1,
+			"release": "2.1",
 			"versions": [
 				{
 					"name": "production",
@@ -42,7 +55,7 @@
 			]
 		},
 		{
-			"release": 2.0,
+			"release": "2.0",
 			"versions": [
 				{
 					"name": "production",
@@ -55,7 +68,7 @@
 			]
 		},
 		{
-			"release": 1.0,
+			"release": "1.0",
 			"versions": [
 				{
 					"name": "production",
@@ -68,7 +81,7 @@
 			]
 		},
 		{
-			"release": 0.0,
+			"release": "0.0",
 			"versions": [
 				{
 					"name": "beta",
