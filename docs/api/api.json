@@ -1,93 +1,56 @@
 {
-	"latest": "2.3.1",
-	"recommended": "2.3.1-production",
-	"releases": [
+	"versions": [
 		{
-			"release": "2.3.1",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/2.3/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/2.3/development.js"
-				}
-			]
+			"version": "2.3.1.1",
+			"source": "/api/releases/2.3.1/production.js"
 		},
 		{
-			"release": "2.3",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/2.3/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/2.3/development.js"
-				}
-			]
+			"version": "2.3.1.0",
+			"source": "/api/releases/2.3.1/development.js"
 		},
 		{
-			"release": "2.2",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/2.2/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/2.2/development.js"
-				}
-			]
+			"version": "2.3.0.1",
+			"source": "/api/releases/2.3/production.js"
 		},
 		{
-			"release": "2.1",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/2.1/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/2.1/development.js"
-				}
-			]
+			"version": "2.3.0.0",
+			"source": "/api/releases/2.3/development.js"
 		},
 		{
-			"release": "2.0",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/2.0/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/2.0/development.js"
-				}
-			]
+			"version": "2.2.0.1",
+			"source": "/api/releases/2.2/production.js"
 		},
 		{
-			"release": "1.0",
-			"versions": [
-				{
-					"name": "production",
-					"url": "https://umbra.lakuna.pw/api/releases/1.0/production.js"
-				},
-				{
-					"name": "development",
-					"url": "https://umbra.lakuna.pw/api/releases/1.0/development.js"
-				}
-			]
+			"version": "2.2.0.0",
+			"source": "/api/releases/2.2/development.js"
 		},
 		{
-			"release": "0.0",
-			"versions": [
-				{
-					"name": "beta",
-					"url": "https://raw.githubusercontent.com/T3Lakuna/Umbra/master/umbra.js"
-				}
-			]
+			"version": "2.1.0.1",
+			"source": "/api/releases/2.1/production.js"
+		},
+		{
+			"version": "2.1.0.0",
+			"source": "/api/releases/2.1/development.js"
+		},
+		{
+			"version": "2.0.0.1",
+			"source": "/api/releases/2.0/production.js"
+		},
+		{
+			"version": "2.0.0.0",
+			"source": "/api/releases/2.0/development.js"
+		},
+		{
+			"version": "1.0.0.1",
+			"source": "/api/releases/1.0/production.js"
+		},
+		{
+			"version": "1.0.0.0",
+			"source": "/api/releases/1.0/development.js"
+		},
+		{
+			"version": "Unstable",
+			"source": "https://raw.githubusercontent.com/T3Lakuna/Umbra/master/umbra.js"
 		}
 	]
 }

@@ -50,7 +50,7 @@ const setup = () => {
 	const dwnb = new URect(new Bounds(new Vector2(innerWidth / 6, innerHeight / 6 * 5), new Vector2(innerWidth / 6 * 5, innerHeight / 12 * 11)));
 	dwnb.lineColor = '#fffff0';
 	dwnb.fillColor = '#333';
-	dwnb.onClick = () => location.href = 'https://github.com/T3Lakuna/Umbra-Builder/releases/latest';
+	dwnb.onClick = () => location.href = '/p/builder.html';
 	new UText('Download', new Bounds(new Vector2(
 			dwnb.bounds.min.x + dwnb.bounds.width / 2 - umbra.context.measureText('Download').width,
 			dwnb.bounds.min.y + dwnb.bounds.height / 2 - umbra.context.measureText('M').width
