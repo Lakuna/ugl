@@ -374,7 +374,7 @@ addLoadEvent((event) => {
 						includedTagNames = includedTagNames.map((tag) => tag.name);
 
 						// Download script.
-						download('umbra.js', script.compile(includedTagNames, uglifyBox.checked, beautifyBox.checked));
+						generateDownload('umbra.js', script.compile(includedTagNames, uglifyBox.checked, beautifyBox.checked));
 					};
 					builder.append(compileScriptButton);
 
