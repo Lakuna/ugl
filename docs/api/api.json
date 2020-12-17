@@ -1,52 +1,24 @@
 {
 	"versions": [
 		{
-			"version": "2.3.1.1",
+			"version": "2.3.1",
 			"source": "/api/releases/2.3.1/production.js"
 		},
 		{
-			"version": "2.3.1.0",
-			"source": "/api/releases/2.3.1/development.js"
-		},
-		{
-			"version": "2.3.0.1",
-			"source": "/api/releases/2.3/production.js"
-		},
-		{
-			"version": "2.3.0.0",
-			"source": "/api/releases/2.3/development.js"
-		},
-		{
-			"version": "2.2.0.1",
+			"version": "2.2",
 			"source": "/api/releases/2.2/production.js"
 		},
 		{
-			"version": "2.2.0.0",
-			"source": "/api/releases/2.2/development.js"
-		},
-		{
-			"version": "2.1.0.1",
+			"version": "2.1",
 			"source": "/api/releases/2.1/production.js"
 		},
 		{
-			"version": "2.1.0.0",
-			"source": "/api/releases/2.1/development.js"
-		},
-		{
-			"version": "2.0.0.1",
+			"version": "2.0",
 			"source": "/api/releases/2.0/production.js"
 		},
 		{
-			"version": "2.0.0.0",
-			"source": "/api/releases/2.0/development.js"
-		},
-		{
-			"version": "1.0.0.1",
+			"version": "1.0",
 			"source": "/api/releases/1.0/production.js"
-		},
-		{
-			"version": "1.0.0.0",
-			"source": "/api/releases/1.0/development.js"
 		},
 		{
 			"version": "Unstable",
