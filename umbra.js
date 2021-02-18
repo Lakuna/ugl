@@ -2,22 +2,30 @@ class Umbra {
 	// Umbra Framework version.
 	static version = '3.0';
 
-	// The active Scene.
+	// Active scene.
 	#scene;
 
-	// Used internally to trigger events on Components on active GameObjects within the active Scene.
+	// Used internally to trigger events on Components.
 	#trigger = (event) => {
-		if (this.#scene) {
-			this.#scene.gameObjects
-				.filter((gameObject) => gameObject.enabled)
-				.forEach((gameObject) => gameObject.components
-					.forEach((component) => {
-						if (component[event]) {
-							component[event].call(gameObject);
-						}
-					})
-				);
-		}
+		const getComponentsRecursive = (gameObject, output = []) => {
+			if (!gameObject || !gameObject.enabled) {
+				return output;
+			}
+
+			gameObject.components
+				.filter((component) => component[event])
+				.forEach((component) => output.push(component));
+
+			for (const child of gameObject.children) {
+				getComponentsRecursive(child, output);
+			}
+
+			return output;
+		};
+
+		getComponentsRecursive(this.#scene)
+			.sort((a, b) => a.priority > b.priority ? 1 : -1)
+			.forEach((component) => component[event].call(component.gameObject));
 	};
 
 	constructor(
@@ -36,18 +44,23 @@ class Umbra {
 		ups = 30
 	) {
 		this.cnv = canvas;
-		this.ctx = canvas.getContext('webgl');
+		this.ctx = this.cnv.getContext('webgl');
 
 		// Update loop; variable frequency.
 		const update = () => {
 			requestAnimationFrame(update);
-			if (!this.paused) { this.#trigger(Component.events.UPDATE);; }
+			
+			if (!this.paused) {
+				this.#trigger(Component.events.UPDATE);
+			}
 		};
 		update();
 
 		// Fixed update loop; fixed frequency.
 		setInterval(() => {
-			if (!this.paused) { this.#trigger(Component.events.FIXED);; }
+			if (!this.paused) {
+				this.#trigger(Component.events.FIXED);
+			}
 		}, 1000 / ups);
 	}
 
@@ -61,25 +74,31 @@ class Umbra {
 	}
 }
 
-class Scene {
-	constructor() {
-		this.gameObjects = [];
-	}
-}
-
 class GameObject {
-	#scene;
+	#parent;
+	#children;
 
-	constructor(scene, enabled = true) {
-		this.#scene = scene;
-		this.#scene.gameObjects.push(this);
-
+	constructor(enabled = true) {
 		this.enabled = enabled;
+		this.#children = [];
 		this.components = [];
 	}
 
-	get scene() {
-		return this.#scene;
+	get parent() {
+		return this.#parent;
+	}
+
+	set parent(value) {
+		if (this.#parent) {
+			this.#parent.children.splice(this.#parent.children.indexOf(this), 1);
+		}
+		
+		this.#parent = value;
+		this.#parent.children.push(this);
+	}
+
+	get children() {
+		return this.#children;
 	}
 }
 
@@ -93,9 +112,11 @@ class Component {
 
 	#gameObject;
 
-	constructor(gameObject) {
+	constructor(gameObject, priority = 0) {
 		this.#gameObject = gameObject;
 		this.#gameObject.components.push(this);
+
+		this.priority = priority;
 	}
 
 	get gameObject() {
