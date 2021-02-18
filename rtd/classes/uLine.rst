@@ -1,3 +1,0 @@
-ULine
-=====
-.. autoclass:: ULine

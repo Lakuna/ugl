@@ -1,3 +1,0 @@
-UCircle
-=======
-.. autoclass:: UCircle
