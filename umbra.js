@@ -138,7 +138,7 @@ class Component {
 }
 
 class DrawingBufferResizer extends Component {
-	constructor(gameObject, priority = -1) {
+	constructor(gameObject, priority = -2) {
 		super(gameObject, priority);
 
 		this[Component.events.UPDATE] = (umbra) => {
