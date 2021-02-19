@@ -150,6 +150,8 @@ class DrawingBufferResizer extends Component {
 			if (canvas.width != displayWidth || canvas.height != displayHeight) {
 				canvas.width = displayWidth;
 				canvas.height = displayHeight;
+
+				umbra.gl.viewport(0, 0, canvas.width, canvas.height);
 			}
 		};
 	}
@@ -179,10 +181,9 @@ class WebGLUtility {
 		return shader;
 	};
 
-	static createProgram = (gl, vertexShader, fragmentShader) => {
+	static createProgram = (gl, ...shaders) => {
 		const program = gl.createProgram();
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
+		shaders.forEach((shader) => gl.attachShader(program, shader));
 		gl.linkProgram(program);
 
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
