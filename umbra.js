@@ -5,29 +5,6 @@ class Umbra {
 	// Active scene.
 	#scene;
 
-	// Used internally to trigger events on Components.
-	#trigger = (event) => {
-		const getComponentsRecursive = (gameObject, output = []) => {
-			if (!gameObject || !gameObject.enabled) {
-				return output;
-			}
-
-			gameObject.components
-				.filter((component) => component[event])
-				.forEach((component) => output.push(component));
-
-			for (const child of gameObject.children) {
-				getComponentsRecursive(child, output);
-			}
-
-			return output;
-		};
-
-		getComponentsRecursive(this.#scene)
-			.sort((a, b) => a.priority > b.priority ? 1 : -1)
-			.forEach((component) => component[event](this));
-	};
-
 	constructor(
 		// Creates a fullscreen canvas by default.
 		canvas = (() => {
@@ -42,7 +19,7 @@ class Umbra {
 			 */
 
 			document.body.appendChild(canvas);
-			document.body.style = 'margin:0;padding:0;';
+			document.body.style = 'margin:0;';
 			/*
 			 * CSS
 			 *
@@ -85,6 +62,29 @@ class Umbra {
 		this.#scene = value;
 		this.#trigger(Component.events.LOAD);
 	}
+
+	// Used internally to trigger events on Components.
+	#trigger(event) {
+		const getComponentsRecursive = (gameObject, output = []) => {
+			if (!gameObject || !gameObject.enabled) {
+				return output;
+			}
+
+			gameObject.components
+				.filter((component) => component[event])
+				.forEach((component) => output.push(component));
+
+			for (const child of gameObject.children) {
+				getComponentsRecursive(child, output);
+			}
+
+			return output;
+		};
+
+		getComponentsRecursive(this.#scene)
+			.sort((a, b) => a.priority > b.priority ? 1 : -1)
+			.forEach((component) => component[event](this));
+	};
 }
 
 class GameObject {
@@ -118,9 +118,9 @@ class GameObject {
 class Component {
 	// Enumeration of events.
 	static events = {
-		LOAD: 'l', // Called when the Scene containing the GameObject this Component belongs to is loaded.
-		UPDATE: 'u', // Called on each animation frame; varies in frequency based on lag.
-		FIXED: 'f' // Called by a fixed timer; 30 times per second by default.
+		LOAD: 0, // Called when the Scene containing the GameObject this Component belongs to is loaded.
+		UPDATE: 1, // Called on each animation frame; varies in frequency based on lag.
+		FIXED: 2 // Called by a fixed timer; 30 times per second by default.
 	};
 
 	#gameObject;
@@ -166,32 +166,32 @@ class Background extends Component {
 	}
 }
 
-class WebGLUtility {
-	static createShader = (gl, type, src) => {
-		const shader = gl.createShader(type);
-		gl.shaderSource(shader, src);
-		gl.compileShader(shader);
+/*
+static createShader(gl, type, src) {
+	const shader = gl.createShader(type);
+	gl.shaderSource(shader, src);
+	gl.compileShader(shader);
 
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			console.error(`Failed to create shader: ${gl.getShaderInfoLog(shader)}`);
-			gl.deleteShader(shader);
-			return;
-		}
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+		console.error(`Failed to create shader: ${gl.getShaderInfoLog(shader)}`);
+		gl.deleteShader(shader);
+		return;
+	}
 
-		return shader;
-	};
+	return shader;
+};
 
-	static createProgram = (gl, ...shaders) => {
-		const program = gl.createProgram();
-		shaders.forEach((shader) => gl.attachShader(program, shader));
-		gl.linkProgram(program);
+static createProgram(gl, ...shaders) {
+	const program = gl.createProgram();
+	shaders.forEach((shader) => gl.attachShader(program, shader));
+	gl.linkProgram(program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			console.error(`Failed to create program: ${gl.getProgramInfoLog(program)}`);
-			gl.deleteProgram(program);
-			return;
-		}
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+		console.error(`Failed to create program: ${gl.getProgramInfoLog(program)}`);
+		gl.deleteProgram(program);
+		return;
+	}
 
-		return program;
-	};
-}
+	return program;
+};
+*/
