@@ -120,7 +120,8 @@ class Component {
 	static events = {
 		LOAD: 0, // Called when the Scene containing the GameObject this Component belongs to is loaded.
 		UPDATE: 1, // Called on each animation frame; varies in frequency based on lag.
-		FIXED: 2 // Called by a fixed timer; 30 times per second by default.
+		FIXED: 2, // Called by a fixed timer; 30 times per second by default.
+		CLICK: 3 // Called when the GameObject the component is attached to is clicked. TODO
 	};
 
 	#gameObject;
@@ -167,6 +168,8 @@ class Background extends Component {
 }
 
 /*
+// TODO
+
 static createShader(gl, type, src) {
 	const shader = gl.createShader(type);
 	gl.shaderSource(shader, src);
