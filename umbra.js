@@ -120,8 +120,7 @@ class Component {
 	static events = {
 		LOAD: 0, // Called when the Scene containing the GameObject this Component belongs to is loaded.
 		UPDATE: 1, // Called on each animation frame; varies in frequency based on lag.
-		FIXED: 2, // Called by a fixed timer; 30 times per second by default.
-		CLICK: 3 // Called when the GameObject the component is attached to is clicked. TODO
+		FIXED: 2 // Called by a fixed timer; 30 times per second by default.
 	};
 
 	#gameObject;
@@ -138,7 +137,7 @@ class Component {
 	}
 }
 
-class DrawingBufferResizer extends Component {
+class CanvasResizer extends Component {
 	constructor(gameObject, priority = -2) {
 		super(gameObject, priority);
 
@@ -164,6 +163,30 @@ class Background extends Component {
 
 		this[Component.events.LOAD] = (umbra) => umbra.gl.clearColor(r, g, b, a);
 		this[Component.events.UPDATE] = (umbra) => umbra.gl.clear(umbra.gl.COLOR_BUFFER_BIT);
+	}
+}
+
+class Point {
+	constructor(...dimensions) {
+		this.dimensions = dimensions;
+	}
+}
+
+class Area {
+	constructor(min = new Point(), max = new Point()) {
+		this.min = min;
+		this.max = max;
+	}
+
+	// Check whether a point is within the boundaries of the area.
+	contains(point) {
+		for (let dimension = 0; dimension < point.dimensions.length; dimension++) {
+			if (!(point.dimensions[dimension] >= this.min.dimensions[dimension]
+				&& point.dimensions[dimension] <= this.max.dimensions[dimension])) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
