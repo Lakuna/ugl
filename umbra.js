@@ -190,34 +190,23 @@ class Area {
 	}
 }
 
-/*
-// TODO
+// Summation/Sigma Notation
+const sigma = (min, max, equation, output = 0) => output += equation(min) + (min < max ? sigma(min + 1, max, equation, output) : 0);
 
-static createShader(gl, type, src) {
-	const shader = gl.createShader(type);
-	gl.shaderSource(shader, src);
-	gl.compileShader(shader);
+// Multiply matrices via the iterative algorithm.
+const multiplyMatrices = (a, b, m = 3) => {
+	// Matrix dimensions.
+	const n = a.length / m;
+	const p = b.length / m;
 
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		console.error(`Failed to create shader: ${gl.getShaderInfoLog(shader)}`);
-		gl.deleteShader(shader);
-		return;
+	// The product C (n * p) is defined if and only if the number of columns in A (n * m) equals the number of rows in B (m * p).
+	let c = [];
+
+	for (let i = 0; i < n; i++) {
+		for (let j = 0; j < p; j++) {
+			c[i * p + j] = sigma(0, m - 1, (k) => a[i * m + k] * b[k * p + j]);
+		}
 	}
 
-	return shader;
+	return c;
 };
-
-static createProgram(gl, ...shaders) {
-	const program = gl.createProgram();
-	shaders.forEach((shader) => gl.attachShader(program, shader));
-	gl.linkProgram(program);
-
-	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		console.error(`Failed to create program: ${gl.getProgramInfoLog(program)}`);
-		gl.deleteProgram(program);
-		return;
-	}
-
-	return program;
-};
-*/
