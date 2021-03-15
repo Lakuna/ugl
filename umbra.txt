@@ -1,0 +1,58 @@
+FEATURES:
+- Find features from other engines.
+	- Kontra
+	- Unity
+	- MelonJS
+	- Ga
+- WebGL-based instead of Canvas-based.
+	- https://webgl2fundamentals.org/
+- Mouse lock API: https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
+- Physics.
+	- Rigid bodies.
+	- Kinematic objects (default).
+	- Raycasting?
+	- Hitboxes/bounding boxes
+		- Circle (distance to center)
+		- Rectangle (between corners)
+		- Triangle/complex?
+- In-browser editor.
+	- https://www.npmjs.com/package/codemirror
+- Unified mouse/touchscreen pointer.
+- Keyboard input.
+- Asset loading (json, image, audio, font, video?, 3d models, tiled map format).
+- Premade object types (rectangle, UI rectangle, circle, line, text, sphere, cube, image).
+- Audio support.
+- Search trees.
+	- Binary tree: https://en.wikipedia.org/wiki/Binary_tree
+		- https://www.youtube.com/watch?v=ZNH0MuQ51m4
+		- https://www.youtube.com/watch?v=KFEvF_ymuzY
+	- Quadtree: https://en.wikipedia.org/wiki/Quadtree
+		- https://www.youtube.com/watch?v=OJxEcs0w_kE
+		- https://www.youtube.com/watch?v=QQx_NmCIuCY
+		- https://www.youtube.com/watch?v=z0YFFg_nBjw
+	- Octree: https://en.wikipedia.org/wiki/Octree
+- Pathfinding.
+	- A*: https://www.youtube.com/watch?v=aKYlikFAV4k
+- Noise.
+	- Random (white/pink/red/gray): https://en.wikipedia.org/wiki/White_noise
+	- Perlin: https://en.wikipedia.org/wiki/Perlin_noise
+	- Simplex: https://en.wikipedia.org/wiki/Simplex_noise
+		- https://www.npmjs.com/package/simplex-noise
+	- OpenSimplex: https://en.wikipedia.org/wiki/OpenSimplex_noise
+		- https://github.com/blindman67/SimplexNoiseJS
+- Pseudo-RNG:
+	- Alea: https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
+		- https://www.npmjs.com/package/alea
+
+EXAMPLES:
+- Conway's game of life
+- Particles.js: http://developer.tcgplayer.com/
+- Snake
+- Connect 4
+- Checkers
+- Chess
+- Shogi
+- Physics something something (nPendulum?)
+- Pathfinding visualizer
+- Minesweeper
+- Anything by Sebastian Lague or The Coding Train
