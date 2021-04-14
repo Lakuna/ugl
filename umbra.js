@@ -10,22 +10,18 @@ class Umbra {
 		canvas = (() => {
 			const canvas = document.createElement('canvas');
 			canvas.style = 'touch-action:none;width:100%;height:100%;';
-			/*
-			 * CSS
-			 *
-			 * touch-action: none;
-			 * width: 100%;
-			 * height: 100%;
-			 */
+			/* CSS
+			touch-action: none;
+			width: 100%;
+			height: 100%;
+			*/
 
 			document.body.appendChild(canvas);
 			document.body.style = 'margin:0;';
-			/*
-			 * CSS
-			 *
-			 * margin: 0;
-			 * padding: 0;
-			 */
+			/* CSS
+			margin: 0;
+			padding: 0;
+			*/
 
 			return canvas;
 		})(),
