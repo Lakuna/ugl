@@ -11,16 +11,19 @@ class Umbra {
 			const canvas = document.createElement('canvas');
 			canvas.style = 'touch-action:none;width:100%;height:100%;';
 			/* CSS
-			touch-action: none;
-			width: 100%;
-			height: 100%;
+			canvas {
+				touch-action: none;
+				width: 100%;
+				height: 100%;
+			}
 			*/
 
 			document.body.appendChild(canvas);
 			document.body.style = 'margin:0;';
 			/* CSS
-			margin: 0;
-			padding: 0;
+			body {
+				margin: 0px;
+			}
 			*/
 
 			return canvas;
@@ -37,7 +40,7 @@ class Umbra {
 			requestAnimationFrame(update);
 			
 			if (!this.paused) {
-				this.#trigger(Component.events.UPDATE);
+				this.trigger(Component.events.UPDATE);
 			}
 		};
 		update();
@@ -45,7 +48,7 @@ class Umbra {
 		// Fixed update loop; fixed frequency.
 		setInterval(() => {
 			if (!this.paused) {
-				this.#trigger(Component.events.FIXED);
+				this.trigger(Component.events.FIXED);
 			}
 		}, 1000 / ups);
 	}
@@ -56,17 +59,17 @@ class Umbra {
 
 	set scene(value) {
 		this.#scene = value;
-		this.#trigger(Component.events.LOAD);
+		this.trigger(Component.events.LOAD);
 	}
 
-	// Used internally to trigger events on Components.
-	#trigger(event) {
+	// Used to trigger events on Components.
+	trigger(event) {
 		const getComponentsRecursive = (gameObject, output = []) => {
 			if (!gameObject || !gameObject.enabled) {
 				return output;
 			}
 
-			gameObject.components
+			[...gameObject.components]
 				.filter((component) => component[event])
 				.forEach((component) => output.push(component));
 
@@ -83,14 +86,15 @@ class Umbra {
 	};
 }
 
+// Represents anything that exists within the scene (and the scene itself).
 class GameObject {
 	#parent;
 	#children;
 
 	constructor(enabled = true) {
 		this.enabled = enabled;
-		this.#children = [];
-		this.components = [];
+		this.#children = new UArray();
+		this.components = new UArray();
 	}
 
 	get parent() {
@@ -99,20 +103,23 @@ class GameObject {
 
 	set parent(value) {
 		if (this.#parent) {
-			this.#parent.children.splice(this.#parent.children.indexOf(this), 1);
+			this.#parent.children.remove(this);
 		}
 		
 		this.#parent = value;
 		this.#parent.children.push(this);
 	}
 
+	// Returns a UArray of children.
 	get children() {
-		return this.#children;
+		return this.#children.copy(); // Returns a copy so that the children cannot be modified except through setting the parent of each child.
 	}
 
+	// Gets the first component of type type.
 	getComponent = (type) => this.components.find((component) => component instanceof type);
 }
 
+// A script which can be attached to GameObjects to give them a purpose.
 class Component {
 	// Enumeration of events.
 	static events = {
@@ -135,6 +142,8 @@ class Component {
 	}
 }
 
+// A premade Component which resizes a canvas' drawing buffer to match its actual size on the screen.
+// Only useful for canvases with size set based on screen size (i.e. "width: 100%;").
 class CanvasResizer extends Component {
 	constructor(gameObject, priority = -2) {
 		super(gameObject, priority);
@@ -155,12 +164,13 @@ class CanvasResizer extends Component {
 	}
 }
 
+// A premade Component which clears the screen and sets the background to a specified color.
 class Background extends Component {
 	constructor(gameObject, r = 0, g = 0, b = 0, a = 1, priority = -1) {
 		super(gameObject, priority);
 
 		this[Component.events.LOAD] = (umbra) => umbra.gl.clearColor(r, g, b, a);
-		this[Component.events.UPDATE] = (umbra) => umbra.gl.clear(umbra.gl.COLOR_BUFFER_BIT);
+		this[Component.events.UPDATE] = (umbra) => umbra.gl.clear(umbra.gl.COLOR_BUFFER_BIT | umbra.gl.DEPTH_BUFFER_BIT);
 	}
 }
 
@@ -189,6 +199,9 @@ class UArray extends Array {
 		this.setData(...data);
 	}
 
+	// Returns a copy of this UArray.
+	copy = () => new UArray(...this);
+
 	// "this.setData(...data);" = "this = [...data];"
 	setData = (...data) => {
 		while (this.length > 0) {
@@ -199,8 +212,12 @@ class UArray extends Array {
 		}
 		return this;
 	};
+
+	// Remove the first instance of element from the UArray.
+	remove = (element) => this.splice(this.indexOf(element), 1);
 }
 
+// Represents a point in space.
 class Vector extends UArray {
 	// Find the cross product of this and another Vector.
 	cross = (vector) => UArray.fromRule(this.length, (i) => {
@@ -209,6 +226,9 @@ class Vector extends UArray {
 		let j = loopingIncrement(i);
 		return this[i] * vector[j] - this[j] * vector[i];
 	});
+
+	// Returns a copy of this Vector.
+	copy = () => new Vector(...this);
 
 	// Perform an operation between two Vectors. Defaults to addition.
 	operate = (vector, operation = (a, b) => a + b) => this.setData(...UArray.fromRule(this.length, (i) => operation(this[i], vector[i])));
@@ -222,6 +242,7 @@ class Vector extends UArray {
 	}
 }
 
+// Used primarily to transform Vectors in WebGL.
 class Matrix extends UArray {
 	static fromRule = (width, height, rule = (x, y) => x + y) => {
 		let data = [];
