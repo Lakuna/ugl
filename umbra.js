@@ -173,7 +173,7 @@ class UMath {
 	static degreesToRadians = (d) => d * Math.PI / 180;
 }
 
-// Custom array class with methods that are useful for both Vectors and Matrices.
+// Custom Array class with methods that are useful for both Vectors and Matrices.
 class UArray extends Array {
 	// Create a new UArray with values based on a rule.
 	static fromRule = (length, rule = (i) => i) => {
@@ -244,9 +244,24 @@ class Matrix extends UArray {
 	// Creates a copy of this Matrix.
 	copy = () => new Matrix(...this);
 
-	// "array.getPoint(x, y);" = "matrix[x][y];", where "array" contains the same data as "matrix" when flattened in row-major order.
+	// "array.getPoint(x, y);" = "matrix[y][x];", where "array" contains the same data as "matrix" when flattened in row-major order.
 	getPoint = (x, y, width = Math.sqrt(this.length)) => this[y * width + x];
 
-	// "array.setPoint(x, y, value);" = "matrix[x][y] = value;", where "array" contains the same data as "matrix" when flattened in row-major order.
+	// "array.setPoint(x, y, value);" = "matrix[y][x] = value;", where "array" contains the same data as "matrix" when flattened in row-major order.
 	setPoint = (x, y, value, width = Math.sqrt(this.length)) => (this[y * width + x] = value) ? this : this;
+
+	// Multiply by another Matrix via iterative algorithm.
+	// If C = AB for an (n * m) Matrix A and an (m * p) Matrix B, then C is an (n * p) Matrix with entries.
+	multiply = (matrix, m = Math.sqrt(this.length)) => {
+		matrix = new Matrix(...matrix); // Only necessary if you want to allow matrix to be any Array.
+
+		// A is this.
+		// B is matrix.
+		// C is the return value.
+
+		const n = this.length / m;
+		const p = matrix.length / m;
+
+		return this.setData(...Matrix.fromRule(n, p, (i, j) => UMath.sigma(0, m - 1, (k) => this.getPoint(i, k) * matrix.getPoint(k, j))));
+	}
 }

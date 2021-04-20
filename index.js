@@ -1,8 +1,6 @@
 let umbra;
 
 onload = () => {
-	console.log(new Matrix(1, 2, 3, 4).setPoint(0, 1, 5));
-
 	/*
 	umbra = new Umbra();
 
