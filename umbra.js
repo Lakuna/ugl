@@ -221,3 +221,32 @@ class Vector extends UArray {
 		return Math.sqrt(UMath.sigma(0, this.length - 1, (i) => this[i] ** 2));
 	}
 }
+
+class Matrix extends UArray {
+	static fromRule = (width, height, rule = (x, y) => x + y) => {
+		let data = [];
+		for (let x = 0; x < width; x++) {
+			for (let y = 0; y < height; y++) {
+				data[y * width + x] = rule(x, y);
+			}
+		}
+		return new Matrix(...data);
+	}
+
+	// Create an identity Matrix with the given number of dimensions.
+	static identity = (dim = 4) => Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
+
+	// Creates a new Matrix. Defaults to a 4D identity Matrix.
+	constructor(...data) {
+		super(...(data.length ? data : Matrix.identity()));
+	}
+
+	// Creates a copy of this Matrix.
+	copy = () => new Matrix(...this);
+
+	// "array.getPoint(x, y);" = "matrix[x][y];", where "array" contains the same data as "matrix" when flattened in row-major order.
+	getPoint = (x, y, width = Math.sqrt(this.length)) => this[y * width + x];
+
+	// "array.setPoint(x, y, value);" = "matrix[x][y] = value;", where "array" contains the same data as "matrix" when flattened in row-major order.
+	setPoint = (x, y, value, width = Math.sqrt(this.length)) => (this[y * width + x] = value) ? this : this;
+}

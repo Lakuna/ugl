@@ -1,7 +1,7 @@
 let umbra;
 
 onload = () => {
-	console.log(new Vector(12, 7, -5).normalize());
+	console.log(new Matrix(1, 2, 3, 4).setPoint(0, 1, 5));
 
 	/*
 	umbra = new Umbra();
