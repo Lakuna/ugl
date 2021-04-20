@@ -83,7 +83,7 @@ class Umbra {
 		getComponentsRecursive(this.#scene)
 			.sort((a, b) => a.priority > b.priority ? 1 : -1)
 			.forEach((component) => component[event](this));
-	};
+	}
 }
 
 // Represents anything that exists within the scene (and the scene itself).
@@ -160,7 +160,7 @@ class CanvasResizer extends Component {
 
 				umbra.gl.viewport(0, 0, canvas.width, canvas.height);
 			}
-		};
+		}
 	}
 }
 
@@ -186,13 +186,13 @@ class UMath {
 // Custom Array class with methods that are useful for both Vectors and Matrices.
 class UArray extends Array {
 	// Create a new UArray with values based on a rule.
-	static fromRule = (length, rule = (i) => i) => {
+	static fromRule(length, rule = (i) => i) {
 		let data = [];
 		for (let i = 0; i < length; i++) {
 			data[i] = rule(i);
 		}
 		return new UArray(...data);
-	};
+	}
 
 	constructor(...data) {
 		super();
@@ -203,7 +203,7 @@ class UArray extends Array {
 	copy = () => new UArray(...this);
 
 	// "this.setData(...data);" = "this = [...data];"
-	setData = (...data) => {
+	setData(...data) {
 		while (this.length > 0) {
 			this.pop();
 		}
@@ -211,7 +211,7 @@ class UArray extends Array {
 			this[i] = data[i];
 		}
 		return this;
-	};
+	}
 
 	// Remove the first instance of element from the UArray.
 	remove = (element) => this.splice(this.indexOf(element), 1);
@@ -244,7 +244,7 @@ class Vector extends UArray {
 
 // Used primarily to transform Vectors in WebGL.
 class Matrix extends UArray {
-	static fromRule = (width, height, rule = (x, y) => x + y) => {
+	static fromRule(width, height, rule = (x, y) => x + y) {
 		let data = [];
 		for (let x = 0; x < width; x++) {
 			for (let y = 0; y < height; y++) {
@@ -273,7 +273,7 @@ class Matrix extends UArray {
 
 	// Multiply by another Matrix via iterative algorithm.
 	// If C = AB for an (n * m) Matrix A and an (m * p) Matrix B, then C is an (n * p) Matrix with entries.
-	multiply = (matrix, m = Math.sqrt(this.length)) => {
+	multiply(matrix, m = Math.sqrt(this.length)) {
 		matrix = new Matrix(...matrix); // Only necessary if you want to allow matrix to be any Array.
 
 		// A is this.
@@ -295,7 +295,7 @@ class Matrix extends UArray {
 	]);
 
 	// Rotate d degrees about the x axis.
-	pitch = (d) => {
+	pitch(d) {
 		const r = UMath.degreesToRadians(d);
 		const c = Math.cos(r);
 		const s = Math.sin(r);
@@ -306,10 +306,10 @@ class Matrix extends UArray {
 			0, -s, c, 0,
 			0, 0, 0, 1
 		]);
-	};
+	}
 
 	// Rotate d degrees about the y axis.
-	yaw = (d) => {
+	yaw(d) {
 		const r = UMath.degreesToRadians(d);
 		const c = Math.cos(r);
 		const s = Math.sin(r);
@@ -320,10 +320,10 @@ class Matrix extends UArray {
 			s, 0, c, 0,
 			0, 0, 0, 1
 		]);
-	};
+	}
 
 	// Rotate d degrees about the z axis.
-	roll = (d) => {
+	roll(d) {
 		const r = UMath.degreesToRadians(d);
 		const c = Math.cos(r);
 		const s = Math.sin(r);
@@ -334,7 +334,7 @@ class Matrix extends UArray {
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		]);
-	};
+	}
 
 	// Perform pitch(x), yaw(y), and roll(z).
 	rotate = (x, y, z) => this.pitch(x).yaw(y).roll(z);
@@ -346,4 +346,64 @@ class Matrix extends UArray {
 		0, 0, z, 0,
 		0, 0, 0, 1
 	]);
+
+	// Invert a matrix via Gaussian elimination.
+	// Based on work by Andrew Ippoliti.
+	invert(dim = Math.sqrt(this.length)) {
+		// if (dim ** 2 != this.length) { return console.error('Cannot invert a non-square Matrix.'); }
+
+		const identity = Matrix.identity(dim);
+		const copy = this.copy(); // Make duplicate to avoid modifying the Matrix in case of failure.
+
+		// Perform elementary row operations.
+		for (let i = 0; i < dim; i++) {
+			let diagonal = copy.getPoint(i, i); // Get the element on the diagonal.
+
+			// If there is a 0 on the diagonal, swap this row with a lower row.
+			if (diagonal == 0) {
+				for (let ii = i + 1; ii < dim; ii++) {
+					if (copy.getPoint(ii, i) != 0) {
+						for (let j = 0; j < dim; j++) {
+							// Swap the rows in each Matrix.
+							[copy, identity].forEach((matrix) => {
+								let temp = matrix.getPoint(i, j);
+								matrix.setPoint(i, j, matrix.getPoint(ii, j));
+								matrix.setPoint(ii, j, temp);
+							});
+						}
+
+						break;
+					}
+				}
+
+				diagonal = copy.getPoint(i, i); // Get the new diagonal after swaps.
+
+				// If the diagonal is still 0, the Matrix is not invertible.
+				if (diagonal == 0) {
+					return /* console.error('Matrix is not invertible.') */;
+				}
+			}
+
+			// Scale this row down by the diagonal so that there is a 1 on the diagonal.
+			for (let j = 0; j < dim; j++) {
+				[copy, identity].forEach((matrix) => matrix.setPoint(i, j, matrix.getPoint(i, j) / diagonal));
+			}
+
+			// Subtract this row from all of the other rows so that there are 0s in this column in the rows above and below this one.
+			for (let ii = 0; ii < dim; ii++) {
+				if (ii == i) {
+					continue;
+				}
+
+				let temp = copy.getPoint(ii, i);
+
+				for (let j = 0; j < dim; j++) {
+					[copy, identity].forEach((matrix) => matrix.setPoint(ii, j, matrix.getPoint(ii, j) - temp * matrix.getPoint(i, j)));
+				}
+			}
+		}
+
+		// Copy should now match the identity, and identity should now be the inverse.
+		return this.setData(...identity);
+	}
 }
