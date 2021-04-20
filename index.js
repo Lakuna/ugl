@@ -1,6 +1,9 @@
 let umbra;
 
 onload = () => {
+	console.log(new Vector(12, 7, -5).normalize());
+
+	/*
 	umbra = new Umbra();
 
 	const scene = new GameObject();
@@ -8,4 +11,5 @@ onload = () => {
 	new CanvasResizer(scene);
 
 	umbra.scene = scene;
+	*/
 };

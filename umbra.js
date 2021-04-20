@@ -163,3 +163,61 @@ class Background extends Component {
 		this[Component.events.UPDATE] = (umbra) => umbra.gl.clear(umbra.gl.COLOR_BUFFER_BIT);
 	}
 }
+
+// Static math class with generically useful methods.
+class UMath {
+	// Summation notation.
+	static sigma = (min, max, equation, output = 0) => output += equation(min) + (min < max ? UMath.sigma(min + 1, max, equation, output) : 0);
+
+	// Convert value in degrees to equivalent value in radians.
+	static degreesToRadians = (d) => d * Math.PI / 180;
+}
+
+// Custom array class with methods that are useful for both Vectors and Matrices.
+class UArray extends Array {
+	// Create a new UArray with values based on a rule.
+	static fromRule = (length, rule = (i) => i) => {
+		let data = [];
+		for (let i = 0; i < length; i++) {
+			data[i] = rule(i);
+		}
+		return new UArray(...data);
+	};
+
+	constructor(...data) {
+		super();
+		this.setData(...data);
+	}
+
+	// "this.setData(...data);" = "this = [...data];"
+	setData = (...data) => {
+		while (this.length > 0) {
+			this.pop();
+		}
+		for (let i = 0; i < data.length; i++) {
+			this[i] = data[i];
+		}
+		return this;
+	};
+}
+
+class Vector extends UArray {
+	// Find the cross product of this and another Vector.
+	cross = (vector) => UArray.fromRule(this.length, (i) => {
+		const loopingIncrement = (i) => i + 1 >= this.length ? 0 : i + 1;
+		i = loopingIncrement(i);
+		let j = loopingIncrement(i);
+		return this[i] * vector[j] - this[j] * vector[i];
+	});
+
+	// Perform an operation between two Vectors. Defaults to addition.
+	operate = (vector, operation = (a, b) => a + b) => this.setData(...UArray.fromRule(this.length, (i) => operation(this[i], vector[i])));
+
+	// Normalize Vector length to a point on a unit circle/sphere/et cetera.
+	normalize = () => this.setData(...UArray.fromRule(this.length, (i) => this[i] / this.magnitude));
+
+	// Find the length ("magnitude") of the Vector.
+	get magnitude() {
+		return Math.sqrt(UMath.sigma(0, this.length - 1, (i) => this[i] ** 2));
+	}
+}
