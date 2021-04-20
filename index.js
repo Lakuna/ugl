@@ -1,7 +1,6 @@
 let umbra;
 
 onload = () => {
-	/*
 	umbra = new Umbra();
 
 	const scene = new GameObject();
@@ -9,5 +8,4 @@ onload = () => {
 	new CanvasResizer(scene);
 
 	umbra.scene = scene;
-	*/
 };

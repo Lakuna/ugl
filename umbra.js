@@ -264,4 +264,65 @@ class Matrix extends UArray {
 
 		return this.setData(...Matrix.fromRule(n, p, (i, j) => UMath.sigma(0, m - 1, (k) => this.getPoint(i, k) * matrix.getPoint(k, j))));
 	}
+
+	// Translate by (x, y, z).
+	translate = (x, y, z) => this.multiply([
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		x, y, z, 1
+	]);
+
+	// Rotate d degrees about the x axis.
+	pitch = (d) => {
+		const r = UMath.degreesToRadians(d);
+		const c = Math.cos(r);
+		const s = Math.sin(r);
+
+		return this.multiply([
+			1, 0, 0, 0,
+			0, c, s, 0,
+			0, -s, c, 0,
+			0, 0, 0, 1
+		]);
+	};
+
+	// Rotate d degrees about the y axis.
+	yaw = (d) => {
+		const r = UMath.degreesToRadians(d);
+		const c = Math.cos(r);
+		const s = Math.sin(r);
+
+		return this.multiply([
+			c, 0, -s, 0,
+			0, 1, 0, 0,
+			s, 0, c, 0,
+			0, 0, 0, 1
+		]);
+	};
+
+	// Rotate d degrees about the z axis.
+	roll = (d) => {
+		const r = UMath.degreesToRadians(d);
+		const c = Math.cos(r);
+		const s = Math.sin(r);
+
+		return this.multiply([
+			c, s, 0, 0,
+			-s, c, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		]);
+	};
+
+	// Perform pitch(x), yaw(y), and roll(z).
+	rotate = (x, y, z) => this.pitch(x).yaw(y).roll(z);
+
+	// Scale by (x, y, z) times.
+	scale = (x, y, z) => this.multiply([
+		x, 0, 0, 0,
+		0, y, 0, 0,
+		0, 0, z, 0,
+		0, 0, 0, 1
+	]);
 }

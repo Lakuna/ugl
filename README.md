@@ -1,2 +1,5 @@
-# Umbra
-Custom HTML5 game framework suitable for extremely lightweight browser games.
+# VERSION 3 CURRENTLY UNDER CONSTRUCTION
+
+Please check back later! This update will be massive.
+
+4/20/21
