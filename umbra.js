@@ -441,3 +441,160 @@ class Camera extends Matrix {
 		]);
 	}
 }
+
+class GLVariable {
+	static scopes = {
+		attribute: 0,
+		varying: 1,
+		uniform: 2
+	};
+
+	/* Types
+	Scalars:
+	bool
+	int
+	uint
+	float
+	double
+
+	Vectors:
+	bvec(n)
+	ivec(n)
+	uvec(n)
+	vec(n)
+	dvec(n)
+
+	Matrices:
+	mat(n)x(n)
+	mat(n)
+
+	Opaque types:
+	(g)sampler(t)
+	(g)image(t)
+	atomic_uint
+
+	Where:
+	- (n) represents 2, 3, or 4.
+	- (g) represent (nothing), i, or u.
+	- (t) represents 1D, 2D, 3D, Cube, 2DRect, 1DArray, 2DArray, CubeArray, Buffer, 2DMS, or 2DMSArray.
+	*/
+
+	constructor(scope, type, name) {
+		this.scope = scope;
+		this.type = type;
+		this.name = name;
+	}
+
+	src(shaderType) {
+		let scope = 'RIP';
+		switch(this.scope) {
+			case GLVariable.scopes.attribute:
+				scope = shaderType == gl.VERTEX_SHADER ? 'in' : '//';
+				break;
+			case GLVariable.scopes.varying:
+				scope = shaderType == gl.VERTEX_SHADER ? 'out' : 'in';
+				break;
+			default:
+				scope = 'uniform';
+		}
+
+		return `${scope} ${this.type} ${this.name};\n`;
+	}
+}
+
+// Represents a WebGL2 shader program and its information.
+class ShaderProgramInfo {
+	constructor(gl, variables, vertexMainSrc, fragmentMainSrc, version = '#version 300 es', precision = 'precision highp float;') {
+		// Build shader source code.
+
+		// Headers
+		let vertexSrc = `${version}\n`;
+		let fragmentSrc = `${version}\n${precision}\n`;
+
+		// Variables.
+		for (let variable in variables) {
+			vertexSrc += variable.src();
+			fragmentSrc += variable.src();
+		}
+
+		// Main function.
+		vertexSrc += `void main(){${vertexMainSrc}}`;
+		fragmentSrc += `void main(){${fragmentMainSrc}}`;
+
+		// Create shader program.
+
+		this.program = gl.createProgram();
+		[
+			{ type: gl.VERTEX_SHADER, src: vertexSrc },
+			{ type: gl.FRAGMENT_SHADER, src: fragmentSrc }
+		].forEach((shaderInfo) => {
+			const shader = gl.createShader(shaderInfo.type);
+			gl.shaderSource(shader, shaderInfo.src);
+			gl.compileShader(shader);
+
+			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+				console.error(gl.getShaderInfoLog(shader));
+				gl.deleteShader(shader);
+			}
+
+			gl.attachShader(this.program, shader);
+		});
+		gl.linkProgram(this.program);
+
+		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+			console.error(gl.getProgramInfoLog(this.program));
+			gl.deleteProgram(this.program);
+		}
+
+		// TODO: Get locations.
+	}
+}
+
+// TODO: Default shader.
+
+/* GLSL ES 3.00
+#version 300 es
+
+// Attibutes
+in vec4 a_position;
+in vec2 a_texcoord;
+
+// Varyings
+out vec2 v_texcoord;
+
+// Uniforms
+uniform mat4 u_matrix;
+
+void main() {
+	gl_Position = u_matrix * a_position;
+
+	v_texcoord = a_texcoord;
+}
+*/
+
+/* GLSL ES 3.00
+#version 300 es
+
+precision highp float;
+
+// Varyings
+in vec2 v_texcoord;
+
+// Uniforms
+uniform sampler2D u_texture;
+uniform sampler2D u_textureMask;
+uniform vec4 hue;
+
+// Output
+out vec4 outColor;
+
+void main() {
+	outColor = texture(u_texture, v_texcoord) * texture(u_textureMask, v_texcoord) * hue;
+}
+*/
+
+// TODO: Texture (+ Atlas).
+
+// TODO: Shape from triangles.
+
+// TODO: Primitives (Rectangle, Cube, Sphere, Pyramid?, Triangle).
