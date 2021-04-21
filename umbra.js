@@ -220,12 +220,12 @@ class UArray extends Array {
 // Represents a point in space.
 class Vector extends UArray {
 	// Find the cross product of this and another Vector.
-	cross = (vector) => UArray.fromRule(this.length, (i) => {
+	cross = (vector) => new Vector(...UArray.fromRule(this.length, (i) => {
 		const loopingIncrement = (i) => i + 1 >= this.length ? 0 : i + 1;
 		i = loopingIncrement(i);
 		let j = loopingIncrement(i);
 		return this[i] * vector[j] - this[j] * vector[i];
-	});
+	}));
 
 	// Returns a copy of this Vector.
 	copy = () => new Vector(...this);
@@ -405,5 +405,39 @@ class Matrix extends UArray {
 
 		// Copy should now match the identity, and identity should now be the inverse.
 		return this.setData(...identity);
+	}
+}
+
+class Camera extends Matrix {
+	orthographic = (left, right, top, bottom, near, far) => this.multiply([
+		2 / (right - left), 0, 0, 0,
+		0, 2 / (top - bottom), 0, 0,
+		0, 0, 2 / (near - far), 0,
+		(left + right) / (left - right), (bottom + top) / (bottom - top), (near + far) / (near - far), 1
+	]);
+
+	perspective(fov, aspectRatio, near, far) {
+		const f = Math.tan(Math.PI * 0.5 - 0.5 * UMath.degreesToRadians(fov));
+		const range = 1.0 / (near - far);
+
+		return this.multiply([
+			f / aspectRatio, 0, 0, 0,
+			0, f, 0, 0,
+			0, 0, (near + far) * range, -1,
+			0, 0, near * far * range * 2, 0
+		]);
+	}
+
+	lookAt(position, target, up = [0, 1, 0]) {
+		const zAxis = new Vector(...position).operate(target, (a, b) => a - b).normalize();
+		const xAxis = new Vector(...up).cross(zAxis).normalize();
+		const yAxis = zAxis.copy().cross(xAxis).normalize();
+
+		return this.multiply([
+			...xAxis, 0,
+			...yAxis, 0,
+			...zAxis, 0,
+			...position, 1
+		]);
 	}
 }
