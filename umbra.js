@@ -35,9 +35,15 @@ class Umbra {
 		this.canvas = canvas;
 		this.gl = this.canvas.getContext('webgl2');
 
+		let then = 0; // Used for deltaTime calculations.
+
 		// Update loop; variable frequency.
-		const update = () => {
+		const update = (now) => {
 			requestAnimationFrame(update);
+
+			// Calculate time between frames in seconds. fps = 1 / deltaTime
+			this.deltaTime = (now - then) * 0.001 || 0;
+			then = now;
 			
 			if (!this.paused) {
 				this.trigger(Component.events.UPDATE);
@@ -605,8 +611,6 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 			outColor = texture(u_texture, v_texcoord) * texture(u_textureMask, v_texcoord) * hue;
 		}
 		*/
-
-		console.log(this.locations);
 	}
 }
 
