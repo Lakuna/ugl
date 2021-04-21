@@ -1,6 +1,11 @@
 let umbra;
+let shaderProgramInfo;
 
 onload = () => {
+	umbra = new Umbra();
+	shaderProgramInfo = new DefaultShaderProgramInfo(umbra.gl);
+
+	/*
 	umbra = new Umbra();
 
 	const scene = new GameObject();
@@ -8,4 +13,5 @@ onload = () => {
 	new CanvasResizer(scene);
 
 	umbra.scene = scene;
+	*/
 };

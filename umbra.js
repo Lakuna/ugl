@@ -446,38 +446,9 @@ class GLVariable {
 	static scopes = {
 		attribute: 0,
 		varying: 1,
-		uniform: 2
+		uniform: 2,
+		fragmentOutput: 3
 	};
-
-	/* Types
-	Scalars:
-	bool
-	int
-	uint
-	float
-	double
-
-	Vectors:
-	bvec(n)
-	ivec(n)
-	uvec(n)
-	vec(n)
-	dvec(n)
-
-	Matrices:
-	mat(n)x(n)
-	mat(n)
-
-	Opaque types:
-	(g)sampler(t)
-	(g)image(t)
-	atomic_uint
-
-	Where:
-	- (n) represents 2, 3, or 4.
-	- (g) represent (nothing), i, or u.
-	- (t) represents 1D, 2D, 3D, Cube, 2DRect, 1DArray, 2DArray, CubeArray, Buffer, 2DMS, or 2DMSArray.
-	*/
 
 	constructor(scope, type, name) {
 		this.scope = scope;
@@ -485,17 +456,20 @@ class GLVariable {
 		this.name = name;
 	}
 
-	src(shaderType) {
+	src(isVertexShader) {
 		let scope = 'RIP';
-		switch(this.scope) {
+		switch (this.scope) {
 			case GLVariable.scopes.attribute:
-				scope = shaderType == gl.VERTEX_SHADER ? 'in' : '//';
+				scope = isVertexShader ? 'in' : '//';
 				break;
 			case GLVariable.scopes.varying:
-				scope = shaderType == gl.VERTEX_SHADER ? 'out' : 'in';
+				scope = isVertexShader ? 'out' : 'in';
 				break;
-			default:
+			case GLVariable.scopes.uniform:
 				scope = 'uniform';
+				break;
+			case GLVariable.scopes.fragmentOutput:
+				scope = isVertexShader ? '//' : 'out';
 		}
 
 		return `${scope} ${this.type} ${this.name};\n`;
@@ -512,9 +486,10 @@ class ShaderProgramInfo {
 		let fragmentSrc = `${version}\n${precision}\n`;
 
 		// Variables.
-		for (let variable in variables) {
-			vertexSrc += variable.src();
-			fragmentSrc += variable.src();
+		for (let i = 0; i < variables.length; i++) {
+			console.log(variables[i]); // TODO: Delete.
+			vertexSrc += variables[i].src(true);
+			fragmentSrc += variables[i].src();
 		}
 
 		// Main function.
@@ -532,6 +507,7 @@ class ShaderProgramInfo {
 			gl.shaderSource(shader, shaderInfo.src);
 			gl.compileShader(shader);
 
+			// TODO: Comment out.
 			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 				console.error(gl.getShaderInfoLog(shader));
 				gl.deleteShader(shader);
@@ -541,57 +517,100 @@ class ShaderProgramInfo {
 		});
 		gl.linkProgram(this.program);
 
+		// TODO: Comment out.
 		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
 			console.error(gl.getProgramInfoLog(this.program));
 			gl.deleteProgram(this.program);
 		}
 
-		// TODO: Get locations.
+		this.locations = {};
+		for (let i = 0; i < variables.length; i++) {
+			switch (variables[i].scope) {
+				case GLVariable.scopes.attribute:
+					this.locations[variables[i].name] = gl.getAttribLocation(this.program, variables[i].name);
+					break;
+				case GLVariable.scopes.uniform:
+					this.locations[variables[i].name] = gl.getUniformLocation(this.program, variables[i].name);
+			}
+		}
+	}
+}
+
+class DefaultShaderProgramInfo extends ShaderProgramInfo {
+	static names = {
+		aPosition: 'a',
+		aTexcoord: 'b',
+		vTexcoord: 'c',
+		uMatrix: 'd',
+		uTexture: 'e',
+		uTextureMask: 'f',
+		uHue: 'g',
+		outColor: 'h'
+	};
+
+	constructor(gl) {
+		super(
+			gl,
+			[
+				new GLVariable(GLVariable.scopes.attribute, 'vec4', DefaultShaderProgramInfo.names.aPosition),
+				new GLVariable(GLVariable.scopes.attribute, 'vec2', DefaultShaderProgramInfo.names.aTexcoord),
+				new GLVariable(GLVariable.scopes.varying, 'vec2', DefaultShaderProgramInfo.names.vTexcoord),
+				new GLVariable(GLVariable.scopes.uniform, 'mat4', DefaultShaderProgramInfo.names.uMatrix),
+				new GLVariable(GLVariable.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTexture),
+				new GLVariable(GLVariable.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTextureMask),
+				new GLVariable(GLVariable.scopes.uniform, 'vec4', DefaultShaderProgramInfo.names.uHue),
+				new GLVariable(GLVariable.scopes.fragmentOutput, 'vec4', DefaultShaderProgramInfo.names.outColor)
+			],
+			`gl_Position=${DefaultShaderProgramInfo.names.uMatrix}*${DefaultShaderProgramInfo.names.aPosition};${DefaultShaderProgramInfo.names.vTexcoord}=${DefaultShaderProgramInfo.names.aTexcoord};`,
+			`${DefaultShaderProgramInfo.names.outColor}=texture(${DefaultShaderProgramInfo.names.uTexture},${DefaultShaderProgramInfo.names.vTexcoord})*texture(${DefaultShaderProgramInfo.names.uTextureMask},${DefaultShaderProgramInfo.names.vTexcoord})*${DefaultShaderProgramInfo.names.uHue};`
+		);
+
+		/* GLSL ES 3.00
+		#version 300 es
+
+		// Attibutes
+		in vec4 a_position;
+		in vec2 a_texcoord;
+
+		// Varyings
+		out vec2 v_texcoord;
+
+		// Uniforms
+		uniform mat4 u_matrix;
+
+		void main() {
+			gl_Position = u_matrix * a_position;
+
+			v_texcoord = a_texcoord;
+		}
+		*/
+
+		/* GLSL ES 3.00
+		#version 300 es
+
+		precision highp float;
+
+		// Varyings
+		in vec2 v_texcoord;
+
+		// Uniforms
+		uniform sampler2D u_texture;
+		uniform sampler2D u_textureMask;
+		uniform vec4 hue;
+
+		// Output
+		out vec4 outColor;
+
+		void main() {
+			outColor = texture(u_texture, v_texcoord) * texture(u_textureMask, v_texcoord) * hue;
+		}
+		*/
+
+		console.log(this.locations);
 	}
 }
 
 // TODO: Default shader.
-
-/* GLSL ES 3.00
-#version 300 es
-
-// Attibutes
-in vec4 a_position;
-in vec2 a_texcoord;
-
-// Varyings
-out vec2 v_texcoord;
-
-// Uniforms
-uniform mat4 u_matrix;
-
-void main() {
-	gl_Position = u_matrix * a_position;
-
-	v_texcoord = a_texcoord;
-}
-*/
-
-/* GLSL ES 3.00
-#version 300 es
-
-precision highp float;
-
-// Varyings
-in vec2 v_texcoord;
-
-// Uniforms
-uniform sampler2D u_texture;
-uniform sampler2D u_textureMask;
-uniform vec4 hue;
-
-// Output
-out vec4 outColor;
-
-void main() {
-	outColor = texture(u_texture, v_texcoord) * texture(u_textureMask, v_texcoord) * hue;
-}
-*/
 
 // TODO: Texture (+ Atlas).
 
