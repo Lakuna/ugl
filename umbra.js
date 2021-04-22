@@ -242,6 +242,9 @@ class Vector extends UArray {
 	// Normalize Vector length to a point on a unit circle/sphere/et cetera.
 	normalize = () => this.setData(...UArray.fromRule(this.length, (i) => this[i] / this.magnitude));
 
+	// Multiply the Vector by a Matrix to apply transforms.
+	transform = (matrix) => this.setData(...new Matrix(...matrix).multiply(this));
+
 	// Find the length ("magnitude") of the Vector.
 	get magnitude() {
 		return Math.sqrt(UMath.sigma(0, this.length - 1, (i) => this[i] ** 2));
@@ -356,7 +359,9 @@ class Matrix extends UArray {
 	// Invert a matrix via Gaussian elimination.
 	// Based on work by Andrew Ippoliti.
 	invert(dim = Math.sqrt(this.length)) {
-		// if (dim ** 2 != this.length) { return console.error('Cannot invert a non-square Matrix.'); }
+		if (dim ** 2 != this.length) {
+			return /* console.error('Cannot invert a non-square Matrix.') */;
+		}
 
 		const identity = Matrix.identity(dim);
 		const copy = this.copy(); // Make duplicate to avoid modifying the Matrix in case of failure.
@@ -450,10 +455,10 @@ class Camera extends Matrix {
 
 class GLVariable {
 	static scopes = {
-		attribute: 0,
-		varying: 1,
-		uniform: 2,
-		fragmentOutput: 3
+		ATTRIBUTE: 0,
+		VARYING: 1,
+		UNIFORM: 2,
+		FRAGMENT_COLOR: 3
 	};
 
 	constructor(scope, type, name) {
@@ -465,16 +470,16 @@ class GLVariable {
 	src(isVertexShader) {
 		let scope = 'RIP';
 		switch (this.scope) {
-			case GLVariable.scopes.attribute:
+			case GLVariable.scopes.ATTRIBUTE:
 				scope = isVertexShader ? 'in' : '//';
 				break;
-			case GLVariable.scopes.varying:
+			case GLVariable.scopes.VARYING:
 				scope = isVertexShader ? 'out' : 'in';
 				break;
-			case GLVariable.scopes.uniform:
+			case GLVariable.scopes.UNIFORM:
 				scope = 'uniform';
 				break;
-			case GLVariable.scopes.fragmentOutput:
+			case GLVariable.scopes.FRAGMENT_COLOR:
 				scope = isVertexShader ? '//' : 'out';
 		}
 
@@ -493,7 +498,6 @@ class ShaderProgramInfo {
 
 		// Variables.
 		for (let i = 0; i < variables.length; i++) {
-			console.log(variables[i]); // TODO: Delete.
 			vertexSrc += variables[i].src(true);
 			fragmentSrc += variables[i].src();
 		}
@@ -513,29 +517,31 @@ class ShaderProgramInfo {
 			gl.shaderSource(shader, shaderInfo.src);
 			gl.compileShader(shader);
 
-			// TODO: Comment out.
+			/*
 			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 				console.error(gl.getShaderInfoLog(shader));
 				gl.deleteShader(shader);
 			}
+			*/
 
 			gl.attachShader(this.program, shader);
 		});
 		gl.linkProgram(this.program);
 
-		// TODO: Comment out.
+		/*
 		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
 			console.error(gl.getProgramInfoLog(this.program));
 			gl.deleteProgram(this.program);
 		}
+		*/
 
 		this.locations = {};
 		for (let i = 0; i < variables.length; i++) {
 			switch (variables[i].scope) {
-				case GLVariable.scopes.attribute:
+				case GLVariable.scopes.ATTRIBUTE:
 					this.locations[variables[i].name] = gl.getAttribLocation(this.program, variables[i].name);
 					break;
-				case GLVariable.scopes.uniform:
+				case GLVariable.scopes.UNIFORM:
 					this.locations[variables[i].name] = gl.getUniformLocation(this.program, variables[i].name);
 			}
 		}
