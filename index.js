@@ -6,9 +6,8 @@ onload = () => {
 	shaderProgramInfo = new DefaultShaderProgramInfo(umbra.gl);
 
 	const scene = new GameObject();
-	new Background(scene, 0x50 / 0xFF, 0xC8 / 0xFF, 0x78 / 0xFF);
+	new Background(scene);
 	new CanvasResizer(scene);
-	new Component(scene)[Component.events.UPDATE] = () => console.log(1 / umbra.deltaTime);
 
 	umbra.scene = scene;
 };

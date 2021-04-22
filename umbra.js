@@ -34,11 +34,9 @@ class Umbra {
 	) {
 		this.canvas = canvas;
 		this.gl = this.canvas.getContext('webgl2');
-		/*
 		if (!this.gl) {
 			console.error('WebGL2 is not supported by your browser.');
 		}
-		*/
 
 		let then = 0; // Used for deltaTime calculations.
 
@@ -365,7 +363,7 @@ class Matrix extends UArray {
 	// Based on work by Andrew Ippoliti.
 	invert(dim = Math.sqrt(this.length)) {
 		if (dim ** 2 != this.length) {
-			return /* console.error('Cannot invert a non-square Matrix.') */;
+			return console.error('Cannot invert a non-square Matrix.');
 		}
 
 		const identity = Matrix.identity(dim);
@@ -396,7 +394,7 @@ class Matrix extends UArray {
 
 				// If the diagonal is still 0, the Matrix is not invertible.
 				if (diagonal == 0) {
-					return /* console.error('Matrix is not invertible.') */;
+					return console.error('Matrix is not invertible.');
 				}
 			}
 
@@ -424,6 +422,7 @@ class Matrix extends UArray {
 	}
 }
 
+// Represents a WebGL view projection Matrix.
 class Camera extends Matrix {
 	orthographic = (left, right, top, bottom, near, far) => this.multiply([
 		2 / (right - left), 0, 0, 0,
@@ -458,6 +457,7 @@ class Camera extends Matrix {
 	}
 }
 
+// WebGL attribute, varying, uniform, and fragment color information container.
 class GLVariableInfo {
 	static scopes = {
 		ATTRIBUTE: 0,
@@ -466,6 +466,8 @@ class GLVariableInfo {
 		FRAGMENT_COLOR: 3
 	};
 
+	#location;
+
 	constructor(scope, type, name) {
 		this.scope = scope;
 		this.type = type;
@@ -473,38 +475,113 @@ class GLVariableInfo {
 	}
 
 	src(isVertexShader) {
-		let scope = 'RIP';
+		let scopeText;
 		switch (this.scope) {
 			case GLVariableInfo.scopes.ATTRIBUTE:
-				scope = isVertexShader ? 'in' : '//';
+				scopeText = isVertexShader ? 'in' : 0;
 				break;
 			case GLVariableInfo.scopes.VARYING:
-				scope = isVertexShader ? 'out' : 'in';
+				scopeText = isVertexShader ? 'out' : 'in';
 				break;
 			case GLVariableInfo.scopes.UNIFORM:
-				scope = 'uniform';
+				scopeText = 'uniform';
 				break;
 			case GLVariableInfo.scopes.FRAGMENT_COLOR:
-				scope = isVertexShader ? '//' : 'out';
+				scopeText = isVertexShader ? 0 : 'out';
 		}
 
-		return `${scope} ${this.type} ${this.name};\n`;
+		return scopeText ? `${scopeText} ${this.type} ${this.name};` : '';
+	}
+
+	set location(value) {
+		if (this.#location) {
+			return console.error('Cannot change the location of a GLVariableInfo.');
+		}
+		this.#location = value;
+	}
+
+	get location() {
+		return this.#location;
+	}
+}
+
+// Contains a WebGL buffer and its information.
+class GLBufferInfo {
+	constructor(gl, data, usage, target) {
+		this.buffer = gl.createBuffer();
+
+		// This is necessary because certain defaults cannot be set without access to gl.
+		((usage = gl.STATIC_DRAW, target = gl.ARRAY_BUFFER) => {
+			this.target = target;
+			
+			gl.bindBuffer(this.target, this.buffer);
+			gl.bufferData(this.target, data, usage);
+
+			this.update = (data) => {
+				gl.bindBuffer(this.target, this.buffer);
+				gl.bufferSubData(this.target, 0, data, 0);
+			};
+		})(usage, target);
+	}
+}
+
+// Represents one shape's instance of a WebGL attribute, varying, uniform, or fragment color and its information.
+class GLVariableInstanceInfo {
+	constructor(location) {
+		this.location = location;
+
+		this.setValue = () => console.error('Not implemented.');
+	}
+}
+
+// Represents one shape's instance of a WebGL attribute and its information.
+class GLAttributeInstanceInfo extends GLVariableInstanceInfo {
+	constructor(location, gl, bufferInfo, size, type, normalized = false, stride = 0, offset = 0) {
+		super(location);
+
+		gl.enableVertexAttribArray(this.location);
+		gl.bindBuffer(bufferInfo.target, bufferInfo.buffer);
+
+		// This is necessary because certain defaults cannot be set without access to gl.
+		((type = gl.FLOAT) => {
+			gl.vertexAttribPointer(this.location, size, type, normalized, stride, offset);
+
+			this.setValue = (value) => bufferInfo.update(value);
+		})(type);
+	}
+}
+
+// Represents one shape's instance of a WebGL uniform and its information.
+class GLUniformInstanceInfo extends GLVariableInstanceInfo {
+	constructor(location, setterMethod, value) {
+		super(location);
+
+		// Call the setter method. Uses the last value if no new value is set.
+		this.setValue = (value) => {
+			cachedValue = value || cachedValue;
+
+			setterMethod(this.location, cachedValue);
+		};
+		this.setValue(value);
 	}
 }
 
 // Represents a WebGL2 shader program and its information.
 class ShaderProgramInfo {
 	constructor(gl, variables, vertexMainSrc, fragmentMainSrc, version = '#version 300 es', precision = 'precision highp float;') {
+		this.gl = gl;
+		this.variables = variables;
+
 		// Build shader source code.
 
 		// Headers
 		let vertexSrc = `${version}\n`;
-		let fragmentSrc = `${version}\n${precision}\n`;
+		let fragmentSrc = `${version}\n${precision}`;
 
 		// Variables.
-		for (let i = 0; i < variables.length; i++) {
-			vertexSrc += variables[i].src(true);
-			fragmentSrc += variables[i].src();
+		for (const variable of this.variables) {
+			vertexSrc += variable.src(true);
+			fragmentSrc += variable.src();
 		}
 
 		// Main function.
@@ -513,41 +590,36 @@ class ShaderProgramInfo {
 
 		// Create shader program.
 
-		this.program = gl.createProgram();
+		this.program = this.gl.createProgram();
 		[
-			{ type: gl.VERTEX_SHADER, src: vertexSrc },
-			{ type: gl.FRAGMENT_SHADER, src: fragmentSrc }
+			{ type: this.gl.VERTEX_SHADER, src: vertexSrc },
+			{ type: this.gl.FRAGMENT_SHADER, src: fragmentSrc }
 		].forEach((shaderInfo) => {
-			const shader = gl.createShader(shaderInfo.type);
-			gl.shaderSource(shader, shaderInfo.src);
-			gl.compileShader(shader);
+			const shader = this.gl.createShader(shaderInfo.type);
+			this.gl.shaderSource(shader, shaderInfo.src);
+			this.gl.compileShader(shader);
 
-			/*
-			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-				console.error(gl.getShaderInfoLog(shader));
-				gl.deleteShader(shader);
+			if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+				console.error(this.gl.getShaderInfoLog(shader));
+				this.gl.deleteShader(shader);
 			}
-			*/
 
-			gl.attachShader(this.program, shader);
+			this.gl.attachShader(this.program, shader);
 		});
-		gl.linkProgram(this.program);
+		this.gl.linkProgram(this.program);
 
-		/*
-		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-			console.error(gl.getProgramInfoLog(this.program));
-			gl.deleteProgram(this.program);
+		if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
+			console.error(this.gl.getProgramInfoLog(this.program));
+			this.gl.deleteProgram(this.program);
 		}
-		*/
 
-		this.locations = {};
-		for (let i = 0; i < variables.length; i++) {
-			switch (variables[i].scope) {
+		for (const variable of this.variables) {
+			switch (variable.scope) {
 				case GLVariableInfo.scopes.ATTRIBUTE:
-					this.locations[variables[i].name] = gl.getAttribLocation(this.program, variables[i].name);
+					variable.location = this.gl.getAttribLocation(this.program, variable.name);
 					break;
 				case GLVariableInfo.scopes.UNIFORM:
-					this.locations[variables[i].name] = gl.getUniformLocation(this.program, variables[i].name);
+					variable.location = this.gl.getUniformLocation(this.program, variable.name);
 			}
 		}
 	}
@@ -569,19 +641,18 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 		super(
 			gl,
 			[
-				new GLVariableInfo(GLVariableInfo.scopes.attribute, 'vec4', DefaultShaderProgramInfo.names.aPosition),
-				new GLVariableInfo(GLVariableInfo.scopes.attribute, 'vec2', DefaultShaderProgramInfo.names.aTexcoord),
-				new GLVariableInfo(GLVariableInfo.scopes.varying, 'vec2', DefaultShaderProgramInfo.names.vTexcoord),
-				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'mat4', DefaultShaderProgramInfo.names.uMatrix),
-				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTexture),
-				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTextureMask),
-				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'vec4', DefaultShaderProgramInfo.names.uHue),
-				new GLVariableInfo(GLVariableInfo.scopes.fragmentOutput, 'vec4', DefaultShaderProgramInfo.names.outColor)
+				new GLVariableInfo(GLVariableInfo.scopes.ATTRIBUTE, 'vec4', DefaultShaderProgramInfo.names.aPosition),
+				new GLVariableInfo(GLVariableInfo.scopes.ATTRIBUTE, 'vec2', DefaultShaderProgramInfo.names.aTexcoord),
+				new GLVariableInfo(GLVariableInfo.scopes.VARYING, 'vec2', DefaultShaderProgramInfo.names.vTexcoord),
+				new GLVariableInfo(GLVariableInfo.scopes.UNIFORM, 'mat4', DefaultShaderProgramInfo.names.uMatrix),
+				new GLVariableInfo(GLVariableInfo.scopes.UNIFORM, 'sampler2D', DefaultShaderProgramInfo.names.uTexture),
+				new GLVariableInfo(GLVariableInfo.scopes.UNIFORM, 'sampler2D', DefaultShaderProgramInfo.names.uTextureMask),
+				new GLVariableInfo(GLVariableInfo.scopes.UNIFORM, 'vec4', DefaultShaderProgramInfo.names.uHue),
+				new GLVariableInfo(GLVariableInfo.scopes.FRAGMENT_COLOR, 'vec4', DefaultShaderProgramInfo.names.outColor)
 			],
 			`gl_Position=${DefaultShaderProgramInfo.names.uMatrix}*${DefaultShaderProgramInfo.names.aPosition};${DefaultShaderProgramInfo.names.vTexcoord}=${DefaultShaderProgramInfo.names.aTexcoord};`,
 			`${DefaultShaderProgramInfo.names.outColor}=texture(${DefaultShaderProgramInfo.names.uTexture},${DefaultShaderProgramInfo.names.vTexcoord})*texture(${DefaultShaderProgramInfo.names.uTextureMask},${DefaultShaderProgramInfo.names.vTexcoord})*${DefaultShaderProgramInfo.names.uHue};`
 		);
-
 		/* GLSL ES 3.00
 		#version 300 es
 
@@ -601,7 +672,6 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 			v_texcoord = a_texcoord;
 		}
 		*/
-
 		/* GLSL ES 3.00
 		#version 300 es
 
@@ -625,20 +695,19 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 	}
 }
 
-class GLBufferInfo {
-	constructor(gl, data, target, usage) {
-		((target = gl.ARRAY_BUFFER, usage = gl.STATIC_DRAW) => {
-			this.buffer = gl.createBuffer();
-			gl.bindBuffer(target, this.buffer);
-			gl.bufferData(target, data, usage);
-		})(target, usage);
+class Shape extends Component {
+	constructor(program, variableInfos) {
+		let vao = program.gl.createVertexArray();
+		program.gl.bindVertexArray(vao);
+
+		// Make a map of setters for attributes and uniforms with the location as the key.
+		this.variableSetters = {};
+		for (let variableInfo of variableInfos) {
+			this.variableInfos[variableInfo.location] = variableInfo.setValue;
+		}
 	}
 }
 
-// TODO: Default shader.
-
 // TODO: Texture (+ Atlas).
-
-// TODO: Shape from triangles.
 
 // TODO: Primitives (Rectangle, Cube, Sphere, Pyramid?, Triangle).
