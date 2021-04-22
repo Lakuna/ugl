@@ -34,6 +34,11 @@ class Umbra {
 	) {
 		this.canvas = canvas;
 		this.gl = this.canvas.getContext('webgl2');
+		/*
+		if (!this.gl) {
+			console.error('WebGL2 is not supported by your browser.');
+		}
+		*/
 
 		let then = 0; // Used for deltaTime calculations.
 
@@ -453,7 +458,7 @@ class Camera extends Matrix {
 	}
 }
 
-class GLVariable {
+class GLVariableInfo {
 	static scopes = {
 		ATTRIBUTE: 0,
 		VARYING: 1,
@@ -470,16 +475,16 @@ class GLVariable {
 	src(isVertexShader) {
 		let scope = 'RIP';
 		switch (this.scope) {
-			case GLVariable.scopes.ATTRIBUTE:
+			case GLVariableInfo.scopes.ATTRIBUTE:
 				scope = isVertexShader ? 'in' : '//';
 				break;
-			case GLVariable.scopes.VARYING:
+			case GLVariableInfo.scopes.VARYING:
 				scope = isVertexShader ? 'out' : 'in';
 				break;
-			case GLVariable.scopes.UNIFORM:
+			case GLVariableInfo.scopes.UNIFORM:
 				scope = 'uniform';
 				break;
-			case GLVariable.scopes.FRAGMENT_COLOR:
+			case GLVariableInfo.scopes.FRAGMENT_COLOR:
 				scope = isVertexShader ? '//' : 'out';
 		}
 
@@ -538,10 +543,10 @@ class ShaderProgramInfo {
 		this.locations = {};
 		for (let i = 0; i < variables.length; i++) {
 			switch (variables[i].scope) {
-				case GLVariable.scopes.ATTRIBUTE:
+				case GLVariableInfo.scopes.ATTRIBUTE:
 					this.locations[variables[i].name] = gl.getAttribLocation(this.program, variables[i].name);
 					break;
-				case GLVariable.scopes.UNIFORM:
+				case GLVariableInfo.scopes.UNIFORM:
 					this.locations[variables[i].name] = gl.getUniformLocation(this.program, variables[i].name);
 			}
 		}
@@ -564,14 +569,14 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 		super(
 			gl,
 			[
-				new GLVariable(GLVariable.scopes.attribute, 'vec4', DefaultShaderProgramInfo.names.aPosition),
-				new GLVariable(GLVariable.scopes.attribute, 'vec2', DefaultShaderProgramInfo.names.aTexcoord),
-				new GLVariable(GLVariable.scopes.varying, 'vec2', DefaultShaderProgramInfo.names.vTexcoord),
-				new GLVariable(GLVariable.scopes.uniform, 'mat4', DefaultShaderProgramInfo.names.uMatrix),
-				new GLVariable(GLVariable.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTexture),
-				new GLVariable(GLVariable.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTextureMask),
-				new GLVariable(GLVariable.scopes.uniform, 'vec4', DefaultShaderProgramInfo.names.uHue),
-				new GLVariable(GLVariable.scopes.fragmentOutput, 'vec4', DefaultShaderProgramInfo.names.outColor)
+				new GLVariableInfo(GLVariableInfo.scopes.attribute, 'vec4', DefaultShaderProgramInfo.names.aPosition),
+				new GLVariableInfo(GLVariableInfo.scopes.attribute, 'vec2', DefaultShaderProgramInfo.names.aTexcoord),
+				new GLVariableInfo(GLVariableInfo.scopes.varying, 'vec2', DefaultShaderProgramInfo.names.vTexcoord),
+				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'mat4', DefaultShaderProgramInfo.names.uMatrix),
+				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTexture),
+				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'sampler2D', DefaultShaderProgramInfo.names.uTextureMask),
+				new GLVariableInfo(GLVariableInfo.scopes.uniform, 'vec4', DefaultShaderProgramInfo.names.uHue),
+				new GLVariableInfo(GLVariableInfo.scopes.fragmentOutput, 'vec4', DefaultShaderProgramInfo.names.outColor)
 			],
 			`gl_Position=${DefaultShaderProgramInfo.names.uMatrix}*${DefaultShaderProgramInfo.names.aPosition};${DefaultShaderProgramInfo.names.vTexcoord}=${DefaultShaderProgramInfo.names.aTexcoord};`,
 			`${DefaultShaderProgramInfo.names.outColor}=texture(${DefaultShaderProgramInfo.names.uTexture},${DefaultShaderProgramInfo.names.vTexcoord})*texture(${DefaultShaderProgramInfo.names.uTextureMask},${DefaultShaderProgramInfo.names.vTexcoord})*${DefaultShaderProgramInfo.names.uHue};`
@@ -617,6 +622,16 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 			outColor = texture(u_texture, v_texcoord) * texture(u_textureMask, v_texcoord) * hue;
 		}
 		*/
+	}
+}
+
+class GLBufferInfo {
+	constructor(gl, data, target, usage) {
+		((target = gl.ARRAY_BUFFER, usage = gl.STATIC_DRAW) => {
+			this.buffer = gl.createBuffer();
+			gl.bindBuffer(target, this.buffer);
+			gl.bufferData(target, data, usage);
+		})(target, usage);
 	}
 }
 
