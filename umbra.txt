@@ -43,6 +43,9 @@ FEATURES:
 - Pseudo-RNG:
 	- Alea: https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
 		- https://www.npmjs.com/package/alea
+- Static Umbra instance with gl, canvas, and premade WebGL shader?
+	- Simpler to use, but with much less user control.
+	- Probably way smaller.
 
 EXAMPLES:
 - Conway's game of life

@@ -556,10 +556,25 @@ class GLBufferInfo {
 
 // Represents a WebGL texture and its information.
 class GLTextureInfo {
-	constructor(gl) {
-		gl.createTexture();
-		// TODO
+	constructor(gl, defaultColor = [255, 0, 255, 255]) {
+		this.texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(defaultColor));
 	}
+
+	loadFromUrl = (url) => new Promise((resolve, reject) => {
+		const image = new Image();
+		if ((new URL(url, location.href)).origin != location.origin) {
+			image.crossOrigin = ''; // Request CORS.
+		}
+		image.addEventListener('load', () => {
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.generateMipmap(gl.TEXTURE_2D);
+			resolve();
+		});
+		image.src = url; // Begin loading image.
+	});
 }
 
 // Represents one shape's instance of a WebGL attribute, varying, uniform, or fragment color and its information.
