@@ -1,3 +1,7 @@
+// Umbra Web Framework version 3.0
+// Copyright (c) Travis Martin 2021
+// MIT License
+
 class Umbra {
 	// Umbra Framework version.
 	static version = '3.0';
@@ -420,10 +424,7 @@ class Matrix extends UArray {
 		// Copy should now match the identity, and identity should now be the inverse.
 		return this.setData(...identity);
 	}
-}
 
-// Represents a WebGL view projection Matrix.
-class Camera extends Matrix {
 	orthographic = (left, right, top, bottom, near, far) => this.multiply([
 		2 / (right - left), 0, 0, 0,
 		0, 2 / (top - bottom), 0, 0,
@@ -456,6 +457,34 @@ class Camera extends Matrix {
 		]);
 	}
 }
+
+// TODO
+// Contains the transform information to generate a WebGL view projection Matrix.
+class Camera {
+
+}
+
+/*
+Standard WebGL program layout:
+
+Init time:
+- Create all shaders and programs and look up locations.
+- Create buffers and upload vertex data.
+- Create a vertex array for each thing you want to draw.
+	- For each attribute call gl.bindBuffer, gl.vertexAttribPointer, and gl.enableVertexAttribArray.
+	- Bind any indices to gl.ELEMENT_ARRAY_BUFFER.
+- Create textures and upload texture data.
+
+Render time:
+- Clear and set the viewport and other global state.
+- For each thing you want to draw:
+	- Call gl.useProgram for the program needed to draw.
+	- Bind the vertex array for that thing (gl.bindVertexArray).
+	- Setup uniforms for the thing you want to draw.
+		- Call gl.uniformXXX for each uniform.
+		- Call gl.activeTexture and gl.bindTexture to assign textures to texture units.
+	- Call gl.drawArrays or gl.drawElements.
+*/
 
 // WebGL attribute, varying, uniform, and fragment color information container.
 class GLVariableInfo {
@@ -522,6 +551,14 @@ class GLBufferInfo {
 				gl.bufferSubData(this.target, 0, data, 0);
 			};
 		})(usage, target);
+	}
+}
+
+// Represents a WebGL texture and its information.
+class GLTextureInfo {
+	constructor(gl) {
+		gl.createTexture();
+		// TODO
 	}
 }
 
@@ -695,17 +732,30 @@ class DefaultShaderProgramInfo extends ShaderProgramInfo {
 	}
 }
 
+// Represents one instance of one shape.
 class Shape extends Component {
-	constructor(program, variableInfos) {
-		let vao = program.gl.createVertexArray();
-		program.gl.bindVertexArray(vao);
+	constructor(programInfo, variableInfos) {
+		this.variableInfos = variableInfos;
 
-		// Make a map of setters for attributes and uniforms with the location as the key.
-		this.variableSetters = {};
-		for (let variableInfo of variableInfos) {
-			this.variableInfos[variableInfo.location] = variableInfo.setValue;
-		}
+		this.vao = programInfo.gl.createVertexArray();
+		programInfo.gl.bindVertexArray(this.vao);
+
+		this[Component.events.UPDATE] = () => {
+			// TODO
+		};
 	}
+}
+
+// Represents one instance of one shape which uses the DefaultShaderProgramInfo.
+class DefaultShaderProgramShape extends Shape {
+	constructor(programInfo) {
+		// TODO
+	}
+}
+
+// Represents one instance of a rectangular prism.
+class Cube extends DefaultShaderProgramShape {
+	// TODO
 }
 
 // TODO: Texture (+ Atlas).
