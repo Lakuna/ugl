@@ -46,10 +46,14 @@ FEATURES:
 - Static Umbra instance with gl, canvas, and premade WebGL shader?
 	- Simpler to use, but with much less user control.
 	- Probably way smaller.
+- Documentation.
+	- Include Umbra-Math and Umbra-GL in the same documentation.
+	- Add badge to the README of all three repositories when complete.
 
 EXAMPLES:
 - Conway's game of life
 - Particles.js: http://developer.tcgplayer.com/
+- Background.js: https://twgljs.org/resources/js/background.js
 - Snake
 - Connect 4
 - Checkers
