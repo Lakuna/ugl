@@ -155,28 +155,6 @@ class Component {
 	}
 }
 
-// A premade Component which resizes a canvas' drawing buffer to match its actual size on the screen.
-// Only useful for canvases with size set based on screen size (i.e. "width: 100%;").
-class CanvasResizer extends Component {
-	constructor(gameObject, priority = -2) {
-		super(gameObject, priority);
-
-		this[Component.events.UPDATE] = (umbra) => {
-			const canvas = umbra.canvas;
-
-			const displayWidth = canvas.clientWidth;
-			const displayHeight = canvas.clientHeight;
-
-			if (canvas.width != displayWidth || canvas.height != displayHeight) {
-				canvas.width = displayWidth;
-				canvas.height = displayHeight;
-
-				umbra.gl.viewport(0, 0, canvas.width, canvas.height);
-			}
-		}
-	}
-}
-
 // A premade Component which clears the screen and sets the background to a specified color.
 class Background extends Component {
 	constructor(gameObject, r = 0, g = 0, b = 0, a = 1, priority = -1) {
