@@ -1,5 +1,5 @@
 {
-  "name": "umbra",
+  "name": "umbra-web",
   "version": "0.0.1",
   "description": "Lightweight JavaScript game framework.",
   "main": "index.js",
@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/T3Lakuna/Umbra.git"
+    "url": "git+https://github.com/T3Lakuna/Umbra-Web.git"
   },
   "author": "Travis Martin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/T3Lakuna/Umbra/issues"
+    "url": "https://github.com/T3Lakuna/Umbra-Web/issues"
   },
   "homepage": "https://umbra.lakuna.pw",
   "dependencies": {

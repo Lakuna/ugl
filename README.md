@@ -1,5 +1,3 @@
-# VERSION 3 CURRENTLY UNDER CONSTRUCTION
+# Umbra-Web
 
-Please check back later! This update will be massive.
-
-4/20/21
+Lightweight JavaScript game framework.
