@@ -1,6 +1,6 @@
 {
   "name": "umbra-web",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Lightweight JavaScript game framework.",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,9 @@
   },
   "homepage": "https://umbra.lakuna.pw",
   "dependencies": {
-    "uternion": "^0.0.1"
-  }
+    "uternion": "^0.0.2"
+  },
+  "files": [
+    "index.js"
+  ]
 }
