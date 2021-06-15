@@ -1,25 +1,30 @@
 {
-  "name": "umbra-web",
-  "version": "0.0.3",
+  "name": "@umbra-engine/umbra-web",
+  "version": "0.0.4",
   "description": "Lightweight JavaScript game framework.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "exit 0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Lakuna/Umbra-Web.git"
+    "url": "git+https://github.com/Umbra-Engine/Umbra-Web.git"
   },
+  "keywords": [
+    "front-end",
+    "framework"
+  ],
   "author": "Travis Martin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Lakuna/Umbra-Web/issues"
+    "url": "https://github.com/Umbra-Engine/Umbra-Web/issues"
   },
   "homepage": "https://umbra.lakuna.pw",
-  "dependencies": {
-    "uternion": "^1.0.0"
-  },
   "files": [
     "index.js"
-  ]
+  ],
+  "type": "module",
+  "dependencies": {
+    "@umbra-engine/uternion": "^2.0.2"
+  }
 }

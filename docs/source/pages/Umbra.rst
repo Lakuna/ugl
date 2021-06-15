@@ -1,4 +1,0 @@
-Umbra
-=====
-
-.. autoclass:: Umbra
