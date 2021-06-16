@@ -68,7 +68,7 @@ export class Umbra {
 
 	set scene(value) {
 		this.#scene = value;
-		this.trigget(Component.events.LOAD);
+		this.trigger(Component.events.LOAD);
 	}
 
 	trigger(event) {
