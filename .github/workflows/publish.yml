@@ -30,6 +30,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
+          scope: '@lakuna'
       - name: Publish to GPR
         run: npm publish --access public
         env:
