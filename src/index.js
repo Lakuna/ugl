@@ -2,4 +2,4 @@
 export { arrayFromRule } from "./math/arrayFromRule.js";
 
 // WebGL
-export * from "./webgl/constants.js";
+// export * from "./webgl/constants.js";
