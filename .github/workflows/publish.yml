@@ -1,4 +1,4 @@
-name: Publish Node.js Package
+name: Publish
 
 on:
   release:
@@ -19,10 +19,10 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - name: Clean Install
+      - name: Clean install
         run: npm ci
       - name: Publish to NPM
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Setup Node.js for GPR
@@ -31,6 +31,6 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
       - name: Publish to GPR
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
