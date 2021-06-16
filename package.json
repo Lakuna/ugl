@@ -1,0 +1,35 @@
+{
+  "name": "ugl",
+  "version": "0.0.1",
+  "description": "Lightweight JavaScript game framework.",
+  "keywords": [
+    "front-end",
+    "framework",
+    "math"
+  ],
+  "homepage": "https://umbra.lakuna.pw",
+  "bugs": {
+    "url": "https://github.com/Lakuna/Umbra/issues",
+    "email": "tjmartin2003@gmail.com"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Travis Martin",
+    "email": "tjmartin2003@gmail.com",
+    "url": "https://lakuna.pw"
+  },
+  "funding": "https://github.com/sponsors/Lakuna",
+  "files": [
+    "src/*"
+  ],
+  "browser": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lakuna/Umbra.git"
+  },
+  "scripts": {
+    "test": "exit 0"
+  },
+  "type": "module",
+  "sideEffects": false
+}
