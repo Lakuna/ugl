@@ -28,8 +28,8 @@ export class Umbra {
 
 	constructor(canvas = makeFullscreenCanvas(), ups = 30) {
 		this.canvas = canvas;
-		this.gl = canvas.getContext("webgl2");
-		if (!this.gl) {
+		const gl = canvas.getContext("webgl2");
+		if (!gl) {
 			throw new Error("WebGL2 is not supported by your browser.");
 		}
 
@@ -58,6 +58,7 @@ export class Umbra {
 			}
 		}, 1000 / ups);
 
+		this.gl = gl;
 		// this.paused = undefined;
 		// this.deltaTime = undefined;
 	}
