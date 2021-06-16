@@ -17,21 +17,19 @@ jobs:
       - name: Setup Node.js for NPM
         uses: actions/setup-node@v2
         with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
+          node-version: 14
+          registry-url: https://registry.npmjs.org
       - name: Clean install
         run: npm ci
       - name: Publish to NPM
-        run: npm publish --access public
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Setup Node.js for GPR
         uses: actions/setup-node@v2
         with:
-          node-version: 12
-          registry-url: https://npm.pkg.github.com/
-          scope: '@lakuna'
+          registry-url: https://npm.pkg.github.com
       - name: Publish to GPR
-        run: npm publish --access public
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
