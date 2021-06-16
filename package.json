@@ -1,6 +1,6 @@
 {
   "name": "@umbra-engine/umbra-web",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Lightweight JavaScript game framework.",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,6 @@
   "type": "module",
   "sideEffects": false,
   "dependencies": {
-    "@umbra-engine/uternion": "^2.0.4"
+    "@umbra-engine/uternion": "^2.0.5"
   }
 }
