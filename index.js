@@ -96,7 +96,9 @@ export class Umbra {
 }
 
 export class GameObject extends SceneGraphNode {
-	constructor(enabled = true) {
+	constructor(parent, enabled = true) {
+		super(parent);
+
 		this.enabled = enabled;
 		this.components = [];
 	}
