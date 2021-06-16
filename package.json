@@ -1,6 +1,6 @@
 {
-  "name": "ugl",
-  "version": "0.0.7",
+  "name": "@lakuna/umbra",
+  "version": "0.0.8",
   "description": "Lightweight JavaScript game framework.",
   "keywords": [
     "front-end",
