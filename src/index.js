@@ -1,1 +1,2 @@
-export const foo = "bar"; // Temporary package contents for testing publishing.
+// Math
+export { arrayFromRule } from "./math/arrayFromRule.js";
