@@ -5,8 +5,8 @@ on:
     types: [created]
 
 jobs:
-  build:
-    name: Build
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -14,67 +14,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup Node.js
+      - name: Setup Node.js for NPM
         uses: actions/setup-node@v2
         with:
           node-version: 14
-      - name: Clean Install
-        run: npm ci
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: npm i
       - name: Beautify
         run: npm run beautify
       - name: Lint
         run: npm run lint
       - name: Build
         run: npm run build
-      - name: Test
-        run: npm run test
-
-  publish-npm:
-    name: Publish to NPM
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
-      - name: Clean Install
-        run: npm ci
-      - name: Beautify
-        run: npm run beautify
-      - name: Lint
-        run: npm run lint
-      - name: Build
-        run: npm run build
-      - name: Publish
+      - name: Publish to NPM
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-gpr:
-    name: Publish to GPR
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Node.js
+      - name: Setup Node.js for GPR
         uses: actions/setup-node@v2
         with:
           node-version: 14
-          registry-url: https://npm.pkg.github.com/
-      - name: Clean Install
-        run: npm ci
-      - name: Beautify
-        run: npm run beautify
-      - name: Lint
-        run: npm run lint
-      - name: Build
-        run: npm run build
-      - name: Publish
+          registry-url: https://npm.pkg.github.com
+      - name: Publish to GPR
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
