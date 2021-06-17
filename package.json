@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Lightweight JavaScript game framework.",
   "keywords": [
     "front-end",
@@ -29,11 +29,15 @@
   },
   "scripts": {
     "test": "exit 0",
-    "build": "webpack"
+    "build": "webpack",
+    "beautify": "prettier src --write",
+    "lint": "eslint src --fix"
   },
   "type": "module",
   "sideEffects": false,
   "devDependencies": {
+    "eslint": "^7.28.0",
+    "prettier": "^2.3.1",
     "webpack": "^5.39.0",
     "webpack-cli": "^4.7.2"
   }

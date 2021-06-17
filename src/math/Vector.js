@@ -28,7 +28,7 @@ export class Vector extends Array {
 	get magnitude() {
 		return Math.sqrt(sigma(0, this.length - 1, (n) => this[n] ** 2));
 	}
-};
+}
 Vector.fromRule = (length, rule) => {
 	let data = [];
 	for (let i = 0; i < length; i++) {

@@ -19,8 +19,12 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org
-      - name: Clean install
-        run: npm ci
+      - name: Install
+        run: npm i
+      - name: Beautify
+        run: npm run beautify
+      - name: Lint
+        run: npm run lint
       - name: Build
         run: npm run build
       - name: Publish to NPM
