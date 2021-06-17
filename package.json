@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Lightweight JavaScript game framework.",
   "keywords": [
     "front-end",
@@ -22,14 +22,19 @@
   "files": [
     "src/*"
   ],
-  "browser": "src/index.js",
+  "browser": "dist/main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lakuna/Umbra.git"
   },
   "scripts": {
-    "test": "exit 0"
+    "test": "exit 0",
+    "build": "webpack"
   },
   "type": "module",
-  "sideEffects": false
+  "sideEffects": false,
+  "devDependencies": {
+    "webpack": "^5.39.0",
+    "webpack-cli": "^4.7.2"
+  }
 }
