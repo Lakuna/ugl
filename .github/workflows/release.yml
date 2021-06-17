@@ -1,0 +1,18 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Fetch entire commit history.
+      - name: Release
+        uses: justincy/github-action-npm-release@v1.2.0
