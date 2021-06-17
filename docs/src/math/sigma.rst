@@ -8,6 +8,6 @@ sigma()
 - function(number **n**) **expression**
 - [number **output** = 0] - Used internally for recursion.
 
-**Returns:** number - The sum of expression(n) for range (min - max) (inclusive).
+**Returns:** number
 
-Sigma notation using recursion.
+Calculates the sum of expression(n) for range (min - max).
