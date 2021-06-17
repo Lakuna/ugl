@@ -67,4 +67,20 @@ normalize()
 
 Normalizes the vector so that it has a magnitude of 1 while maintaining its direction.
 
+Vector.fromRule()
+-----------------
+
+**Parameters:**
+
+- number **length** - The number of components in the output vector.
+- function(number **i**) **rule**
+
+**Returns:** Vector
+
+Follows a given rule for each index to create a new vector.
+
+.. code-block:: javascript
+   
+   console.log([...Vector.fromRule(5, (i) => i * 5)]); // [0, 5, 10, 15, 20]
+
 .. _Array: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
