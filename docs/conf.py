@@ -1,5 +1,5 @@
 project = 'Umbra'
 copyright = '2021, Travis Martin'
 author = 'Travis Martin'
-release = '0.2.1'
+release = '0.5.0'
 html_theme = 'sphinx_rtd_theme'
