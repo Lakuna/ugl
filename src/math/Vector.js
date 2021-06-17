@@ -9,16 +9,22 @@ export class Vector extends Array {
 		return this;
 	}
 
-	cross = (vector) => this.set(...arrayFromRule(this.length, (i) => {
-		const loop = (i) => i < this.length ? i : i - this.length;
-		i = loop(i + 1);
-		let j = loop(i + 1);
-		return this[i] * vector[j] - this[j] * vector[i];
-	}));
+	cross(vector) {
+		return this.set(...arrayFromRule(this.length, (i) => {
+			const loop = (i) => i < this.length ? i : i - this.length;
+			i = loop(i + 1);
+			let j = loop(i + 1);
+			return this[i] * vector[j] - this[j] * vector[i];
+		}));
+	}
 
-	operate = (vector, operation) => this.set(...arrayFromRule(this.length, (i) => operation(this[i], vector[i])));
+	operate(vector, operation) {
+		return this.set(...arrayFromRule(this.length, (i) => operation(this[i], vector[i])));
+	}
 
-	normalize = () => this.set(...arrayFromRule(this.length, (i) => this[i] / this.magnitude));
+	normalize() {
+		return this.set(...arrayFromRule(this.length, (i) => this[i] / this.magnitude));
+	}
 
 	get magnitude() {
 		return Math.sqrt(sigma(0, this.length - 1, (n) => this[n] ** 2));
