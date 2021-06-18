@@ -3,6 +3,10 @@ Matrix
 
 **Extends:** Array_
 
+**Parameters:**
+
+- [number[] **...data** = Matrix.identity()] - The initial data in the matrix.
+
 A rectangular array.
 
 dim
