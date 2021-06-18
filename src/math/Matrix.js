@@ -3,6 +3,10 @@ import { degreesToRadians } from "./degreesToRadians.js";
 import { Vector } from "./Vector.js";
 
 export class Matrix extends Array {
+	constructor(...data) {
+		super(...(data.length ? data : Matrix.identity())); // Default to identity matrix.
+	}
+
 	set(...data) {
 		while (this.length > 0) { this.pop(); }
 		for (const value of data) { this.push(value); }
@@ -24,7 +28,7 @@ export class Matrix extends Array {
 		const n = this.length / m;
 		const p = matrix.length / m;
 
-		return this.set(...Matrix.fromRule(n, p, (i, j) => sigma(0, m - 1, (k) => this.getPoint(i, k) * matrix.getPoint(k, j))));
+		return this.set(...Matrix.fromRule(n, p, (i, j) => sigma(0, m - 1, (k) => this.getPoint(i, k, n) * matrix.getPoint(k, j, m))));
 	}
 
 	translate(x, y, z) {
