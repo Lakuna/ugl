@@ -7,13 +7,8 @@ export class Color extends Array {
 				(data			& 0xFF) / 0xFF
 			];
 		} else if (typeof data == "string") {
-			if (!data.startsWith("#")) {
-				data = `#${data}`;
-			}
-
-			if (data.length == 4) {
-				data = `#${data[1]}${data[1]}${data[2]}${data[2]}${data[3]}${data[3]}`;
-			}
+			if (!data.startsWith("#")) { data = `#${data}`; }
+			if (data.length == 4) { data = `#${data[1]}${data[1]}${data[2]}${data[2]}${data[3]}${data[3]}`; }
 
 			data = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(data);
 			data.shift(); // Remove full string from first index.
