@@ -25,9 +25,9 @@ export class Quaternion extends Array {
 	setAngle(axis, degrees) {
 		const radians = degreesToRadians(degrees) * 0.5;
 		const sine = Math.sin(radians);
-		this[0] *= sine;
-		this[1] *= sine;
-		this[2] *= sine;
+		this[0] = sine * axis[0];
+		this[1] = sine * axis[1];
+		this[2] = sine * axis[2];
 		this[3] = Math.cos(radians);
 		return this;
 	}
