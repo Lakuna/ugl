@@ -11,8 +11,7 @@ https://github.com/infusion/Quaternion.js/blob/master/quaternion.js
 
 export class Quaternion extends Array {
 	constructor(...data) {
-		super(...(data || Quaternion.identity())); // Default to identity.
-		// TODO: Use the nullish coalescing operator (??) if it works with bundlephobia
+		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
 	}
 
 	set(...data) {
@@ -24,11 +23,11 @@ export class Quaternion extends Array {
 
 	setAngle(axis, degrees) {
 		const radians = degreesToRadians(degrees) * 0.5;
+		this[0] = Math.cos(radians);
 		const sine = Math.sin(radians);
-		this[0] = sine * axis[0];
-		this[1] = sine * axis[1];
-		this[2] = sine * axis[2];
-		this[3] = Math.cos(radians);
+		this[1] = sine * axis[0];
+		this[2] = sine * axis[1];
+		this[3] = sine * axis[2];
 		return this;
 	}
 
@@ -43,9 +42,27 @@ export class Quaternion extends Array {
 		const v2 = () => v(quaternion);
 
 		return this.set(
-			w1 * w2 - v1().dot(v2()), // w1 * w2 + dot(v1, v2)
-			...v2().scale(w1).add(v1().scale(w2)).add(v1().cross(v2())) // w1 * v2 + w2 * v1 + cross(v1, v2)
+			w1 * w2 - v1().dot(v2()),
+			...v2().scale(w1)
+				.add(v1().scale(w2))
+				.add(v1().cross(v2()))
 		);
+	}
+
+	rotateX(degrees) {
+		return this.multiply(new Quaternion().setAngle([1, 0, 0], degrees));
+	}
+
+	rotateY(degrees) {
+		return this.multiply(new Quaternion().setAngle([0, 1, 0], degrees));
+	}
+
+	rotateZ(degrees) {
+		return this.multiply(new Quaternion().setAngle([0, 0, 1], degrees));
+	}
+
+	normalize() {
+		return this.set(new Vector(...this).normalize());
 	}
 }
 Quaternion.fromRule = (length, rule) => {
