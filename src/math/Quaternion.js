@@ -56,7 +56,7 @@ export class Quaternion extends Vector {
 		return this.multiply(new Quaternion().setAngle([0, 0, 1], degrees));
 	}
 
-	sphericalLinearInterpolation(quaternion, t) {
+	slerp(quaternion, t) {
 		let cosom = this.dot(quaternion);
 		if (cosom < 0) {
 			cosom = -cosom;

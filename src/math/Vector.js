@@ -83,7 +83,7 @@ export class Vector extends Array {
 		return this.operate(vector, (a, b) => a - b); // Difference resultant.
 	}
 
-	linearInterpolation(vector, t) {
+	lerp(vector, t) {
 		return this.operate(vector, (a, b) => a + t * (b - a));
 	}
 }
