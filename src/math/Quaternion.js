@@ -12,6 +12,7 @@ https://github.com/infusion/Quaternion.js/blob/master/quaternion.js
 export class Quaternion extends Array {
 	constructor(...data) {
 		super(...(data || Quaternion.identity())); // Default to identity.
+		// TODO: Use the nullish coalescing operator (??) if it works with bundlephobia
 	}
 
 	set(...data) {
@@ -37,8 +38,9 @@ export class Quaternion extends Array {
 		const w2 = quaternion[0];
 
 		// Imaginary 3D vector values.
-		const v1 = () => new Vector(this[1], this[2], this[3]);
-		const v2 = () => new Vector(quaternion[1], quaternion[2], quaternion[3]);
+		const v = (quaternion) => Vector.fromRule(3, (i) => quaternion[i + 1]);
+		const v1 = () => v(this);
+		const v2 = () => v(quaternion);
 
 		return this.set(
 			w1 * w2 - v1().dot(v2()), // w1 * w2 + dot(v1, v2)
