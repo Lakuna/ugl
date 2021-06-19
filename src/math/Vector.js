@@ -58,6 +58,7 @@ export class Vector extends Array {
 	}
 
 	cross(vector) {
+		// TODO: Add to documentation https://math.stackexchange.com/questions/706011/why-is-cross-product-only-defined-in-3-and-7-dimensions
 		return this.set(...Vector.fromRule(this.length, (i) => {
 			const loop = (i) => i < this.length ? i : i - this.length;
 			i = loop(i + 1);

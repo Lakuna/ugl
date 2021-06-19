@@ -1,5 +1,7 @@
-export * from "./math/Color.js";
-export * from "./math/Vector.js";
-export * from "./math/sigma.js";
+// Math
 export * from "./math/clamp.js";
+export * from "./math/Color.js";
 export * from "./math/degreesToRadians.js";
+export * from "./math/Quaternion.js";
+export * from "./math/sigma.js";
+export * from "./math/Vector.js";
