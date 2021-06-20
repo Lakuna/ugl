@@ -3,7 +3,6 @@ import { Vector } from "./Vector.js";
 
 /*
 Not implemented from OGL:
-- fromMat4				TODO
 - fromQuat				TODO
 - determinant			TODO
 - normalFromMat4		TODO
@@ -138,7 +137,7 @@ export class Matrix extends Array {
 
 		if (dim ** 2 != this.length) { throw new Error("Cannot invert a non-square matrix."); }
 
-		const identity = Matrix.identity();
+		const identity = Matrix.identity(dim);
 		const copy = new Matrix(...this);
 
 		for (let i = 0; i < dim; i++) {
