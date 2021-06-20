@@ -1,6 +1,18 @@
 import { degreesToRadians } from "./degreesToRadians.js";
 import { Vector } from "./Vector.js";
 
+/*
+Not implemented from OGL:
+- fromMat3				TODO
+- fromEuler				TODO
+
+Renamed from OGL:
+- setAxisAngle			setAngle
+- multiply				operate(quaternion, (a, b) => a * b)
+- fromMat3				Matrix.toQuaternion
+- fromEuler				Euler.toQuaternion
+*/
+
 export class Quaternion extends Vector {
 	constructor(...data) {
 		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
@@ -71,5 +83,8 @@ export class Quaternion extends Vector {
 
 		return this.operate(quaternion, (a, b) => scale0 * a + scale1 * b);
 	}
+
+	// TODO: Matrix to Quaternion
+	// TODO: Euler to Quaternion
 }
 Quaternion.identity = () => new Quaternion(1, 0, 0, 0);

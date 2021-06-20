@@ -1,6 +1,25 @@
 import { sigma } from "./sigma.js";
 import { clamp } from "./clamp.js";
 
+/*
+Not implemented from OGL:
+- exactEquals
+- scaleRotateMat4		TODO
+
+Renamed from OGL:
+- copy					[...this]
+- divide				operate(vector, (a, b) => a / b)
+- multiply				operate(vector, (a, b) => a * b)
+- length				magnitude
+- squaredDistance		distance ** 2
+- squaredLength			magnitude ** 2
+- transformMat2			transform
+- transformMat2d		transform
+- transformMat3			transform
+- transformMat4			transform
+- transformQuat			transform
+*/
+
 export class Vector extends Array {
 	get magnitude() {
 		return Math.sqrt(sigma(0, this.length - 1, (n) => this[n] ** 2));
@@ -30,6 +49,9 @@ export class Vector extends Array {
 	}
 
 	transform(data) {
+		// https://github.com/oframe/ogl/blob/master/src/math/functions/Vec2Func.js
+		// https://github.com/oframe/ogl/blob/master/src/math/functions/Vec3Func.js
+
 		// TODO: Transform by matrix.
 		// import { Matrix } from "./Matrix.js";
 		// return this.set(...new Matrix(...data).multiply(this));
@@ -58,7 +80,6 @@ export class Vector extends Array {
 	}
 
 	cross(vector) {
-		// TODO: Add to documentation https://math.stackexchange.com/questions/706011/why-is-cross-product-only-defined-in-3-and-7-dimensions
 		return this.set(...Vector.fromRule(this.length, (i) => {
 			const loop = (i) => i < this.length ? i : i - this.length;
 			i = loop(i + 1);
