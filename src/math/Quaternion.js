@@ -1,4 +1,3 @@
-import { degreesToRadians } from "./degreesToRadians.js";
 import { Vector } from "./Vector.js";
 
 /*
@@ -46,8 +45,8 @@ export class Quaternion extends Vector {
 		return this.multiply(new Quaternion(...quaternion).invert());
 	}
 
-	setAngle(axis, degrees) {
-		const radians = degreesToRadians(degrees) * 0.5;
+	setAngle(axis, radians) {
+		radians *= 0.5;
 		this[0] = Math.cos(radians);
 		const sine = Math.sin(radians);
 		this[1] = sine * axis[0];
@@ -56,16 +55,16 @@ export class Quaternion extends Vector {
 		return this;
 	}
 
-	rotateX(degrees) {
-		return this.multiply(new Quaternion().setAngle([1, 0, 0], degrees));
+	rotateX(radians) {
+		return this.multiply(new Quaternion().setAngle([1, 0, 0], radians));
 	}
 
-	rotateY(degrees) {
-		return this.multiply(new Quaternion().setAngle([0, 1, 0], degrees));
+	rotateY(radians) {
+		return this.multiply(new Quaternion().setAngle([0, 1, 0], radians));
 	}
 
-	rotateZ(degrees) {
-		return this.multiply(new Quaternion().setAngle([0, 0, 1], degrees));
+	rotateZ(radians) {
+		return this.multiply(new Quaternion().setAngle([0, 0, 1], radians));
 	}
 
 	slerp(quaternion, t) {
@@ -83,8 +82,5 @@ export class Quaternion extends Vector {
 
 		return this.operate(quaternion, (a, b) => scale0 * a + scale1 * b);
 	}
-
-	// TODO: Matrix to Quaternion
-	// TODO: Euler to Quaternion
 }
 Quaternion.identity = () => new Quaternion(1, 0, 0, 0);
