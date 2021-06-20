@@ -45,11 +45,13 @@ export class Matrix extends Array {
 	}
 
 	getPoint(x, y, width = this.dim) {
-		return this[y * width + x];
+		return x < width ? this[y * width + x] : undefined;
 	}
 
 	setPoint(x, y, value, width = this.dim) {
+		if (x > width) { return false; }
 		this[y * width + x] = value;
+		return true;
 	}
 
 	set(...data) {
@@ -57,6 +59,10 @@ export class Matrix extends Array {
 		for (const value of data) { this.push(value); }
 
 		return this;
+	}
+
+	resize(width, height, currentWidth = this.dim) {
+		return this.set(...Matrix.fromRule(width, height || width, (x, y) => this.getPoint(x, y, currentWidth) ?? (x == y ? 1 : 0)));
 	}
 
 	multiply(matrix, m = this.dim) {
