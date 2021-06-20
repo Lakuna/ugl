@@ -1,5 +1,6 @@
 import { sigma } from "./sigma.js";
 import { Vector } from "./Vector.js";
+import { Euler } from "./Euler.js";
 
 /*
 Not implemented from OGL:
@@ -51,6 +52,14 @@ export class Matrix extends Array {
 		if (x > width) { return false; }
 		this[y * width + x] = value;
 		return true;
+	}
+
+	toEuler(width = this.dim) {
+		return new Euler(
+			Math.atan2(-this.getPoint(1, 2, width), this.getPoint(2, 2, width)),
+			Math.asin(this.getPoint(0, 2, width)),
+			Math.atan2(-this.getPoint(0, 1, width), this.getPoint(0, 0, width))
+		);
 	}
 
 	set(...data) {
