@@ -1,3 +1,5 @@
+import { Matrix } from "./Matrix.js";
+
 /*
 Not implemented from OGL:
 - fromRotationMatrix	TODO
@@ -10,6 +12,6 @@ Renamed from OGL:
 - fromQuaternion		Quaternion.toEuler
 */
 
-export class Euler extends Array {
+// TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
 
-}
+export class Euler extends Array { }

@@ -12,6 +12,8 @@ Renamed from OGL:
 - fromEuler				Euler.toQuaternion
 */
 
+// TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
+
 export class Quaternion extends Vector {
 	constructor(...data) {
 		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
