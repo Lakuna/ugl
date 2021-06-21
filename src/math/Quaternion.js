@@ -20,26 +20,26 @@ export class Quaternion extends Vector {
 	}
 
 	conjugate() {
-		this.set(this[0], -this[1], -this[2], -this[3]);
+		this.set(-this[0], -this[1], -this[2], this[3]);
 	}
 
 	multiply(quaternion) {
 		// Algorithm from Quaternion.js: https://github.com/infusion/Quaternion.js
 
 		// Real scalar values.
-		const w1 = this[0];
-		const w2 = quaternion[0];
+		const w1 = this[3];
+		const w2 = quaternion[3];
 
 		// Imaginary 3D vector values.
-		const v = (quaternion) => Vector.fromRule(3, (i) => quaternion[i + 1]);
+		const v = (quaternion) => Vector.fromRule(3, (i) => quaternion[i]);
 		const v1 = () => v(this);
 		const v2 = () => v(quaternion);
 
 		return this.set(
-			w1 * w2 - v1().dot(v2()),
 			...v2().scale(w1)
 				.add(v1().scale(w2))
-				.add(v1().cross(v2()))
+				.add(v1().cross(v2())),
+			w1 * w2 - v1().dot(v2())
 		);
 	}
 
@@ -49,11 +49,11 @@ export class Quaternion extends Vector {
 
 	setAngle(axis, radians) {
 		radians *= 0.5;
-		this[0] = Math.cos(radians);
 		const sine = Math.sin(radians);
-		this[1] = sine * axis[0];
-		this[2] = sine * axis[1];
-		this[3] = sine * axis[2];
+		this[0] = sine * axis[0];
+		this[1] = sine * axis[1];
+		this[2] = sine * axis[2];
+		this[3] = Math.cos(radians);
 		return this;
 	}
 
@@ -85,4 +85,4 @@ export class Quaternion extends Vector {
 		return this.operate(quaternion, (a, b) => scale0 * a + scale1 * b);
 	}
 }
-Quaternion.identity = () => new Quaternion(1, 0, 0, 0);
+Quaternion.identity = () => new Quaternion(0, 0, 0, 1);

@@ -1,4 +1,5 @@
 import { sigma } from "./sigma.js";
+import { clamp } from "./clamp.js";
 import { Vector } from "./Vector.js";
 import { Euler } from "./Euler.js";
 import { Quaternion } from "./Quaternion.js";
@@ -36,6 +37,15 @@ Renamed from OGL:
 
 // TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
 
+// https://learnopencv.com/rotation-matrix-to-euler-angles/
+
+// mat4 fromQuat
+// mat3 fromMat4
+// mat3 fromQuat
+// euler fromRotationMatrix
+// quat fromMat3
+// quat fromEuler
+
 export class Matrix extends Array {
 	constructor(...data) {
 		super(...(data.length ? data : Matrix.identity())); // Default to identity.
@@ -56,21 +66,11 @@ export class Matrix extends Array {
 	}
 
 	toEuler(width = this.dim) {
-		return new Euler(
-			Math.atan2(-this.getPoint(1, 2, width), this.getPoint(2, 2, width)),
-			Math.asin(this.getPoint(0, 2, width)),
-			Math.atan2(-this.getPoint(0, 1, width), this.getPoint(0, 0, width))
-		);
+		// TODO
 	}
 
 	toQuaternion(width = this.dim) {
-		const w = Math.sqrt(1 + this.getPoint(0, 0, width) + this.getPoint(1, 1, width) + this.getPoint(2, 2, width)) / 2;
-		return new Quaternion(
-			w,
-			(this.getPoint(2, 1, width) - this.getPoint(1, 2, width)) / (w * 4),
-			(this.getPoint(0, 2, width) - this.getPoint(2, 0, width)) / (w * 4),
-			(this.getPoint(1, 0, width) - this.getPoint(0, 1, width)) / (w * 4)
-		);
+		// TODO
 	}
 
 	set(...data) {
@@ -102,6 +102,15 @@ export class Matrix extends Array {
 		]);
 	}
 
+	/*
+	Rotate t degrees about axis defined by unit vector (l, m, n):
+
+	l * l * (1 - cos(t)) + cos(t),		m * l * (1 - cos(t)) - n * sin(t),	n * l * (1 - cos(t)) + m * sin(t),
+	l * m * (1 - cos(t)) + n * sin(t),	m * m * (1 - cos(t)) + cos(t),		n * m * (1 - cos(t)) - l * sin(t),
+	l * n * (1 - cos(t)) - m * sin(t),	m * n * (1 - cos(t)) + l * sin(t),	n * n * (1 - cos(t)) + cos(t)
+	*/
+
+	// Roll
 	rotateX(radians) {
 		const cosine = Math.cos(radians);
 		const sine = Math.sin(radians);
@@ -114,6 +123,7 @@ export class Matrix extends Array {
 		]);
 	}
 
+	// Pitch
 	rotateY(radians) {
 		const cosine = Math.cos(radians);
 		const sine = Math.sin(radians);
@@ -126,6 +136,7 @@ export class Matrix extends Array {
 		]);
 	}
 
+	// Yaw
 	rotateZ(radians) {
 		const cosine = Math.cos(radians);
 		const sine = Math.sin(radians);
