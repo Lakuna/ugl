@@ -65,7 +65,7 @@ export class Matrix extends Array {
 	// Based on work by the authors of three.js.
 	toQuaternion() {
 		let m = new Matrix(...this).resize(3);
-		const invertedScaling = m.getScaling().invert();
+		const invertedScaling = m.scaling.invert();
 		m = Matrix.fromRule(3, 3, (x, y) => m.getPoint(x, y) * invertedScaling[y]);
 
 		const trace = sigma(0, 2, (i) => m.getPoint(i, i));
