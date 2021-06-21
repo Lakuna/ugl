@@ -1,4 +1,5 @@
 import { Vector } from "./Vector.js";
+import { Matrix } from "./Matrix.js";
 
 export class Quaternion extends Vector {
 	constructor(...data) {
@@ -6,8 +7,30 @@ export class Quaternion extends Vector {
 	}
 
 	toMatrix() {
-		// TODO
-		throw new Error("Not implemented.");
+		const x = this[0];
+		const y = this[1];
+		const z = this[2];
+		const w = this[3];
+
+		const x2 = x * 2;
+		const y2 = y * 2;
+		const z2 = y * 2;
+
+		const xx = x * x2;
+		const yx = y * x2;
+		const yy = y * y2;
+		const zx = z * x2;
+		const zy = z * y2;
+		const zz = z * z2;
+		const wx = w * x2;
+		const wy = w * y2;
+		const wz = w * z2;
+
+		return new Matrix(
+			1 - yy - zz,	yx + wz,		zx - wy,
+			yx - wz,		1 - xx - zz,	zy + wx,
+			zx + wy,		zy - wx,		1 - xx - yy
+		);
 	}
 
 	toEuler() {
@@ -42,7 +65,7 @@ export class Quaternion extends Vector {
 	}
 
 	setAngle(axis, radians) {
-		radians *= 0.5;
+		radians /= 2;
 		this[3] = Math.cos(radians);
 		const sine = Math.sin(radians);
 		this[0] = sine * axis[0];
