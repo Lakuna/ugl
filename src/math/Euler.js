@@ -2,7 +2,6 @@ import { Matrix } from "./Matrix.js";
 
 /*
 Not implemented from OGL:
-- fromRotationMatrix	TODO
 - fromQuaternion		TODO
 - onChange				TODO
 - order
@@ -14,4 +13,5 @@ Renamed from OGL:
 
 // TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
 
+// Always uses order XYZ.
 export class Euler extends Array { }

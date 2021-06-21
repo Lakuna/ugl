@@ -1,6 +1,7 @@
 import { sigma } from "./sigma.js";
 import { Vector } from "./Vector.js";
 import { Euler } from "./Euler.js";
+import { Quaternion } from "./Quaternion.js";
 
 /*
 Not implemented from OGL:
@@ -59,6 +60,16 @@ export class Matrix extends Array {
 			Math.atan2(-this.getPoint(1, 2, width), this.getPoint(2, 2, width)),
 			Math.asin(this.getPoint(0, 2, width)),
 			Math.atan2(-this.getPoint(0, 1, width), this.getPoint(0, 0, width))
+		);
+	}
+
+	toQuaternion(width = this.dim) {
+		const w = Math.sqrt(1 + this.getPoint(0, 0, width) + this.getPoint(1, 1, width) + this.getPoint(2, 2, width)) / 2;
+		return new Quaternion(
+			w,
+			(this.getPoint(2, 1, width) - this.getPoint(1, 2, width)) / (w * 4),
+			(this.getPoint(0, 2, width) - this.getPoint(2, 0, width)) / (w * 4),
+			(this.getPoint(1, 0, width) - this.getPoint(0, 1, width)) / (w * 4)
 		);
 	}
 
