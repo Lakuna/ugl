@@ -19,31 +19,6 @@ export class Matrix extends Array {
 		// https://www.mathsisfun.com/algebra/matrix-determinant.html
 	}
 
-	get normal() {
-		// TODO
-		throw new Error("Not implemented.");
-	}
-
-	get translation() {
-		// TODO
-		throw new Error("Not implemented.");
-	}
-
-	get scaling() {
-		// TODO
-		throw new Error("Not implemented.");
-	}
-
-	get rotation() {
-		// TODO
-		throw new Error("Not implemented.");
-	}
-
-	get maxScaleOnAxis() {
-		// TODO
-		throw new Error("Not implemented.");
-	}
-
 	getPoint(x, y, width = this.dim) {
 		return x < width ? this[y * width + x] : undefined;
 	}
@@ -54,10 +29,23 @@ export class Matrix extends Array {
 		return true;
 	}
 
+	getTranslation(width = this.dim) {
+		return new Vector(
+		return Vector.fromRule(3, (i) => this.getPoint(i, 3, width));
+	}
+
+	getScaling(width = this.dim) {
+		return Vector.fromRule(3, (i) => Math.hypot(...Vector.fromRule(3, (j) => this.getPoint(i, j, width))));
+	}
+
+	getMaxScaleOnAxis(width = this.dim) {
+		return Vector.fromRule(3, (i) => sigma(0, 2, (j) => this.getPoint(i, j, width) ** 2));
+	}
+
 	// Based on work by the authors of three.js.
 	toEuler(width = this.dim) {
 		// TODO: Test if the second case can be removed.
-		
+
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
 		return Math.abs(this.getPoint(0, 2, width)) < 1
 			? new Euler(
@@ -264,4 +252,9 @@ Matrix.fromRule = (width, height, rule) => {
 };
 Matrix.identity = (dim = 4) => Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
 
-console.log(new Matrix().rotate(0.5, -1.5707963162, 0.5).toEuler());
+console.log(new Matrix(
+	1, 14, -4, 8,
+	-10, 7,  12, 2,
+	16, 3, 9, 6,
+	5, 11, 15, -13
+).normal);
