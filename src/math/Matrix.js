@@ -57,7 +57,7 @@ export class Matrix extends Array {
 				Math.asin(clamp(m[6], -1, 1)),
 				Math.atan2(-m[3], m[0]))
 			: new Euler(
-				Math.atan2(-m[5], m[4]),
+				Math.atan2(m[5], m[4]),
 				Math.asin(clamp(m[6], -1, 1)),
 				0);
 	}
