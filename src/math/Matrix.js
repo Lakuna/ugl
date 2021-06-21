@@ -29,31 +29,36 @@ export class Matrix extends Array {
 		return true;
 	}
 
-	getTranslation(width = this.dim) {
-		return Vector.fromRule(3, (i) => this.getPoint(i, 3, width));
+	get translation() {
+		const m = new Matrix(...this).resize(3);
+		return Vector.fromRule(3, (i) => m.getPoint(i, 3));
 	}
 
-	getScaling(width = this.dim) {
-		return Vector.fromRule(3, (i) => Math.hypot(...Vector.fromRule(3, (j) => this.getPoint(i, j, width))));
+	get scaling() {
+		const m = new Matrix(...this).resize(3);
+		return Vector.fromRule(3, (i) => Math.hypot(...Vector.fromRule(3, (j) => m.getPoint(i, j))));
 	}
 
-	getMaxScaleOnAxis(width = this.dim) {
-		return Vector.fromRule(3, (i) => sigma(0, 2, (j) => this.getPoint(i, j, width) ** 2));
+	get maxScaleOnAxis() {
+		const m = new Matrix(...this).resize(3);
+		return Vector.fromRule(3, (i) => sigma(0, 2, (j) => m.getPoint(i, j) ** 2));
 	}
 
 	// Based on work by the authors of three.js.
-	toEuler(width = this.dim) {
+	toEuler() {
 		// TODO: Test if the second case can be removed.
 
+		const m = new Matrix(...this).resize(3);
+
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
-		return Math.abs(this.getPoint(0, 2, width)) < 1
+		return Math.abs(m[6]) < 1
 			? new Euler(
-				Math.atan2(-this.getPoint(1, 2, width), this.getPoint(2, 2, width)),
-				Math.asin(clamp(this.getPoint(0, 2, width), -1, 1)),
-				Math.atan2(-this.getPoint(0, 1, width), this[0] /* this.getPoint(0, 0, width) */))
+				Math.atan2(-m[7], m[8]),
+				Math.asin(clamp(m[6], -1, 1)),
+				Math.atan2(-m[3], m[0]))
 			: new Euler(
-				Math.atan2(-this.getPoint(2, 1, width), this.getPoint(1, 1, width)),
-				Math.asin(clamp(this.getPoint(0, 2, width), -1, 1)),
+				Math.atan2(-m[5], m[4]),
+				Math.asin(clamp(m[6], -1, 1)),
 				0);
 	}
 
@@ -102,7 +107,7 @@ export class Matrix extends Array {
 		return this;
 	}
 
-	resize(width, height, currentWidth = this.dim) {
+	resize(width, height /* = width */, currentWidth = this.dim) {
 		return this.set(...Matrix.fromRule(width, height || width, (x, y) => this.getPoint(x, y, currentWidth) ?? (x == y ? 1 : 0)));
 	}
 
