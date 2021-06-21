@@ -14,9 +14,43 @@ export class Matrix extends Array {
 	}
 
 	get determinant() {
-		// TODO
-		throw new Error("Not implemented.");
-		// https://www.mathsisfun.com/algebra/matrix-determinant.html
+		const dim = this.dim;
+		if (dim ** 2 != this.length) { throw new Error("Cannot get determinant of a non-square matrix."); }
+
+		// End of recursion.
+		if (dim == 2) {
+			return this[0] * this[3] - this[1] * this[2];
+		}
+
+		// Calculate the matrix that is not in this[i]'s row (0) or column (i).
+		const oppositeMatrix = (i) => {
+			const out = [];
+
+			for (let x = 0; x < dim; x++) {
+				for (let y = 1; y < dim; y++) {
+					if (x == i) {
+						continue;
+					}
+
+					out.push(this.getPoint(x, y));
+				}
+			}
+
+			return new Matrix(...out);
+		};
+		
+		let out = 0;
+		for (let i = 0; i < dim; i++) {
+			const product = this[i] * oppositeMatrix(i).determinant;
+
+			if (i % 2) {
+				out -= product;
+			} else {
+				out += product;
+			}
+		}
+
+		return out;
 	}
 
 	getPoint(x, y, width = this.dim) {
@@ -179,7 +213,6 @@ export class Matrix extends Array {
 	// Based on work by Andrew Ippoliti.
 	invert() {
 		const dim = this.dim;
-
 		if (dim ** 2 != this.length) { throw new Error("Cannot invert a non-square matrix."); }
 
 		const identity = Matrix.identity(dim);
