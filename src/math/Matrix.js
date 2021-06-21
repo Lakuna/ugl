@@ -13,6 +13,7 @@ export class Matrix extends Array {
 		return Math.sqrt(this.length);
 	}
 
+	// Extremely slow past 10x10.
 	get determinant() {
 		const dim = this.dim;
 		if (dim ** 2 != this.length) { throw new Error("Cannot get determinant of a non-square matrix."); }
@@ -262,7 +263,7 @@ export class Matrix extends Array {
 		return this.set(...Matrix.fromRule(this.length, 1, (i) => this.getPoint(Math.floor(i / height), i % height, width)));
 	}
 
-	orthographic(left, right, top, bottom, near, far) {
+	orthographic(left, right, bottom, top, near, far) {
 		return this.multiply([
 			2 / (right - left),					0,									0,									0,
 			0,									2 / (top - bottom),					0,									0,
@@ -296,9 +297,12 @@ export class Matrix extends Array {
 		]);
 	}
 
-	projection() {
-		// TODO
-		throw new Error("Not implemented.");
+	projection(width, height) {
+		return new Matrix(
+			2 / width,		0,				0,
+			0,				-2 / height,	0,
+			-1,				1,				1
+		);
 	}
 
 	multiplyScalar(scalar) {
