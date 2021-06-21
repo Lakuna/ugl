@@ -57,9 +57,42 @@ export class Matrix extends Array {
 				0);
 	}
 
-	toQuaternion(width = this.dim) {
-		// TODO
-		throw new Error("Not implemented.");
+	// Based on work by the authors of three.js.
+	toQuaternion() {
+		let m = new Matrix(...this).resize(3);
+		const invertedScaling = m.getScaling().invert();
+		m = Matrix.fromRule(3, 3, (x, y) => m.getPoint(x, y) * invertedScaling[y]);
+
+		const trace = sigma(0, 2, (i) => m.getPoint(i, i));
+		if (trace > 0) {
+			const s = Math.sqrt(trace + 1) * 2;
+			return new Quaternion(
+				(m[5] - m[7]) / s,
+				(m[6] - m[2]) / s,
+				(m[1] - m[3]) / s,
+				s / 4);
+		} else if (m[0] > m[4] && m[0] > m[8]) {
+			const s = Math.sqrt(1 + m[0] - m[4] - m[8]) * 2;
+			return new Quaternion(
+				s / 4,
+				(m[1] + m[3]) / s,
+				(m[6] + m[2]) / s,
+				(m[5] - m[7]) / s);
+		} else if (m[4] > m[8]) {
+			const s = Math.sqrt(1 + m[4] - m[0] - m[8]) * 2;
+			return new Quaternion(
+				(m[1] + m[6]) / s,
+				s / 4,
+				(m[5] + m[7]) / s,
+				(m[6] - m[2]) / s);
+		} else {
+			const s = Math.sqrt(1 + m[8] - m[0] - m[4]) * 2;
+			return new Quaternion(
+				(m[6] + m[2]) / s,
+				(m[5] + m[7]) / s,
+				s / 4,
+				(m[1] - m[3]) / s);
+		}
 	}
 
 	set(...data) {
@@ -250,10 +283,3 @@ Matrix.fromRule = (width, height, rule) => {
 	return new Matrix(...data);
 };
 Matrix.identity = (dim = 4) => Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
-
-console.log(new Matrix(
-	1, 14, -4, 8,
-	-10, 7,  12, 2,
-	16, 3, 9, 6,
-	5, 11, 15, -13
-).normal);

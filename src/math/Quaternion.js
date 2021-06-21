@@ -44,11 +44,11 @@ export class Quaternion extends Vector {
 
 	setAngle(axis, radians) {
 		radians *= 0.5;
+		this[3] = Math.cos(radians);
 		const sine = Math.sin(radians);
 		this[0] = sine * axis[0];
 		this[1] = sine * axis[1];
 		this[2] = sine * axis[2];
-		this[3] = Math.cos(radians);
 		return this;
 	}
 
