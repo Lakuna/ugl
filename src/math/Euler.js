@@ -17,5 +17,3 @@ export class Euler extends Array {
 			cosX * cosY * cosZ - sinX * sinY * sinZ);
 	}
 }
-
-console.log(new Euler(1, 2, 3).toQuaternion());
