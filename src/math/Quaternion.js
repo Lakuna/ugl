@@ -1,31 +1,26 @@
 import { Vector } from "./Vector.js";
 
-/*
-Not implemented from OGL:
-- fromMat3				TODO
-- fromEuler				TODO
-
-Renamed from OGL:
-- setAxisAngle			setAngle
-- multiply				operate(quaternion, (a, b) => a * b)
-- fromMat3				Matrix.toQuaternion
-- fromEuler				Euler.toQuaternion
-*/
-
-// TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
-
 export class Quaternion extends Vector {
 	constructor(...data) {
 		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
+	}
+
+	toMatrix() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	toEuler() {
+		// TODO
+		throw new Error("Not implemented.");
 	}
 
 	conjugate() {
 		this.set(-this[0], -this[1], -this[2], this[3]);
 	}
 
+	// Based on work by Robert Eisele.
 	multiply(quaternion) {
-		// Algorithm from Quaternion.js: https://github.com/infusion/Quaternion.js
-
 		// Real scalar values.
 		const w1 = this[3];
 		const w2 = quaternion[3];

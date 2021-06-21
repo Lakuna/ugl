@@ -4,48 +4,6 @@ import { Vector } from "./Vector.js";
 import { Euler } from "./Euler.js";
 import { Quaternion } from "./Quaternion.js";
 
-/*
-Not implemented from OGL:
-- fromQuat				TODO
-- determinant			TODO
-- normalFromMat4		TODO
-- projection			TODO
-- add					TODO
-- subtract				TODO
-- multiplyScalar		TODO
-- getTranslation		TODO
-- getScaling			TODO
-- getMaxScaleOnAxis		TODO
-- getRotation			TODO
-- fromRotationTranslationScale	TODO
-- fromQuat				TODO
-
-Renamed from OGL:
-- fromMat4				resize
-- fromQuat				Quaternion.toMatrix
-- copy					[...this]
-- normalFromMat4		transpose.invert.resize
-- projection			resize
-- getTranslation		translation
-- getScaling			scaling
-- getMaxScaleOnAxis		maxScaleOnAxis
-- getRotation			rotation
-- fromRotationTranslationScale	fromVectors (?)
-- ortho					orthographic
-- targetTo				lookAt
-*/
-
-// TODO: Check against: https://www.andre-gaschler.com/rotationconverter/
-
-// https://learnopencv.com/rotation-matrix-to-euler-angles/
-
-// mat4 fromQuat
-// mat3 fromMat4
-// mat3 fromQuat
-// euler fromRotationMatrix
-// quat fromMat3
-// quat fromEuler
-
 export class Matrix extends Array {
 	constructor(...data) {
 		super(...(data.length ? data : Matrix.identity())); // Default to identity.
@@ -53,6 +11,36 @@ export class Matrix extends Array {
 
 	get dim() {
 		return Math.sqrt(this.length);
+	}
+
+	get determinant() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	get normal() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	get translation() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	get scaling() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	get rotation() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	get maxScaleOnAxis() {
+		// TODO
+		throw new Error("Not implemented.");
 	}
 
 	getPoint(x, y, width = this.dim) {
@@ -67,10 +55,12 @@ export class Matrix extends Array {
 
 	toEuler(width = this.dim) {
 		// TODO
+		throw new Error("Not implemented.");
 	}
 
 	toQuaternion(width = this.dim) {
 		// TODO
+		throw new Error("Not implemented.");
 	}
 
 	set(...data) {
@@ -101,14 +91,6 @@ export class Matrix extends Array {
 			x, y, z, 1
 		]);
 	}
-
-	/*
-	Rotate t degrees about axis defined by unit vector (l, m, n):
-
-	l * l * (1 - cos(t)) + cos(t),		m * l * (1 - cos(t)) - n * sin(t),	n * l * (1 - cos(t)) + m * sin(t),
-	l * m * (1 - cos(t)) + n * sin(t),	m * m * (1 - cos(t)) + cos(t),		n * m * (1 - cos(t)) - l * sin(t),
-	l * n * (1 - cos(t)) - m * sin(t),	m * n * (1 - cos(t)) + l * sin(t),	n * n * (1 - cos(t)) + cos(t)
-	*/
 
 	// Roll
 	rotateX(radians) {
@@ -247,6 +229,16 @@ export class Matrix extends Array {
 			...zAxis,		0,
 			...position,	1
 		]);
+	}
+
+	projection() {
+		// TODO
+		throw new Error("Not implemented.");
+	}
+
+	multiplyScalar() {
+		// TODO
+		throw new Error("Not implemented.");
 	}
 }
 Matrix.fromRule = (width, height, rule) => {

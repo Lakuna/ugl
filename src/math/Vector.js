@@ -1,25 +1,6 @@
 import { sigma } from "./sigma.js";
 import { clamp } from "./clamp.js";
 
-/*
-Not implemented from OGL:
-- exactEquals
-- scaleRotateMat4		TODO
-
-Renamed from OGL:
-- copy					[...this]
-- divide				operate(vector, (a, b) => a / b)
-- multiply				operate(vector, (a, b) => a * b)
-- length				magnitude
-- squaredDistance		distance ** 2
-- squaredLength			magnitude ** 2
-- transformMat2			transform
-- transformMat2d		transform
-- transformMat3			transform
-- transformMat4			transform
-- transformQuat			transform
-*/
-
 export class Vector extends Array {
 	get magnitude() {
 		return Math.sqrt(sigma(0, this.length - 1, (n) => this[n] ** 2));
@@ -49,21 +30,7 @@ export class Vector extends Array {
 	}
 
 	transform(data) {
-		// https://github.com/oframe/ogl/blob/master/src/math/functions/Vec2Func.js
-		// https://github.com/oframe/ogl/blob/master/src/math/functions/Vec3Func.js
-
-		// TODO: Transform by matrix.
-		// import { Matrix } from "./Matrix.js";
-		// return this.set(...new Matrix(...data).multiply(this));
-
-		// TODO: Transform by quaternion.
-		// import { Quaternion } from "./Quaternion.js";
-		// https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
-		// https://github.com/oframe/ogl/blob/master/src/math/functions/Vec3Func.js
-		// https://en.wikipedia.org/wiki/Quaternion
-		// https://en.wikipedia.org/wiki/Spinor
-		// See if creating a rotation matrix from the quaternion and then doing matrix multiplication works.
-
+		// TODO
 		throw new Error("Not implemented.");
 	}
 
