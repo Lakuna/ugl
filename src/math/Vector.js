@@ -1,5 +1,6 @@
 import { sigma } from "./sigma.js";
 import { clamp } from "./clamp.js";
+import { Matrix } from "./Matrix.js";
 
 export class Vector extends Array {
 	get magnitude() {

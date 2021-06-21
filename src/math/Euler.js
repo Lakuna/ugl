@@ -1,4 +1,3 @@
-import { Matrix } from "./Matrix.js";
 import { Quaternion } from "./Quaternion.js";
 
 export class Euler extends Array {
