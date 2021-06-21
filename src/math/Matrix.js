@@ -301,9 +301,8 @@ export class Matrix extends Array {
 		throw new Error("Not implemented.");
 	}
 
-	multiplyScalar() {
-		// TODO
-		throw new Error("Not implemented.");
+	multiplyScalar(scalar) {
+		return this.set(...Vector.fromRule(this.length, (i) => this[i] * scalar));
 	}
 }
 Matrix.fromRule = (width, height, rule) => {
