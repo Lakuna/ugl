@@ -2,7 +2,10 @@ import { Matrix } from "./Matrix.js";
 
 export class Euler extends Array {
 	toQuaternion() {
-		// TODO
-		throw new Error("Not implemented.");
+		return this.toMatrix().toQuaternion();
+	}
+
+	toMatrix() {
+		return new Matrix().rotate(...this);
 	}
 }

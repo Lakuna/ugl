@@ -11,8 +11,7 @@ export class Quaternion extends Vector {
 	}
 
 	toEuler() {
-		// TODO
-		throw new Error("Not implemented.");
+		return this.toMatrix().toEuler();
 	}
 
 	conjugate() {
