@@ -29,9 +29,7 @@ export class Matrix extends Array {
 
 			for (let x = 0; x < dim; x++) {
 				for (let y = 1; y < dim; y++) {
-					if (x == i) {
-						continue;
-					}
+					if (x == i) { continue; }
 
 					out.push(this.getPoint(x, y));
 				}
@@ -41,16 +39,7 @@ export class Matrix extends Array {
 		};
 		
 		let out = 0;
-		for (let i = 0; i < dim; i++) {
-			const product = this[i] * oppositeMatrix(i).determinant;
-
-			if (i % 2) {
-				out -= product;
-			} else {
-				out += product;
-			}
-		}
-
+		for (let i = 0; i < dim; i++) { out += -(i % 2 || -1) * this[i] * oppositeMatrix(i).determinant; }
 		return out;
 	}
 
