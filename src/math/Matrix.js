@@ -16,6 +16,7 @@ export class Matrix extends Array {
 	get determinant() {
 		// TODO
 		throw new Error("Not implemented.");
+		// https://www.mathsisfun.com/algebra/matrix-determinant.html
 	}
 
 	get normal() {
@@ -53,9 +54,20 @@ export class Matrix extends Array {
 		return true;
 	}
 
+	// Based on work by the authors of three.js.
 	toEuler(width = this.dim) {
-		// TODO
-		throw new Error("Not implemented.");
+		// TODO: Test if the second case can be removed.
+		
+		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
+		return Math.abs(this.getPoint(0, 2, width)) < 1
+			? new Euler(
+				Math.atan2(-this.getPoint(1, 2, width), this.getPoint(2, 2, width)),
+				Math.asin(clamp(this.getPoint(0, 2, width), -1, 1)),
+				Math.atan2(-this.getPoint(0, 1, width), this[0] /* this.getPoint(0, 0, width) */))
+			: new Euler(
+				Math.atan2(-this.getPoint(2, 1, width), this.getPoint(1, 1, width)),
+				Math.asin(clamp(this.getPoint(0, 2, width), -1, 1)),
+				0);
 	}
 
 	toQuaternion(width = this.dim) {
@@ -251,3 +263,5 @@ Matrix.fromRule = (width, height, rule) => {
 	return new Matrix(...data);
 };
 Matrix.identity = (dim = 4) => Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
+
+console.log(new Matrix().rotate(0.5, -1.5707963162, 0.5).toEuler());
