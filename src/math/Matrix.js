@@ -46,11 +46,10 @@ export class Matrix extends Array {
 
 	// Based on work by the authors of three.js.
 	toEuler() {
-		// TODO: Test if the second case can be removed.
-
 		const m = new Matrix(...this).resize(3);
 
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
+		// I just chose one and went with it. I know it isn't "standard" but it shouldn't matter.
 		return Math.abs(m[6]) < 1
 			? new Euler(
 				Math.atan2(-m[7], m[8]),
@@ -62,41 +61,37 @@ export class Matrix extends Array {
 				0);
 	}
 
-	// Based on work by the authors of three.js.
+	// Algorithm by Ken Shoemake, "Quaternion Calculus and Fast Animation," 1987 SIGGRAPH course notes.
 	toQuaternion() {
-		let m = new Matrix(...this).resize(3);
-		const invertedScaling = m.scaling.invert();
-		m = Matrix.fromRule(3, 3, (x, y) => m.getPoint(x, y) * invertedScaling[y]);
+		const m = new Matrix(...this).resize(3);
 
-		const trace = sigma(0, 2, (i) => m.getPoint(i, i));
-		if (trace > 0) {
-			const s = Math.sqrt(trace + 1) * 2;
+		const fTrace = m[0] + m[4] + m[8];
+		if (fTrace > 0) {
+			const fRoot = Math.sqrt(fTrace + 1); // 2w
+			const r4w = 0.5 / fRoot; // 1/(4w)
+
 			return new Quaternion(
-				(m[5] - m[7]) / s,
-				(m[6] - m[2]) / s,
-				(m[1] - m[3]) / s,
-				s / 4);
-		} else if (m[0] > m[4] && m[0] > m[8]) {
-			const s = Math.sqrt(1 + m[0] - m[4] - m[8]) * 2;
-			return new Quaternion(
-				s / 4,
-				(m[1] + m[3]) / s,
-				(m[6] + m[2]) / s,
-				(m[5] - m[7]) / s);
-		} else if (m[4] > m[8]) {
-			const s = Math.sqrt(1 + m[4] - m[0] - m[8]) * 2;
-			return new Quaternion(
-				(m[1] + m[6]) / s,
-				s / 4,
-				(m[5] + m[7]) / s,
-				(m[6] - m[2]) / s);
+				(m[5] - m[7]) * r4w,
+				(m[6] - m[2]) * r4w,
+				(m[1] - m[3]) * r4w,
+				fRoot / 2);
 		} else {
-			const s = Math.sqrt(1 + m[8] - m[0] - m[4]) * 2;
-			return new Quaternion(
-				(m[6] + m[2]) / s,
-				(m[5] + m[7]) / s,
-				s / 4,
-				(m[1] - m[3]) / s);
+			let i = 0;
+			if (m[4] > m[0]) { i = 1; }
+			if (m[8] > m[i * 3 + i]) { i = 2; }
+			let j = (i + 1) % 3;
+			let k = (i + 2) % 3;
+
+			const out = new Quaternion();
+
+			let fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1);
+			out[i] = 0.5 * fRoot;
+			fRoot = 0.5 / fRoot;
+			out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+			out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+			out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+
+			return out;
 		}
 	}
 
