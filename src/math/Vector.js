@@ -29,9 +29,8 @@ export class Vector extends Array {
 		return this;
 	}
 
-	transform(data) {
-		// TODO
-		throw new Error("Not implemented.");
+	transform(matrix) {
+		this.set(...new Matrix(...matrix).multiply(this));
 	}
 
 	negate() {
