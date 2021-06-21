@@ -68,6 +68,7 @@ export class Matrix extends Array {
 		return Vector.fromRule(3, (i) => sigma(0, 2, (j) => m.getPoint(i, j) ** 2));
 	}
 
+	// TODO: Incompatible with Bundlephobia.
 	// Based on work by the authors of three.js.
 	toEuler() {
 		const m = new Matrix(...this).resize(3);
@@ -85,6 +86,7 @@ export class Matrix extends Array {
 				0);
 	}
 
+	// TODO: Incompatible with Bundlephobia.
 	// Algorithm by Ken Shoemake, "Quaternion Calculus and Fast Animation," 1987 SIGGRAPH course notes.
 	toQuaternion() {
 		const m = new Matrix(...this).resize(3);
@@ -126,6 +128,7 @@ export class Matrix extends Array {
 		return this;
 	}
 
+	// TODO: Incompatible with Bundlephobia.
 	resize(width, height /* = width */, currentWidth = this.dim) {
 		return this.set(...Matrix.fromRule(width, height || width, (x, y) => this.getPoint(x, y, currentWidth) ?? (x == y ? 1 : 0)));
 	}
@@ -200,6 +203,7 @@ export class Matrix extends Array {
 		]);
 	}
 
+	// TODO: Incompatible with Bundlephobia.
 	// Based on work by Andrew Ippoliti.
 	invert() {
 		const dim = this.dim;
@@ -247,6 +251,7 @@ export class Matrix extends Array {
 		return this.set(...identity);
 	}
 
+	// TODO: Incompatible with Bundlephobia.
 	transpose(width = this.dim) {
 		const height = this.length / width;
 		return this.set(...Matrix.fromRule(this.length, 1, (i) => this.getPoint(Math.floor(i / height), i % height, width)));
