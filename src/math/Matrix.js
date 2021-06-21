@@ -30,7 +30,6 @@ export class Matrix extends Array {
 	}
 
 	getTranslation(width = this.dim) {
-		return new Vector(
 		return Vector.fromRule(3, (i) => this.getPoint(i, 3, width));
 	}
 
