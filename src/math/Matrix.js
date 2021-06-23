@@ -68,13 +68,11 @@ export class Matrix extends Array {
 		return Vector.fromRule(3, (i) => sigma(0, 2, (j) => m.getPoint(i, j) ** 2));
 	}
 
-	// TODO: Incompatible with Bundlephobia.
 	// Based on work by the authors of three.js.
 	toEuler() {
 		const m = new Matrix(...this).resize(3);
 
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
-		// I just chose one and went with it. I know it isn't "standard" but it shouldn't matter.
 		return Math.abs(m[6]) < 1
 			? new Euler(
 				Math.atan2(-m[7], m[8]),
@@ -86,7 +84,6 @@ export class Matrix extends Array {
 				0);
 	}
 
-	// TODO: Incompatible with Bundlephobia.
 	// Algorithm by Ken Shoemake, "Quaternion Calculus and Fast Animation," 1987 SIGGRAPH course notes.
 	toQuaternion() {
 		const m = new Matrix(...this).resize(3);
@@ -101,24 +98,24 @@ export class Matrix extends Array {
 				(m[6] - m[2]) * r4w,
 				(m[1] - m[3]) * r4w,
 				fRoot / 2);
-		} else {
-			let i = 0;
-			if (m[4] > m[0]) { i = 1; }
-			if (m[8] > m[i * 3 + i]) { i = 2; }
-			let j = (i + 1) % 3;
-			let k = (i + 2) % 3;
-
-			const out = new Quaternion();
-
-			let fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1);
-			out[i] = 0.5 * fRoot;
-			fRoot = 0.5 / fRoot;
-			out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
-			out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
-			out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
-
-			return out;
 		}
+
+		let i = 0;
+		if (m[4] > m[0]) { i = 1; }
+		if (m[8] > m[i * 3 + i]) { i = 2; }
+		const j = (i + 1) % 3;
+		const k = (i + 2) % 3;
+
+		const out = new Quaternion();
+
+		let fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1);
+		out[i] = fRoot / 2;
+		fRoot = 0.5 / fRoot;
+		out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
+		out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
+		out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+
+		return out;
 	}
 
 	set(...data) {
@@ -128,9 +125,13 @@ export class Matrix extends Array {
 		return this;
 	}
 
-	// TODO: Incompatible with Bundlephobia.
-	resize(width, height /* = width */, currentWidth = this.dim) {
-		return this.set(...Matrix.fromRule(width, height || width, (x, y) => this.getPoint(x, y, currentWidth) ?? (x == y ? 1 : 0)));
+	resize(width, height, currentWidth = this.dim) {
+		return this.set(...Matrix.fromRule(width, height || width, (x, y) => {
+			// Can be compressed using the nullish coalescing operator once Bundlephobia supports it.
+
+			const out = this.getPoint(x, y, currentWidth)
+			return typeof out == "undefined" ? (x == y ? 1 : 0) : out;
+		}));
 	}
 
 	multiply(matrix, m = this.dim) {
@@ -203,7 +204,6 @@ export class Matrix extends Array {
 		]);
 	}
 
-	// TODO: Incompatible with Bundlephobia.
 	// Based on work by Andrew Ippoliti.
 	invert() {
 		const dim = this.dim;
@@ -251,7 +251,6 @@ export class Matrix extends Array {
 		return this.set(...identity);
 	}
 
-	// TODO: Incompatible with Bundlephobia.
 	transpose(width = this.dim) {
 		const height = this.length / width;
 		return this.set(...Matrix.fromRule(this.length, 1, (i) => this.getPoint(Math.floor(i / height), i % height, width)));
