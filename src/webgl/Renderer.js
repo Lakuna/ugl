@@ -4,20 +4,28 @@ import { makeFullscreenCanvas } from "./makeFullscreenCanvas.js";
 
 let nextRendererId = 0;
 
+/*
+Not automatic (must be implemented by developers):
+- gl.colorMask(...);
+- gl.clearColor(...);
+- gl.stencilMask(...);
+- gl.stencilFunc(...);
+- gl.stencilOp(...);
+- gl.clearStencil(...);
+*/
+
 export class Renderer {
-	constructor({ canvas = makeFullscreenCanvas(), width = 300, height = 150, dpr = 1, alpha = false,
-		depth = true, stencil = false, antialias = false, premultipliedAlpha = false, preserveDrawingBuffer = false,
-		powerPreference = "default", autoClear = true } = {}) {
+	constructor({ canvas = makeFullscreenCanvas(), alpha = false, depth = true, stencil = false, antialias = false,
+		premultipliedAlpha = false, preserveDrawingBuffer = false, powerPreference = "default", autoClear = true } = {}) {
 
 		const gl = canvas.getContext("webgl2", { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference });
 
 		Object.assign(this, {
-			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
+			alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
 			state: {
-				blendFunction: { source: ONE, destination: ZERO },
+				blendFunction: { source: ONE, destination: ZERO, /* sourceAlpha: null, */ /* destinationAlpha: null */ },
 				blendEquation: { modeRGB: FUNC_ADD },
 				/* cullFace: null, */ frontFace: CCW, depthMask: true, depthFunction: LESS, premultiplyAlpha: false, flipY: false, unpackAlignment: 4, /* framebuffer: null, */
-				viewport: { /* width: null, */ /* height: null */ },
 				textureUnits: [],
 				activeTextureUnit: 0,
 				/* boundBuffer: null, */
@@ -27,9 +35,6 @@ export class Renderer {
 			parameters: { maxTextureUnits: gl.getParameter(MAX_COMBINED_TEXTURE_IMAGE_UNITS), maxAnisotropy: gl.getParameter(MAX_TEXTURE_MAX_ANISOTROPY_EXT) }
 		});
 
-		// Initialize canvas size.
-		this.setSize(width, height);
-
 		// Initialize extra format types.
 		["EXT_color_buffer_float", "OES_texture_float_linear"].forEach((extensionName) => this.extensions[extensionName] = gl.getExtension(extensionName));
 
@@ -38,19 +43,24 @@ export class Renderer {
 			.forEach((methodName) => this[methodName] = gl[methodName].bind(gl));
 	}
 
-	setSize(width, height) {
-		Object.assign(this, { width, height });
-		Object.assign(this.gl.canvas, { width: width * this.dpr, height: height * this.dpr });
-		Object.assign(this.gl.canvas.style, { width: `${width}px`, height: `${height}px` });
+	resize() {
+		const canvas = this.gl.canvas;
+
+		const displayWidth = canvas.clientWidth;
+		const displayHeight = canvas.clientHeight;
+
+		if (canvas.width != displayWidth || canvas.height != displayHeight) {
+			this.width = displayWidth;
+			this.height = displayHeight;
+
+			canvas.width = displayWidth;
+			canvas.height = displayHeight;
+
+			this.gl.viewport(0, 0, displayWidth, displayHeight);
+		}
 	}
 
-	setViewport(width, height) {
-		if (this.state.viewport.width == width && this.state.viewport.height == height) { return; }
-		Object.assign(this.state.viewport, { width, height });
-		this.gl.viewport(0, 0, width, height);
-	}
-
-	setEnabled(id, enable) {
+	toggleFeature(feature, enable) {
 		if (enable) { this.gl.enable(id); } else { this.gl.disable(id); }
 		this.state[id] = enable;
 	}
@@ -141,12 +151,12 @@ export class Renderer {
 
 	render({ scene, camera, frustumCull = true, sort = true, target, update = true, clear } = {}) {
 		this.bindFramebuffer(target);
-		this.setViewport(this.width * (target ? 1 : this.dpr), this.height * (target ? 1 : this.dpr));
+		this.resize();
 		
 		// Clear the screen.
 		if (clear ?? this.autoClear) {
 			if (this.depth && (!target || target.depth)) {
-				this.enable(DEPTH_TEST);
+				this.toggleFeature(DEPTH_TEST, true);
 				this.setDepthMask(true);
 			}
 
