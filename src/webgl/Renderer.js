@@ -75,26 +75,31 @@ export class Renderer {
 		if (sourceAlpha) { this.gl.blendFuncSeparate(source, destination, sourceAlpha, destinationAlpha); } else { this.gl.blendFunc(source, destination); }
 	}
 
+	// TODO: Convert to setter.
 	setCullFace(value) {
 		this.state.cullFace = value;
 		this.gl.cullFace(value);
 	}
 
+	// TODO: Convert to setter.
 	setFrontFace(value) {
 		this.state.frontFace = value;
 		this.gl.frontFace(value);
 	}
 
+	// TODO: Convert to setter.
 	setDepthMask(value) {
 		this.state.depthMask = value;
 		this.gl.depthMask(value);
 	}
 
+	// TODO: Convert to setter.
 	setDepthFunction(value) {
 		this.state.depthFunction = value;
 		this.gl.depthFunc(value);
 	}
 
+	// TODO: Convert to setter.
 	activeTexture(value) {
 		this.state.activeTextureUnit = value;
 		this.gl.activeTexture(TEXTURE0 + value);
