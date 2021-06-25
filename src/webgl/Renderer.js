@@ -16,18 +16,23 @@ Not automatic (must be implemented by developers):
 
 export class Renderer {
 	constructor({ canvas = makeFullscreenCanvas(), alpha = false, depth = true, stencil = false, antialias = false,
-		premultipliedAlpha = false, preserveDrawingBuffer = false, powerPreference = "default", autoClear = true } = {}) {
+		premultipliedAlpha = false, preserveDrawingBuffer = false, powerPreference = "default" } = {}) {
 
-		const gl = canvas.getContext("webgl2", { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference });
+		const contextAttributes = { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference };
+		const gl = canvas.getContext("webgl2", contextAttributes);
 
 		Object.assign(this, {
-			alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
+			contextAttributes, color: true, autoClear: true, id: nextRendererId++, gl,
 			state: {
 				blendFunction: { source: ONE, destination: ZERO, /* sourceAlpha: null, */ /* destinationAlpha: null */ },
 				blendEquation: { modeRGB: FUNC_ADD },
-				/* cullFace: null, */ frontFace: CCW, depthMask: true, depthFunction: LESS, premultiplyAlpha: false, flipY: false, unpackAlignment: 4, /* framebuffer: null, */
-				textureUnits: [],
-				activeTextureUnit: 0,
+				/* cullFace: null, */ frontFace: CCW,
+				depthMask: true, depthFunction: LESS,
+				premultiplyAlpha: false,
+				flipY: false,
+				unpackAlignment: 4,
+				/* framebuffer: null, */
+				textureUnits: [], activeTextureUnit: 0,
 				/* boundBuffer: null, */
 				uniformLocations: new Map()
 			},
@@ -155,15 +160,15 @@ export class Renderer {
 		
 		// Clear the screen.
 		if (clear ?? this.autoClear) {
-			if (this.depth && (!target || target.depth)) {
+			if (this.contextAttributes.depth && (!target || target.depth)) {
 				this.toggleFeature(DEPTH_TEST, true);
 				this.setDepthMask(true);
 			}
 
 			this.gl.clear(
 				(this.color ? COLOR_BUFFER_BIT : 0)
-				| (this.depth ? DEPTH_BUFFER_BIT : 0)
-				| (this.stencil ? STENCIL_BUFFER_BIT : 0));
+				| (this.contextAttributes.depth ? DEPTH_BUFFER_BIT : 0)
+				| (this.contextAttributes.stencil ? STENCIL_BUFFER_BIT : 0));
 		}
 
 		// Update all scene graph matrices.
