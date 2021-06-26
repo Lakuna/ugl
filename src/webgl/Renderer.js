@@ -2,6 +2,8 @@ import { ONE, ZERO, FUNC_ADD, CCW, LESS, MAX_COMBINED_TEXTURE_IMAGE_UNITS, MAX_T
 	FRAMEBUFFER, DEPTH_TEST, COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT } from "./constants.js";
 import { makeFullscreenCanvas } from "./makeFullscreenCanvas.js";
 
+// Note: The contents of this file are heavily based on work by the authors of OGL.
+
 let nextRendererId = 0;
 
 /*
@@ -15,24 +17,26 @@ Not automatic (must be implemented by developers):
 */
 
 export class Renderer {
-	constructor({ canvas = makeFullscreenCanvas(), alpha = false, depth = true, stencil = false, antialias = false,
-		premultipliedAlpha = false, preserveDrawingBuffer = false, powerPreference = "default" } = {}) {
+	constructor({ canvas = makeFullscreenCanvas(), dpr = 1, alpha = false, depth = true, stencil = false, antialias = false,
+		premultipliedAlpha = false, preserveDrawingBuffer = false, powerPreference = "default", autoClear = true } = {}) {
 
-		const contextAttributes = { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference };
-		const gl = canvas.getContext("webgl2", contextAttributes);
+		const gl = canvas.getContext("webgl2", { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference });
 
 		Object.assign(this, {
-			contextAttributes, color: true, autoClear: true, id: nextRendererId++, gl,
+			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
 			state: {
 				blendFunction: { source: ONE, destination: ZERO, /* sourceAlpha: null, */ /* destinationAlpha: null */ },
 				blendEquation: { modeRGB: FUNC_ADD },
-				/* cullFace: null, */ frontFace: CCW,
-				depthMask: true, depthFunction: LESS,
+				/* cullFace: null, */
+				frontFace: CCW,
+				depthMask: true,
+				depthFunction: LESS,
 				premultiplyAlpha: false,
 				flipY: false,
 				unpackAlignment: 4,
 				/* framebuffer: null, */
-				textureUnits: [], activeTextureUnit: 0,
+				textureUnits: [],
+				activeTextureUnit: 0,
 				/* boundBuffer: null, */
 				uniformLocations: new Map()
 			},
@@ -65,11 +69,12 @@ export class Renderer {
 		}
 	}
 
-	toggleFeature(feature, enable) {
+	setFeatureEnabled(id, enable) {
 		if (enable) { this.gl.enable(id); } else { this.gl.disable(id); }
 		this.state[id] = enable;
 	}
 
+	// TODO: Convert to setter.
 	setBlendFunction(source, destination, sourceAlpha, destinationAlpha) {
 		Object.assign(this.state.blendFunction, { source, destination, sourceAlpha, destinationAlpha });
 		if (sourceAlpha) { this.gl.blendFuncSeparate(source, destination, sourceAlpha, destinationAlpha); } else { this.gl.blendFunc(source, destination); }
@@ -166,7 +171,7 @@ export class Renderer {
 		// Clear the screen.
 		if (clear ?? this.autoClear) {
 			if (this.contextAttributes.depth && (!target || target.depth)) {
-				this.toggleFeature(DEPTH_TEST, true);
+				this.setFeatureEnabled(DEPTH_TEST, true);
 				this.setDepthMask(true);
 			}
 
