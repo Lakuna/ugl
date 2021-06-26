@@ -4,6 +4,7 @@ import { makeFullscreenCanvas } from "./makeFullscreenCanvas.js";
 
 // Note: The contents of this file are heavily based on work by the authors of OGL.
 
+// Can be replaced with a static private variable when Bundlephobia supports it.
 let nextRendererId = 0;
 
 /*
