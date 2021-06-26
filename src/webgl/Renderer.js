@@ -26,7 +26,7 @@ export class Renderer {
 			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
 			state: {
 				blendFunction: { source: ONE, destination: ZERO, /* sourceAlpha: null, */ /* destinationAlpha: null */ },
-				blendEquation: { modeRGB: FUNC_ADD },
+				blendEquation: { modeRGB: FUNC_ADD, /* modeAlpha: null */ },
 				/* cullFace: null, */
 				frontFace: CCW,
 				depthMask: true,
@@ -74,43 +74,42 @@ export class Renderer {
 		this.state[id] = enable;
 	}
 
-	// TODO: Convert to setter.
 	setBlendFunction(source, destination, sourceAlpha, destinationAlpha) {
 		Object.assign(this.state.blendFunction, { source, destination, sourceAlpha, destinationAlpha });
 		if (sourceAlpha) { this.gl.blendFuncSeparate(source, destination, sourceAlpha, destinationAlpha); } else { this.gl.blendFunc(source, destination); }
 	}
 
-	// TODO: Convert to setter.
-	setCullFace(value) {
+	setBlendEquation(modeRGB = FUNC_ADD, modeAlpha) {
+		Object.assign(this.state.blendEquation, { modeRGB, modeAlpha });
+		if (modeAlpha) { this.gl.setBlendEquationSeparate(modeRGB, modeAlpha); } else { this.gl.blendEquation(modeRGB); }
+	}
+
+	set cullFace(value) {
 		this.state.cullFace = value;
 		this.gl.cullFace(value);
 	}
 
-	// TODO: Convert to setter.
-	setFrontFace(value) {
+	set frontFace(value) {
 		this.state.frontFace = value;
 		this.gl.frontFace(value);
 	}
 
-	// TODO: Convert to setter.
-	setDepthMask(value) {
+	set depthMask(value) {
 		this.state.depthMask = value;
 		this.gl.depthMask(value);
 	}
 
-	// TODO: Convert to setter.
-	setDepthFunction(value) {
+	set depthFunction(value) {
 		this.state.depthFunction = value;
 		this.gl.depthFunc(value);
 	}
 
-	// TODO: Convert to setter.
-	activeTexture(value) {
+	set activeTexture(value) {
 		this.state.activeTextureUnit = value;
 		this.gl.activeTexture(TEXTURE0 + value);
 	}
 
-	bindFramebuffer(target = FRAMEBUFFER, buffer) {
+	bindFramebuffer(buffer, target = FRAMEBUFFER) {
 		this.state.framebuffer = buffer;
 		this.gl.bindFramebuffer(target, buffer);
 	}
