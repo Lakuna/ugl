@@ -1,15 +1,18 @@
-import { BACK, CCW, LESS, SEPARATE_ATTRIBS, LINK_STATUS, ACTIVE_UNIFORMS, ACTIVE_ATTRIBUTES, TRANSFORM_FEEDBACK_VARYINGS } from "./constants.js";
+import { BACK, CCW, LESS, SEPARATE_ATTRIBS, LINK_STATUS, ACTIVE_UNIFORMS, ACTIVE_ATTRIBUTES, TRANSFORM_FEEDBACK_VARYINGS, ONE, SRC_ALPHA, ONE_MINUS_SRC_ALPHA } from "./constants.js";
 import { Uniform } from "./Uniform.js";
 import { Attribute } from "./Attribute.js";
 import { Varying } from "./Varying.js";
+import { BlendFunction } from "./BlendFunction.js";
 
 // Can be replaced with a static private variable when Bundlephobia supports it.
 let nextProgramId = 0;
 
 export class Program {
-	constructor({ gl, vertexShader, fragmentShader, transparent = false, cullFace = BACK, frontFace = CCW, depthTest = true,
+	constructor({ renderer, vertexShader, fragmentShader, transparent = false, cullFace = BACK, frontFace = CCW, depthTest = true,
 		depthWrite = true, depthFunction = LESS, transformFeedbackVaryingNames = [], transformFeedbackBufferMode = SEPARATE_ATTRIBS } = {}) {
 		
+		const gl = renderer.gl;
+
 		const program = gl.createProgram();
 		[vertexShader, fragmentShader].forEach((shader) => gl.attachShader(program, shader.shader));
 		gl.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
@@ -20,8 +23,8 @@ export class Program {
 		}
 
 		Object.assign(this, { gl, uniforms: new Map(), attributes: new Map(), varyings: new Map(), id: nextProgramId++,
-			transparent, cullFace, frontFace, depthTest, depthWrite, depthFunction, blendFunction: {}, blendEquation: {},
-			program, vertexShader, fragmentShader });
+			transparent, cullFace, frontFace, depthTest, depthWrite, depthFunction, /* blendEquation: null, */ program, vertexShader, fragmentShader,
+			blendFunction: transparent ? new BlendFunction({ gl, source: renderer.premultipliedAlpha ? ONE : SRC_ALPHA, destination: ONE_MINUS_SRC_ALPHA }) : null });
 
 		// Get uniforms.
 		const uniformCount = gl.getProgramParameter(program, ACTIVE_UNIFORMS);
