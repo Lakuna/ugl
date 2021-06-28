@@ -1,6 +1,8 @@
 import { ONE, ZERO, FUNC_ADD, CCW, LESS, MAX_COMBINED_TEXTURE_IMAGE_UNITS, MAX_TEXTURE_MAX_ANISOTROPY_EXT, TEXTURE0,
 	FRAMEBUFFER, DEPTH_TEST, COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT } from "./constants.js";
 import { makeFullscreenCanvas } from "./makeFullscreenCanvas.js";
+import { BlendFunction } from "./BlendFunction.js";
+import { BlendEquation } from "./BlendEquation.js";
 
 // Note: The contents of this file are heavily based on work by the authors of OGL.
 
@@ -26,8 +28,8 @@ export class Renderer {
 		Object.assign(this, {
 			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
 			state: {
-				blendFunction: { source: ONE, destination: ZERO, /* sourceAlpha: null, */ /* destinationAlpha: null */ },
-				blendEquation: { modeRGB: FUNC_ADD, /* modeAlpha: null */ },
+				blendFunction: new BlendFunction(gl),
+				blendEquation: new BlendEquation(gl),
 				/* cullFace: null, */
 				frontFace: CCW,
 				depthMask: true,
@@ -70,19 +72,9 @@ export class Renderer {
 		}
 	}
 
-	setFeatureEnabled(id, enable) {
+	setFeatureEnabled(id, enable = true) {
 		if (enable) { this.gl.enable(id); } else { this.gl.disable(id); }
 		this.state[id] = enable;
-	}
-
-	setBlendFunction(source, destination, sourceAlpha, destinationAlpha) {
-		Object.assign(this.state.blendFunction, { source, destination, sourceAlpha, destinationAlpha });
-		if (sourceAlpha) { this.gl.blendFuncSeparate(source, destination, sourceAlpha, destinationAlpha); } else { this.gl.blendFunc(source, destination); }
-	}
-
-	setBlendEquation(modeRGB = FUNC_ADD, modeAlpha) {
-		Object.assign(this.state.blendEquation, { modeRGB, modeAlpha });
-		if (modeAlpha) { this.gl.setBlendEquationSeparate(modeRGB, modeAlpha); } else { this.gl.blendEquation(modeRGB); }
 	}
 
 	set cullFace(value) {
