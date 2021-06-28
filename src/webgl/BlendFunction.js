@@ -12,8 +12,8 @@ export class BlendFunction {
 			}
 		};
 
+		this.gl = gl;
 		Object.defineProperties(this, {
-			gl,
 			source: {
 				get: () => source,
 				set: (value) => {

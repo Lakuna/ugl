@@ -12,8 +12,8 @@ export class BlendEquation {
 			}
 		};
 
+		this.gl = gl;
 		Object.defineProperties(this, {
-			gl,
 			modeRGB: {
 				get: () => modeRGB,
 				set: (value) => {
