@@ -105,7 +105,7 @@ export class Program {
 		this.renderer.currentProgram = this.id;
 
 		// Set uniforms from values.
-		this.uniforms.values().forEach((uniform) => {
+		for (const uniform of this.uniforms.values()) {
 			// Get supplied value.
 			let name = uniform.name;
 			let value = this.uniformValues[uniform.name];
@@ -149,7 +149,7 @@ export class Program {
 
 			// Other uniforms.
 			return setUniform(uniform.activeInfo.type, uniform.location, uniform.value);
-		});
+		}
 
 		this.applyState();
 		if (flipFaces) { this.renderer.setFrontFace(this.frontFace == CCW ? CW : CCW); }
