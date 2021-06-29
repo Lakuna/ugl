@@ -121,7 +121,7 @@ export class Program {
 			}
 
 			// TODO: Can be minified with optional chaining and a nullish coalescing operator once Bundlephobia supports them.
-			if (!value) {
+			if (value == undefined) {
 				throw new Error(`Uniform ${name} was not supplied.`);
 			}
 			if (value.value == undefined) {
@@ -148,7 +148,7 @@ export class Program {
 			}
 
 			// Other uniforms.
-			return setUniform(uniform.activeInfo.type, uniform.location, uniform.value);
+			return setUniform(uniform.activeInfo.type, uniform.location, value.value);
 		}
 
 		this.applyState();
