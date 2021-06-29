@@ -25,6 +25,14 @@ export class Renderer {
 
 		const gl = canvas.getContext("webgl2", { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference });
 
+		// Initialize extra format types.
+		this.extensions = {};
+		["EXT_color_buffer_float", "OES_texture_float_linear", "EXT_texture_filter_anisotropic"].forEach((extensionName) => this.extensions[extensionName] = gl.getExtension(extensionName));
+
+		// Create method aliases.
+		["vertexAttribDivisor", "drawArraysInstanced", "drawElementsInstanced", "createVertexArray", "bindVertexArray", "deleteVertexArray", "drawBuffers"]
+			.forEach((methodName) => this[methodName] = gl[methodName].bind(gl));
+
 		Object.assign(this, {
 			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl, canvas,
 			state: {
@@ -43,16 +51,11 @@ export class Renderer {
 				/* boundBuffer: null, */
 				/* currentProgram: null */
 			},
-			extensions: {},
 			parameters: { maxTextureUnits: gl.getParameter(MAX_COMBINED_TEXTURE_IMAGE_UNITS), maxAnisotropy: gl.getParameter(MAX_TEXTURE_MAX_ANISOTROPY_EXT) }
 		});
 
-		// Initialize extra format types.
-		["EXT_color_buffer_float", "OES_texture_float_linear"].forEach((extensionName) => this.extensions[extensionName] = gl.getExtension(extensionName));
-
-		// Create method aliases.
-		["vertexAttribDivisor", "drawArraysInstanced", "drawElementsInstanced", "createVertexArray", "bindVertexArray", "deleteVertexArray", "drawBuffers"]
-			.forEach((methodName) => this[methodName] = gl[methodName].bind(gl));
+		// Set initial size.
+		this.resize();
 	}
 
 	resize() {
