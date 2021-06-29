@@ -27,7 +27,7 @@ export class Program {
 		// TODO: Change uniformValues to be more object-oriented.
 		Object.assign(this, { gl, renderer, uniforms: new Map(), attributes: new Map(), varyings: new Map(), uniformValues, id: nextProgramId++,
 			transparent, cullFace, frontFace, depthTest, depthWrite, depthFunction, /* blendEquation: null, */ program, vertexShader, fragmentShader,
-			blendFunction: transparent ? new BlendFunction({ gl, source: renderer.premultipliedAlpha ? ONE : SRC_ALPHA, destination: ONE_MINUS_SRC_ALPHA }) : null });
+			blendFunction: transparent ? new BlendFunction(gl, renderer.premultipliedAlpha ? ONE : SRC_ALPHA, ONE_MINUS_SRC_ALPHA) : null });
 
 		// Get uniforms.
 		const uniformCount = gl.getProgramParameter(program, ACTIVE_UNIFORMS);
@@ -68,7 +68,7 @@ export class Program {
 	}
 
 	use(flipFaces = false) {
-		// This can be a private method once Bundlephobia supports them.
+		// TODO: This can be a private method once Bundlephobia supports them.
 		const setUniform = (type, location, value) => {
 			// Flatten the value.
 			// TODO: Can be compressed with optional chaining once Bundlephobia supports it.
@@ -120,7 +120,7 @@ export class Program {
 				value = value[uniform.structIndex][uniform.structProperty];
 			}
 
-			// Can be minified with optional chaining and a nullish coalescing operator once Bundlephobia supports them.
+			// TODO: Can be minified with optional chaining and a nullish coalescing operator once Bundlephobia supports them.
 			if (!value) {
 				throw new Error(`Uniform ${name} was not supplied.`);
 			}

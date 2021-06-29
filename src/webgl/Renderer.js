@@ -6,7 +6,7 @@ import { BlendEquation } from "./BlendEquation.js";
 
 // Note: The contents of this file are heavily based on work by the authors of OGL.
 
-// Can be replaced with a static private variable when Bundlephobia supports it.
+// TODO: Can be replaced with a static private variable when Bundlephobia supports it.
 let nextRendererId = 0;
 
 /*
@@ -26,7 +26,7 @@ export class Renderer {
 		const gl = canvas.getContext("webgl2", { alpha, depth, stencil, antialias, premultipliedAlpha, preserveDrawingBuffer, powerPreference });
 
 		Object.assign(this, {
-			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl,
+			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl, canvas,
 			state: {
 				blendFunction: new BlendFunction(gl),
 				blendEquation: new BlendEquation(gl),
@@ -56,20 +56,10 @@ export class Renderer {
 	}
 
 	resize() {
-		const canvas = this.gl.canvas;
+		this.canvas.width = this.canvas.clientWidth * this.dpr;
+		this.canvas.height = this.canvas.clientHeight * this.dpr;
 
-		const displayWidth = canvas.clientWidth;
-		const displayHeight = canvas.clientHeight;
-
-		if (canvas.width != displayWidth || canvas.height != displayHeight) {
-			this.width = displayWidth;
-			this.height = displayHeight;
-
-			canvas.width = displayWidth;
-			canvas.height = displayHeight;
-
-			this.gl.viewport(0, 0, displayWidth, displayHeight);
-		}
+		this.gl.viewport(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
 	}
 
 	setFeatureEnabled(id, enable = true) {
@@ -128,7 +118,7 @@ export class Renderer {
 			if (!node.visible) { return true; }
 			if (!node.draw) { return; }
 
-			// Can be minified with optional chaining once Bundlephobia supports it.
+			// TODO: Can be minified with optional chaining once Bundlephobia supports it.
 			if (frustumCull && node.frustumCulled && camera) {
 				if (!camera.frustumIntersectsMesh(node)) { return; }
 			}
@@ -153,7 +143,7 @@ export class Renderer {
 				// Calculate Z depth.
 				node.zDepth = (node.renderOrder != 0 || !node.program.depthTest || !camera)
 					? 0
-					: node.zDepth = node.worldMatrix.translation.transform(camera.projectionViewMatrix)[2];
+					: node.worldMatrix.translation.transform(camera.projectionViewMatrix)[2];
 			});
 
 			// Sort and concatenate.
@@ -168,10 +158,10 @@ export class Renderer {
 
 	render({ scene, camera, frustumCull = true, sort = true, target, update = true, clear } = {}) {
 		this.bindFramebuffer(target);
-		this.resize();
 		
 		// Clear the screen.
-		if (clear ?? this.autoClear) {
+		// TODO: Can be minified with a nullish coalescing operator once Bundlephobia supports it.
+		if (clear || (this.autoClear && clear != false)) {
 			if (this.contextAttributes.depth && (!target || target.depth)) {
 				this.setFeatureEnabled(DEPTH_TEST, true);
 				this.setDepthMask(true);

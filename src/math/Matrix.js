@@ -127,7 +127,7 @@ export class Matrix extends Array {
 
 	resize(width, height, currentWidth = this.dim) {
 		return this.set(...Matrix.fromRule(width, height || width, (x, y) => {
-			// Can be compressed using the nullish coalescing operator once Bundlephobia supports it.
+			// TODO: Can be compressed using the nullish coalescing operator once Bundlephobia supports it.
 
 			const out = this.getPoint(x, y, currentWidth)
 			return typeof out == "undefined" ? (x == y ? 1 : 0) : out;

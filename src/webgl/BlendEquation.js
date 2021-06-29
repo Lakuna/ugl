@@ -1,8 +1,8 @@
 import { FUNC_ADD } from "./constants.js";
 
 export class BlendEquation {
-	constructor({ gl, modeRGB = FUNC_ADD, modeAlpha } = {}) {
-		// This class can be cleaned up once Bundlephobia supports private methods and properties.
+	constructor(gl, modeRGB = FUNC_ADD, modeAlpha) {
+		// TODO: This class can be cleaned up once Bundlephobia supports private methods and properties.
 
 		const update = () => {
 			if (modeAlpha) {

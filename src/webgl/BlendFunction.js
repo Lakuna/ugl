@@ -1,8 +1,8 @@
 import { ONE, ZERO } from "./constants.js";
 
 export class BlendFunction {
-	constructor({ gl, source = ONE, destination = ZERO, sourceAlpha, destinationAlpha } = {}) {
-		// This class can be cleaned up once Bundlephobia supports private methods and properties.
+	constructor(gl, source = ONE, destination = ZERO, sourceAlpha, destinationAlpha) {
+		// TODO: This class can be cleaned up once Bundlephobia supports private methods and properties.
 
 		const update = () => {
 			if (sourceAlpha) {
@@ -43,7 +43,7 @@ export class BlendFunction {
 					destinationAlpha = value;
 					update();
 				}
-			},
+			}
 		});
 
 		update();
