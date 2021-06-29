@@ -32,7 +32,7 @@ export class Program {
 		// Get uniforms.
 		const uniformCount = gl.getProgramParameter(program, ACTIVE_UNIFORMS);
 		for (let i = 0; i < uniformCount; i++) {
-			const uniform = new Uniform(program, i);
+			const uniform = new Uniform(gl, program, i);
 			this.uniforms.set(uniform.name, uniform);
 		}
 
@@ -40,7 +40,7 @@ export class Program {
 		const attributeCount = gl.getProgramParameter(program, ACTIVE_ATTRIBUTES);
 		const locations = []; // Implementation from the developers of OGL.
 		for (let i = 0; i < attributeCount; i++) {
-			const attribute = new Attribute(program, i);
+			const attribute = new Attribute(gl, program, i);
 			this.attributes.set(attribute.activeInfo.name, attribute);
 			locations[attribute.location] = attribute.activeInfo.name;
 		}
@@ -49,7 +49,7 @@ export class Program {
 		// Get varyings (transform feedback only).
 		const varyingCount = gl.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
 		for (let i = 0; i < varyingCount; i++) {
-			const varying = new Varying(program, i);
+			const varying = new Varying(gl, program, i);
 			this.varyings.set(varying.activeInfo.name, varying);
 		}
 	}

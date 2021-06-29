@@ -1,8 +1,8 @@
 export class Attribute {
-	constructor(program, index) {
-		const activeInfo = program.gl.getActiveAttrib(program, index);
-		const location = program.gl.getAttribLocation(program, activeInfo.name);
+	constructor(gl, program, index) {
+		const activeInfo = gl.getActiveAttrib(program, index);
+		const location = gl.getAttribLocation(program, activeInfo.name);
 
-		Object.assign(this, { program, index, gl: program.gl, activeInfo, location });
+		Object.assign(this, { gl, program, index, activeInfo, location });
 	}
 }
