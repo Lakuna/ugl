@@ -7,13 +7,17 @@ export class Uniform {
 		// Implementation by the authors of OGL.
 		const split = activeInfo.name.match(/(\w+)/g);
 		const name = split[0];
+		let isStructArray;
+		let structIndex;
+		let structProperty;
+		let isStruct;
 		if (split.length == 3) {
-			const isStructArray = true;
-			const structIndex = Number(split[1]);
-			const structProperty = split[2];
+			isStructArray = true;
+			structIndex = Number(split[1]);
+			structProperty = split[2];
 		} else if (split.length == 2 && isNaN(Number(split[1]))) {
-			const isStruct = true;
-			const structProperty = split[1];
+			isStruct = true;
+			structProperty = split[1];
 		}
 
 		Object.assign(this, { program, index, gl: program.gl, activeInfo, location, name,

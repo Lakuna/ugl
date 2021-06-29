@@ -1,4 +1,4 @@
-import { ONE, ZERO, FUNC_ADD, CCW, LESS, MAX_COMBINED_TEXTURE_IMAGE_UNITS, MAX_TEXTURE_MAX_ANISOTROPY_EXT, TEXTURE0,
+import { CCW, LESS, MAX_COMBINED_TEXTURE_IMAGE_UNITS, MAX_TEXTURE_MAX_ANISOTROPY_EXT, TEXTURE0,
 	FRAMEBUFFER, DEPTH_TEST, COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT } from "./constants.js";
 import { makeFullscreenCanvas } from "./makeFullscreenCanvas.js";
 import { BlendFunction } from "./BlendFunction.js";
