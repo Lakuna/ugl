@@ -13,6 +13,8 @@ export class BlendEquation {
 		};
 
 		this.gl = gl;
+		this.update = update;
+		
 		Object.defineProperties(this, {
 			modeRGB: {
 				get: () => modeRGB,

@@ -13,6 +13,8 @@ export class BlendFunction {
 		};
 
 		this.gl = gl;
+		this.update = update;
+
 		Object.defineProperties(this, {
 			source: {
 				get: () => source,

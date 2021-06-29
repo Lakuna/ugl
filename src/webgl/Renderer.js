@@ -41,7 +41,7 @@ export class Renderer {
 				textureUnits: [],
 				activeTextureUnit: 0,
 				/* boundBuffer: null, */
-				uniformLocations: new Map()
+				/* currentProgram: null */
 			},
 			extensions: {},
 			parameters: { maxTextureUnits: gl.getParameter(MAX_COMBINED_TEXTURE_IMAGE_UNITS), maxAnisotropy: gl.getParameter(MAX_TEXTURE_MAX_ANISOTROPY_EXT) }
@@ -100,6 +100,16 @@ export class Renderer {
 	set activeTexture(value) {
 		this.state.activeTextureUnit = value;
 		this.gl.activeTexture(TEXTURE0 + value);
+	}
+
+	set blendFunction(value) {
+		this.state.blendFunction = value;
+		this.state.blendFunction.update();
+	}
+
+	set blendEquation(value) {
+		this.state.blendEquation = value;
+		this.state.blendEquation.update();
 	}
 
 	bindFramebuffer(buffer, target = FRAMEBUFFER) {
