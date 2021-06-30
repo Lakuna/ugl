@@ -6,6 +6,8 @@ export * from "./math/Quaternion.js";
 export * from "./math/Vector.js";
 
 // WebGL
+export * from "./webgl/Geometry.js";
+export * from "./webgl/Mesh.js";
 export * from "./webgl/Program.js";
 export * from "./webgl/Renderer.js";
 export * from "./webgl/Shader.js";

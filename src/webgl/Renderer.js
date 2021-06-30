@@ -29,10 +29,6 @@ export class Renderer {
 		this.extensions = {};
 		["EXT_color_buffer_float", "OES_texture_float_linear", "EXT_texture_filter_anisotropic"].forEach((extensionName) => this.extensions[extensionName] = gl.getExtension(extensionName));
 
-		// Create method aliases.
-		["vertexAttribDivisor", "drawArraysInstanced", "drawElementsInstanced", "createVertexArray", "bindVertexArray", "deleteVertexArray", "drawBuffers"]
-			.forEach((methodName) => this[methodName] = gl[methodName].bind(gl));
-
 		Object.assign(this, {
 			dpr, alpha, color: true, depth, stencil, premultipliedAlpha, autoClear, id: nextRendererId++, gl, canvas,
 			state: {
@@ -47,9 +43,7 @@ export class Renderer {
 				unpackAlignment: 4,
 				/* framebuffer: null, */
 				textureUnits: [],
-				activeTextureUnit: 0,
-				/* boundBuffer: null, */
-				/* currentProgram: null */
+				activeTextureUnit: 0
 			},
 			parameters: { maxTextureUnits: gl.getParameter(MAX_COMBINED_TEXTURE_IMAGE_UNITS), maxAnisotropy: gl.getParameter(MAX_TEXTURE_MAX_ANISOTROPY_EXT) }
 		});

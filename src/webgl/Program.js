@@ -6,7 +6,7 @@ import { Attribute } from "./Attribute.js";
 import { Varying } from "./Varying.js";
 import { BlendFunction } from "./BlendFunction.js";
 
-// Can be replaced with a static private variable when Bundlephobia supports it.
+// TODO: Can be replaced with a static private variable when Bundlephobia supports it.
 let nextProgramId = 0;
 
 export class Program {
@@ -24,7 +24,7 @@ export class Program {
 			throw new Error(gl.getProgramInfoLog(program));
 		}
 
-		// TODO: Change uniformValues to be more object-oriented.
+		// TODO: Change uniformValues to be more object-oriented. UniformValue class.
 		Object.assign(this, { gl, renderer, uniforms: new Map(), attributes: new Map(), varyings: new Map(), uniformValues, id: nextProgramId++,
 			transparent, cullFace, frontFace, depthTest, depthWrite, depthFunction, /* blendEquation: null, */ program, vertexShader, fragmentShader,
 			blendFunction: transparent ? new BlendFunction(gl, renderer.premultipliedAlpha ? ONE : SRC_ALPHA, ONE_MINUS_SRC_ALPHA) : null });
@@ -38,13 +38,10 @@ export class Program {
 
 		// Get attributes.
 		const attributeCount = gl.getProgramParameter(program, ACTIVE_ATTRIBUTES);
-		const locations = []; // Implementation from the developers of OGL.
 		for (let i = 0; i < attributeCount; i++) {
 			const attribute = new Attribute(gl, program, i);
 			this.attributes.set(attribute.activeInfo.name, attribute);
-			locations[attribute.location] = attribute.activeInfo.name;
 		}
-		this.attributeOrder = locations.join("");
 
 		// Get varyings (transform feedback only).
 		const varyingCount = gl.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
@@ -102,7 +99,6 @@ export class Program {
 		let textureUnit = -1;
 
 		this.gl.useProgram(this.program);
-		this.renderer.currentProgram = this.id;
 
 		// Set uniforms from values.
 		for (const uniform of this.uniforms.values()) {
@@ -152,6 +148,6 @@ export class Program {
 		}
 
 		this.applyState();
-		if (flipFaces) { this.renderer.setFrontFace(this.frontFace == CCW ? CW : CCW); }
+		if (flipFaces) { this.renderer.frontFace = this.frontFace == CCW ? CW : CCW; }
 	}
 }
