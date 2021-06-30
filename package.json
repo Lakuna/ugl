@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Lightweight JavaScript game framework, WebGL, and math library.",
   "keywords": [
     "front-end",
@@ -22,7 +22,7 @@
   "files": [
     "src/*"
   ],
-  "browser": "dist/main.js",
+  "browser": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lakuna/Umbra.git"
