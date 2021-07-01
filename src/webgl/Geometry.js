@@ -1,5 +1,5 @@
 import { Vector } from "../math/Vector.js";
-import { FLOAT, UNSIGNED_SHORT, UNSIGNED_INT, STATIC_DRAW, TRIANGLES } from "./constants.js";
+import { FLOAT, UNSIGNED_SHORT, UNSIGNED_INT, ELEMENT_ARRAY_BUFFER, ARRAY_BUFFER, STATIC_DRAW, TRIANGLES, FLOAT_MAT2, FLOAT_MAT3, FLOAT_MAT4 } from "./constants.js";
 
 // TODO: Can be converted to a private static property once Bundlephobia supports them.
 let nextGeometryId = 0;
@@ -49,7 +49,7 @@ export class Geometry {
 			this.instancedCount = value.count * value.divisor;
 		} else if (name == "index") {
 			this.drawRange.count = value.count;
-		} else if (!this.attributeValues.index) {
+		} else if (!this.attributeValues["index"]) {
 			this.drawRange.count = Math.max(this.drawRange.count, value.count);
 		}
 	}
@@ -70,7 +70,35 @@ export class Geometry {
 	}
 
 	bindAttributes(program) {
-		// TODO
+		// Set attributes from values.
+		for (const attribute of program.attributes.values()) {
+			const value = this.attributeValues[attribute.activeInfo.name];
+			if (!value) { throw new Error(`Attribute "${attribute.activeInfo.name}" is not being supplied.`); }
+
+			this.gl.bindBuffer(value.target, value.buffer);
+
+			// For matrix attributes, the buffer needs to be defined per-column.
+			const numLoc =
+				type == FLOAT_MAT2 ? 2 : (
+				type == FLOAT_MAT3 ? 3 : (
+				type == FLOAT_MAT4 ? 4 :
+				1));
+
+			const size = value.size / numLoc;
+			const stride = numLoc == 1 ? 0 : numLoc ** 3;
+			const offset = numLoc == 1 ? 0 : numLoc ** 2;
+
+			for (let i = 0; i < numLoc; i++) {
+				this.gl.vertexAttribPointer(attribute.location + i, size, value.type, value.normalized, value.stride + stride, value.offset + i * offset);
+				this.gl.enableVertexAttribArray(location + i);
+
+				// For instanced attributes, divisor needs to be set.
+				this.gl.vertexAttribDivisor(location + i, value.divisor);
+			}
+		}
+
+		// Bind indices if geometry is indexed.
+		if (this.attributeValues["index"]) { this.gl.bindBuffer(ELEMENT_ARRAY_BUFFER, this.attributeValues["index"].buffer); }
 	}
 
 	draw(program, mode = TRIANGLES) {

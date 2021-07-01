@@ -1,5 +1,6 @@
 import { Transform } from "./Transform.js";
 import { TRIANGLES } from "./constants.js";
+import { Matrix } from "../math/Matrix.js";
 
 // TODO: Can be a private static variable once Bundlephobia supports them.
 let nextMeshId = 0;
