@@ -7,19 +7,25 @@ import { Quaternion } from "./Quaternion.js";
 export class Matrix extends Array {
 	constructor(...data) {
 		super(...(data.length ? data : Matrix.identity())); // Default to identity.
-	}
 
-	get dim() {
-		return Math.sqrt(this.length);
+
+		// TODO: Can be cleaned up once private properties are supported by Bundlephobia.
+		let privateWidth;
+		Object.defineProperties(this, {
+			width: {
+				// TODO: Can be minified with a nullish coalescing operator once supported by Bundlephobia.
+				get: () => privateWidth == null || privateWidth == undefined ? Math.sqrt(this.length) : privateWidth,
+				set: (value) => { privateWidth = value; }
+			}
+		});
 	}
 
 	// Extremely slow past 10x10.
 	get determinant() {
-		const dim = this.dim;
-		if (dim ** 2 != this.length) { throw new Error("Cannot get determinant of a non-square matrix."); }
+		if (this.width ** 2 != this.length) { throw new Error("Cannot get determinant of a non-square matrix."); }
 
 		// End of recursion.
-		if (dim == 2) {
+		if (this.width == 2) {
 			return this[0] * this[3] - this[1] * this[2];
 		}
 
@@ -27,8 +33,8 @@ export class Matrix extends Array {
 		const oppositeMatrix = (i) => {
 			const out = [];
 
-			for (let x = 0; x < dim; x++) {
-				for (let y = 1; y < dim; y++) {
+			for (let x = 0; x < this.width; x++) {
+				for (let y = 1; y < this.width; y++) {
 					if (x == i) { continue; }
 
 					out.push(this.getPoint(x, y));
@@ -39,17 +45,17 @@ export class Matrix extends Array {
 		};
 		
 		let out = 0;
-		for (let i = 0; i < dim; i++) { out += -(i % 2 || -1) * this[i] * oppositeMatrix(i).determinant; }
+		for (let i = 0; i < this.width; i++) { out += -(i % 2 || -1) * this[i] * oppositeMatrix(i).determinant; }
 		return out;
 	}
 
-	getPoint(x, y, width = this.dim) {
-		return x < width ? this[y * width + x] : undefined;
+	getPoint(x, y) {
+		return x < this.width ? this[y * this.width + x] : undefined;
 	}
 
-	setPoint(x, y, value, width = this.dim) {
-		if (x > width) { return false; }
-		this[y * width + x] = value;
+	setPoint(x, y, value) {
+		if (x > this.width) { return false; }
+		this[y * this.width + x] = value;
 		return true;
 	}
 
@@ -125,16 +131,16 @@ export class Matrix extends Array {
 		return this;
 	}
 
-	resize(width, height, currentWidth = this.dim) {
+	resize(width, height) {
 		return this.set(...Matrix.fromRule(width, height || width, (x, y) => {
 			// TODO: Can be compressed using the nullish coalescing operator once Bundlephobia supports it.
 
-			const out = this.getPoint(x, y, currentWidth)
+			const out = this.getPoint(x, y)
 			return typeof out == "undefined" ? (x == y ? 1 : 0) : out;
 		}));
 	}
 
-	multiply(matrix, m = this.dim) {
+	multiply(matrix, m = this.width) {
 		matrix = new Matrix(...matrix);
 
 		const n = this.length / m;
@@ -206,18 +212,17 @@ export class Matrix extends Array {
 
 	// Based on work by Andrew Ippoliti.
 	invert() {
-		const dim = this.dim;
-		if (dim ** 2 != this.length) { throw new Error("Cannot invert a non-square matrix."); }
+		if (this.width ** 2 != this.length) { throw new Error("Cannot invert a non-square matrix."); }
 
-		const identity = Matrix.identity(dim);
+		const identity = Matrix.identity(this.width);
 		const copy = new Matrix(...this);
 
-		for (let i = 0; i < dim; i++) {
+		for (let i = 0; i < this.width; i++) {
 			let diagonal = copy.getPoint(i, i);
 			if (diagonal == 0) {
-				for (let ii = i + 1; ii < dim; ii++) {
+				for (let ii = i + 1; ii < this.width; ii++) {
 					if (copy.getPoint(ii, i) != 0) {
-						for (let j = 0; j < dim; j++) {
+						for (let j = 0; j < this.width; j++) {
 							[copy, identity].forEach((matrix) => {
 								let temp = matrix.getPoint(i, j);
 								matrix.setPoint(i, j, matrix.getPoint(ii, j));
@@ -233,16 +238,16 @@ export class Matrix extends Array {
 				if (diagonal == 0) { throw new Error("Matrix is not invertible."); }
 			}
 
-			for (let j = 0; j < dim; j++) {
+			for (let j = 0; j < this.width; j++) {
 				[copy, identity].forEach((matrix) => matrix.setPoint(i, j, matrix.getPoint(i, j) / diagonal));
 			}
 
-			for (let ii = 0; ii < dim; ii++) {
+			for (let ii = 0; ii < this.width; ii++) {
 				if (ii == i) { continue; }
 
 				let temp = copy.getPoint(ii, i);
 
-				for (let j = 0; j < dim; j++) {
+				for (let j = 0; j < this.width; j++) {
 					[copy, identity].forEach((matrix) => matrix.setPoint(ii, j, matrix.getPoint(ii, j) - temp * matrix.getPoint(i, j)));
 				}
 			}
@@ -251,9 +256,9 @@ export class Matrix extends Array {
 		return this.set(...identity);
 	}
 
-	transpose(width = this.dim) {
-		const height = this.length / width;
-		return this.set(...Matrix.fromRule(this.length, 1, (i) => this.getPoint(Math.floor(i / height), i % height, width)));
+	transpose() {
+		const height = this.length / this.width;
+		return this.set(...Matrix.fromRule(this.length, 1, (i) => this.getPoint(Math.floor(i / height), i % height, this.width)));
 	}
 
 	orthographic(left, right, bottom, top, near, far) {
