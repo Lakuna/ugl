@@ -38,9 +38,6 @@ export class Renderer {
 				frontFace: CCW,
 				depthMask: true,
 				depthFunction: LESS,
-				premultiplyAlpha: false,
-				flipY: false,
-				unpackAlignment: 4,
 				/* framebuffer: null, */
 				textureUnits: [],
 				activeTextureUnit: 0
