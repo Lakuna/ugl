@@ -66,6 +66,7 @@ export class Program {
 
 	use(flipFaces = false) {
 		// TODO: This can be a private method once Bundlephobia supports them.
+		// TODO: Move to Uniform or UniformValue class?
 		const setUniform = (type, location, value) => {
 			// Flatten the value.
 			// TODO: Can be compressed with optional chaining once Bundlephobia supports it.

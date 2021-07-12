@@ -7,10 +7,11 @@ let nextGeometryId = 0;
 export class Geometry {
 	constructor(renderer, attributeValues = {}) {
 		// TODO: Update attributeValues to be more object-oriented. AttributeValue class.
+		// TODO: data setter on Attribute or AttributeValue class which supplies data to the buffer.
 		Object.assign(this, { renderer, gl: renderer.gl, attributeValues, id: nextGeometryId++, VAOs: new Map(),
-			drawRange: { start: 0, count: 0 }, instancedCount: 0, /* isInstanced: null */ });
+			drawRange: { start: 0, count: 0 }, instancedCount: 0, /* isInstanced: null, */ /* bounds: { min: null, max: null, center: null, scale: null, radius: null } */ });
 
-		gl.bindVertexArray(null);
+		this.gl.bindVertexArray(null);
 
 		// Create buffers.
 		for (const attributeName in attributeValues) {
@@ -79,9 +80,9 @@ export class Geometry {
 
 			// For matrix attributes, the buffer needs to be defined per-column.
 			const numLoc =
-				type == FLOAT_MAT2 ? 2 : (
-				type == FLOAT_MAT3 ? 3 : (
-				type == FLOAT_MAT4 ? 4 :
+				attribute.type == FLOAT_MAT2 ? 2 : (
+				attribute.type == FLOAT_MAT3 ? 3 : (
+				attribute.type == FLOAT_MAT4 ? 4 :
 				1));
 
 			const size = value.size / numLoc;
@@ -102,18 +103,54 @@ export class Geometry {
 	}
 
 	draw(program, mode = TRIANGLES) {
-		// TODO
+		if (!this.VAOs.get(program)) { this.createVAO(program); }
+		this.gl.bindVertexArray(this.VAOs.get(program));
+
+		program.attributes.forEach((attribute) => this.updateAttribute(attribute));
+
+		if (this.isInstanced) {
+			if (this.attributeValues["index"]) {
+				this.gl.drawElementsInstanced(mode, this.drawRange.count, this.attributeValues["index"].type, this.attributeValues["index"].offset + this.drawRange.start * 2);
+			} else {
+				this.gl.drawArrays(mode, this.drawRange.start, this.drawRange.count);
+			}
+		}
 	}
 
 	get position() {
-		// TODO
+		return this.attributeValues["position"].data; // TODO: Document special attribute name.
 	}
 
-	computeBoundingBox(attribute) {
-		// TODO
+	computeBoundingBox(attribute = this.position) {
+		this.bounds = {
+			min: new Vector(+Infinity),
+			max: new Vector(-Infinity),
+			// center: new Vector(),
+			// scale: new Vector(),
+			radius: Infinity
+		};
+
+		for (let i = attribute.offset || 0; i < attribute.data.length; i += attribute.stride || attribute.size) {
+			const point = new Vector(attribute.data[i], attribute.data[i + 1], attribute.data[i + 2]);
+
+			this.bounds.min[0] = Math.min(point[0], this.bounds.min[0]);
+			this.bounds.min[1] = Math.min(point[1], this.bounds.min[1]);
+			this.bounds.min[2] = Math.min(point[2], this.bounds.min[2]);
+
+			this.bounds.max[0] = Math.max(point[0], this.bounds.max[0]);
+			this.bounds.max[1] = Math.max(point[1], this.bounds.max[1]);
+			this.bounds.max[2] = Math.max(point[2], this.bounds.max[2]);
+		}
+
+		this.bounds.scale = new Vector(...this.bounds.max).subtract(this.bounds.min);
+		this.bounds.center = new Vector(...this.min).add(this.max).scale(1 / 2);
 	}
 
-	computeBoundingSphere(attribute) {
-		// TODO
+	computeBoundingSphere(attribute = this.position) {
+		if (!this.bounds) { this.computeBoundingBox(attribute); }
+
+		for (let i = attribute.offset || 0; i < attribute.data.length; i += attribute.stride || attribute.size) {
+			this.bounds.radius = Math.max(this.bounds.radius, this.bounds.center.distance(new Vector(attribute.data[i], attribute.data[i + 1], attribute.data[i + 2])));
+		}
 	}
 }
