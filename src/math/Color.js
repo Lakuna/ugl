@@ -16,5 +16,14 @@ export class Color extends Array {
 		}
 
 		super(...data); // Will error if data is supplied in an invalid format.
+		/*
+		Valid formats:
+		"#FFFFFF" - Hex value string with pound.
+		"FFFFFF" - Hex value string.
+		"#FFF" - Web-safe hex value string with pound.
+		"FFF" - Web-safe hex value string.
+		0xFFFFFF - Hex value.
+		[1, 1, 1] - RGB percentage value array.
+		*/
 	}
 }
