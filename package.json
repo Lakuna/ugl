@@ -20,19 +20,21 @@
   },
   "funding": "https://github.com/sponsors/Lakuna",
   "files": [
-    "src/*"
+    "src/*",
+    "lib/*",
+    "dist/*"
   ],
-  "browser": "src/index.js",
+  "browser": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lakuna/Umbra.git"
   },
   "scripts": {
     "test": "exit 0",
-    "build": "webpack",
     "beautify": "prettier src --write",
     "lint": "eslint src --fix",
     "babel": "babel src --out-dir lib",
+    "build": "webpack",
     "build-babel": "webpack -c ./webpack.babel.config.js"
   },
   "type": "module",
