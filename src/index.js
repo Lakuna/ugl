@@ -10,6 +10,7 @@ export * from "./webgl/Geometry.js";
 export * from "./webgl/Mesh.js";
 export * from "./webgl/Program.js";
 export * from "./webgl/Renderer.js";
+export * from "./webgl/RenderTarget.js";
 export * from "./webgl/Shader.js";
 export * from "./webgl/Texture.js";
 export * from "./webgl/Transform.js";
