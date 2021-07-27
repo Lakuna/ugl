@@ -31,11 +31,17 @@
     "test": "exit 0",
     "build": "webpack",
     "beautify": "prettier src --write",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "babel": "babel src --out-dir lib",
+    "build-babel": "webpack -c ./webpack.babel.config.js"
   },
   "type": "module",
   "sideEffects": false,
   "devDependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.8",
+    "babel-loader": "^8.2.2",
     "eslint": "^7.28.0",
     "prettier": "^2.3.1",
     "webpack": "^5.39.0",
