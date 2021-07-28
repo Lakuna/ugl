@@ -1,7 +1,7 @@
 import { Quaternion } from "./Quaternion.js";
 
 export class Euler extends Array {
-	toQuaternion() {
+	get quaternion() {
 		const sinX = Math.sin(this[0] / 2);
 		const cosX = Math.cos(this[0] / 2);
 		const sinY = Math.sin(this[1] / 2);
@@ -14,5 +14,9 @@ export class Euler extends Array {
 			cosX * sinY * cosZ - sinX * cosY * sinZ,
 			cosX * cosY * sinZ + sinX * sinY * cosZ,
 			cosX * cosY * cosZ - sinX * sinY * sinZ);
+	}
+
+	get matrix() {
+		return this.quaternion.matrix;
 	}
 }

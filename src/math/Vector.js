@@ -3,6 +3,12 @@ import { clamp } from "./clamp.js";
 import { Matrix } from "./Matrix.js";
 
 export class Vector extends Array {
+	static fromRule(length, rule) {
+		let data = [];
+		for (let i = 0; i < length; i++) { data[i] = rule(i); }
+		return new Vector(...data);
+	}
+
 	get magnitude() {
 		return Math.sqrt(sigma(0, this.length - 1, (n) => this[n] ** 2));
 	}
@@ -75,8 +81,3 @@ export class Vector extends Array {
 		return this.operate(vector, (a, b) => a + t * (b - a));
 	}
 }
-Vector.fromRule = (length, rule) => {
-	let data = [];
-	for (let i = 0; i < length; i++) { data[i] = rule(i); }
-	return new Vector(...data);
-};

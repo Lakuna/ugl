@@ -2,11 +2,15 @@ import { Vector } from "./Vector.js";
 import { Matrix } from "./Matrix.js";
 
 export class Quaternion extends Vector {
+	static identity() {
+		return new Quaternion(0, 0, 0, 1);
+	}
+
 	constructor(...data) {
 		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
 	}
 
-	toMatrix() {
+	get matrix() {
 		const x = this[0];
 		const y = this[1];
 		const z = this[2];
@@ -33,12 +37,13 @@ export class Quaternion extends Vector {
 		);
 	}
 
-	toEuler() {
-		return this.toMatrix().toEuler();
+	get euler() {
+		return this.matrix.rotation;
 	}
 
 	conjugate() {
 		this.set(-this[0], -this[1], -this[2], this[3]);
+		return this;
 	}
 
 	// Based on work by Robert Eisele.
@@ -74,14 +79,17 @@ export class Quaternion extends Vector {
 		return this;
 	}
 
+	// Roll
 	rotateX(radians) {
 		return this.multiply(new Quaternion().setAngle([1, 0, 0], radians));
 	}
 
+	// Pitch
 	rotateY(radians) {
 		return this.multiply(new Quaternion().setAngle([0, 1, 0], radians));
 	}
 
+	// Yaw
 	rotateZ(radians) {
 		return this.multiply(new Quaternion().setAngle([0, 0, 1], radians));
 	}
@@ -102,4 +110,3 @@ export class Quaternion extends Vector {
 		return this.operate(quaternion, (a, b) => scale0 * a + scale1 * b);
 	}
 }
-Quaternion.identity = () => new Quaternion(0, 0, 0, 1);

@@ -5,19 +5,32 @@ import { Euler } from "./Euler.js";
 import { Quaternion } from "./Quaternion.js";
 
 export class Matrix extends Array {
+	static fromRule(width, height, rule) {
+		let data = [];
+		for (let x = 0; x < width; x++) {
+			for (let y = 0; y < height; y++) {
+				data[y * width + x] = rule(x, y);
+			}
+		}
+		return new Matrix(...data);
+	}
+
+	static identity(dim = 4) {
+		return Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
+	}
+
+	#width;
+
 	constructor(...data) {
 		super(...(data.length ? data : Matrix.identity())); // Default to identity.
+	}
 
+	get width() {
+		return this.#width ?? Math.sqrt(this.length);
+	}
 
-		// TODO: Can be cleaned up once private properties are supported by Bundlephobia.
-		let privateWidth;
-		Object.defineProperties(this, {
-			width: {
-				// TODO: Can be minified with a nullish coalescing operator once supported by Bundlephobia.
-				get: () => privateWidth == null || privateWidth == undefined ? Math.sqrt(this.length) : privateWidth,
-				set: (value) => { privateWidth = value; }
-			}
-		});
+	set width(value) {
+		this.#width = value;
 	}
 
 	// Extremely slow past 10x10.
@@ -75,7 +88,7 @@ export class Matrix extends Array {
 	}
 
 	// Based on work by the authors of three.js.
-	toEuler() {
+	get rotation() {
 		const m = new Matrix(...this).resize(3);
 
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles).
@@ -91,7 +104,7 @@ export class Matrix extends Array {
 	}
 
 	// Algorithm by Ken Shoemake, "Quaternion Calculus and Fast Animation," 1987 SIGGRAPH course notes.
-	toQuaternion() {
+	get quaternion() {
 		const m = new Matrix(...this).resize(3);
 
 		const fTrace = m[0] + m[4] + m[8];
@@ -132,12 +145,7 @@ export class Matrix extends Array {
 	}
 
 	resize(width, height) {
-		return this.set(...Matrix.fromRule(width, height || width, (x, y) => {
-			// TODO: Can be compressed using the nullish coalescing operator once Bundlephobia supports it.
-
-			const out = this.getPoint(x, y)
-			return typeof out == "undefined" ? (x == y ? 1 : 0) : out;
-		}));
+		return this.set(...Matrix.fromRule(width, height || width, (x, y) => this.getPoint(x, y) ?? (x == y ? 1 : 0)));
 	}
 
 	multiply(matrix, m = this.width) {
@@ -307,13 +315,3 @@ export class Matrix extends Array {
 		return this.set(...Vector.fromRule(this.length, (i) => this[i] * scalar));
 	}
 }
-Matrix.fromRule = (width, height, rule) => {
-	let data = [];
-	for (let x = 0; x < width; x++) {
-		for (let y = 0; y < height; y++) {
-			data[y * width + x] = rule(x, y);
-		}
-	}
-	return new Matrix(...data);
-};
-Matrix.identity = (dim = 4) => Matrix.fromRule(dim, dim, (x, y) => x == y ? 1 : 0);
