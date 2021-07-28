@@ -5,8 +5,8 @@ import { Euler } from "../math/Euler.js";
 export class Transform {
 	constructor() {
 		// TODO: Make children get-only once Bundlephobia supports private properties.
-		Object.assign(this, { children: [], visible: true, position: new Vector(),
-			scale: new Vector(), rotation: new Euler(), up: new Vector(0, 1, 0) });
+		Object.assign(this, { children: [], visible: true, position: new Vector(0, 0, 0),
+			scale: new Vector(1, 1, 1), rotation: new Euler(0, 0, 0), up: new Vector(0, 1, 0) });
 
 		// TODO: This can be cleaned up once Bundlephobia supports private properties.
 		let parent;
@@ -36,6 +36,10 @@ export class Transform {
 
 	get worldMatrix() {
 		return this.parent ? this.matrix.multiply(this.parent.worldMatrix) : this.matrix;
+	}
+
+	lookAt(target) {
+		this.rotation = new Matrix().lookAt(this.position, target, this.up).toEuler();
 	}
 
 	addChild(child) {
