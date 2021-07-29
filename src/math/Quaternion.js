@@ -11,10 +11,10 @@ export class Quaternion extends Vector {
 	}
 
 	get matrix() {
-		const x = this[0];
-		const y = this[1];
-		const z = this[2];
-		const w = this[3];
+		const x = this.x;
+		const y = this.y;
+		const z = this.z;
+		const w = this.w;
 
 		const x2 = x * 2;
 		const y2 = y * 2;
@@ -42,15 +42,17 @@ export class Quaternion extends Vector {
 	}
 
 	conjugate() {
-		this.set(-this[0], -this[1], -this[2], this[3]);
+		this.set(-this.x, -this.y, -this.z, this.w);
 		return this;
 	}
 
 	// Based on work by Robert Eisele.
 	multiply(quaternion) {
+		quaternion = new Quaternion(...quaternion);
+
 		// Real scalar values.
-		const w1 = this[3];
-		const w2 = quaternion[3];
+		const w1 = this.w;
+		const w2 = quaternion.w;
 
 		// Imaginary 3D vector values.
 		const v = (quaternion) => Vector.fromRule(3, (i) => quaternion[i]);
@@ -70,12 +72,14 @@ export class Quaternion extends Vector {
 	}
 
 	setAngle(axis, radians) {
+		axis = new Vector(...axis);
+
 		radians /= 2;
-		this[3] = Math.cos(radians);
+		this.w = Math.cos(radians);
 		const sine = Math.sin(radians);
-		this[0] = sine * axis[0];
-		this[1] = sine * axis[1];
-		this[2] = sine * axis[2];
+		this.x = sine * axis.x;
+		this.y = sine * axis.y;
+		this.z = sine * axis.z;
 		return this;
 	}
 
@@ -98,7 +102,7 @@ export class Quaternion extends Vector {
 		let cosom = this.dot(quaternion);
 		if (cosom < 0) {
 			cosom = -cosom;
-			quaternion = new Quaternion(quaternion).negate();
+			quaternion = new Quaternion(...quaternion).negate();
 		}
 
 		const omega = Math.acos(cosom);
