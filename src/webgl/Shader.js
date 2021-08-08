@@ -2,14 +2,18 @@ import { COMPILE_STATUS } from "./constants.js";
 
 export class Shader {
 	constructor(gl, type, source) {
-		const shader = gl.createShader(type);
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
+		Object.defineProperties(this, {
+			gl: { value: gl },
+			type: { value: type },
+			source: { value: source },
+			shader: { value: gl.createShader(type) }
+		});
+		
+		gl.shaderSource(this.shader, source);
+		gl.compileShader(this.shader);
 
-		if (!gl.getShaderParameter(shader, COMPILE_STATUS)) {
-			throw new Error(gl.getShaderInfoLog(shader));
+		if (!gl.getShaderParameter(this.shader, COMPILE_STATUS)) {
+			throw new Error(gl.getShaderInfoLog(this.shader));
 		}
-
-		Object.assign(this, { gl, type, source, shader });
 	}
 }

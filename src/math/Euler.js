@@ -1,4 +1,5 @@
 import { Quaternion } from "./Quaternion.js";
+import { Vector } from "./Vector.js";
 
 export class Euler extends Vector {
 	get quaternion() {

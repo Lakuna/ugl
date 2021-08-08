@@ -1,4 +1,6 @@
 export const makeFullscreenCanvas = () => {
+	if (typeof document == "undefined") { throw new Error("Cannot create a canvas in a headless environment."); }
+
 	const canvas = document.createElement("canvas");
 	canvas.style = "touch-action:none;width:100%;height:100%";
 	/* CSS
