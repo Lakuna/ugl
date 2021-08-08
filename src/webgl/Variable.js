@@ -15,21 +15,22 @@ export class Variable {
 	#value;
 
 	constructor(program, type, index) {
+		const gl = program.gl;
+		const activeInfo =
+			type == Variable.TYPES.ATTRIBUTE ? gl.getActiveAttrib(program.program, index) : (
+			type == Variable.TYPES.UNIFORM ? gl.getActiveUniform(program.program, index) : (
+			type == Variable.TYPES.VARYING ? gl.getTransformFeedbackVarying(program.program, index) :
+			null));
+
 		Object.defineProperties(this, {
 			program: { value: program },
 			variableType: { value: type },
-			gl: { value: program.gl },
-			activeInfo: {
-				value:
-					type == Variable.TYPES.ATTRIBUTE ? program.gl.getActiveAttrib(program.program, index) : (
-					type == Variable.TYPES.UNIFORM ? program.gl.getActiveUniform(program.program, index) : (
-					type == Variable.TYPES.VARYING ? program.gl.getTransformFeedbackVarying(program.program, index) :
-					null))
-			},
+			gl: { value: gl },
+			activeInfo: { value: activeInfo },
 			location: {
 				value:
-					type == Variable.TYPES.ATTRIBUTE ? program.gl.getAttribLocation(program.program, this.name) : (
-					type == Variable.TYPES.UNIFORM ? program.gl.getUniformLocation(program.program, this.name) :
+					type == Variable.TYPES.ATTRIBUTE ? gl.getAttribLocation(program.program, activeInfo.name) : (
+					type == Variable.TYPES.UNIFORM ? gl.getUniformLocation(program.program, activeInfo.name) :
 					null)
 			}
 		});
