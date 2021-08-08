@@ -21,15 +21,15 @@ export class Variable {
 			gl: { value: program.gl },
 			activeInfo: {
 				value:
-					type == Variable.TYPES.ATTRIBUTE ? this.gl.getActiveAttrib(program.program, index) : (
-					type == Variable.TYPES.UNIFORM ? this.gl.getActiveUniform(program.program, index) : (
-					type == Variable.TYPES.VARYING ? this.gl.getTransformFeedbackVarying(program.program, index) :
+					type == Variable.TYPES.ATTRIBUTE ? program.gl.getActiveAttrib(program.program, index) : (
+					type == Variable.TYPES.UNIFORM ? program.gl.getActiveUniform(program.program, index) : (
+					type == Variable.TYPES.VARYING ? program.gl.getTransformFeedbackVarying(program.program, index) :
 					null))
 			},
 			location: {
 				value:
-					type == Variable.TYPES.ATTRIBUTE ? this.gl.getAttribLocation(program.program, this.name) : (
-					type == Variable.TYPES.UNIFORM ? this.gl.getUniformLocation(program.program, this.name) :
+					type == Variable.TYPES.ATTRIBUTE ? program.gl.getAttribLocation(program.program, this.name) : (
+					type == Variable.TYPES.UNIFORM ? program.gl.getUniformLocation(program.program, this.name) :
 					null)
 			}
 		});
