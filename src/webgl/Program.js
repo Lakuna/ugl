@@ -17,7 +17,7 @@ export class Program {
 			textureUnits: { value: new Map() }
 		});
 
-		[vertexShader, fragmentShader].foreach((shader) => gl.attachShader(this.program, shader.shader));
+		[vertexShader, fragmentShader].forEach((shader) => gl.attachShader(this.program, shader.shader));
 		gl.transformFeedbackVaryings(this.program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
 		gl.linkProgram(this.program);
 
