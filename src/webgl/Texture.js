@@ -3,7 +3,7 @@ import { TEXTURE_2D, NEAREST_MIPMAP_LINEAR, LINEAR, CLAMP_TO_EDGE, UNSIGNED_BYTE
 import { Vector } from "../math/Vector.js";
 
 export class Texture {
-	static UPDATE_MODES = {
+	static updateModes = {
 		MODE_COMPRESSED_2D: Symbol("Compressed 2D"),
 		MODE_COMPRESSED_SUB_2D: Symbol("Compressed sub-image 2D"),
 		MODE_COPY_2D: Symbol("Copy 2D"),
@@ -44,7 +44,7 @@ export class Texture {
 		sourceOffset = 0,
 		sourceLengthOverride,
 
-		updateMode = Texture.UPDATE_MODES.MODE_2D
+		updateMode = Texture.updateModes.MODE_2D
 	} = {}) {
 		Object.defineProperties(this, {
 			gl: { value: gl },
@@ -102,58 +102,58 @@ export class Texture {
 		// this.gl.texParameterf(this.target, TEXTURE_MAX_ANISOTROPY_EXT, this.anisotropy);
 
 		switch (this.updateMode) {
-			case Texture.UPDATE_MODES.MODE_COMPRESSED_2D:
+			case Texture.updateModes.MODE_COMPRESSED_2D:
 				if (this.sourceLength) {
 					this.gl.compressedTexImage2D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, 0, this.sourceLength, this.sourceOffset);
 				} else {
 					this.gl.compressedTexImage2D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, 0, this.data, this.sourceOffset, this.sourceLengthOverride);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_COMPRESSED_SUB_2D:
+			case Texture.updateModes.MODE_COMPRESSED_SUB_2D:
 				if (this.sourceLength) {
 					this.gl.compressedTexSubImage2D(this.target, this.level, this.offset.x, this.offset.y, this.size.x, this.size.y, this.format, this.sourceLength, this.sourceOffset);
 				} else {
 					this.gl.compressedTexSubImage2D(this.target, this.level, this.offset.x, this.offset.y, this.size.x, this.size.y, this.format, this.data, this.sourceOffset, this.sourceLengthOverride);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_COPY_2D:
+			case Texture.updateModes.MODE_COPY_2D:
 				this.gl.copyTexImage2D(this.target, this.level, this.internalFormat, this.copyStart.x, this.copyStart.y, this.size.x, this.size.y, 0);
 				break;
-			case Texture.UPDATE_MODES.MODE_COPY_SUB_2D:
+			case Texture.updateModes.MODE_COPY_SUB_2D:
 				this.gl.copyTexSubImage2D(this.target, this.level, this.offset.x, this.offset.y, this.copyStart.x, this.copyStart.y, this.size.x, this.size.y);
 				break;
-			case Texture.UPDATE_MODES.MODE_2D:
+			case Texture.updateModes.MODE_2D:
 				if (this.size.x || this.size.y) {
 					this.gl.texImage2D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, 0, this.format, this.type, this.data);
 				} else {
 					this.gl.texImage2D(this.target, this.level, this.internalFormat, this.format, this.type, this.data);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_SUB_2D:
+			case Texture.updateModes.MODE_SUB_2D:
 				if (this.size.x || this.size.y) {
 					this.texSubImage2D(this.target, this.level, this.offset.x, this.offset.y, this.size.x, this.size.y, this.format, this.type, this.data);
 				} else {
 					this.texSubImage2D(this.target, this.level, this.offset.x, this.offset.y, this.format, this.type, this.data);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_3D:
+			case Texture.updateModes.MODE_3D:
 				if (this.sourceOffset) {
 					this.gl.texImage3D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, this.size.z, 0, this.format, this.type, this.sourceOffset);
 				} else {
 					this.gl.texImage3D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, this.size.z, 0, this.format, this.type, this.data);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_COPY_SUB_3D:
+			case Texture.updateModes.MODE_COPY_SUB_3D:
 				this.gl.texSubImage3D(this.target, this.level, this.offset.x, this.offset.y, this.offset.z, this.size.x, this.size.y, this.size.z, this.format, this.type, this.data);
 				break;
-			case Texture.UPDATE_MODES.MODE_COMPRESSED_3D:
+			case Texture.updateModes.MODE_COMPRESSED_3D:
 				if (this.sourceLength) {
 					this.gl.compressedTexImage3D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, this.size.z, 0, this.sourceLength, this.sourceOffset);
 				} else {
 					this.gl.compressedTexImage3D(this.target, this.level, this.internalFormat, this.size.x, this.size.y, this.size.z, 0, this.data, this.sourceOffset, this.sourceLengthOverride);
 				}
 				break;
-			case Texture.UPDATE_MODES.MODE_COMPRESSED_SUB_3D:
+			case Texture.updateModes.MODE_COMPRESSED_SUB_3D:
 				if (this.sourceLength) {
 					this.gl.compressedTexSubImage3D(this.target, this.level, this.offset.x, this.offset.y, this.offset.z, this.size.x, this.size.y, this.size.z, this.format, this.sourceLength, this.sourceOffset);
 				} else {

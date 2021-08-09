@@ -6,7 +6,7 @@ import { FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4, INT, INT_VEC2, INT_VEC3, INT
 	FLOAT_MAT4x2, FLOAT_MAT4x3 } from "./constants.js";
 
 export class Variable {
-	static TYPES = {
+	static types = {
 		ATTRIBUTE: Symbol("Attribute"),
 		UNIFORM: Symbol("Uniform"),
 		VARYING: Symbol("Varying")
@@ -17,9 +17,9 @@ export class Variable {
 	constructor(program, type, index) {
 		const gl = program.gl;
 		const activeInfo =
-			type == Variable.TYPES.ATTRIBUTE ? gl.getActiveAttrib(program.program, index) : (
-			type == Variable.TYPES.UNIFORM ? gl.getActiveUniform(program.program, index) : (
-			type == Variable.TYPES.VARYING ? gl.getTransformFeedbackVarying(program.program, index) :
+			type == Variable.types.ATTRIBUTE ? gl.getActiveAttrib(program.program, index) : (
+			type == Variable.types.UNIFORM ? gl.getActiveUniform(program.program, index) : (
+			type == Variable.types.VARYING ? gl.getTransformFeedbackVarying(program.program, index) :
 			null));
 
 		Object.defineProperties(this, {
@@ -29,8 +29,8 @@ export class Variable {
 			activeInfo: { value: activeInfo },
 			location: {
 				value:
-					type == Variable.TYPES.ATTRIBUTE ? gl.getAttribLocation(program.program, activeInfo.name) : (
-					type == Variable.TYPES.UNIFORM ? gl.getUniformLocation(program.program, activeInfo.name) :
+					type == Variable.types.ATTRIBUTE ? gl.getAttribLocation(program.program, activeInfo.name) : (
+					type == Variable.types.UNIFORM ? gl.getUniformLocation(program.program, activeInfo.name) :
 					null)
 			}
 		});
@@ -59,7 +59,7 @@ export class Variable {
 		let first, size, count, stride, texture;
 
 		switch (this.variableType) {
-			case (Variable.TYPES.ATTRIBUTE):
+			case (Variable.types.ATTRIBUTE):
 				value.buffer.bind();
 				this.gl.enableVertexAttribArray(this.location);
 				switch (this.type) {
@@ -95,7 +95,7 @@ export class Variable {
 						throw new Error("Unknown attribute type.");
 				}
 				break;
-			case (Variable.TYPES.UNIFORM):
+			case (Variable.types.UNIFORM):
 				switch (this.type) {
 					case FLOAT:							value.length ? this.gl.uniform1fv(this.location, value) : this.gl.uniform1f(this.location, value); break;
 					case FLOAT_VEC2:					this.gl.uniform2fv(this.location, value); break;
