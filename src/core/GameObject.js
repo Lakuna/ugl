@@ -46,7 +46,7 @@ export class GameObject {
 	}
 
 	traverse(callback) {
-		callback(this);
+		if (callback(this)) { return; } // Stop traversing if callback returns true.
 		this.children.forEach((child) => child.traverse(callback));
 	}
 }
