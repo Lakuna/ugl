@@ -5,16 +5,21 @@ import { SEPARATE_ATTRIBS, LINK_STATUS, ACTIVE_UNIFORMS, ACTIVE_ATTRIBUTES, TRAN
 import { Variable } from "./Variable.js";
 
 export class Program {
+	static #nextProgramId = 0;
+
 	constructor(gl, vertexShader, fragmentShader, transformFeedbackVaryingNames = [], transformFeedbackBufferMode = SEPARATE_ATTRIBS) {
 		Object.defineProperties(this, {
 			gl: { value: gl },
 			vertexShader: { value: vertexShader },
 			fragmentShader: { value: fragmentShader },
 			program: { value: gl.createProgram() },
+			id: { value: Program.#nextProgramId++ },
 			uniforms: { value: new Map() },
 			attributes: { value: new Map() },
 			varyings: { value: new Map() },
-			textureUnits: { value: new Map() }
+			textureUnits: { value: new Map() },
+			allowTransparent: { value: true, writable: true },
+			allowDepth: { value: true, writable: true }
 		});
 
 		[vertexShader, fragmentShader].forEach((shader) => gl.attachShader(this.program, shader.shader));

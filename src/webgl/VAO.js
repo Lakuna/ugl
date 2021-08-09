@@ -21,13 +21,18 @@ export class VAO {
 		}
 	}
 
-	draw(mode = TRIANGLES, offset = 0) {
+	bind() {
 		this.gl.bindVertexArray(this.vao);
+	}
+
+	draw(mode = TRIANGLES) {
+		this.program.use();
+		this.bind();
 
 		if (this.indices) {
 			this.gl.drawElements(mode, this.indices.buffer.data.length, this.indices.type, this.indices.offset);
 		} else {
-			this.gl.drawArrays(mode, offset, this.attributes?.[0].buffer.data.length / this.attributes?.[0].size ?? 0);
+			this.gl.drawArrays(mode, this.attributes?.[0].offset, this.attributes?.[0].buffer.data.length / this.attributes?.[0].size ?? 0);
 		}
 	}
 }

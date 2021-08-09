@@ -1,4 +1,4 @@
-import { makeFullscreenCanvas } from "../utilities/makeFullscreenCanvas.js";
+import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
 import { Component } from "./Component.js";
 
 export class Umbra {

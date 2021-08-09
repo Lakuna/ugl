@@ -4,7 +4,8 @@ export class GameObject {
 
 	constructor(parent, enabled = true) {
 		Object.defineProperties(this, {
-			components: { value: [] }
+			components: { value: [] },
+			enabled: { value: enabled, writable: true }
 		});
 
 		this.#children = [];

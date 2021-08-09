@@ -278,8 +278,8 @@ export class Matrix extends Array {
 		]);
 	}
 
-	perspective(fov, aspectRatio, near, far) {
-		const f = Math.tan(Math.PI / 2 - fov / 2);
+	perspective(fieldOfView, aspectRatio, near, far) {
+		const f = Math.tan(Math.PI / 2 - fieldOfView / 2);
 		const range = 1 / (near - far);
 
 		return this.multiply([

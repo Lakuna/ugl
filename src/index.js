@@ -1,4 +1,6 @@
 // Components
+export * from "./components/Camera.js";
+export * from "./components/Mesh.js";
 export * from "./components/Transform.js";
 
 // Core

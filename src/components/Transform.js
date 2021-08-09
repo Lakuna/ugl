@@ -7,6 +7,8 @@ export class Transform extends Component {
 	#parent; // Cache parent transform.
 
 	constructor() {
+		super();
+		
 		Object.defineProperties(this, {
 			translation: { value: new Vector(0, 0, 0) },
 			rotation: { value: new Euler(0, 0, 0) },
@@ -26,7 +28,7 @@ export class Transform extends Component {
 			.scale(...this.scale);
 	}
 
-	get globalMatrix() {
-		return this.parent ? this.matrix.multiply(this.parent.globalMatrix) : this.matrix;
+	get worldMatrix() {
+		return this.parent ? this.matrix.multiply(this.parent.worldMatrix) : this.matrix;
 	}
 }
