@@ -44,4 +44,9 @@ export class GameObject {
 	getComponent(type) {
 		return this.components.find((component) => component instanceof type);
 	}
+
+	traverse(callback) {
+		callback(this);
+		this.children.forEach((child) => child.traverse(callback));
+	}
 }
