@@ -1,7 +1,15 @@
 import { Quaternion } from "./Quaternion.js";
 import { Vector } from "./Vector.js";
 
+/**
+ * Class representing a Euler angle. Note that this is technically an intrinsic Tait-Bryan angle with order of rotations XYZ.
+ * @see https://en.wikipedia.org/wiki/Euler_angles
+ */
 export class Euler extends Vector {
+	/**
+	 * The quaternion equivalent of this Euler angle.
+	 * @type {Quaternion}
+	 */
 	get quaternion() {
 		const sinX = Math.sin(this.x / 2);
 		const cosX = Math.cos(this.x / 2);
@@ -17,6 +25,10 @@ export class Euler extends Vector {
 			cosX * cosY * cosZ - sinX * sinY * sinZ);
 	}
 
+	/**
+	 * The rotation matrix equivalent of this Euler angle.
+	 * @type {Matrix}
+	 */
 	get matrix() {
 		return this.quaternion.matrix;
 	}

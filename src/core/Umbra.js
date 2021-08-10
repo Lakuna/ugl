@@ -1,20 +1,37 @@
+/** @external {HTMLCanvasElement} https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement */
+/** @external {WebGL2RenderingContext} https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext */
+
 import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
 import { Component } from "./Component.js";
 
+/** Class representing a game (or other program which utilizes Umbra). */
 export class Umbra {
 	#scene;
 
+	/**
+	 * Create an instance of Umbra.
+	 * @param {HTMLCanvasElement} [canvas=makeFullscreenCanvas()] - The canvas for the instance to render to.
+	 * @param {number} [updatesPerSecond=30] - How many times per second to run fixed updates.
+	 */
 	constructor(canvas = makeFullscreenCanvas(), updatesPerSecond = 30) {
-		const gl = canvas.getContext("webgl2");
-		if (!gl) { throw new Error("WebGL2 is not supported by your browser."); }
+		/**
+		 * The rendering context of this instance.
+		 * @type {WebGL2RenderingContext}
+		 */
+		this.gl = canvas.getContext("webgl2");
+		if (!this.gl) { throw new Error("WebGL2 is not supported by your browser."); }
 
-		Object.defineProperties(this, {
-			canvas: { value: canvas },
-			updatesPerSecond: { value: updatesPerSecond },
-			gl: { value: gl },
-			deltaTime: { value: 0, writable: true },
-			paused: { value: false, writable: true }
-		});
+		/**
+		 * The time in seconds between this frame and the last.
+		 * @type {number}
+		 */
+		this.deltaTime = 0;
+
+		/**
+		 * Whether to trigger events on components on objects in the scene.
+		 * @type {boolean}
+		 */
+		this.paused = false;
 
 		let then = 0; // Used to calculate frame rate.
 
@@ -40,15 +57,27 @@ export class Umbra {
 		}, 1000 / updatesPerSecond);
 	}
 
+	/**
+	 * The top-level object which represents the current scene.
+	 * @type {GameObject}
+	 */
 	get scene() {
 		return this.#scene;
 	}
 
+	/**
+	 * The top-level object which represents the current scene.
+	 * @type {GameObject}
+	 */
 	set scene(value) {
-		this.#scene = value;
+		/** @ignore */ this.#scene = value;
 		this.trigger(Component.events.LOAD);
 	}
 
+	/**
+	 * Triggers the chosen event on every component on every object in the current scene.
+	 * @param {Symbol} event - The event to trigger.
+	 */
 	trigger(event) {
 		const getComponentsRecursive = (gameObject, output = []) => {
 			if (!gameObject?.enabled) {

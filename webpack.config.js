@@ -3,7 +3,8 @@ export default {
 	output: {
 		library: {
 			type: "module"
-		}
+		},
+		filename: "main.js"
 	},
 	experiments: {
 		outputModule: true

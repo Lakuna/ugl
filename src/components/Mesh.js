@@ -1,8 +1,15 @@
 import { Transform } from "./Transform.js";
 
+/** Class representing a mesh (drawable object). */
 export class Mesh extends Transform {
-	static #nextMeshId = 0;
+	/** @ignore */ static #nextMeshId = 0;
 
+	/**
+	 * Generate a list of all visible meshes in the order that they should be drawn.
+	 * @param {GameObject} scene - The top-level object which represents the scene.
+	 * @param {Camera} [camera] - The camera to use when rendering the meshes.
+	 * @return {Mesh[]} A list of all visible meshes in the order that they should be drawn.
+	 */
 	static getRenderList(scene, camera) {
 		const renderList = [];
 
@@ -47,21 +54,59 @@ export class Mesh extends Transform {
 		return opaqueRenderGroup.concat(transparentRenderGroup, interfaceRenderGroup);
 	}
 
+	#id;
+
+	/**
+	 * Create a mesh.
+	 * @param {VAO} vao - A vertex array object (VAO) with references to all of the vertex data of the mesh.
+	 * @param {boolean} [visible=true] - Whether the mesh should be drawn.
+	 * @param {number} [renderOrder=0] - The order this mesh should be drawn in relative to other meshes.
+	 */
 	constructor(vao, visible = true, renderOrder = 0) {
 		super();
 
-		Object.defineProperties(this, {
-			vao: { value: vao },
-			visible: { value: visible, writable: true },
-			renderOrder: { value: renderOrder, writable: true },
-			id: { value: Mesh.#nextMeshId++ }
-		});
+		/**
+		 * A vertex array object (VAO) with references to all of the vertex data of the mesh.
+		 * @type {VAO}
+		 */
+		this.vao = vao;
+
+		/**
+		 * Whether the mesh should be drawn.
+		 * @type {boolean}
+		 */
+		this.visible = visible;
+
+		/**
+		 * The order this mesh should be drawn in relative to other meshes.
+		 * @type {number}
+		 */
+		this.renderOrder = renderOrder;
+
+		/** @ignore */ this.#id = Mesh.#nextMeshId++;
 	}
 
+	/**
+	 * The ID of this mesh.
+	 * @type {number}
+	 */
+	get id() {
+		return this.#id;
+	}
+
+	/**
+	 * The inverse transpose of this mesh's world matrix.
+	 * @type {Matrix}
+	 */
 	get worldInverseTransposeMatrix() {
 		return this.worldMatrix.invert().transpose();
 	}
 
+	/**
+	 * Generate the world view projection matrix of this mesh for a camera.
+	 * @param {Camera} camera - The camera with which to render the mesh.
+	 * @return {Matrix} The world view projection matrix of this mesh.
+	 */
 	worldViewProjectionMatrixForCamera(camera) {
 		return camera.viewProjectionMatrix.multiply(this.worldMatrix);
 	}

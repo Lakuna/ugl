@@ -1,15 +1,31 @@
 import { Vector } from "./Vector.js";
 import { Matrix } from "./Matrix.js";
 
+/**
+ * A class representing a quaternion.
+ * @see https://en.wikipedia.org/wiki/Quaternion
+ */
 export class Quaternion extends Vector {
+	/**
+	 * Create an identity quaternion.
+	 * @return {Quaternion} An identity quaternion.
+	 */
 	static identity() {
 		return new Quaternion(0, 0, 0, 1);
 	}
 
+	/**
+	 * Create a quaternion.
+	 * @param {...number} data - The initial data to supply to the quaternion.
+	 */
 	constructor(...data) {
 		super(...(data.length ? data : Quaternion.identity())); // Default to identity.
 	}
 
+	/**
+	 * The rotation matrix equivalent of this quaternion.
+	 * @type {Matrix}
+	 */
 	get matrix() {
 		const x = this.x;
 		const y = this.y;
@@ -37,16 +53,28 @@ export class Quaternion extends Vector {
 		);
 	}
 
+	/**
+	 * The Euler angle equivalent of this quaternion.
+	 * @type {Euler}
+	 */
 	get euler() {
 		return this.matrix.rotation;
 	}
 
+	/**
+	 * Turn this quaternion into its own conjugate.
+	 * @return {Quaternion} Self.
+	 */
 	conjugate() {
 		this.set(-this.x, -this.y, -this.z, this.w);
 		return this;
 	}
 
-	// Based on work by Robert Eisele.
+	/**
+	 * Multiply this quaternion by another.
+	 * @param {Quaternion} quaternion - The other quaternion.
+	 * @return {Quaternion} Self.
+	 */
 	multiply(quaternion) {
 		quaternion = new Quaternion(...quaternion);
 
@@ -67,37 +95,67 @@ export class Quaternion extends Vector {
 		);
 	}
 
+	/**
+	 * Divide this quaternion by another.
+	 * @param {Quaternion} quaternion - The other quaternion.
+	 * @return {Quaternion} Self.
+	 */
 	divide(quaternion) {
 		return this.multiply(new Quaternion(...quaternion).invert());
 	}
 
+	/**
+	 * Sets the angle of this quaternion on an axis.
+	 * @param {Vector} axis - The axis.
+	 * @param {number} radians - The rotation about the axis.
+	 * @return {Quaternion} Self.
+	 */
 	setAngle(axis, radians) {
 		axis = new Vector(...axis);
 
 		radians /= 2;
-		this.w = Math.cos(radians);
+		/** @ignore */ this.w = Math.cos(radians);
 		const sine = Math.sin(radians);
-		this.x = sine * axis.x;
-		this.y = sine * axis.y;
-		this.z = sine * axis.z;
+		/** @ignore */ this.x = sine * axis.x;
+		/** @ignore */ this.y = sine * axis.y;
+		/** @ignore */ this.z = sine * axis.z;
 		return this;
 	}
 
-	// Roll
+	/**
+	 * Roll the quaternion about the X axis.
+	 * @param {number} radians - The amount to rotate in radians.
+	 * @return {Quaternion} Self.
+	 */
 	rotateX(radians) {
 		return this.multiply(new Quaternion().setAngle([1, 0, 0], radians));
 	}
 
-	// Pitch
+	/**
+	 * Pitch the quaternion about the Y axis.
+	 * @param {number} radians - The amount to rotate in radians.
+	 * @return {Quaternion} Self.
+	 */
 	rotateY(radians) {
 		return this.multiply(new Quaternion().setAngle([0, 1, 0], radians));
 	}
 
-	// Yaw
+	/**
+	 * Yaw the quaternion about the Z axis.
+	 * @param {number} radians - The amount to rotate in radians.
+	 * @return {Quaternion} Self.
+	 */
 	rotateZ(radians) {
 		return this.multiply(new Quaternion().setAngle([0, 0, 1], radians));
 	}
 
+	/**
+	 * Get the spherical linear interpolation between this and another quaternion.
+	 * @param {Quaternion} quaternion - The other quaternion.
+	 * @param {number} t - The interpolation parameter. Should be between 0 and 1.
+	 * @return {Quaternion} Self.
+	 * @see https://en.wikipedia.org/wiki/Slerp
+	 */
 	slerp(quaternion, t) {
 		let cosom = this.dot(quaternion);
 		if (cosom < 0) {

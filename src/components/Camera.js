@@ -75,7 +75,7 @@ export class Camera extends Transform {
 	}
 
 	/**
-	 * Whether this camera is orthographic. Read-only.
+	 * Whether this camera is orthographic.
 	 * @type {boolean}
 	 */
 	get orthographic() {
@@ -83,7 +83,7 @@ export class Camera extends Transform {
 	}
 
 	/**
-	 * The projection matrix of the camera. Read-only.
+	 * The projection matrix of the camera.
 	 * @type {Matrix}
 	 */
 	get projectionMatrix() {
@@ -93,7 +93,7 @@ export class Camera extends Transform {
 	}
 
 	/**
-	 * The view matrix of the camera. Read-only.
+	 * The view matrix of the camera.
 	 * @type {Matrix}
 	 */
 	get viewMatrix() {
@@ -101,7 +101,7 @@ export class Camera extends Transform {
 	}
 
 	/**
-	 * The projection view matrix of the camera. Read-only.
+	 * The projection view matrix of the camera.
 	 * @type {Matrix}
 	 */
 	get projectionViewMatrix() {
