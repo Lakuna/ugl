@@ -1,14 +1,10 @@
 {
 	"source": "./src",
 	"destination": "./docs",
+	"index": "./README.md",
+	"package": "./package.json",
 	"plugins": [
-		{ "name": "esdoc-standard-plugin" },
-		{
-			"name": "esdoc-babel-7-plugin",
-			"option": {
-				"presets": [["@babel/preset-env", { "targets": "defaults" }]],
-				"sourceMaps": true
-			}
-		}
+		{ "name": "@itsjamie/esdoc-standard-plugin" },
+		{ "name": "@itsjamie/esdoc-ecmascript-proposal-plugin", "option": { "all": true } }
 	]
 }
