@@ -4,7 +4,33 @@
 	"index": "./README.md",
 	"package": "./package.json",
 	"plugins": [
-		{ "name": "@itsjamie/esdoc-standard-plugin" },
-		{ "name": "@itsjamie/esdoc-ecmascript-proposal-plugin", "option": { "all": true } }
+		{
+			"name": "@itsjamie/esdoc-standard-plugin",
+			"option": {
+				"lint": {
+					"enable": true
+				},
+				"coverage": {
+					"enable": true
+				},
+				"brand": {
+					"title": "Umbra",
+					"logo": "./manual/assets/logo.png"
+				},
+				"manual": {
+					"index": "./README.md",
+					"asset": "./manual/assets",
+					"files": [
+						"./manual/placeholder.md"
+					]
+				}
+			}
+		},
+		{
+			"name": "@itsjamie/esdoc-ecmascript-proposal-plugin",
+			"option": {
+				"all": true
+			}
+		}
 	]
 }
