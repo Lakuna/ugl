@@ -1,4 +1,16 @@
+/** Class representing a color. */
 export class Color extends Array {
+	/**
+	 * Create a color.
+	 * @param {string|number|number[]} data - The data to create the color from. This may follow any of several forms.
+	 * @example
+	 * new Color(0xFFFFFF); // Hex value.
+	 * new Color([1, 1, 1]); // RGB percentage value array.
+	 * new Color("#FFFFFF"); // Hex value string with pound.
+	 * new Color("FFFFFF"); // Hex value string.
+	 * new Color("#FFF"); // Web-safe hex value string with pound.
+	 * new Color("FFF"); // Web-safe hex value string.
+	 */
 	constructor(data = "FFF") {
 		if (typeof data == "number") {
 			data = [
@@ -16,14 +28,5 @@ export class Color extends Array {
 		}
 
 		super(...data); // Will error if data is supplied in an invalid format.
-		/*
-		Valid formats:
-		"#FFFFFF" - Hex value string with pound.
-		"FFFFFF" - Hex value string.
-		"#FFF" - Web-safe hex value string with pound.
-		"FFF" - Web-safe hex value string.
-		0xFFFFFF - Hex value.
-		[1, 1, 1] - RGB percentage value array.
-		*/
 	}
 }

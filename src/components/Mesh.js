@@ -2,7 +2,7 @@ import { Transform } from "./Transform.js";
 
 /** Class representing a mesh (drawable object). */
 export class Mesh extends Transform {
-	/** @ignore */ static #nextMeshId = 0;
+	static #nextMeshId = 0;
 
 	/**
 	 * Generate a list of all visible meshes in the order that they should be drawn.

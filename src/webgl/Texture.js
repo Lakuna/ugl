@@ -1,8 +1,15 @@
+/** @external {WebGLTexture} https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture */
+
 import { TEXTURE_2D, NEAREST_MIPMAP_LINEAR, LINEAR, CLAMP_TO_EDGE, UNSIGNED_BYTE, UNPACK_FLIP_Y_WEBGL, UNPACK_PREMULTIPLY_ALPHA_WEBGL,
 	UNPACK_ALIGNMENT, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, RGBA } from "./constants.js";
 import { Vector } from "../math/Vector.js";
 
+/** Class representing a WebGL texture. */
 export class Texture {
+	/**
+	 * An enumeration of update modes for a texture.
+	 * @type {Object}
+	 */
 	static updateModes = {
 		MODE_COMPRESSED_2D: Symbol("Compressed 2D"),
 		MODE_COMPRESSED_SUB_2D: Symbol("Compressed sub-image 2D"),
@@ -17,7 +24,33 @@ export class Texture {
 		MODE_COMPRESSED_SUB_3D: Symbol("Compressed sub-image 3D")
 	};
 
-	constructor(gl, {
+	/**
+	 * Create a texture.
+	 * @param {Object} [arguments={}] - An object containing the arguments.
+	 * @param {WebGLRenderingContext} arguments.gl - The rendering context of the texture.
+	 * @param {number} [arguments.target=TEXTURE_2D] - The bind target of the texture.
+	 * @param {boolean} [arguments.generateMipmap=true] - Whether to generate a mipmap for the texture.
+	 * @param {boolean} [arguments.flipY=target==TEXTURE_2D] - Whether to flip the Y axis of the texture.
+	 * @param {boolean} [arguments.premultiplyAlpha=false] - Whether to multiply the alpha channel into the other color channels.
+	 * @param {number} [arguments.unpackAlignment=4] - Unpack alignment of the texture.
+	 * @param {number} [arguments.minFilter=generateMipmap ? NEAREST_MIPMAP_LINEAR : LINEAR] - The minimum mip filter of the texture.
+	 * @param {number} [arguments.magFilter=LINEAR] - The maximum mip filter of the texture.
+	 * @param {number} [arguments.wrapS=CLAMP_TO_EDGE] - The wrapping behavior of the texture on the S axis.
+	 * @param {number} [arguments.wrapT=CLAMP_TO_EDGE] - The wrapping behavior of the texture on the T axis.
+	 * @param {Vector} [arguments.size=new Vector()] - The width, height, and depth of the texture.
+	 * @param {Vector} [arguments.offset=new Vector()] - The coordinate offset for sub-images.
+	 * @param {Vector} [arguments.copyStart=new Vector()] - The starting coordinates for copying images (bottom-left).
+	 * @param {number} [arguments.format=RGBA] - The format of the data supplied to the texture.
+	 * @param {number} [arguments.internalFormat=format] - The format of the texture.
+	 * @param {number} [arguments.type=UNSIGNED_BYTE] - The data type of the values in the texture.
+	 * @param {number} [arguments.level=0] - The level of the texture.
+	 * @param {number} [arguments.sourceLength] - The length of the source when reading from the PIXEL_UNPACK_BUFFER.
+	 * @param {number} [arguments.sourceOffset=0] - The offset of the source when reading from the PIXEL_UNPACK_BUFFER.
+	 * @param {number} [arguments.sourceLengthOverride] - The length override of the source when reading from the PIXEL_UNPACK_BUFFER.
+	 * @param {Symbol} [arguments.updateMode=Texture.updateModes.MODE_2D] - The symbol of the update mode to use for this texture.
+	 */
+	constructor({
+		gl,
 		target = TEXTURE_2D,
 
 		generateMipmap = true,
@@ -31,9 +64,9 @@ export class Texture {
 		wrapS = CLAMP_TO_EDGE,
 		wrapT = CLAMP_TO_EDGE,
 
-		size = new Vector(), // width, height, depth.
-		offset = new Vector(), // Coordinate offset for sub-images.
-		copyStart = new Vector(), // Starting coordinates for copying images (bottom-left).
+		size = new Vector(),
+		offset = new Vector(),
+		copyStart = new Vector(),
 		format = RGBA,
 		internalFormat = format,
 		type = UNSIGNED_BYTE,
@@ -46,47 +79,198 @@ export class Texture {
 
 		updateMode = Texture.updateModes.MODE_2D
 	} = {}) {
-		Object.defineProperties(this, {
-			gl: { value: gl },
+		/**
+		 * The rendering context of the texture.
+		 * @type {WebGLRenderingContext}
+		 */
+		this.gl = gl;
 
-			target: { value: target },
+		/**
+		 * The bind target of the texture.
+		 * @type {number}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture
+		 */
+		this.target = target;
 
-			texture: { value: gl.createTexture() },
+		/**
+		 * The texture used by WebGL.
+		 * @type {WebGLTexture}
+		 */
+		this.texture = gl.createTexture();
 
-			generateMipmap: { value: generateMipmap, writable: true },
+		/**
+		 * Whether to generate a mipmap for the texture.
+		 * @type {boolean}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
+		 */
+		this.generateMipmap = generateMipmap;
 
-			flipY: { value: flipY, writable: true },
-			premultiplyAlpha: { value: premultiplyAlpha, writable: true },
-			unpackAlignment: { value: unpackAlignment, writable: true },
-			
-			minFilter: { value: minFilter, writable: true },
-			magFilter: { value: magFilter, writable: true },
-			wrapS: { value: wrapS, writable: true },
-			wrapT: { value: wrapT, writable: true },
+		/**
+		 * Whether to flip the Y axis of the texture.
+		 * @type {boolean}
+		 */
+		this.flipY = flipY;
 
-			size: { value: size, writable: true },
-			offset: { value: offset, writable: true },
-			copyStart: { value: copyStart, writable: true },
-			format: { value: format, writable: true },
-			internalFormat: { value: internalFormat, writable: true },
-			type: { value: type, writable: true },
-			level: { value: level, writable: true },
+		/**
+		 * Whether to multiply the alpha channel into the other color channels.
+		 * @type {boolean}
+		 */
+		this.premultiplyAlpha = premultiplyAlpha;
 
-			sourceLength: { value: sourceLength, writable: true },
-			sourceOffset: { value: sourceOffset, writable: true },
-			sourceLengthOverride: { value: sourceLengthOverride, writable: true },
+		/**
+		 * Unpack alignment of the texture.
+		 * @type {number}
+		 */
+		this.unpackAlignment = unpackAlignment;
 
-			updateMode: { value: updateMode, writable: true }
-		});
+		/**
+		 * The minimum mip filter of the texture.
+		 * @type {number}
+		 */
+		this.minFilter = minFilter;
+
+		/**
+		 * The maximum mip filter of the texture.
+		 * @type {number}
+		 */
+		this.magFilter = magFilter;
+
+		/**
+		 * The wrapping behavior of the texture on the S axis.
+		 * @type {number}
+		 */
+		this.wrapS = wrapS;
+
+		/**
+		 * The wrapping behavior of the texture on the T axis.
+		 * @type {number}
+		 */
+		this.wrapT = wrapT;
+
+		/**
+		 * The width, height, and depth of the texture.
+		 * @type {Vector}
+		 */
+		this.size = size;
+
+		/**
+		 * The coordinate offset for sub-images.
+		 * @type {Vector}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texSubImage3D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+		 */
+		this.offset = offset;
+
+		/**
+		 * The starting coordinates for copying images (bottom-left).
+		 * @type {Vector}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexSubImage2D
+		 */
+		this.copyStart = copyStart;
+
+		/**
+		 * The format of the data supplied to the texture.
+		 * @type {number}
+		 */
+		this.format = format;
+
+		/**
+		 * The format of the texture.
+		 * @type {number}
+		 */
+		this.internalFormat = internalFormat;
+
+		/**
+		 * The data type of the values in the texture.
+		 * @type {number}
+		 */
+		this.type = type;
+
+		/**
+		 * The level of the texture.
+		 * @type {number}
+		 */
+		this.level = level;
+
+		/**
+		 * The length of the source when reading from the PIXEL_UNPACK_BUFFER.
+		 * @type {number}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+		 */
+		this.sourceLength = sourceLength;
+
+		/**
+		 * The offset of the source when reading from the PIXEL_UNPACK_BUFFER.
+		 * @type {number}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+		 */
+		this.sourceOffset = sourceOffset;
+
+		/**
+		 * The length override of the source when reading from the PIXEL_UNPACK_BUFFER.
+		 * @type {number}
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+		 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+		 */
+		this.sourceLengthOverride = sourceLengthOverride;
+
+		/**
+		 * The symbol of the update mode to use for this texture.
+		 * @type {Symbol}
+		 */
+		this.updateMode = updateMode;
+
+		/**
+		 * Whether the values need to be re-applied to the WebGL texture.
+		 * @type {boolean}
+		 */
+		this.needsUpdate = true;
 	}
 
+	/**
+	 * Binds this texture to its target.
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture
+	 */
 	bind() {
 		this.gl.bindTexture(this.target, this.texture);
 	}
 
+	/**
+	 * Updates texture parameters.
+	 * @param {number} textureUnit - The texture unit of the texture in the current WebGL shader program.
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexSubImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texImage3D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texSubImage3D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
+	 */
 	update(textureUnit) {
 		this.gl.activeTexture(textureUnit);
 		this.bind();
+
+		if (!this.needsUpdate) { return; }
+		this.needsUpdate = false;
 
 		this.gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, this.flipY);
 		this.gl.pixelStorei(UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);

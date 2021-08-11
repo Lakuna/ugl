@@ -5,7 +5,7 @@ import { Matrix } from "../math/Matrix.js";
 export class Camera extends Transform {
 	/**
 	 * Create a camera.
-	 * @param {Object} [arguments] - An object containing the arguments.
+	 * @param {Object} [arguments={}] - An object containing the arguments.
 	 * @param {number} [arguments.near=0.1] - The nearest that the camera can see.
 	 * @param {number} [arguments.far=100] - The farthest that the camera can see.
 	 * @param {number} [arguments.fieldOfView=45 * (Math.PI / 180)] - The field of view of the camera in radians.

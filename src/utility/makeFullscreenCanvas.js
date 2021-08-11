@@ -1,3 +1,7 @@
+/**
+ * Create a fullscreen canvas. Note that executing this function will automatically destroy all other content in the DOM.
+ * @return {HTMLCanvasElement} A fullscreen canvas.
+ */
 export const makeFullscreenCanvas = () => {
 	if (typeof document == "undefined") { throw new Error("Cannot create a canvas in a headless environment."); }
 

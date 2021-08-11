@@ -1,3 +1,6 @@
+/** @external {WebGLActiveInfo} https://developer.mozilla.org/en-US/docs/Web/API/WebGLActiveInfo */
+/** @external {WebGLUniformLocation} https://developer.mozilla.org/en-US/docs/Web/API/WebGLUniformLocation */
+
 import { FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4, INT, INT_VEC2, INT_VEC3, INT_VEC4, UNSIGNED_INT, UNSIGNED_INT_VEC2,
 	UNSIGNED_INT_VEC3, UNSIGNED_INT_VEC4, BOOL, BOOL_VEC2, BOOL_VEC3, BOOL_VEC4, FLOAT_MAT2, FLOAT_MAT3, FLOAT_MAT4,
 	SAMPLER_2D, SAMPLER_3D, SAMPLER_CUBE, SAMPLER_2D_SHADOW, SAMPLER_2D_ARRAY, SAMPLER_2D_ARRAY_SHADOW, SAMPLER_CUBE_SHADOW,
@@ -5,7 +8,12 @@ import { FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4, INT, INT_VEC2, INT_VEC3, INT
 	UNSIGNED_INT_SAMPLER_CUBE, UNSIGNED_INT_SAMPLER_2D_ARRAY, TEXTURE0, FLOAT_MAT2x3, FLOAT_MAT2x4, FLOAT_MAT3x2, FLOAT_MAT3x4,
 	FLOAT_MAT4x2, FLOAT_MAT4x3 } from "./constants.js";
 
+/** Class representing a WebGL variable. */
 export class Variable {
+	/**
+	 * An enumeration of types of WebGL variables.
+	 * @type {Object}
+	 */
 	static types = {
 		ATTRIBUTE: Symbol("Attribute"),
 		UNIFORM: Symbol("Uniform"),
@@ -14,46 +22,90 @@ export class Variable {
 
 	#value;
 
+	/**
+	 * Create a variable.
+	 * @param {Program} program - The program that this variable belongs to.
+	 * @param {Symbol} type - The type of variable.
+	 * @param {number} index - The index of the variable in the program.
+	 */
 	constructor(program, type, index) {
+		/**
+		 * The program that this variable belongs to.
+		 * @type {Program}
+		 */
+		this.program = program;
+
+		/**
+		 * The type of WebGL variable that this is.
+		 * @type {Symbol}
+		 */
+		this.variableType = type;
+
 		const gl = program.gl;
-		const activeInfo =
+		/**
+		 * The rendering context of this variable.
+		 * @type {WebGLRenderingContext}
+		 */
+		this.gl = gl;
+
+		/**
+		 * The active info of this variable.
+		 * @type {WebGLActiveInfo}
+		 */
+		this.activeInfo =
 			type == Variable.types.ATTRIBUTE ? gl.getActiveAttrib(program.program, index) : (
 			type == Variable.types.UNIFORM ? gl.getActiveUniform(program.program, index) : (
 			type == Variable.types.VARYING ? gl.getTransformFeedbackVarying(program.program, index) :
 			null));
 
-		Object.defineProperties(this, {
-			program: { value: program },
-			variableType: { value: type },
-			gl: { value: gl },
-			activeInfo: { value: activeInfo },
-			location: {
-				value:
-					type == Variable.types.ATTRIBUTE ? gl.getAttribLocation(program.program, activeInfo.name) : (
-					type == Variable.types.UNIFORM ? gl.getUniformLocation(program.program, activeInfo.name) :
-					null)
-			}
-		});
+		/**
+		 * The location of this variable in its program.
+		 * @type {number|WebGLUniformLocation}
+		 */
+		this.location =
+			type == Variable.types.ATTRIBUTE ? gl.getAttribLocation(program.program, this.activeInfo.name) : (
+			type == Variable.types.UNIFORM ? gl.getUniformLocation(program.program, this.activeInfo.name) :
+			null);
 	}
 
+	/**
+	 * The name of this variable.
+	 * @type {string}
+	 */
 	get name() {
 		return this.activeInfo.name;
 	}
 
+	/**
+	 * The size in bytes of this variable.
+	 * @type {number}
+	 */
 	get size() {
 		return this.activeInfo.size;
 	}
 
+	/**
+	 * The type of variable that this is.
+	 * @type {number}
+	 */
 	get type() {
 		return this.activeInfo.type;
 	}
 
+	/**
+	 * The value assigned to this variable.
+	 * @type {Attribute|Texture|number|number[]}
+	 */
 	get value() {
 		return this.#value;
 	}
 
+	/**
+	 * The value assigned to this variable.
+	 * @type {Attribute|Texture|number|number[]}
+	 */
 	set value(value) {
-		this.#value = value;
+		/** @ignore */ this.#value = value;
 
 		// Declare some variables which might be used later here, since ESLint disapproves of declaring variables within cases.
 		let first, size, count, stride, texture;

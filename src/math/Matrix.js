@@ -7,7 +7,7 @@ import { Quaternion } from "./Quaternion.js";
 /** Class representing a matrix. */
 export class Matrix extends Array {
 	/**
-	 * Creates a matrix from a rule.
+	 * Create a matrix from a rule.
 	 * @param {number} width - The width of the resulting matrix.
 	 * @param {number} height - The height of the resulting matrix.
 	 * @param {function<number, number>} rule - The rule to follow to calculate values in the matrix.
