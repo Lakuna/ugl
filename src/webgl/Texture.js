@@ -8,6 +8,18 @@ import { Vector } from "../math/Vector.js";
 export class Texture {
 	/**
 	 * An enumeration of update modes for a texture.
+	 * 
+	 * MODE_COMPRESSED_2D
+	 * MODE_COMPRESSED_SUB_2D
+	 * MODE_COPY_2D
+	 * MODE_COPY_SUB_2D
+	 * MODE_2D
+	 * MODE_SUB_2D
+	 * MODE_3D
+	 * MODE_SUB_3D
+	 * MODE_COPY_SUB_3D
+	 * MODE_COMPRESSED_3D
+	 * MODE_COMPRESSED_SUB_3D
 	 * @type {Object}
 	 */
 	static updateModes = {

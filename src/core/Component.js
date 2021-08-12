@@ -2,6 +2,10 @@
 export class Component {
 	/**
 	 * An enumeration of events which can trigger on a component.
+	 * 
+	 * UPDATE
+	 * FIXED_UPDATE
+	 * LOAD
 	 * @type {Object}
 	 */
 	static events = {

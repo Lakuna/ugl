@@ -3,6 +3,8 @@
 ## About this Guide
 This guide is heavily based on the one at [webgl2fundamentals](https://webgl2fundamentals.org/). It follows the same format and some of the more difficult to describe topics are copied almost verbatim. If you are looking to learn WebGL2 without the help of a framework, either of these guides should work fine (although the examples in this one will use modern JavaScript). The point of making this guide is to introduce Umbra's WebGL portion in a way that encourages utilizing it to its fullest extent.
 
+All of the CodePen examples in my WebGL tutorials can be found in the collection [here](https://codepen.io/collection/KpPxqB).
+
 ## WebGL
 WebGL is a rasterization engine. It draws points, lines, and triangles based on code you supply. Getting it to do anything else is up to you to provide code to use points, lines, and triangles to accomplish your task.
 
@@ -69,7 +71,7 @@ void main() {
 }
 ```
 
-#### Canvas
+#### Create the canvas
 In order to draw on the screen, we need an HTML canvas element.
 ```html
 &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
@@ -95,7 +97,7 @@ If you're using Umbra, this can be done without HTML.
 &lt;/script&gt;
 ```
 
-#### Rendering context
+#### Create the rendering context
 In order to use WebGL2, we need to get the rendering context of the canvas.
 ```js
 const gl = canvas.getContext("webgl2");
@@ -242,7 +244,7 @@ const positionBuffer = new Buffer(gl, new Float32Array([
 ]));
 ```
 
-#### Creating an attribute
+#### Setting an attribute
 Now that we've put the data in a buffer, we need to tell the attribute how to get data out of the buffer. First, we need to create a collection of attribute state called a vertex array object (VAO).
 ```js
 const vao = gl.createVertexArray();
@@ -265,9 +267,11 @@ gl.vertexAttribPointer(
 	2, // Size; tells WebGL that we want to pull out 2 components per iteration.
 	gl.FLOAT, // Type; tells WebGL that the data is stored as 32-bit floating-point values.
 	false, // Normalize; tells WebGL whether to normalize the data.
-	0, // Stride; tells WebGL how far to move forward each iteration to get to the next position. Setting this to 0 automatically calculates stride as if the data is tightly-packed (equal to size * sizeof(type)).
+	0, // Stride*; tells WebGL how far to move forward each iteration to get to the next position.
 	0 // Offset; setting this to 0 tells WebGL to start at the beginning of the buffer.
 );
+
+// *Setting stride to 0 automatically calculates stride as if the data is tightly-packed (equal to size * sizeof(type)).
 ```
 
 `gl.vertexAttribPointer` also binds the current `ARRAY_BUFFER` to the attribute; in other words, `positionBuffer` is now bound to the attribute at `positionAttributeLocation`. We can now bind something else to `ARRAY_BUFFER`, and the attribute will continue to use `positionBuffer`.
@@ -369,3 +373,115 @@ requestAnimationFrame(render);
 
 ### Result
 [This](https://codepen.io/lakuna/full/BaRMqJw) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/OJmdqRw) is the above program with Umbra.
+
+## Screen space shader program
+In the example above, we have to pass clip space values (-1 to +1; bottom to top; left to right) into the shader. For most users, it is more intuitive to use screen space (0 to screen size in pixels; top to bottom; left to right). In clip space, the origin (0, 0) is in the center of the screen. In screen space, the origin is at the top-left corner.
+
+### Initialization step
+
+#### Create the shader
+Make a vertex shader which converts position data from screen space to clip space.
+```glsl
+#version 300 es
+
+in vec2 a_position;
+
+// A uniform is a global variable for WebGL.
+uniform vec2 u_resolution;
+
+void main() {
+	// Convert the position from pixels to (0.0 to 1.0).
+	vec2 zeroToOne = a_position / u_resolution;
+
+	// Convert from (0.0 to 1.0) to (0.0 to 2.0).
+	vec2 zeroToTwo = zeroToOne * 2.0;
+
+	// Convert from (0.0 to 2.0) to (-1.0 to 1.0).
+	vec2 clipSpace = zeroToTwo - 1.0;
+
+	// Flip the Y-axis so that the top-left corner is the origin.
+	vec2 clipSpaceFlipped = clipSpace * vec2(1, -1);
+
+	gl_Position = vec4(clipSpace, 0, 1);
+}
+```
+
+A simplified version of this in JavaScript looks like this:
+```js
+const vertexShaderSource = `#version 300 es
+in vec2 a_position;
+uniform vec2 u_resolution;
+void main() {
+	gl_Position = vec4((a_position / u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
+}`;
+```
+
+#### Getting uniform locations
+Getting uniform locations is very similar to getting attribute locations.
+```js
+const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+```
+
+Once again, Umbra has already done this step for us if we're using it.
+```js
+console.log(program.uniforms.get("u_resolution").location);
+```
+
+#### Drawing multiple primitives
+Modify the position buffer to contain six points (twelve values) of pixel coordinates.
+```js
+const positions = [
+	10, 20,
+	80, 20,
+	10, 30,
+	10, 30,
+	80, 20,
+	80, 30
+];
+
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+```
+
+For Umbra users:
+```js
+import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+
+const positionBuffer = new Buffer(gl, new Float32Array([
+	10, 20,
+	80, 20,
+	10, 30,
+	10, 30,
+	80, 20,
+	80, 30
+]));
+```
+
+### Render step
+
+#### Setting uniforms
+Uniforms are set using methods of the form `gl.uniform[1234][uif][v]()`. These calls act on whichever program is currently active.
+
+After we call `gl.useProgram` and before we draw the buffers, we can set uniforms.
+```js
+gl.useProgram(program);
+
+gl.bindVertexArray(vao);
+
+gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+
+gl.drawArrays(gl.TRIANGLES, 0, 6); // Also note that the count has been increased to include our new triangle.
+```
+
+The `gl.uniform[...]` call will be different for different types of uniforms.
+
+Umbra automatically determines both the correct uniform setter function and the correct count variable for `gl.drawArrays`.
+```js
+program.use(); // Call program.use() now so that the correct program is being used before setting uniforms.
+
+program.uniforms.get("u_resolution").value = [gl.canvas.width, gl.canvas.height];
+
+vao.draw();
+```
+
+### Result
+[This](https://codepen.io/lakuna/full/abWXgzv) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/RwVvzWL) is the above program with Umbra.
