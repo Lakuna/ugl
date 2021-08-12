@@ -74,13 +74,11 @@ In order to draw on the screen, we need an HTML canvas element.
 ```html
 &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
 &lt;style&gt;
-	body {
-		margin: 0px;
-	}
-	#canvas {
-		touch-action: none;
+	* {
 		width: 100%;
 		height: 100%;
+		margin: 0px;
+		padding: 0px;
 	}
 &lt;/style&gt;
 &lt;script&gt;
@@ -354,6 +352,19 @@ In this example, because the primitive type is set to `gl.TRIANGLES`, the fragme
 If you're using Umbra, you can use this instead of all of the above.
 ```js
 vao.draw();
+```
+
+#### Render loop
+Everything in the render step should be executed every frame, ideally by using `requestAnimationFrame`.
+```js
+// Initialization step.
+
+const render = () => {
+	requestAnimationFrame(render);
+
+	// Render step.
+};
+requestAnimationFrame(render);
 ```
 
 ### Result
