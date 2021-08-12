@@ -21,7 +21,7 @@
 					"index": "./README.md",
 					"asset": "./manual/assets",
 					"files": [
-						"./manual/placeholder.md"
+						"./manual/webgl/intro.md"
 					]
 				}
 			}
