@@ -379,7 +379,7 @@ In the example above, we have to pass clip space values (-1 to +1; bottom to top
 
 ### Initialization step
 
-#### Create the shader
+#### Creating the shader
 Make a vertex shader which converts position data from screen space to clip space.
 ```glsl
 #version 300 es
@@ -485,3 +485,124 @@ vao.draw();
 
 ### Result
 [This](https://codepen.io/lakuna/full/abWXgzv) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/RwVvzWL) is the above program with Umbra.
+
+## Multiple shapes shader program
+
+### Initialization step
+
+#### Adding a new uniform
+Add a color uniform to the fragment shader.
+```glsl
+#version 300 es
+
+precision highp float;
+
+out vec4 outColor;
+
+uniform vec4 u_color;
+
+void main() {
+	outColor = u_color;
+}
+```
+
+JavaScript version:
+```js
+const fragmentShaderSource = `#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec4 u_color;
+void main() {
+	outColor = u_color;
+}`;
+```
+
+Don't forget to get the uniform location if you aren't using Umbra.
+```js
+const colorUniformLocation = gl.getUniformLocation(program, "u_color");
+```
+
+#### Automating rectangles
+Create a new function to draw a rectangle of a random color.
+```js
+// Get a random integer between 0 and max.
+const randomInt = (max) => Math.floor(Math.random() * max);
+
+const makeRectangle = (x, y, width, height) => {
+	// Ensure that the position buffer is active.
+	// While this is not necessary in the current program since we only have one buffer, it's good practice.
+	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+		x, y,
+		x + width, y,
+		x, y + height,
+		x, y + height,
+		x + width, y,
+		x + width, y + height
+	]), gl.STATIC_DRAW);
+};
+
+const drawRandomRectangle = () => {
+	gl.useProgram(program);
+
+	gl.bindVertexArray(vao);
+
+	// Make a random rectangle.
+	makeRectangle(randomInt(gl.canvas.width), randomInt(gl.canvas.height), randomInt(300), randomInt(300));
+
+	gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+
+	// Set a random color.
+	gl.uniform4f(colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
+
+	// Draw the rectangle.
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+};
+```
+
+Umbra equivalent:
+```js
+const randomInt = (max) => Math.floor(Math.random() * max);
+
+const makeRectangle = (x, y, width, height) => {
+	positionBuffer.data = new Float32Array([
+		x, y,
+		x + width, y,
+		x, y + height,
+		x, y + height,
+		x + width, y,
+		x + width, y + height
+	]);
+	program.attributes.get("a_position").value = positionAttribute;
+};
+
+const drawRandomRectangle = () => {
+	program.use();
+	vao.bind();
+	makeRectangle(randomInt(gl.canvas.width), randomInt(gl.canvas.height), randomInt(300), randomInt(300));
+	program.uniforms.get("u_resolution").value = [gl.canvas.width, gl.canvas.height];
+	program.uniforms.get("u_color").value = [Math.random(), Math.random(), Math.random(), 1];
+	vao.draw();
+};
+```
+
+#### Stopping clearing the screen
+In order to simplify this example, we will temporarily stop clearing the screen, and we will move the drawing of the rectangles out of the render step. This way, we don't have to keep track of rectangles between frames.
+```js
+resizeCanvas(canvas);
+gl.viewport(0, 0, canvas.width, canvas.height);
+for (let i = 0; i < 200; i++) {
+	drawRandomRectangle();
+}
+
+const render = () => {
+	requestAnimationFrame(render);
+	resizeCanvas(canvas);
+	gl.viewport(0, 0, canvas.width, canvas.height);
+};
+requestAnimationFrame(render);
+```
+
+### Result
+[This](https://codepen.io/lakuna/full/jOmdgyr) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/poPGMpe) is the above program with Umbra.
