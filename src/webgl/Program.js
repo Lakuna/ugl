@@ -109,7 +109,7 @@ export class Program {
 		let nextTextureUnit = 0;
 		const uniformCount = gl.getProgramParameter(this.program, ACTIVE_UNIFORMS);
 		for (let i = 0; i < uniformCount; i++) {
-			const uniform = new Variable(this, Variable.TYPES.UNIFORM, i);
+			const uniform = new Variable(this, Variable.types.UNIFORM, i);
 			this.uniforms.set(uniform.name, uniform);
 
 			switch (uniform.type) {
@@ -136,13 +136,13 @@ export class Program {
 
 		const attributeCount = gl.getProgramParameter(this.program, ACTIVE_ATTRIBUTES);
 		for (let i = 0; i < attributeCount; i++) {
-			const attribute = new Variable(this, Variable.TYPES.ATTRIBUTE, i);
+			const attribute = new Variable(this, Variable.types.ATTRIBUTE, i);
 			this.attributes.set(attribute.name, attribute);
 		}
 
 		const varyingCount = gl.getProgramParameter(this.program, TRANSFORM_FEEDBACK_VARYINGS);
 		for (let i = 0; i < varyingCount; i++) {
-			const varying = new Variable(this, Variable.TYPES.VARYING, i);
+			const varying = new Variable(this, Variable.types.VARYING, i);
 			this.varyings.set(varying.name, varying);
 		}
 	}
