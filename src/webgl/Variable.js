@@ -63,8 +63,8 @@ export class Variable {
 		 * @type {number|WebGLUniformLocation}
 		 */
 		this.location =
-			type == Variable.types.ATTRIBUTE ? gl.getAttribLocation(program.program, this.activeInfo.name) : (
-			type == Variable.types.UNIFORM ? gl.getUniformLocation(program.program, this.activeInfo.name) :
+			type == Variable.types.ATTRIBUTE ? gl.getAttribLocation(program.program, this.name) : (
+			type == Variable.types.UNIFORM ? gl.getUniformLocation(program.program, this.name) :
 			null);
 	}
 

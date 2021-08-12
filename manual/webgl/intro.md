@@ -73,6 +73,16 @@ void main() {
 In order to draw on the screen, we need an HTML canvas element.
 ```html
 &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
+&lt;style&gt;
+	body {
+		margin: 0px;
+	}
+	#canvas {
+		touch-action: none;
+		width: 100%;
+		height: 100%;
+	}
+&lt;/style&gt;
 &lt;script&gt;
 	const canvas = document.querySelector("#canvas");
 &lt;/script&gt;
@@ -325,11 +335,6 @@ Tell WebGL which shader program to use.
 gl.useProgram(program);
 ```
 
-If you're using Umbra, use this insead.
-```js
-program.use();
-```
-
 Tell WebGL which set of buffers to use and how to pull data out of those buffers.
 ```js
 gl.bindVertexArray(vao);
@@ -346,7 +351,10 @@ gl.drawArrays(
 
 In this example, because the primitive type is set to `gl.TRIANGLES`, the fragment shader will run every time the vertex shader is run three times (one time for each point of a triangle).
 
-If you're using Umbra, instead use this.
+If you're using Umbra, you can use this instead of all of the above.
 ```js
 vao.draw();
 ```
+
+### Result
+[This](https://codepen.io/lakuna/full/BaRMqJw) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/OJmdqRw) is the above program with Umbra.

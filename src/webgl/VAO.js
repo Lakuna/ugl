@@ -72,7 +72,9 @@ export class VAO {
 	 */
 	set indexData(value) {
 		this.bind();
-		/** @ignore */ this.#indices = new Attribute(null, new Buffer(this.gl, new Uint8Array(value), ELEMENT_ARRAY_BUFFER), 1, UNSIGNED_BYTE);
+		/** @ignore */ this.#indices = value
+			? this.#indices = new Attribute(null, new Buffer(this.gl, new Uint8Array(value), ELEMENT_ARRAY_BUFFER), 1, UNSIGNED_BYTE)
+			: null;
 	}
 
 	/**
@@ -86,15 +88,16 @@ export class VAO {
 	/**
 	 * Draws the vertex data stored in this VAO.
 	 * @param {number} [mode=TRIANGLES] - The mode to use when drawing the data.
+	 * @param {number} [offset=0] - The number of elements to skip when drawing arrays.
 	 */
-	draw(mode = TRIANGLES) {
+	draw(mode = TRIANGLES, offset = 0) {
 		this.program.use();
 		this.bind();
 
 		if (this.indices) {
 			this.gl.drawElements(mode, this.indices.buffer.data.length, this.indices.type, this.indices.offset);
 		} else {
-			this.gl.drawArrays(mode, this.attributes?.[0].offset, this.attributes?.[0].buffer.data.length / this.attributes?.[0].size ?? 0);
+			this.gl.drawArrays(mode, offset, this.attributes?.[0].buffer.data.length / this.attributes?.[0].size ?? 0);
 		}
 	}
 }
