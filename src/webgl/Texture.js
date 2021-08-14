@@ -1,11 +1,36 @@
 /** @external {WebGLTexture} https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture */
 
 import { TEXTURE_2D, NEAREST_MIPMAP_LINEAR, LINEAR, CLAMP_TO_EDGE, UNSIGNED_BYTE, UNPACK_FLIP_Y_WEBGL, UNPACK_PREMULTIPLY_ALPHA_WEBGL,
-	UNPACK_ALIGNMENT, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, RGBA } from "./constants.js";
+	UNPACK_ALIGNMENT, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, RGBA, TEXTURE0 } from "./constants.js";
 import { Vector } from "../math/Vector.js";
 
 /** Class representing a WebGL texture. */
 export class Texture {
+	/**
+	 * Creates a texture from an image.
+	 * @param {string} imageSource - The source URL or Base64 of the image.
+	 * @return {Texture} A texture containing the image.
+	 */
+	static fromImage(imageSource) {
+		const texture = new Texture();
+
+		// Create an image.
+		const image = new Image();
+		if ((new URL(imageSource, location.href)).origin != location.origin) {
+			image.crossOrigin = ""; // Request CORS.
+		}
+
+		// Update the texture once the image loads.
+		image.addEventListener("load", () => {
+			texture.data = image;
+			texture.needsUpdate = true;
+		});
+
+		image.src = imageSource; // Start loading the image.
+
+		return texture; // Return the texture with a default color right away.
+	}
+
 	/**
 	 * An enumeration of update modes for a texture.
 	 * 
@@ -40,6 +65,7 @@ export class Texture {
 	 * Create a texture.
 	 * @param {Object} [arguments={}] - An object containing the arguments.
 	 * @param {WebGLRenderingContext} arguments.gl - The rendering context of the texture.
+	 * @param {*} [data=new Uint8Array([0xFF, 0x0, 0xFF, 0xFF])] - The data contained within the texture.
 	 * @param {number} [arguments.target=TEXTURE_2D] - The bind target of the texture.
 	 * @param {boolean} [arguments.generateMipmap=true] - Whether to generate a mipmap for the texture.
 	 * @param {boolean} [arguments.flipY=target==TEXTURE_2D] - Whether to flip the Y axis of the texture.
@@ -63,6 +89,7 @@ export class Texture {
 	 */
 	constructor({
 		gl,
+		data = new Uint8Array([0xFF, 0x0, 0xFF, 0xFF]),
 		target = TEXTURE_2D,
 
 		generateMipmap = true,
@@ -96,6 +123,12 @@ export class Texture {
 		 * @type {WebGLRenderingContext}
 		 */
 		this.gl = gl;
+
+		/**
+		 * The data contained within the texture.
+		 * @type {*}
+		 */
+		this.data = data;
 
 		/**
 		 * The bind target of the texture.
@@ -278,7 +311,7 @@ export class Texture {
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
 	 */
 	update(textureUnit) {
-		this.gl.activeTexture(textureUnit);
+		this.gl.activeTexture(TEXTURE0 + textureUnit);
 		this.bind();
 
 		if (!this.needsUpdate) { return; }
