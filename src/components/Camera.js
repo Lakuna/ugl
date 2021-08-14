@@ -8,7 +8,7 @@ export class Camera extends Transform {
 	 * @param {Object} [arguments={}] - An object containing the arguments.
 	 * @param {number} [arguments.near=0.1] - The nearest that the camera can see.
 	 * @param {number} [arguments.far=100] - The farthest that the camera can see.
-	 * @param {number} [arguments.fieldOfView=45 * (Math.PI / 180)] - The field of view of the camera in radians.
+	 * @param {number} [arguments.fov=45 * (Math.PI / 180)] - The field of view of the camera in radians.
 	 * @param {number} [arguments.aspectRatio=1] - The aspect ratio of the output.
 	 * @param {number} [arguments.left] - The left boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.right] - The right boundary of the output. Makes the camera orthographic if given a value.
@@ -16,7 +16,7 @@ export class Camera extends Transform {
 	 * @param {number} [arguments.top] - The top boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.zoom=1] - The zoom applied to the camera if it is orthographic.
 	 */
-	constructor({ near = 0.1, far = 100, fieldOfView = 45 * (Math.PI / 180), aspectRatio = 1, left, right, bottom, top, zoom = 1 } = {}) {
+	constructor({ near = 0.1, far = 100, fov = 45 * (Math.PI / 180), aspectRatio = 1, left, right, bottom, top, zoom = 1 } = {}) {
 		super();
 
 		/**
@@ -35,7 +35,7 @@ export class Camera extends Transform {
 		 * The field of view of the camera in radians.
 		 * @type {number}
 		 */
-		this.fieldOfView = fieldOfView;
+		this.fov = fov;
 
 		/**
 		 * The aspect ratio of the output.
@@ -89,7 +89,7 @@ export class Camera extends Transform {
 	get projectionMatrix() {
 		return this.orthographic
 			? new Matrix().orthographic(this.left / this.zoom, this.right / this.zoom, this.bottom / this.zoom, this.top / this.zoom, this.near, this.far)
-			: new Matrix().perspective(this.fieldOfView, this.aspectRatio, this.near, this.far);
+			: new Matrix().perspective(this.fov, this.aspectRatio, this.near, this.far);
 	}
 
 	/**

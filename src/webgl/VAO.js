@@ -10,6 +10,29 @@ export class VAO {
 	#attributes;
 
 	/**
+	 * Create a VAO from a geometry.
+	 * @param {Program} program - The program of the VAO.
+	 * @param {Geometry} geometry - The geometry to use as the base.
+	 * @param {string} [positionAttributeName="a_position"] - The name of the vertex position attribute, if it exists.
+	 * @param {string} [texcoordAttributeName="a_texcoord"] - The name of the texture coordinate attribute, if it exists.
+	 * @param {string} [normalAttributeName="a_normal"] - The name of the normal attribute, if it exists.
+	 */
+	static fromGeometry(program, geometry, positionAttributeName = "a_position", texcoordAttributeName = "a_texcoord", normalAttributeName = "a_normal") {
+		const attributes = [];
+		if (positionAttributeName) {
+			attributes.push(new Attribute(positionAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.positions)))));
+		}
+		if (texcoordAttributeName) {
+			attributes.push(new Attribute(texcoordAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.texcoords))), 2));
+		}
+		if (normalAttributeName) {
+			attributes.push(new Attribute(normalAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.normals)))));
+		}
+
+		return new VAO(program, attributes, geometry.indices);
+	}
+
+	/**
 	 * Create a vertex array object.
 	 * @param {Program} program - The program that this VAO is used with.
 	 * @param {Attribute[]} attributes - The attributes associated with this VAO.

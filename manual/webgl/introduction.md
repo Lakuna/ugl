@@ -32,7 +32,7 @@ Textures are arrays of data that you can randomly access in your shader program.
 
 Varyings are a way for a vertex shader to pass data to a fragment shader. Depending on what is being rendered, the values set on a varying by a vertex shader will be interpolated while executing the fragment shader (which is why they are called "varyings").
 
-## Hello, world!
+## "Hello, world!" example
 
 WebGL only cares about two things: clip space coordinates and colors. Your job as a programmer using WebGL is to provide WebGL with those two things. You provide your two shaders to do this - a vertex shader which supplies clip space coordinates, and a fragment shader which supplies colors.
 
@@ -97,14 +97,14 @@ If you're using Umbra, this can be done without HTML.
 &lt;/script&gt;
 ```
 
-#### Create the rendering context
+#### Get the context
 In order to use WebGL2, we need to get the rendering context of the canvas.
 ```js
 const gl = canvas.getContext("webgl2");
 if (!gl) { throw new Error("WebGL2 is not supported by your browser."); }
 ```
 
-#### Compiling the shaders
+#### Compile the shaders
 Next, we need to compile the shaders to put them on the GPU. First, declare them as strings.
 ```js
 const vertexShaderSource = `#version 300 es
@@ -155,7 +155,7 @@ const vertexShader = new Shader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 ```
 
-#### Linking the shaders
+#### Link the shaders
 Once we create the two shaders, we can link them together into a shader program.
 ```js
 const createProgram = (gl, vertexShader, fragmentShader) => {
@@ -193,7 +193,7 @@ import { Program } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 const program = Program.fromSource(gl, vertexShaderSource, fragmentShaderSource);
 ```
 
-#### Getting attribute locations
+#### Get locations
 Now that we've created a GLSL program on the GPU, we need to supply data to it. In this case, our only input is `a_position` (which is an attribute). The first thing to do is to look up the location of the attribute for the program we just created.
 ```js
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -204,7 +204,7 @@ If you're using Umbra, the `Program` constructor has already done this for you.
 console.log(program.attributes.get("a_position").location);
 ```
 
-#### Creating a buffer
+#### Create a buffer
 Attributes get their data from buffers, so we need to create a buffer.
 ```js
 const positionBuffer = gl.createBuffer();
@@ -244,7 +244,7 @@ const positionBuffer = new Buffer(gl, new Float32Array([
 ]));
 ```
 
-#### Setting an attribute
+#### Set an attribute
 Now that we've put the data in a buffer, we need to tell the attribute how to get data out of the buffer. First, we need to create a collection of attribute state called a vertex array object (VAO).
 ```js
 const vao = gl.createVertexArray();
@@ -288,7 +288,7 @@ const vao = new VAO(program, [positionAttribute]);
 
 ### Render step
 
-#### Resizing the canvas
+#### Resize the canvas
 Before we draw, we should resize the canvas to match its display size. Just like images, canvases have two sizes: the number of pixels in them, and the size they are displayed. CSS determines the size the canvas is displayed.
 ```js
 const resizeCanvas = (canvas) => {
@@ -320,7 +320,7 @@ We need to tell WebGL how to convert from clip space values to screen space valu
 gl.viewport(0, 0, canvas.width, canvas.height);
 ```
 
-#### Clearing the canvas
+#### Clear the canvas
 Tell WebGL what color it should clear to.
 ```js
 gl.clearColor(0, 0, 0, 0); // Transparent (technically black).
@@ -331,7 +331,7 @@ Then, clear the canvas.
 gl.clear(gl.COLOR_BUFFER_BIT);
 ```
 
-#### Executing the shader program
+#### Execute the program
 Tell WebGL which shader program to use.
 ```js
 gl.useProgram(program);
@@ -374,12 +374,12 @@ requestAnimationFrame(render);
 ### Result
 [This](https://codepen.io/lakuna/full/BaRMqJw) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/OJmdqRw) is the above program with Umbra.
 
-## Screen space shader program
+## Screen space example
 In the example above, we have to pass clip space values (-1 to +1; bottom to top; left to right) into the shader. For most users, it is more intuitive to use screen space (0 to screen size in pixels; top to bottom; left to right). In clip space, the origin (0, 0) is in the center of the screen. In screen space, the origin is at the top-left corner.
 
 ### Initialization step
 
-#### Creating the shader
+#### Create the shader
 Make a vertex shader which converts position data from screen space to clip space.
 ```glsl
 #version 300 es
@@ -416,7 +416,7 @@ void main() {
 }`;
 ```
 
-#### Getting uniform locations
+#### Get locations
 Getting uniform locations is very similar to getting attribute locations.
 ```js
 const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
@@ -427,7 +427,7 @@ Once again, Umbra has already done this step for us if we're using it.
 console.log(program.uniforms.get("u_resolution").location);
 ```
 
-#### Drawing multiple primitives
+#### Draw multiple primitives
 Modify the position buffer to contain six points (twelve values) of pixel coordinates.
 ```js
 const positions = [
@@ -458,7 +458,7 @@ const positionBuffer = new Buffer(gl, new Float32Array([
 
 ### Render step
 
-#### Setting uniforms
+#### Set uniforms
 Uniforms are set using methods of the form `gl.uniform[1234][uif][v]()`. These calls act on whichever program is currently active.
 
 After we call `gl.useProgram` and before we draw the buffers, we can set uniforms.
@@ -485,124 +485,3 @@ vao.draw();
 
 ### Result
 [This](https://codepen.io/lakuna/full/abWXgzv) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/RwVvzWL) is the above program with Umbra.
-
-## Multiple shapes shader program
-
-### Initialization step
-
-#### Adding a new uniform
-Add a color uniform to the fragment shader.
-```glsl
-#version 300 es
-
-precision highp float;
-
-out vec4 outColor;
-
-uniform vec4 u_color;
-
-void main() {
-	outColor = u_color;
-}
-```
-
-JavaScript version:
-```js
-const fragmentShaderSource = `#version 300 es
-precision highp float;
-out vec4 outColor;
-uniform vec4 u_color;
-void main() {
-	outColor = u_color;
-}`;
-```
-
-Don't forget to get the uniform location if you aren't using Umbra.
-```js
-const colorUniformLocation = gl.getUniformLocation(program, "u_color");
-```
-
-#### Automating rectangles
-Create a new function to draw a rectangle of a random color.
-```js
-// Get a random integer between 0 and max.
-const randomInt = (max) => Math.floor(Math.random() * max);
-
-const makeRectangle = (x, y, width, height) => {
-	// Ensure that the position buffer is active.
-	// While this is not necessary in the current program since we only have one buffer, it's good practice.
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-		x, y,
-		x + width, y,
-		x, y + height,
-		x, y + height,
-		x + width, y,
-		x + width, y + height
-	]), gl.STATIC_DRAW);
-};
-
-const drawRandomRectangle = () => {
-	gl.useProgram(program);
-
-	gl.bindVertexArray(vao);
-
-	// Make a random rectangle.
-	makeRectangle(randomInt(gl.canvas.width), randomInt(gl.canvas.height), randomInt(300), randomInt(300));
-
-	gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-
-	// Set a random color.
-	gl.uniform4f(colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
-
-	// Draw the rectangle.
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
-```
-
-Umbra equivalent:
-```js
-const randomInt = (max) => Math.floor(Math.random() * max);
-
-const makeRectangle = (x, y, width, height) => {
-	positionBuffer.data = new Float32Array([
-		x, y,
-		x + width, y,
-		x, y + height,
-		x, y + height,
-		x + width, y,
-		x + width, y + height
-	]);
-	program.attributes.get("a_position").value = positionAttribute;
-};
-
-const drawRandomRectangle = () => {
-	program.use();
-	vao.bind();
-	makeRectangle(randomInt(gl.canvas.width), randomInt(gl.canvas.height), randomInt(300), randomInt(300));
-	program.uniforms.get("u_resolution").value = [gl.canvas.width, gl.canvas.height];
-	program.uniforms.get("u_color").value = [Math.random(), Math.random(), Math.random(), 1];
-	vao.draw();
-};
-```
-
-#### Stopping clearing the screen
-In order to simplify this example, we will temporarily stop clearing the screen, and we will move the drawing of the rectangles out of the render step. This way, we don't have to keep track of rectangles between frames.
-```js
-resizeCanvas(canvas);
-gl.viewport(0, 0, canvas.width, canvas.height);
-for (let i = 0; i < 200; i++) {
-	drawRandomRectangle();
-}
-
-const render = () => {
-	requestAnimationFrame(render);
-	resizeCanvas(canvas);
-	gl.viewport(0, 0, canvas.width, canvas.height);
-};
-requestAnimationFrame(render);
-```
-
-### Result
-[This](https://codepen.io/lakuna/full/jOmdgyr) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/poPGMpe) is the above program with Umbra.

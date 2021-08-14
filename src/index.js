@@ -29,5 +29,6 @@
 
 // Utility
 /** @ignore */ export * from "./utility/Color.js";
+/** @ignore */ export * from "./utility/Geometry.js";
 /** @ignore */ export * from "./utility/makeFullscreenCanvas.js";
 /** @ignore */ export * from "./utility/resizeCanvas.js";

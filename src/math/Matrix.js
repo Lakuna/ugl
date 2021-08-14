@@ -401,14 +401,14 @@ export class Matrix extends Array {
 
 	/**
 	 * Apply perspective.
-	 * @param {number} fieldOfView - The field of view of the projection.
+	 * @param {number} fov - The field of view of the projection.
 	 * @param {number} aspectRatio - The aspect ratio of the output.
 	 * @param {number} near - The nearest that the projection can render.
 	 * @param {number} far - The farthest that the projection can render.
 	 * @return {Matrix} Self.
 	 */
-	perspective(fieldOfView, aspectRatio, near, far) {
-		const f = Math.tan(Math.PI / 2 - fieldOfView / 2);
+	perspective(fov, aspectRatio, near, far) {
+		const f = Math.tan(Math.PI / 2 - fov / 2);
 		const range = 1 / (near - far);
 
 		return this.multiply([

@@ -21,7 +21,8 @@
 					"index": "./README.md",
 					"asset": "./manual/assets",
 					"files": [
-						"./manual/webgl/intro.md"
+						"./manual/webgl/introduction.md",
+						"./manual/webgl/multipleShapes.md"
 					]
 				}
 			}
