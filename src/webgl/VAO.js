@@ -1,4 +1,4 @@
-/** @external {WebGLVertexArrayObject} https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObjecthttps://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject */
+/** @external {WebGLVertexArrayObject} https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject */
 
 import { Attribute } from "./Attribute.js";
 import { Buffer } from "./Buffer.js";
