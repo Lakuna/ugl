@@ -22,7 +22,7 @@
 					"asset": "./manual/assets",
 					"files": [
 						"./manual/webgl/introduction.md",
-						"./manual/webgl/multipleShapes.md"
+						"./manual/webgl/structure.md"
 					]
 				}
 			}

@@ -1,6 +1,4 @@
-# Multiple shapes in WebGL
-
-## Typical program format
+# WebGL Program Structure
 A typical WebGL program follows this structure:
 - At initialization time:
 	- Create all shaders and shader programs, and look up locations.

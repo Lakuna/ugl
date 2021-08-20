@@ -485,3 +485,72 @@ vao.draw();
 
 ### Result
 [This](https://codepen.io/lakuna/full/abWXgzv) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/RwVvzWL) is the above program with Umbra.
+
+## Varying Example
+The final type of data that we can pass to the GPU is varyings. This example uses a varying to create a gradient color based on the position of a shape on the screen.
+
+Start this example from the "Hello, world!" program above.
+
+### Initialization Step
+
+#### Create the Shaders
+The new vertex shader must pass a varying to the fragment shader.
+```glsl
+#version 300 es
+
+in vec4 a_position;
+
+// A varying is an output from a vertex shader. It will supply data to the fragment shader.
+out vec4 v_color;
+
+void main() {
+	gl_Position = a_position;
+
+	// a_position uses clip space coordinates (-1 to +1), while colors use color space coordinates (0 to 1).
+	// Therefore, we must convert the data before we pass it to the fragment shader as a color.
+	v_color = gl_Position * 0.5 + 0.5;
+}
+```
+
+Here is the JavaScript version of the shader:
+```js
+const vertexShaderSource = `#version 300 es
+in vec4 a_position;
+out vec4 v_color;
+void main() {
+	gl_Position = a_position;
+	v_color = gl_Position * 0.5 + 0.5;
+}`;
+```
+
+In the fragment shader, we must accept the varying as an input.
+```glsl
+#version 300 es
+
+precision highp float;
+
+// Varyings are inputs to fragment shaders.
+in vec4 v_color; // Must use the same name as in the vertex shader.
+
+out vec4 outColor;
+
+void main() {
+	outColor = v_color;
+}
+```
+
+Here is the JavaScript version of the shader:
+```js
+const fragmentShaderSource = `#version 300 es
+precision highp float;
+in vec4 v_color;
+out vec4 outColor;
+void main() {
+	outColor = v_color;
+}`;
+```
+
+Other than this change to the shaders, there is no difference between this program and the "Hello, world!" example.
+
+### Result
+[This](https://codepen.io/lakuna/full/MWmNRqM) is the above program without Umbra, and [this](https://codepen.io/lakuna/full/abWexQd) is the above program with Umbra.
