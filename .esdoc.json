@@ -22,7 +22,8 @@
 					"asset": "./manual/assets",
 					"files": [
 						"./manual/webgl/introduction.md",
-						"./manual/webgl/structure.md"
+						"./manual/webgl/structure.md",
+						"./manual/webgl/indices.md"
 					]
 				}
 			}
