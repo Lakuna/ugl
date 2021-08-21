@@ -1,6 +1,4 @@
 # Introduction to WebGL2
-
-## About this Guide
 This guide is heavily based on the one at [webgl2fundamentals](https://webgl2fundamentals.org/). It follows the same format and some of the more difficult to describe topics are copied almost verbatim. If you are looking to learn WebGL2 without the help of a framework, either of these guides should work fine (although the examples in this one will use modern JavaScript). The point of making this guide is to introduce Umbra's WebGL portion in a way that encourages utilizing it to its fullest extent.
 
 All of the CodePen examples in my WebGL tutorials can be found in the collection [here](https://codepen.io/collection/KpPxqB).
@@ -255,12 +253,17 @@ Then, we need to make it the current VAO so that all of our attribute settings a
 gl.bindVertexArray(vao);
 ```
 
-Now, we can set attributes in the VAO. First, we need to turn the attribute on so that WebGL knows that we want to get data out of a buffer. Otherwise, the attribute would have a constant value.
+Now, we can set attributes in the VAO. First, we need to choose which buffer to use.
+```js
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+```
+
+Then, we need to turn the attribute on so that WebGL knows that we want to get data out of a buffer. Otherwise, the attribute would have a constant value.
 ```js
 gl.enableVertexAttribArray(positionAttributeLocation);
 ```
 
-Then, we can specify how to pull the data out.
+Then, we can specify how to pull the data out of the buffer.
 ```js
 gl.vertexAttribPointer(
 	positionAttributeLocation,
