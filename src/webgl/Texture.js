@@ -14,7 +14,7 @@ export class Texture {
 	 * @return {Texture} A monocolored texture.
 	 */
 	static fromColor(gl, color) {
-		return new Texture({ gl, data: new Uint8Array(color.r * 0xFF, color.g * 0xFF, color.b * 0xFF, color.a * 0xFF), size: new Vector(1, 1) });
+		return new Texture({ gl, data: new Uint8Array([color.r * 0xFF, color.g * 0xFF, color.b * 0xFF, color.a * 0xFF]), size: new Vector(1, 1) });
 	}
 
 	/**
