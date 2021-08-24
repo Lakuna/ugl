@@ -28,6 +28,12 @@ export class Transform extends Component {
 		 * @type {Vector}
 		 */
 		this.scale = new Vector(1, 1, 1);
+
+		/**
+		 * The target for this object to rotate towards. Overrides rotation if set.
+		 * @type {Vector}
+		 */
+		this.target = null;
 	}
 
 	/**
@@ -44,10 +50,14 @@ export class Transform extends Component {
 	 * @type {Matrix}
 	 */
 	get matrix() {
-		return new Matrix()
-			.translate(this.translation)
-			.rotate(this.rotation)
-			.scale(this.scale);
+		return this.target
+			? new Matrix()
+				.lookAt(this.translation, this.target)
+				.scale(this.scale)
+			: new Matrix()
+				.translate(this.translation)
+				.rotate(this.rotation)
+				.scale(this.scale);
 	}
 
 	/**

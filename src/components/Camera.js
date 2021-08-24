@@ -101,10 +101,10 @@ export class Camera extends Transform {
 	}
 
 	/**
-	 * The projection view matrix of the camera.
+	 * The view projection matrix of the camera.
 	 * @type {Matrix}
 	 */
-	get projectionViewMatrix() {
+	get viewProjectionMatrix() {
 		return this.projectionMatrix.multiply(this.viewMatrix);
 	}
 }
