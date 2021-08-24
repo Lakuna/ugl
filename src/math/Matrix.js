@@ -59,16 +59,24 @@ export class Matrix extends Array {
 	}
 
 	/**
+	 * Whether this matrix is square or not.
+	 * @type {boolean}
+	 */
+	get isSquare() {
+		return this.width % 1 == 0 || this.width ** 2 == this.length;
+	}
+
+	/**
 	 * The determinant of this matrix. Note that calculating this value can be extremely expensive depending on the size of the matrix.
 	 * @type {number}
 	 */
 	get determinant() {
-		if (this.width ** 2 != this.length) { throw new Error("Cannot get determinant of a non-square matrix."); }
-
 		// End of recursion.
-		if (this.width == 1) {
+		if (this.length == 1) {
 			return this[0];
 		}
+
+		if (!this.isSquare) { throw new Error("Cannot get determinant of a non-square matrix."); }
 
 		// Calculate the matrix that is not in this[i]'s row (0) or column (i).
 		const oppositeMatrix = (i) => {
@@ -330,7 +338,7 @@ export class Matrix extends Array {
 	 * @return {Matrix} Self.
 	 */
 	invert() {
-		if (this.width ** 2 != this.length) { throw new Error("Cannot invert a non-square matrix."); }
+		if (!this.isSquare) { throw new Error("Cannot invert a non-square matrix."); }
 
 		const identity = Matrix.identity(this.width);
 		const copy = new Matrix(...this);
