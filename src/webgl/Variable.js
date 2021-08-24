@@ -5,7 +5,7 @@ import { FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4, INT, INT_VEC2, INT_VEC3, INT
 	UNSIGNED_INT_VEC3, UNSIGNED_INT_VEC4, BOOL, BOOL_VEC2, BOOL_VEC3, BOOL_VEC4, FLOAT_MAT2, FLOAT_MAT3, FLOAT_MAT4,
 	SAMPLER_2D, SAMPLER_3D, SAMPLER_CUBE, SAMPLER_2D_SHADOW, SAMPLER_2D_ARRAY, SAMPLER_2D_ARRAY_SHADOW, SAMPLER_CUBE_SHADOW,
 	INT_SAMPLER_2D, INT_SAMPLER_3D, INT_SAMPLER_CUBE, INT_SAMPLER_2D_ARRAY, UNSIGNED_INT_SAMPLER_2D, UNSIGNED_INT_SAMPLER_3D,
-	UNSIGNED_INT_SAMPLER_CUBE, UNSIGNED_INT_SAMPLER_2D_ARRAY, TEXTURE0, FLOAT_MAT2x3, FLOAT_MAT2x4, FLOAT_MAT3x2, FLOAT_MAT3x4,
+	UNSIGNED_INT_SAMPLER_CUBE, UNSIGNED_INT_SAMPLER_2D_ARRAY, FLOAT_MAT2x3, FLOAT_MAT2x4, FLOAT_MAT3x2, FLOAT_MAT3x4,
 	FLOAT_MAT4x2, FLOAT_MAT4x3 } from "./constants.js";
 
 /** Class representing a WebGL variable. */
@@ -171,16 +171,16 @@ export class Variable {
 						texture = value;
 						value = this.program.textureUnits.get(this); // Set the value to the texture unit.
 
-						if (value.length) {
-							const units = new Int32Array(value.length);
-							for (let i = 0; i < value.length; i++) {
+						if (texture.length) {
+							const units = new Int32Array(texture.length);
+							for (let i = 0; i < texture.length; i++) {
 								units[i] = value + i;
 							}
 
 							this.gl.uniform1iv(this.location, units);
 
 							for (const [i, texture] of texture.entries()) {
-								texture.update(TEXTURE0 + units[i]);
+								texture.update(units[i]);
 							}
 						} else {
 							this.gl.uniform1i(this.location, value);
