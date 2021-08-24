@@ -25,7 +25,8 @@
 						"./manual/webgl/structure.md",
 						"./manual/webgl/indices.md",
 						"./manual/webgl/transformation.md",
-						"./manual/webgl/3d.md"
+						"./manual/webgl/3d.md",
+						"./manual/webgl/textures.md"
 					]
 				}
 			}
