@@ -99,7 +99,7 @@ export class Camera extends Transform {
 	 * @type {Matrix}
 	 */
 	get viewMatrix() {
-		return this.worldMatrix().invert();
+		return this.worldMatrix.invert();
 	}
 
 	/**
