@@ -6,6 +6,8 @@ export class Camera extends Transform {
 	/**
 	 * Create a camera.
 	 * @param {Object} [arguments={}] - An object containing the arguments.
+	 * @param {GameObject} [arguments.gameObject=new GameObject()] - The object to attach this component to.
+	 * @param {number} [arguments.priority=0] - The order this component's events should trigger in relative to other components.
 	 * @param {number} [arguments.near=0.1] - The nearest that the camera can see.
 	 * @param {number} [arguments.far=100] - The farthest that the camera can see.
 	 * @param {number} [arguments.fov=45 * (Math.PI / 180)] - The field of view of the camera in radians.
@@ -16,8 +18,8 @@ export class Camera extends Transform {
 	 * @param {number} [arguments.top] - The top boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.zoom=1] - The zoom applied to the camera if it is orthographic.
 	 */
-	constructor({ near = 0.1, far = 100, fov = 45 * (Math.PI / 180), aspectRatio = 1, left, right, bottom, top, zoom = 1 } = {}) {
-		super();
+	constructor({ gameObject, priority, near = 0.1, far = 100, fov = 45 * (Math.PI / 180), aspectRatio = 1, left, right, bottom, top, zoom = 1 } = {}) {
+		super(gameObject, priority);
 
 		/**
 		 * The nearest that the camera can see.

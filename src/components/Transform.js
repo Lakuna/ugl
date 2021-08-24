@@ -7,9 +7,13 @@ import { Matrix } from "../math/Matrix.js";
 export class Transform extends Component {
 	#parent;
 
-	/** Create a transform. */
-	constructor() {
-		super();
+	/**
+	 * Create a transform.
+	 * @param {GameObject} [gameObject=new GameObject()] - The object to attach this component to.
+	 * @param {number} [priority=0] - The order this component's events should trigger in relative to other components.
+	 */
+	constructor(gameObject, priority) {
+		super(gameObject, priority);
 
 		/**
 		 * The translation (position) of this object.

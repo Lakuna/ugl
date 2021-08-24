@@ -58,12 +58,14 @@ export class Mesh extends Transform {
 
 	/**
 	 * Create a mesh.
+	 * @param {GameObject} [gameObject=new GameObject()] - The object to attach this component to.
+	 * @param {number} [priority=0] - The order this component's events should trigger in relative to other components.
 	 * @param {VAO} vao - A vertex array object (VAO) with references to all of the vertex data of the mesh.
 	 * @param {boolean} [visible=true] - Whether the mesh should be drawn.
 	 * @param {number} [renderOrder=0] - The order this mesh should be drawn in relative to other meshes.
 	 */
-	constructor(vao, visible = true, renderOrder = 0) {
-		super();
+	constructor(gameObject, priority, vao, visible = true, renderOrder = 0) {
+		super(gameObject, priority);
 
 		/**
 		 * A vertex array object (VAO) with references to all of the vertex data of the mesh.

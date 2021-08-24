@@ -1,3 +1,5 @@
+import { GameObject } from "./GameObject.js";
+
 /** Class representing a component which attaches to an object. */
 export class Component {
 	/**
@@ -18,10 +20,10 @@ export class Component {
 
 	/**
 	 * Create a component.
-	 * @param {GameObject} gameObject - The object to attach this component to.
+	 * @param {GameObject} [gameObject=new GameObject()] - The object to attach this component to.
 	 * @param {number} [priority=0] - The order this component's events should trigger in relative to other components.
 	 */
-	constructor(gameObject, priority = 0) {
+	constructor(gameObject = new GameObject(), priority = 0) {
 		/** @ignore */ this.#gameObject = gameObject;
 		this.gameObject.components.push(this);
 
