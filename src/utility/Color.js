@@ -6,6 +6,7 @@ export class Color extends Array {
 	 * @example
 	 * new Color(0xFFFFFF); // Hex value.
 	 * new Color([1, 1, 1]); // RGB percentage value array.
+	 * new Color([1, 1, 1, 1]); // RGBA percentage value array.
 	 * new Color("#FFFFFF"); // Hex value string with pound.
 	 * new Color("FFFFFF"); // Hex value string.
 	 * new Color("#FFF"); // Web-safe hex value string with pound.
@@ -27,7 +28,7 @@ export class Color extends Array {
 			data = data.map((hex) => parseInt(hex, 16) / 0xFF);
 		}
 
-		while (data.length < 4) { data.push(0xFF); } // Fill alpha and/or missing colors.
+		while (data.length < 4) { data.push(0xFF / 0xFF); } // Fill alpha and/or missing colors.
 
 		super(...data); // Will error if data is supplied in an invalid format.
 	}
