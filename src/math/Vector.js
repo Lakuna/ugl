@@ -138,7 +138,7 @@ export class Vector extends Array {
 	 * @return {Vector} Self.
 	 */
 	transform(matrix) {
-		this.set(...new Matrix(...matrix).multiply(this));
+		return this.set(...new Matrix(...matrix).multiply(this));
 	}
 
 	/**
