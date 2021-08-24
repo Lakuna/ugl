@@ -166,9 +166,9 @@ const vao = VAO.fromGeometry(program, plane, "a_position", "a_texcoord", null);
 
 #### Create texture
 ```js
-import { Texture, Color } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+import { Texture, Color, Vector } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const texture = new Texture({ gl, data: new Uint8Array(new Color(0x0000FF)) });
+const texture = new Texture({ gl, data: new Uint8Array(new Color(0x0000FF)), size: new Vector(1, 1) });
 ```
 
 ### Render step

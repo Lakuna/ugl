@@ -27,6 +27,8 @@ export class Color extends Array {
 			data = data.map((hex) => parseInt(hex, 16) / 0xFF);
 		}
 
+		while (data.length < 4) { data.push(0xFF); } // Fill alpha and/or missing colors.
+
 		super(...data); // Will error if data is supplied in an invalid format.
 	}
 

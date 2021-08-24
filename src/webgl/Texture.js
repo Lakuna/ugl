@@ -3,16 +3,26 @@
 import { TEXTURE_2D, NEAREST_MIPMAP_LINEAR, LINEAR, CLAMP_TO_EDGE, UNSIGNED_BYTE, UNPACK_FLIP_Y_WEBGL, UNPACK_PREMULTIPLY_ALPHA_WEBGL,
 	UNPACK_ALIGNMENT, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, RGBA, TEXTURE0 } from "./constants.js";
 import { Vector } from "../math/Vector.js";
+import { Color } from "../utility/Color.js";
 
 /** Class representing a WebGL texture. */
 export class Texture {
+	/**
+	 * Creates a texture from a color.
+	 * @param {Color} color - The color of the texture.
+	 * @return {Texture} A monocolored texture.
+	 */
+	static fromColor(color) {
+		return new Texture({ data: new Uint8Array(color), size: new Vector(1, 1) });
+	}
+
 	/**
 	 * Creates a texture from an image.
 	 * @param {string} imageSource - The source URL or Base64 of the image.
 	 * @return {Texture} A texture containing the image.
 	 */
 	static fromImage(imageSource) {
-		const texture = new Texture();
+		const texture = Texture.fromColor(new Color(0xFF00FF));
 
 		// Create an image.
 		const image = new Image();
@@ -23,6 +33,7 @@ export class Texture {
 		// Update the texture once the image loads.
 		image.addEventListener("load", () => {
 			texture.data = image;
+			texture.size.set();
 			texture.needsUpdate = true;
 		});
 
@@ -65,7 +76,7 @@ export class Texture {
 	 * Create a texture.
 	 * @param {Object} [arguments={}] - An object containing the arguments.
 	 * @param {WebGLRenderingContext} arguments.gl - The rendering context of the texture.
-	 * @param {*} [data=new Uint8Array([0xFF, 0x0, 0xFF, 0xFF])] - The data contained within the texture.
+	 * @param {*} data - The data contained within the texture.
 	 * @param {number} [arguments.target=TEXTURE_2D] - The bind target of the texture.
 	 * @param {boolean} [arguments.generateMipmap=true] - Whether to generate a mipmap for the texture.
 	 * @param {boolean} [arguments.flipY=target==TEXTURE_2D] - Whether to flip the Y axis of the texture.
@@ -89,7 +100,7 @@ export class Texture {
 	 */
 	constructor({
 		gl,
-		data = new Uint8Array([0xFF, 0x0, 0xFF, 0xFF]),
+		data,
 		target = TEXTURE_2D,
 
 		generateMipmap = true,
