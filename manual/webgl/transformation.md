@@ -61,30 +61,30 @@ Scaling by a negative number flips the geometry. Scaling takes place from `(0, 0
 Before we begin talking about matrices, you should know that there is a small difference between matrices in WebGL and matrices in normal linear algebra. In programming, a row typically goes from left to right, and a column goes from top to bottom. When we make a matrix in JavaScript, we do it like this (row-major order):
 ```js
 const matrix = [
-	0,	1,	2,	3,
-	4,	5,	6,	7,
-	8,	9,	10,	11,
-	12,	13,	14,	15
+	 0,  1,  2,  3,
+	 4,  5,  6,  7,
+	 8,  9, 10, 11,
+	12, 13, 14, 15
 ];
 ```
 
 However, math conventions for matrix math typically do things in columns (column-major order):
 ```js
 const matrix = [
-	0,	4,	8,	12,
-	1,	5,	9,	13,
-	2,	6,	10,	14,
-	3,	7,	11,	15
+	0, 4,  8, 12,
+	1, 5,  9, 13,
+	2, 6, 10, 14,
+	3, 7, 11, 15
 ];
 ```
 
 Therefore, in the context of WebGL, rows are typically called "columns."
 ```js
 const matrix = [
-	0,	1,	2,	3, // Column 0
-	4,	5,	6,	7, // Column 1
-	8,	9,	10,	11, // Column 2
-	12,	13,	14,	15 // Column 3
+	 0,  1,  2,  3, // Column 0
+	 4,  5,  6,  7, // Column 1
+	 8,  9, 10, 11, // Column 2
+	12, 13, 14, 15 // Column 3
 ];
 ```
 
@@ -102,27 +102,27 @@ const matrix = [
 
 To do the math, we multiply the position down the columns of the matrix and add up the results. Our positions only have two values (`x` and `y`), but to do this math we need three values, so we use one for the third value. In the case of the above example, the result would look like this:
 ```
-newX =	x * 1 +		newY =	x * 2 +		extra =	x * 3 +
-		y * 4 +				y * 5 +				y * 6 +
-		1 * 7				1 * 8				1 * 9
+newX = x * 1 +    newY = x * 2 +    extra = x * 3 +
+       y * 4 +           y * 5 +            y * 6 +
+       1 * 7             1 * 8              1 * 9
 ```
 
-#### 2D examples
+### 2D examples
 
-##### Translation
+#### Translation
 For example, a translation matrix looks like this:
 ```
-1,	0,	0,
-0,	1,	0,
-tx,	ty,	1
+1,  0,  0,
+0,  1,  0,
+tx, ty, 1
 ```
 Where `tx` and `ty` are the amount we want to translate by.
 
 The result of the transformation would be solved like:
 ```
-newX =	x * 1 +		newY =	x * 0 +		extra =	x * 0 +
-		y * 0 +				y * 1 +				y * 0 +
-		1 * tx				1 * ty				1 * 1
+newX = x * 1 +    newY = x * 0 +    extra = x * 0 +
+       y * 0 +           y * 1 +            y * 0 +
+       1 * tx            1 * ty             1 * 1
 ```
 
 Since multiplication by 0 is always 0 and multiplication by 1 does nothing, we can simplify this operation to:
@@ -131,20 +131,20 @@ newX = x + tx;
 newY = y + ty;
 ```
 
-##### Rotation
+#### Rotation
 A rotation matrix looks like this:
 ```
-c,	-s,	0,
-s,	c,	0,
-0,	0,	1
+c, -s, 0,
+s,  c, 0,
+0,  0, 1
 ```
 Where `c` is the cosine of our rotation in radians and `s` is the sine.
 
 The result of the transformation would be solved like:
 ```
-newX =	x * c +		newY =	x * -s +	extra =	x * 0 +
-		y * s +				y * c +				y * 0 +
-		1 * 0				1 * 0				1 * 1
+newX = x * c +    newY = x * -s +    extra = x * 0 +
+       y * s +           y * c +             y * 0 +
+       1 * 0             1 * 0               1 * 1
 ```
 
 We can simplify this operation to:
@@ -153,20 +153,20 @@ newX = x * c + y * s;
 newY = x * -s + y * c;
 ```
 
-##### Scale
+#### Scale
 A scale matrix looks like this:
 ```
-sx,	0,	0,
-0,	sy,	0,
-0,	0,	1
+sx,  0, 0,
+0,  sy, 0,
+0,   0, 1
 ```
 Where `sx` and `sy` are the scale factors.
 
 The result of the transformation would be solved like:
 ```
-newX =	x * sx +	newY =	x * 0 +		extra =	x * 0 +
-		y * 0 +				y * sy +			y * 0 +
-		1 * 0				1 * 0				1 * 1
+newX = x * sx +    newY = x * 0 +    extra = x * 0 +
+       y * 0 +            y * sy +           y * 0 +
+       1 * 0              1 * 0              1 * 1
 ```
 
 We can simplify this operation to:
@@ -175,7 +175,36 @@ newX = x * sx;
 newY = y * sy;
 ```
 
-#### Multiplying matrices
+### Identity
+An "identity matrix" is basically the "1" of matrices. Multiplying a matrix by identity returns the same matrix. A 3x3 identity matrix looks like this:
+```
+1 0 0
+0 1 0
+0 0 1
+```
+
+A 4x4 identity matrix looks like this:
+```
+1 0 0 0
+0 1 0 0
+0 0 1 0
+0 0 0 1
+```
+
+Et cetera.
+
+### Orthographic matrix
+We can use the `Matrix.orthographic` method to convert from clip space to screen space. In an earlier example, we did this from within the shader like this:
+```glsl
+vec2 zeroToOne = position / resolution;
+vec2 zeroToTwo = zeroToOne * 2.0;
+vec2 clipSpace = zeroToTwo - 1.0;
+gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+```
+
+The first, second, and fourth steps are basically scale transformations, while the third is basically a translation. Therefore, the same result can be achieved with matrix math. This is the functionality that is built into the  `Matrix.orthographic` method in Umbra.
+
+### Multiplying matrices
 Matrices can be multiplied together in order to apply all of the transformations at once. The math for this is too bloated and complicated for the scope of this tutorial, so examples from now on will utilize the matrix math that is already built into Umbra. If you would like to learn in detail how more advanced matrix math works, you can try reading through the source code for Umbra or a tutorial on linear algebra.
 
 In Umbra, the `Matrix` class represents a matrix. We can call methods on the `Matrix` class, such as `Matrix.rotate()`, to multiply the matrix by other matrices (and therefore apply transformations).
@@ -265,10 +294,10 @@ const program = Program.fromSource(gl, vertexShaderSource, fragmentShaderSource)
 import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionBuffer = new Buffer(gl, new Float32Array([
-	-300, 300,
+	-300,  300,
 	-300, -300,
-	300, -300,
-	300, 300
+	 300, -300,
+	 300,  300
 ]));
 ```
 

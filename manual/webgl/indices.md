@@ -2,22 +2,22 @@
 In previous examples, we used `gl.drawArrays` to tell WebGL to draw to the screen. The alternative to this is `gl.drawElements`, which allows us to use the same vertices multiple times in a shape without re-defining them. For example, you could draw a rectangle using `gl.drawArrays` with 6 points (2 repeats):
 ```js
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-	left, top,
-	left, bottom,
+	 left,    top,
+	 left, bottom,
 	right, bottom,
-	left, top,
+	 left,    top,
 	right, bottom,
-	right, top
+	right,    top
 ]), gl.STATIC_DRAW);
 ```
 
 Or we could draw the same rectangle using `gl.drawElements` with 4 points:
 ```js
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-	left, top,
-	left, bottom,
+	 left,    top,
+	 left, bottom,
 	right, bottom,
-	right, top
+	right,    top
 ]), gl.STATIC_DRAW);
 ```
 
@@ -46,10 +46,10 @@ Start this example from the varyings example in the introduction to WebGL2 artic
 First, we'll change our positions to the corners of a rectangle.
 ```js
 const positions = [
-	-1, 1,
+	-1,  1,
 	-1, -1,
-	1, -1,
-	1, 1
+	 1, -1,
+	 1,  1
 ];
 ```
 

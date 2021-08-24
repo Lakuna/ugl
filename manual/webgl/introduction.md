@@ -75,10 +75,10 @@ In order to draw on the screen, we need an HTML canvas element.
 &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
 &lt;style&gt;
 	* {
-		width: 100%;
-		height: 100%;
-		margin: 0px;
-		padding: 0px;
+		  width: 100%;
+		 height: 100%;
+		 margin:  0px;
+		padding:  0px;
 	}
 &lt;/style&gt;
 &lt;script&gt;
@@ -218,9 +218,9 @@ Now we can put data in the buffer by referencing it through the bind point.
 ```js
 // Three two-dimensional points.
 const positions = [
-	0, 0,
-	0, 0.5,
-	0.7, 0
+	  0,   0,
+	  0, 0.5,
+	0.7,   0
 ];
 
 // Access the buffer through the bind point.
@@ -236,9 +236,9 @@ If you're using Umbra, you can use the `Buffer` constructor instead of all of th
 import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionBuffer = new Buffer(gl, new Float32Array([
-	0, 0,
-	0, 0.5,
-	0.7, 0
+	  0,   0,
+	  0, 0.5,
+	0.7,   0
 ]));
 ```
 
