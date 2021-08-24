@@ -194,7 +194,7 @@ requestAnimationFrame(render);
 #### Set uniforms and draw
 In order to use a texture in a uniform, you would usually have to bind the texture unit you used when you created the texture. Umbra keeps track of this information for you, so you can just assign the `Texture` object.
 ```js
-program.use()
+program.use();
 
 program.uniforms.get("u_matrix").value = new Matrix(); // Not using any transforms.
 program.uniforms.get("u_texture").value = texture;
