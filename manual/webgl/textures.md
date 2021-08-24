@@ -79,7 +79,7 @@ In Umbra, the `Texture` class handles all of the specifics for us.
 ```js
 import { Texture, Color } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const texture = new Texture({ gl, data: new Uint8Array(new Color(0x0000FF)) });
+const texture = Texture.fromColor(gl, new Color(0x0000FF));
 ```
 
 ## Textures example
@@ -166,9 +166,9 @@ const vao = VAO.fromGeometry(program, plane, "a_position", "a_texcoord", null);
 
 #### Create texture
 ```js
-import { Texture, Color, Vector } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+import { Texture, Color } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const texture = new Texture({ gl, data: new Uint8Array(new Color(0x0000FF)), size: new Vector(1, 1) });
+const texture = Texture.fromColor(gl, new Color(0x0000FF));
 ```
 
 ### Render step
@@ -221,7 +221,7 @@ Umbra also handles image loading for us, including CORS (see below).
 ```js
 import { Texture } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const texture = Texture.fromImage("https://docs.umbra.lakuna.pw/manual/asset/rgb.png");
+const texture = Texture.fromImage(gl, "https://docs.umbra.lakuna.pw/manual/asset/rgb.png");
 ```
 
 ### CORS

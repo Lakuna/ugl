@@ -9,20 +9,22 @@ import { Color } from "../utility/Color.js";
 export class Texture {
 	/**
 	 * Creates a texture from a color.
+	 * @param {WebGLRenderingContext} gl - The rendering context of the texture.
 	 * @param {Color} color - The color of the texture.
 	 * @return {Texture} A monocolored texture.
 	 */
-	static fromColor(color) {
-		return new Texture({ data: new Uint8Array(color), size: new Vector(1, 1) });
+	static fromColor(gl, color) {
+		return new Texture({ gl, data: new Uint8Array(color), size: new Vector(1, 1) });
 	}
 
 	/**
 	 * Creates a texture from an image.
+	 * @param {WebGLRenderingContext} gl - The rendering context of the texture.
 	 * @param {string} imageSource - The source URL or Base64 of the image.
 	 * @return {Texture} A texture containing the image.
 	 */
-	static fromImage(imageSource) {
-		const texture = Texture.fromColor(new Color(0xFF00FF));
+	static fromImage(gl, imageSource) {
+		const texture = Texture.fromColor(gl, new Color(0xFF00FF));
 
 		// Create an image.
 		const image = new Image();
