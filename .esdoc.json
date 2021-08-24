@@ -23,7 +23,8 @@
 					"files": [
 						"./manual/webgl/introduction.md",
 						"./manual/webgl/structure.md",
-						"./manual/webgl/indices.md"
+						"./manual/webgl/indices.md",
+						"./manual/webgl/transformation.md"
 					]
 				}
 			}

@@ -1,4 +1,4 @@
-# Introduction to WebGL2
+# WebGL Introduction
 This guide is heavily based on the one at [webgl2fundamentals](https://webgl2fundamentals.org/). It follows the same format and some of the more difficult to describe topics are copied almost verbatim. If you are looking to learn WebGL2 without the help of a framework, either of these guides should work fine (although the examples in this one will use modern JavaScript). The point of making this guide is to introduce Umbra's WebGL portion in a way that encourages utilizing it to its fullest extent.
 
 All of the CodePen examples in my WebGL tutorials can be found in the collection [here](https://codepen.io/collection/KpPxqB).

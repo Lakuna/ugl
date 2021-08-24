@@ -29,4 +29,68 @@ export class Color extends Array {
 
 		super(...data); // Will error if data is supplied in an invalid format.
 	}
+
+	/**
+	 * The red value of the color.
+	 * @type {number}
+	 */
+	get r() {
+		return this[0] ?? 0;
+	}
+
+	/**
+	 * The red value of the color.
+	 * @type {number}
+	 */
+	set r(value) {
+		/** @ignore */ this[0] = value;
+	}
+
+	/**
+	 * The green value of the color.
+	 * @type {number}
+	 */
+	get g() {
+		return this[1] ?? 0;
+	}
+
+	/**
+	 * The green value of the color.
+	 * @type {number}
+	 */
+	set g(value) {
+		/** @ignore */ this[1] = value;
+	}
+
+	/**
+	 * The blue value of the color.
+	 * @type {number}
+	 */
+	get b() {
+		return this[2] ?? 0;
+	}
+
+	/**
+	 * The blue value of the color.
+	 * @type {number}
+	 */
+	set b(value) {
+		/** @ignore */ this[2] = value;
+	}
+
+	/**
+	 * The alpha value of the color.
+	 * @type {number}
+	 */
+	get a() {
+		return this[3] ?? 0;
+	}
+
+	/**
+	 * The alpha value of the color.
+	 * @type {number}
+	 */
+	set a(value) {
+		/** @ignore */ this[3] = value;
+	}
 }

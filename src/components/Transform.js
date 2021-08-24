@@ -45,9 +45,9 @@ export class Transform extends Component {
 	 */
 	get matrix() {
 		return new Matrix()
-			.translate(...this.translation)
-			.rotate(...this.rotation)
-			.scale(...this.scale);
+			.translate(this.translation)
+			.rotate(this.rotation)
+			.scale(this.scale);
 	}
 
 	/**

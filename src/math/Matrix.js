@@ -240,6 +240,7 @@ export class Matrix extends Array {
 	 * @return {Matrix} Self.
 	 */
 	translate(vector) {
+		vector = new Vector(...vector);
 		return this.multiply([
 			1, 			0, 			0, 			0,
 			0, 			1, 			0, 			0,
@@ -305,6 +306,7 @@ export class Matrix extends Array {
 	 * @return {Matrix} Self.
 	 */
 	rotate(vector) {
+		vector = new Vector(...vector);
 		return this.rotateX(vector.x).rotateY(vector.y).rotateZ(vector.z);
 	}
 
@@ -314,6 +316,7 @@ export class Matrix extends Array {
 	 * @return {Matrix} Self.
 	 */
 	scale(vector) {
+		vector = new Vector(...vector);
 		return this.multiply([
 			vector.x,	0,			0,			0,
 			0,			vector.y,	0,			0,
