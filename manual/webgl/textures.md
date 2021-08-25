@@ -413,3 +413,233 @@ vao.draw();
 
 #### Result
 [This](https://codepen.io/lakuna/full/vYZELjN) is the above example.
+
+## Image processing
+Before we get started with image processing, look over [this](https://codepen.io/lakuna/full/JjJoKbr) code, which will serve as the base for the examples below. It is a picture of my cat Dopey, which maintains its 16:9 aspect ratio regardless of canvas size.
+
+### Color swap
+By adding `.bgra` to the end of our `outColor` setter in the fragment shader, we can swap red and blue in the image.
+```glsl
+void main() {
+	outColor = texture(u_texture, v_texcoord).bgra;
+}
+```
+
+View the result [here](https://codepen.io/lakuna/full/JjJoKLL).
+
+### Convolution kernel
+A convolution kernel can be used to reference other pixels in a fragment shader. A convolution kernel is just a 3x3 (in this case) matrix in which each entry represents how much to multiply the 8 pixels around the pixel we are rendering.
+```glsl
+#version 300 es
+
+precision highp float;
+
+in vec2 v_texcoord;
+
+uniform sampler2D u_texture;
+uniform float u_kernel[9];
+uniform float u_kernelWeight;
+
+out vec4 outColor;
+
+void main() {
+	vec2 onePixel = vec2(1) / vec2(textureSize(u_texture, 0));
+
+	vec4 colorSum = 
+		texture(u_texture, v_texcoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 0, -1)) * u_kernel[1] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 1, -1)) * u_kernel[2] +
+		texture(u_texture, v_texcoord + onePixel * vec2(-1,  0)) * u_kernel[3] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 0,  0)) * u_kernel[4] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 1,  0)) * u_kernel[5] +
+		texture(u_texture, v_texcoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
+		texture(u_texture, v_texcoord + onePixel * vec2( 1,  1)) * u_kernel[8];
+	outColor = vec4((colorSum / u_kernelWeight).rgb, 1);
+}
+```
+
+In JavaScript, we need to supply the kernel and its weight.
+```js
+// Initialization step
+const kernel = new Matrix(
+	-1, -1, -1,
+	-1,  8, -1,
+	-1, -1, -1
+);
+const kernelWeight = Math.max(kernel.reduce((a, b) => a + b), 1);
+
+// Render step
+program.uniforms.get("u_kernel[0]").value = kernel;
+program.uniforms.get("u_kernelWeight").value = kernelWeight;
+```
+
+[Here](https://codepen.io/lakuna/full/bGRNeJE) is this example.
+
+There are a ton of things that can be done with convolution kernels. The example above uses an edge detection kernel. Below are some alternatives.
+
+#### Normal
+```js
+const kernel = new Matrix(
+	0, 0, 0,
+	0, 1, 0,
+	0, 0, 0
+);
+```
+
+#### Gaussian blur
+```js
+const kernel = new Matrix(
+	0.045, 0.122, 0.045,
+	0.122, 0.332, 0.122,
+	0.045, 0.122, 0.045
+);
+```
+```js
+const kernel = new Matrix(
+	1, 2, 1,
+	2, 4, 2,
+	1, 2, 1
+);
+```
+```js
+const kernel = new Matrix(
+	0, 1, 0,
+	1, 1, 1,
+	0, 1, 0
+);
+```
+
+#### Unsharpen
+```js
+const kernel = new Matrix(
+	-1, -1, -1,
+	-1,  9, -1,
+	-1, -1, -1
+);
+```
+
+#### Sharpness
+```js
+const kernel = new Matrix(
+	 0, -1,  0,
+	-1,  5, -1,
+	 0, -1,  0
+);
+```
+
+#### Sharpen
+```js
+const kernel = new Matrix(
+	-1, -1, -1,
+	-1, 16, -1,
+	-1, -1, -1
+);
+```
+
+#### Edge detect
+```js
+const kernel = new Matrix(
+	-0.125, -0.125, -0.125,
+	-0.125,      1, -0.125,
+	-0.125, -0.125, -0.125
+);
+```
+```js
+const kernel = new Matrix(
+	-1, -1, -1,
+	-1,  8, -1,
+	-1, -1, -1
+);
+```
+```js
+const kernel = new Matrix(
+	-5, 0, 0,
+	 0, 0, 0,
+	 0, 0, 5
+);
+```
+```js
+const kernel = new Matrix(
+	-1, -1, -1,
+	 0,  0,  0,
+	 1,  1,  1
+);
+```
+```js
+const kernel = new Matrix(
+	-1, -1, -1,
+	 2,  2,  2,
+	-1, -1, -1
+);
+```
+```js
+const kernel = new Matrix(
+	-5, -5, -5,
+	-5, 39, -5,
+	-5, -5, -5
+);
+```
+
+#### Sobel horizontal
+```js
+const kernel = new Matrix(
+	 1,  2,  1,
+	 0,  0,  0,
+	-1, -2, -1
+);
+```
+
+#### Sobel vertical
+```js
+const kernel = new Matrix(
+	1, 0, -1,
+	2, 0, -2,
+	1, 0, -1
+);
+```
+
+#### Previt horizontal
+```js
+const kernel = new Matrix(
+	 1,  1,  1,
+	 0,  0,  0,
+	-1, -1, -1
+);
+```
+
+#### Previt vertical
+```js
+const kernel = new Matrix(
+	1, 0, -1,
+	1, 0, -1,
+	1, 0, -1
+);
+```
+
+#### Box blur
+```js
+const kernel = new Matrix(
+	0.111, 0.111, 0.111,
+	0.111, 0.111, 0.111,
+	0.111, 0.111, 0.111
+);
+```
+
+#### Triangle blur
+```js
+const kernel = new Matrix(
+	0.0625, 0.125, 0.0625,
+	 0.125,  0.25,  0.125,
+	0.0625, 0.125, 0.0625
+);
+```
+
+#### Emboss
+```js
+const kernel = new Matrix(
+	-2, -1, 0,
+	-1,  1, 1,
+	 0,  1, 2
+);
+```
