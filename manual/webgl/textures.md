@@ -463,9 +463,9 @@ In JavaScript, we need to supply the kernel and its weight.
 ```js
 // Initialization step
 const kernel = new Matrix(
-	-1, -1, -1,
-	-1,  8, -1,
-	-1, -1, -1
+	-5, 0, 0,
+	 0, 0, 0,
+	 0, 0, 5
 );
 const kernelWeight = Math.max(kernel.reduce((a, b) => a + b), 1);
 
