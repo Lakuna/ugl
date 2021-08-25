@@ -57,7 +57,7 @@ Scaling by a negative number flips the geometry. Scaling takes place from `(0, 0
 
 ## Matrices
 
-### Column-major versus row-major order
+### X-major order
 Before we begin talking about matrices, you should know that there is a small difference between matrices in WebGL and matrices in normal linear algebra. In programming, a row typically goes from left to right, and a column goes from top to bottom. When we make a matrix in JavaScript, we do it like this (row-major order):
 ```js
 const matrix = [
