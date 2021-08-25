@@ -203,7 +203,7 @@ vao.draw();
 ```
 
 ### Result
-TODO
+[This](https://codepen.io/lakuna/full/powvvYZ) is the result of the above example.
 
 ## Loading an image
 If we'd like to load an image into the texture, we have to do so asynchronously.
@@ -230,6 +230,17 @@ const texture = Texture.fromImage(gl, "https://docs.umbra.lakuna.pw/manual/asset
 image.crossOrigin = "";
 image.src = "https://docs.umbra.lakuna.pw/manual/asset/rgb.png";
 ```
+
+### Images example
+
+#### Initialization step
+The only difference between this example and the last one is that we use the static `Texture.fromImage` method to get the texture.
+```js
+const texture = Texture.fromImage(gl, "https://docs.umbra.lakuna.pw/manual/asset/rgb.png");
+```
+
+#### Result
+[This](https://codepen.io/lakuna/full/ZEyYQBx) is the example above.
 
 ## Using part of a texture
 TODO
