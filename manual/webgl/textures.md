@@ -330,43 +330,42 @@ Here, we're using a modified version of the cube geometry from the 3D article. T
 import { Geometry, VAO } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 // Cube values go here.
-
 const cubeTextureCoordinates = [
     // Front
-    0, 0,
     0, 99 / 199,
-    99 / 299, 99 / 199,
+    0, 0,
     99 / 299, 0,
+    99 / 299, 99 / 199,
 
     // Back
-    100 / 299, 0,
     100 / 299, 99 / 199,
-    199 / 299, 99 / 199,
+    100 / 299, 0,
     199 / 299, 0,
+    199 / 299, 99 / 199,
 
     // Right
-    200 / 299, 0,
     200 / 299, 99 / 199,
-    1, 99 / 199,
+    200 / 299, 0,
     1, 0,
+    1, 99 / 199,
 
     // Left
-    0, 100 / 199,
     0, 1,
-    99 / 299, 1,
+    0, 100 / 199,
     99 / 299, 100 / 199,
+    99 / 299, 1,
 
     // Top
-    100 / 299, 100 / 199,
     100 / 299, 1,
-    199 / 299, 1,
+    100 / 299, 100 / 199,
     199 / 299, 100 / 199,
+    199 / 299, 1,
 
     // Bottom
-    200 / 299, 100 / 199,
     200 / 299, 1,
-    1, 1,
-    1, 100 / 199
+    200 / 299, 100 / 199,
+    1, 100 / 199,
+    1, 1
 ];
 
 const atlasCube = new Geometry(cubeVertexPositions, cubeTextureCoordinates, cubeNormals, cubeIndices);
