@@ -1,3 +1,5 @@
+/** @external {Event} https://developer.mozilla.org/en-US/docs/Web/API/Event */
+
 import { Vector } from "../math/Vector.js";
 
 /** Unifies mouse and touchscreen input. */
@@ -9,6 +11,8 @@ export class Pointer {
 	 * @param {HTMLCanvasElement} canvas - The canvas that the pointer is tracked in relation to.
 	 */
 	constructor(canvas) {
+		if (typeof window == "undefined") { throw new Error("Cannot use window events in a headless environment."); }
+		
 		/** @ignore */ this.#canvas = canvas;
 
 		/**
@@ -25,39 +29,40 @@ export class Pointer {
 
 		/**
 		 * A function to call when the pointer is pressed.
-		 * @type {?function}
+		 * @type {function<Event>}
 		 */
 		this.onDown = undefined;
 
 		/**
 		 * A function to call when the pointer is released.
-		 * @type {?function}
+		 * @type {function<Event>}
 		 */
 		this.onUp = undefined;
 
 		const moveHandler = (event) => {
-			this.position = this.#eventPosition(event);
+			this.position = event.targetTouches?.length
+				? new Vector(event.targetTouches[0].pageX - canvas.offsetLeft, event.targetTouches[0].pageY - canvas.offsetTop)
+				: new Vector(event.pageX - event.target.offsetLeft, event.pageY - event.target.offsetTop);
 			event.preventDefault();
 		};
+		addEventListener("mousemove", moveHandler);
+		addEventListener("touchmove", moveHandler);
 
 		const downHandler = (event) => {
+			if (!this.isDown) { this.onDown?.(event); }
 			this.isDown = true;
-			this.onDown?.();
 			event.preventDefault();
 		};
+		addEventListener("mousedown", downHandler);
+		addEventListener("touchstart", downHandler);
 
 		const upHandler = (event) => {
-			this.isDown = false;
-			this.onUp?.();
+			if (this.isDown) { this.onUp?.(event); }
+			event.isDown = false;
 			event.preventDefault();
 		};
-
-		canvas.addEventListener("mousemove", moveHandler);
-		canvas.addEventListener("touchmove", moveHandler);
-		canvas.addEventListener("mousedown", downHandler);
-		canvas.addEventListener("touchstart", downHandler);
-		canvas.addEventListener("mouseup", upHandler);
-		canvas.addEventListener("touchend", upHandler);
+		addEventListener("mouseup", upHandler);
+		addEventListener("touchend", upHandler);
 	}
 
 	/**
@@ -66,11 +71,5 @@ export class Pointer {
 	 */
 	get canvas() {
 		return this.#canvas;
-	}
-
-	#eventPosition(event) {
-		return event.targetTouches
-			? new Vector(event.targetTouches[0].pageX - this.canvas.offsetLeft, event.targetTouches[0].pageY - this.canvas.offsetTop)
-			: new Vector(event.pageX - event.target.offsetLeft, event.pageY - event.target.offsetTop);
 	}
 }

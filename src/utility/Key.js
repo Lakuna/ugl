@@ -3,13 +3,13 @@ export class Key {
 	static #keys = [];
 
 	static #addKey(key) {
-		if (typeof addEventListener == "undefined") { throw new Error("Cannot use keys in a headless environment."); }
+		if (typeof window == "undefined") { throw new Error("Cannot use window events in a headless environment."); }
 
 		if (!Key.#keys.length) {
 			addEventListener("keydown", (event) => {
 				for (const key of Key.#keys) {
 					if (event.keyCode != key.code) { continue; }
-					key.onDown?.();
+					if (!key.isDown) { key.onDown?.(event); }
 					key.isDown = true;
 					event.preventDefault();
 				}
@@ -18,7 +18,7 @@ export class Key {
 			addEventListener("keyup", (event) => {
 				for (const key of Key.#keys) {
 					if (event.keyCode != key.code) { continue; }
-					key.onUp?.();
+					if (key.isDown) { key.onUp?.(event); }
 					key.isDown = false;
 					event.preventDefault();
 				}
@@ -47,13 +47,13 @@ export class Key {
 
 		/**
 		 * A function to call when the key is pressed.
-		 * @type {?function}
+		 * @type {function<Event>}
 		 */
 		this.onDown = undefined;
 
 		/**
 		 * A function to call when the key is released.
-		 * @type {?function}
+		 * @type {function<Event>}
 		 */
 		this.onUp = undefined;
 
