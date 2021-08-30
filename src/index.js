@@ -33,4 +33,5 @@
 /** @ignore */ export * from "./utility/Geometry.js";
 /** @ignore */ export * from "./utility/Key.js";
 /** @ignore */ export * from "./utility/makeFullscreenCanvas.js";
+/** @ignore */ export * from "./utility/Pointer.js";
 /** @ignore */ export * from "./utility/resizeCanvas.js";

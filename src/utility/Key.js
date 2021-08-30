@@ -9,7 +9,7 @@ export class Key {
 			addEventListener("keydown", (event) => {
 				for (const key of Key.#keys) {
 					if (event.keyCode != key.code) { continue; }
-					if (!key.isDown && key.onDown) { key.onDown(); }
+					key.onDown?.();
 					key.isDown = true;
 					event.preventDefault();
 				}
@@ -18,7 +18,7 @@ export class Key {
 			addEventListener("keyup", (event) => {
 				for (const key of Key.#keys) {
 					if (event.keyCode != key.code) { continue; }
-					if (key.isDown && key.onUp) { key.onUp(); }
+					key.onUp?.();
 					key.isDown = false;
 					event.preventDefault();
 				}

@@ -56,7 +56,7 @@ export class Alea {
 	 * @return {number} A pseudo-random number.
 	 */
 	fraction() {
-		return random() + (random() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
+		return this.#random() + (this.#random() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
 	}
 
 	#random() {
