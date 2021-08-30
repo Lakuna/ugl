@@ -28,6 +28,7 @@
 /** @ignore */ export * from "./components/Transform.js";
 
 // Utility
+/** @ignore */ export * from "./utility/Alea.js";
 /** @ignore */ export * from "./utility/Color.js";
 /** @ignore */ export * from "./utility/Geometry.js";
 /** @ignore */ export * from "./utility/makeFullscreenCanvas.js";
