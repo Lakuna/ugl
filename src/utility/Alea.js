@@ -8,10 +8,7 @@ export class Alea {
 	 */
 	static version = 0.9;
 
-	#s0;
-	#s1;
-	#s2;
-	#c;
+	#random;
 
 	/**
 	* Create an instance of Alea.
@@ -27,19 +24,27 @@ export class Alea {
 		this.seeds = seeds;
 
 		const mash = new Mash();
-		/** @ignore */ this.#s0 = mash.random(" ");
-		/** @ignore */ this.#s1 = mash.random(" ");
-		/** @ignore */ this.#s2 = mash.random(" ");
-		/** @ignore */ this.#c = 1;
+		let s0 = mash.random(" ");
+		let s1 = mash.random(" ");
+		let s2 = mash.random(" ");
 		for (let i = 0; i < seeds.length; i++) {
-			this.#s0 -= mash.random(seeds[i]);
-			if (this.#s0 < 0) { this.#s0 += 1; }
+			s0 -= mash.random(seeds[i]);
+			if (s0 < 0) { s0 += 1; }
 
-			this.#s1 -= mash.random(seeds[i]);
-			if (this.#s1 < 0) { this.#s1 += 1; }
+			s1 -= mash.random(seeds[i]);
+			if (s1 < 0) { s1 += 1; }
 
-			this.#s2 -= mash.random(seeds[i]);
-			if (this.#s2 < 0) { this.#s2 += 1; }
+			s2 -= mash.random(seeds[i]);
+			if (s2 < 0) { s2 += 1; }
+		}
+
+		let c = 1;
+
+		/** @ignore */ this.#random = () => {
+			const t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
+			s0 = s1;
+			s1 = s2;
+			return s2 = t - (c = t | 0);
 		}
 	}
 
@@ -57,12 +62,5 @@ export class Alea {
 	 */
 	fraction() {
 		return this.#random() + (this.#random() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
-	}
-
-	#random() {
-		const t = 2091639 * this.#s0 + this.#c * 2.3283064365386963e-10; // 2^-32
-		this.#s0 = this.#s1;
-		this.#s1 = this.#s2;
-		return this.#s2 = t - (this.#c = t | 0);
 	}
 }
