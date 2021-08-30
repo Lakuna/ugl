@@ -58,7 +58,7 @@ export class Pointer {
 
 		const upHandler = (event) => {
 			if (this.isDown) { this.onUp?.(event); }
-			event.isDown = false;
+			this.isDown = false;
 			event.preventDefault();
 		};
 		addEventListener("mouseup", upHandler);

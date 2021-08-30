@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.20.2",
+  "version": "0.20.3",
   "description": "Lightweight JavaScript game framework, WebGL, and math library.",
   "keywords": [
     "front-end",
