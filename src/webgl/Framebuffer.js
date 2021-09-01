@@ -99,7 +99,7 @@ export class Framebuffer {
 	 * @param {number} [layer=0] - The layer of the texture image to attach to the framebuffer if using the layer update mode.
 	 */
 	add(data, attachmentPoint = COLOR_ATTACHMENT0, updateMode = Framebuffer.updateModes.MODE_2D, level = 0, layer = 0) {
-		this.data.bind?.();
+		data.bind?.();
 		this.bind();
 
 		switch (updateMode) {
