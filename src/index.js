@@ -35,3 +35,4 @@
 /** @ignore */ export * from "./utility/makeFullscreenCanvas.js";
 /** @ignore */ export * from "./utility/Pointer.js";
 /** @ignore */ export * from "./utility/resizeCanvas.js";
+/** @ignore */ export * from "./utility/Simplex.js";
