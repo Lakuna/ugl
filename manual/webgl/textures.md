@@ -642,3 +642,15 @@ const kernel = new Matrix(
 	 0,  1, 2
 );
 ```
+
+### Multiple effects
+In order to use multiple effects on an image, we can use framebuffers. The way this works is that we create two more *work* textures and render to each texture in turn, applying the next effect each time. A framebuffer isn't actually a type of buffer; it's a list of attachments. By attaching a texture to a framebuffer, we can render into that texture.
+```js
+import { Texture } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+
+// Create blank textures with parameters that allow them to render any size of image.
+const blankTexture1 = new Texture({ gl, generateMipmap: false, minFilter: gl.NEAREST, magFilter: gl.NEAREST });
+const blankTexture2 = new Texture({ gl, generateMipmap: false, minFilter: gl.NEAREST, magFilter: gl.NEAREST });
+```
+
+TODO

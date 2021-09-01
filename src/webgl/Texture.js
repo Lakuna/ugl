@@ -36,7 +36,6 @@ export class Texture {
 		image.addEventListener("load", () => {
 			texture.data = image;
 			texture.size.set();
-			texture.needsUpdate = true;
 		});
 
 		image.src = imageSource; // Start loading the image.
@@ -58,7 +57,7 @@ export class Texture {
 	 * MODE_COPY_SUB_3D
 	 * MODE_COMPRESSED_3D
 	 * MODE_COMPRESSED_SUB_3D
-	 * @type {Object}
+	 * @type {Object<Symbol>}
 	 */
 	static updateModes = {
 		MODE_COMPRESSED_2D: Symbol("Compressed 2D"),
@@ -74,11 +73,13 @@ export class Texture {
 		MODE_COMPRESSED_SUB_3D: Symbol("Compressed sub-image 3D")
 	};
 
+	#cache;
+
 	/**
 	 * Create a texture.
 	 * @param {Object} [arguments={}] - An object containing the arguments.
 	 * @param {WebGLRenderingContext} arguments.gl - The rendering context of the texture.
-	 * @param {*} data - The data contained within the texture.
+	 * @param {*} [arguments.data=null] - The data contained within the texture.
 	 * @param {number} [arguments.target=TEXTURE_2D] - The bind target of the texture.
 	 * @param {boolean} [arguments.generateMipmap=true] - Whether to generate a mipmap for the texture.
 	 * @param {boolean} [arguments.flipY=target==TEXTURE_2D] - Whether to flip the Y axis of the texture.
@@ -102,7 +103,7 @@ export class Texture {
 	 */
 	constructor({
 		gl,
-		data,
+		data = null,
 		target = TEXTURE_2D,
 
 		generateMipmap = true,
@@ -289,12 +290,6 @@ export class Texture {
 		 * @type {Symbol}
 		 */
 		this.updateMode = updateMode;
-
-		/**
-		 * Whether the values need to be re-applied to the WebGL texture.
-		 * @type {boolean}
-		 */
-		this.needsUpdate = true;
 	}
 
 	/**
@@ -327,8 +322,19 @@ export class Texture {
 		this.gl.activeTexture(TEXTURE0 + textureUnit);
 		this.bind();
 
-		if (!this.needsUpdate) { return; }
-		this.needsUpdate = false;
+		// Check if an update is required.
+		const current = Object.assign({}, this);
+		if (Object.keys(this.#cache ?? {}).length == Object.keys(current).length) {
+			let needsUpdate = false;
+			for (const key of Object.keys(current)) {
+				if (current[key] != this.#cache[key]) {
+					needsUpdate = true;
+					break;
+				}
+			}
+			if (!needsUpdate) { return; }
+		}
+		/** @ignore */ this.#cache = current;
 
 		this.gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, this.flipY);
 		this.gl.pixelStorei(UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);

@@ -11,7 +11,9 @@
 // WebGL
 /** @ignore */ export * from "./webgl/Attribute.js";
 /** @ignore */ export * from "./webgl/Buffer.js";
+/** @ignore */ export * from "./webgl/Framebuffer.js";
 /** @ignore */ export * from "./webgl/Program.js";
+/** @ignore */ export * from "./webgl/Renderbuffer.js";
 /** @ignore */ export * from "./webgl/Shader.js";
 /** @ignore */ export * from "./webgl/Texture.js";
 /** @ignore */ export * from "./webgl/VAO.js";
