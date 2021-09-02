@@ -93,7 +93,7 @@ export class Texture {
 	 * @param {Vector} [arguments.offset=new Vector()] - The coordinate offset for sub-images.
 	 * @param {Vector} [arguments.copyStart=new Vector()] - The starting coordinates for copying images (bottom-left).
 	 * @param {number} [arguments.format=RGBA] - The format of the data supplied to the texture.
-	 * @param {number} [arguments.internalFormat=format] - The format of the texture.
+	 * @param {number} [arguments.internalFormat=format] - The format of the data in the texture.
 	 * @param {number} [arguments.type=UNSIGNED_BYTE] - The data type of the values in the texture.
 	 * @param {number} [arguments.level=0] - The level of the texture.
 	 * @param {number} [arguments.sourceLength] - The length of the source when reading from the PIXEL_UNPACK_BUFFER.
@@ -290,6 +290,8 @@ export class Texture {
 		 * @type {Symbol}
 		 */
 		this.updateMode = updateMode;
+
+		this.update();
 	}
 
 	/**
@@ -302,7 +304,7 @@ export class Texture {
 
 	/**
 	 * Updates texture parameters.
-	 * @param {number} textureUnit - The texture unit of the texture in the current WebGL shader program.
+	 * @param {number} [textureUnit] - The texture unit of the texture in the current WebGL shader program.
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter
@@ -318,8 +320,8 @@ export class Texture {
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
 	 * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
 	 */
-	update(textureUnit) {
-		this.gl.activeTexture(TEXTURE0 + textureUnit);
+	update(textureUnit = null) {
+		if (typeof textureUnit == "number") { this.gl.activeTexture(TEXTURE0 + textureUnit); }
 		this.bind();
 
 		// Check if an update is required.

@@ -1,7 +1,11 @@
 /** @external {WebGLFramebuffer} https://developer.mozilla.org/en-US/docs/Web/API/WebGLFramebuffer */
 
-import { FRAMEBUFFER, COLOR_ATTACHMENT0, RENDERBUFFER } from "./constants.js";
+import { FRAMEBUFFER, COLOR_ATTACHMENT0, RENDERBUFFER, CLAMP_TO_EDGE, LINEAR, UNSIGNED_BYTE, RGBA, NEAREST,
+	DEPTH_COMPONENT, DEPTH_COMPONENT16, UNSIGNED_INT, DEPTH_ATTACHMENT, STENCIL_INDEX8, STENCIL_ATTACHMENT,
+	DEPTH_STENCIL, DEPTH_STENCIL_ATTACHMENT } from "./constants.js";
 import { Vector } from "../math/Vector.js";
+import { Texture } from "./Texture.js";
+import { Renderbuffer } from "./Renderbuffer.js";
 
 /** Class representing a WebGL framebuffer. */
 export class Framebuffer {
@@ -28,20 +32,66 @@ export class Framebuffer {
 	};
 
 	#size;
-	#data;
 
 	/**
 	 * Create a framebuffer.
-	 * @param {WebGLRenderingContext} gl - The rendering context of the framebuffer.
-	 * @param {number} [target=FRAMEBUFFER] - The bind point of the framebuffer.
-	 * @param {Vector} [size] - The width and height of the framebuffer. Gets values from data if not set.
+	 * @param {Object} [arguments={}] - An object containing the arguments.
+	 * @param {WebGLRenderingContext} arguments.gl - The rendering context of the framebuffer.
+	 * @param {number} [arguments.target=FRAMEBUFFER] - The bind point of the framebuffer.
+	 * @param {Vector} [arguments.size=new Vector(gl.canvas.width, gl.canvas.height)] - The width and height of the framebuffer. Gets values from data if not set.
+	 * @param {number} [arguments.colorTextureCount=1] - The number of color textures to add to this framebuffer.
+	 * @param {boolean} [arguments.depth=true] - Whether to use a depth buffer.
+	 * @param {boolean} [arguments.stencil=true] - Whether to use a stencil buffer.
+	 * @param {boolean} [arguments.depthTexture=true] - Whether to use a depth texture. This overrides depth and stencil buffers.
+	 * @param {number} [arguments.wrapS=CLAMP_TO_EDGE] - The wrapping behavior of the textures on the S axis.
+	 * @param {number} [arguments.wrapT=CLAMP_TO_EDGE] - The wrapping behavior of the textures on the T axis.
+	 * @param {number} [arguments.minFilter=LINEAR] - The minimum mip filter of the texture.
+	 * @param {number} [arguments.magFilter=minFilter] - The maximum mip filter of the texture.
+	 * @param {number} [arguments.type=UNSIGNED_BYTE] - The data type of the values in the textures.
+	 * @param {number} [arguments.format=RGBA] - The format of the data supplied to the textures.
+	 * @param {number} [arguments.internalFormat=format] - The format of the data in the textures.
+	 * @param {number} [arguments.unpackAlignment=4] - Unpack alignment of the textures.
+	 * @param {boolean} [arguments.premultiplyAlpha=false] - Whether to multiply the alpha channel into the other color channels.
 	 */
-	constructor(gl, target = FRAMEBUFFER, size) {
+	constructor({
+		gl,
+		target = FRAMEBUFFER,
+		size = new Vector(gl.canvas.width, gl.canvas.height),
+
+		colorTextureCount = 1,
+		depth = true,
+		stencil = false,
+		depthTexture = false,
+
+		wrapS = CLAMP_TO_EDGE,
+		wrapT = CLAMP_TO_EDGE,
+		minFilter = LINEAR,
+		magFilter = minFilter,
+		type = UNSIGNED_BYTE,
+		format = RGBA,
+		internalFormat = format,
+		unpackAlignment,
+		premultiplyAlpha
+	} = {}) {
 		/**
 		 * The rendering context of the framebuffer.
 		 * @type {WebGLRenderingContext}
 		 */
 		this.gl = gl;
+
+		this.size = size; // Use setter.
+
+		/**
+		 * Whether this framebuffer has a depth buffer.
+		 * @type {boolean}
+		 */
+		this.depth = depth;
+
+		/**
+		 * The WebGL framebuffer that this object represents.
+		 * @type {WebGLFramebuffer}
+		 */
+		this.framebuffer = gl.createFramebuffer();
 
 		/**
 		 * The bind point of the framebuffer.
@@ -49,14 +99,87 @@ export class Framebuffer {
 		 */
 		this.target = target;
 
-		/** @ignore */ this.#size = size;
-		/** @ignore */ this.#data = [];
+		this.bind();
 
 		/**
-		 * The WebGL framebuffer that this object represents.
-		 * @type {WebGLFramebuffer}
+		 * A list of textures attached to this framebuffer.
+		 * @type {Texture[]}
 		 */
-		this.framebuffer = gl.createFramebuffer();
+		this.textures = [];
+		const drawBuffers = [];
+
+		// Create and attach the requested number of color textures.
+		for (let i = 0; i < colorTextureCount; i++) {
+			this.textures.push(new Texture({
+				gl,
+
+				generateMipmaps: false,
+
+				flipY: false,
+				premultiplyAlpha,
+				unpackAlignment,
+
+				minFilter,
+				magFilter,
+				wrapS,
+				wrapT,
+
+				size,
+				format,
+				internalFormat,
+				type
+			}));
+
+			this.add(this.textures[i]);
+			drawBuffers.push(COLOR_ATTACHMENT0 + i);
+		}
+
+		if (drawBuffers.length > 1) { gl.drawBuffers(drawBuffers); }
+
+		if (depthTexture) {
+			/**
+			 * The depth texture attached to this framebuffer, if any.
+			 * @type {Texture}
+			 */
+			this.depthTexture = new Texture({
+				gl,
+
+				minFilter: NEAREST,
+				magFilter: NEAREST,
+
+				size,
+				format: DEPTH_COMPONENT,
+				internalFormat: DEPTH_COMPONENT16,
+				type: UNSIGNED_INT
+			});
+
+			this.add(this.depthTexture, DEPTH_ATTACHMENT);
+		} else {
+			if (depth && !stencil) {
+				/**
+				 * The depth buffer attached to this framebuffer, if any.
+				 * @type {Renderbuffer}
+				 */
+				this.depthBuffer = new Renderbuffer(gl, DEPTH_COMPONENT16, size);
+				this.add(this.depthBuffer, DEPTH_ATTACHMENT, Framebuffer.updateModes.MODE_RENDERBUFFER);
+			} else if (stencil && !depth) {
+				/**
+				 * The stencil buffer attached to this framebuffer, if any.
+				 * @type {Renderbuffer}
+				 */
+				this.stencilBuffer = new Renderbuffer(gl, STENCIL_INDEX8, size);
+				this.add(this.stencilBuffer, STENCIL_ATTACHMENT, Framebuffer.updateModes.MODE_RENDERBUFFER);
+			} else if (depth && stencil) {
+				/**
+				 * The depth stencil buffer attached to this framebuffer, if any.
+				 * @type {Renderbuffer}
+				 */
+				this.depthStencilBuffer = new Renderbuffer(gl, DEPTH_STENCIL, size);
+				this.add(this.depthStencilBuffer, DEPTH_STENCIL_ATTACHMENT, Framebuffer.updateModes.MODE_RENDERBUFFER);
+			}
+		}
+
+		Framebuffer.unbind(gl);
 	}
 
 	/**
@@ -74,15 +197,7 @@ export class Framebuffer {
 	 * @type {Vector}
 	 */
 	set size(value) {
-		this.#size = new Vector(...(value ?? []));
-	}
-
-	/**
-	 * The data attached to the framebuffer. Note that this returns a copy of the array, so modifying this value will not affect the framebuffer.
-	 * @type {Texture[]|Renderbuffer[]}
-	 */
-	get data() {
-		return [...this.#data];
+		/** @ignore */ this.#size = new Vector(...(value ?? []));
 	}
 
 	/** Binds this framebuffer to its target. */
@@ -116,6 +231,6 @@ export class Framebuffer {
 				throw new Error("Invalid update mode.");
 		}
 
-		this.#data.push(data);
+		Framebuffer.unbind(this.gl);
 	}
 }
