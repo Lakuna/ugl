@@ -1,439 +1,411 @@
-// Implementation of https://github.com/joshforisha/open-simplex-noise-js
+// Implementation of https://github.com/jwagner/simplex-noise.js
 
-import { Vector } from "../math/Vector.js";
-
-/** @ignore */
-class Contribution {
-	/** @ignore */
-	constructor(multiplier, xsb, ysb, zsb, wsb, squish) {
-		/** @ignore */ this.xsb = xsb;
-		/** @ignore */ this.ysb = ysb;
-		/** @ignore */ this.zsb = zsb;
-		/** @ignore */ this.wsb = wsb;
-
-		/** @ignore */ this.dx = -xsb - multiplier * squish;
-		/** @ignore */ this.dy = -ysb - multiplier * squish;
-		/** @ignore */ this.dz = -zsb - multiplier * squish;
-		/** @ignore */ this.dw = -wsb - multiplier * squish;
-
-		/** @ignore */ this.next = undefined;
-	}
-}
+import { Alea } from "./Alea.js";
 
 /** JavaScript implementation of OpenSimplex noise. */
 export class Simplex {
-	static #shuffleSeed(seed) {
-		const newSeed = new Uint32Array(1);
-		newSeed[0] = seed[0] * 1664525 + 1013904223;
-		return newSeed;
-	}
-
-	static #makeContributions(pD, base, squish, dimensions) {
-		const di = dimensions ** 2;
-		const dj = dimensions + 1;
-
-		const contributions = [];
-		for (let i = 0; i < pD.length; i += di) {
-			const baseSet = base[pD[i]];
-			let previous = null;
-			let current = null;
-			for (let j = 0; j < baseSet.length; j += dj) {
-				current = new Contribution(
-					dj > 0 ? baseSet[j] : 0,
-					dj > 1 ? baseSet[j + 1] : 0,
-					dj > 2 ? baseSet[j + 2] : 0,
-					dj > 3 ? baseSet[j + 3] : 0,
-					dj > 4 ? baseSet[j + 4] : 0,
-					squish);
-				if (!previous) { contributions[i / di] = current; } else { previous.next = current; }
-				previous = current;
-			}
-			let k = i;
-			for (let j = 0; j < dimensions - 1; j++) {
-				current.next = new Contribution(
-					dj > 0 ? baseSet[++k] : 0,
-					dj > 1 ? baseSet[++k] : 0,
-					dj > 2 ? baseSet[++k] : 0,
-					dj > 3 ? baseSet[++k] : 0,
-					dj > 4 ? baseSet[++k] : 0,
-					squish);
-				current = current.next;
-			}
+	static #buildPermutationTable(...seeds) {
+		const alea = new Alea(seeds);
+		const p = new Uint8Array(0x100);
+		for (let i = 0; i < 0x100; i++) { p[i] = i; }
+		for (let i = 0; i < 0xFF; i++) {
+			const r = i + ~~(alea.random() * (0x100 - i));
+			const aux = p[i];
+			p[i] = p[r];
+			p[r] = aux;
 		}
 
-		return contributions;
+		return p;
 	}
 
-	static #makeLookup(lookupPairs, contributions) {
-		const lookup = [];
-		for (let i = 0; i < lookupPairs.length; i += 2) {
-			lookup[lookupPairs[i]] = contributions[lookupPairs[i + 1]];
-		}
-		return lookup;
-	}
+	static #F2 = 0.5 * (Math.sqrt(3) - 1);
+	static #F3 = 1 / 3;
+	static #F4 = (Math.sqrt(5) - 1) / 4;
 
-	static #NORM_2D = 1 / 47;
-	static #NORM_3D = 1 / 103;
-	static #NORM_4D = 1 / 30;
+	static #G2 = (3 - Math.sqrt(3)) / 6;
+	static #G3 = 1 / 6;
+	static #G4 = (5 - Math.sqrt(5)) / 20;
 
-	static #SQUISH_2D = (Math.sqrt(2 + 1) - 1) / 2;
-	static #SQUISH_3D = (Math.sqrt(3 + 1) - 1) / 3;
-	static #SQUISH_4D = (Math.sqrt(4 + 1) - 1) / 4;
+	static #grad3 = new Float32Array([1, 1, 0, -1, 1, 0, 1, -1, 0, -1, -1, 0,
+		1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, -1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0,
+		-1, -1]);
+	static #grad4 = new Float32Array([0, 1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0,
+		1, -1, -1, 0, -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1, 1,
+		0, 1, 1, 1, 0, 1, -1, 1, 0, -1, 1, 1, 0, -1, -1, -1, 0, 1, 1, -1, 0, 1,
+		-1, -1, 0, -1, 1, -1, 0, -1, -1, 1, 1, 0, 1, 1, 1, 0, -1, 1, -1, 0, 1,
+		1, -1, 0, -1, -1, 1, 0, 1, -1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, -1,
+		1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1, 0, -1, 1, 1, 0, -1, 1,
+		-1, 0, -1, -1, 1, 0, -1, -1, -1, 0]);
 
-	static #STRETCH_2D = (1 / Math.sqrt(2 + 1) - 1) / 2;
-	static #STRETCH_3D = (1 / Math.sqrt(3 + 1) - 1) / 3;
-	static #STRETCH_4D = (1 / Math.sqrt(4 + 1) - 1) / 4;
-
-	static #base2D = [[1, 1, 0, 1, 0, 1, 0, 0, 0], [1, 1, 0, 1, 0, 1, 2, 1, 1]];
-	static #base3D = [
-		[0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-		[2, 1, 1, 0, 2, 1, 0, 1, 2, 0, 1, 1, 3, 1, 1, 1],
-		[1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 2, 1, 1, 0, 2, 1, 0, 1, 2, 0, 1, 1]];
-	static #base4D = [
-		[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1],
-		[3, 1, 1, 1, 0, 3, 1, 1, 0, 1, 3, 1, 0, 1, 1, 3, 0, 1, 1, 1, 4, 1, 1, 1, 1],
-		[1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 2, 1, 1, 0, 0, 2, 1, 0, 1, 0, 2, 1, 0, 0,
-		1, 2, 0, 1, 1, 0, 2, 0, 1, 0, 1, 2, 0, 0, 1, 1],
-		[3, 1, 1, 1, 0, 3, 1, 1, 0, 1, 3, 1, 0, 1, 1, 3, 0, 1, 1, 1, 2, 1, 1, 0, 0, 2, 1, 0, 1, 0, 2, 1, 0, 0,
-		1, 2, 0, 1, 1, 0, 2, 0, 1, 0, 1, 2, 0, 0, 1, 1]];
-
-	static #gradients2D = [5, 2, 2, 5, -5, 2, -2, 5, 5, -2, 2, -5, -5, -2, -2, -5];
-	static #gradients3D = [-11, 4, 4, -4, 11, 4, -4, 4, 11, 11, 4, 4, 4, 11, 4, 4, 4, 11, -11, -4, 4, -4, -11,
-		4, -4, -4, 11, 11, -4, 4, 4, -11, 4, 4, -4, 11, -11, 4, -4, -4, 11, -4, -4, 4, -11, 11, 4, -4, 4, 11,
-		-4, 4, 4, -11, -11, -4, -4, -4, -11, -4, -4, -4, -11, 11, -4, -4, 4, -11, -4, 4, -4, -11];
-	static #gradients4D = [3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, -3, 1, 1, 1, -1, 3, 1, 1, -1, 1, 3,
-		1, -1, 1, 1, 3, 3, -1, 1, 1, 1, -3, 1, 1, 1, -1, 3, 1, 1, -1, 1, 3, -3, -1, 1, 1, -1, -3, 1, 1, -1, -1,
-		3, 1, -1, -1, 1, 3, 3, 1, -1, 1, 1, 3, -1, 1, 1, 1, -3, 1, 1, 1, -1, 3, -3, 1, -1, 1, -1, 3, -1, 1, -1,
-		1, -3, 1, -1, 1, -1, 3, 3, -1, -1, 1, 1, -3, -1, 1, 1, -1, -3, 1, 1, -1, -1, 3, -3, -1, -1, 1, -1, -3,
-		-1, 1, -1, -1, -3, 1, -1, -1, -1, 3, 3, 1, 1, -1, 1, 3, 1, -1, 1, 1, 3, -1, 1, 1, 1, -3, -3, 1, 1, -1,
-		-1, 3, 1, -1, -1, 1, 3, -1, -1, 1, 1, -3, 3, -1, 1, -1, 1, -3, 1, -1, 1, -1, 3, -1, 1, -1, 1, -3, -3,
-		-1, 1, -1, -1, -3, 1, -1, -1, -1, 3, -1, -1, -1, 1, -3, 3, 1, -1, -1, 1, 3, -1, -1, 1, 1, -3, -1, 1, 1,
-		-1, -3, -3, 1, -1, -1, -1, 3, -1, -1, -1, 1, -3, -1, -1, 1, -1, -3, 3, -1, -1, -1, 1, -3, -1, -1, 1, -1,
-		-3, -1, 1, -1, -1, -3, -3, -1, -1, -1, -1, -3, -1, -1, -1, -1, -3, -1, -1, -1, -1, -3];
-
-	static #lookupPairs2D = [0, 1, 1, 0, 4, 1, 17, 0, 20, 2, 21, 2, 22, 5, 23, 5, 26, 4, 39, 3, 42, 4, 43, 3];
-	static #lookupPairs3D = [0, 2, 1, 1, 2, 2, 5, 1, 6, 0, 7, 0, 32, 2, 34, 2, 129, 1, 133, 1, 160, 5, 161, 5,
-		518, 0, 519, 0, 546, 4, 550, 4, 645, 3, 647, 3, 672, 5, 673, 5, 674, 4, 677, 3, 678, 4, 679, 3, 680, 13,
-		681, 13, 682, 12, 685, 14, 686, 12, 687, 14, 712, 20, 714, 18, 809, 21, 813, 23, 840, 20, 841, 21, 1198,
-		19, 1199, 22, 1226, 18, 1230, 19, 1325, 23, 1327, 22, 1352, 15, 1353, 17, 1354, 15, 1357, 17, 1358, 16,
-		1359, 16, 1360, 11, 1361, 10, 1362, 11, 1365, 10, 1366, 9, 1367, 9, 1392, 11, 1394, 11, 1489, 10, 1493,
-		10, 1520, 8, 1521, 8, 1878, 9, 1879, 9, 1906, 7, 1910, 7, 2005, 6, 2007, 6, 2032, 8, 2033, 8, 2034, 7,
-		2037, 6, 2038, 7, 2039, 6];
-	static #lookupPairs4D = [0, 3, 1, 2, 2, 3, 5, 2, 6, 1, 7, 1, 8, 3, 9, 2, 10, 3, 13, 2, 16, 3, 18, 3, 22, 1,
-		23, 1, 24, 3, 26, 3, 33, 2, 37, 2, 38, 1, 39, 1, 41, 2, 45, 2, 54, 1, 55, 1, 56, 0, 57, 0, 58, 0, 59, 0,
-		60, 0, 61, 0, 62, 0, 63, 0, 256, 3, 258, 3, 264, 3, 266, 3, 272, 3, 274, 3, 280, 3, 282, 3, 2049, 2, 2053,
-		2, 2057, 2, 2061, 2, 2081, 2, 2085, 2, 2089, 2, 2093, 2, 2304, 9, 2305, 9, 2312, 9, 2313, 9, 16390, 1, 16391,
-		1, 16406, 1, 16407, 1, 16422, 1, 16423, 1, 16438, 1, 16439, 1, 16642, 8, 16646, 8, 16658, 8, 16662, 8, 18437,
-		6, 18439, 6, 18469, 6, 18471, 6, 18688, 9, 18689, 9, 18690, 8, 18693, 6, 18694, 8, 18695, 6, 18696, 9, 18697,
-		9, 18706, 8, 18710, 8, 18725, 6, 18727, 6, 131128, 0, 131129, 0, 131130, 0, 131131, 0, 131132, 0, 131133, 0,
-		131134, 0, 131135, 0, 131352, 7, 131354, 7, 131384, 7, 131386, 7, 133161, 5, 133165, 5, 133177, 5, 133181, 5,
-		133376, 9, 133377, 9, 133384, 9, 133385, 9, 133400, 7, 133402, 7, 133417, 5, 133421, 5, 133432, 7, 133433, 5,
-		133434, 7, 133437, 5, 147510, 4, 147511, 4, 147518, 4, 147519, 4, 147714, 8, 147718, 8, 147730, 8, 147734, 8,
-		147736, 7, 147738, 7, 147766, 4, 147767, 4, 147768, 7, 147770, 7, 147774, 4, 147775, 4, 149509, 6, 149511, 6,
-		149541, 6, 149543, 6, 149545, 5, 149549, 5, 149558, 4, 149559, 4, 149561, 5, 149565, 5, 149566, 4, 149567, 4,
-		149760, 9, 149761, 9, 149762, 8, 149765, 6, 149766, 8, 149767, 6, 149768, 9, 149769, 9, 149778, 8, 149782, 8,
-		149784, 7, 149786, 7, 149797, 6, 149799, 6, 149801, 5, 149805, 5, 149814, 4, 149815, 4, 149816, 7, 149817, 5,
-		149818, 7, 149821, 5, 149822, 4, 149823, 4, 149824, 37, 149825, 37, 149826, 36, 149829, 34, 149830, 36, 149831,
-		34, 149832, 37, 149833, 37, 149842, 36, 149846, 36, 149848, 35, 149850, 35, 149861, 34, 149863, 34, 149865, 33,
-		149869, 33, 149878, 32, 149879, 32, 149880, 35, 149881, 33, 149882, 35, 149885, 33, 149886, 32, 149887, 32,
-		150080, 49, 150082, 48, 150088, 49, 150098, 48, 150104, 47, 150106, 47, 151873, 46, 151877, 45, 151881, 46,
-		151909, 45, 151913, 44, 151917, 44, 152128, 49, 152129, 46, 152136, 49, 152137, 46, 166214, 43, 166215, 42,
-		166230, 43, 166247, 42, 166262, 41, 166263, 41, 166466, 48, 166470, 43, 166482, 48, 166486, 43, 168261, 45,
-		168263, 42, 168293, 45, 168295, 42, 168512, 31, 168513, 28, 168514, 31, 168517, 28, 168518, 25, 168519, 25,
-		280952, 40, 280953, 39, 280954, 40, 280957, 39, 280958, 38, 280959, 38, 281176, 47, 281178, 47, 281208, 40,
-		281210, 40, 282985, 44, 282989, 44, 283001, 39, 283005, 39, 283208, 30, 283209, 27, 283224, 30, 283241, 27,
-		283256, 22, 283257, 22, 297334, 41, 297335, 41, 297342, 38, 297343, 38, 297554, 29, 297558, 24, 297562, 29,
-		297590, 24, 297594, 21, 297598, 21, 299365, 26, 299367, 23, 299373, 26, 299383, 23, 299389, 20, 299391, 20,
-		299584, 31, 299585, 28, 299586, 31, 299589, 28, 299590, 25, 299591, 25, 299592, 30, 299593, 27, 299602, 29,
-		299606, 24, 299608, 30, 299610, 29, 299621, 26, 299623, 23, 299625, 27, 299629, 26, 299638, 24, 299639, 23,
-		299640, 22, 299641, 22, 299642, 21, 299645, 20, 299646, 21, 299647, 20, 299648, 61, 299649, 60, 299650, 61,
-		299653, 60, 299654, 59, 299655, 59, 299656, 58, 299657, 57, 299666, 55, 299670, 54, 299672, 58, 299674, 55,
-		299685, 52, 299687, 51, 299689, 57, 299693, 52, 299702, 54, 299703, 51, 299704, 56, 299705, 56, 299706, 53,
-		299709, 50, 299710, 53, 299711, 50, 299904, 61, 299906, 61, 299912, 58, 299922, 55, 299928, 58, 299930, 55,
-		301697, 60, 301701, 60, 301705, 57, 301733, 52, 301737, 57, 301741, 52, 301952, 79, 301953, 79, 301960, 76,
-		301961, 76, 316038, 59, 316039, 59, 316054, 54, 316071, 51, 316086, 54, 316087, 51, 316290, 78, 316294, 78,
-		316306, 73, 316310, 73, 318085, 77, 318087, 77, 318117, 70, 318119, 70, 318336, 79, 318337, 79, 318338, 78,
-		318341, 77, 318342, 78, 318343, 77, 430776, 56, 430777, 56, 430778, 53, 430781, 50, 430782, 53, 430783, 50,
-		431000, 75, 431002, 72, 431032, 75, 431034, 72, 432809, 74, 432813, 69, 432825, 74, 432829, 69, 433032, 76,
-		433033, 76, 433048, 75, 433065, 74, 433080, 75, 433081, 74, 447158, 71, 447159, 68, 447166, 71, 447167, 68,
-		447378, 73, 447382, 73, 447386, 72, 447414, 71, 447418, 72, 447422, 71, 449189, 70, 449191, 70, 449197, 69,
-		449207, 68, 449213, 69, 449215, 68, 449408, 67, 449409, 67, 449410, 66, 449413, 64, 449414, 66, 449415, 64,
-		449416, 67, 449417, 67, 449426, 66, 449430, 66, 449432, 65, 449434, 65, 449445, 64, 449447, 64, 449449, 63,
-		449453, 63, 449462, 62, 449463, 62, 449464, 65, 449465, 63, 449466, 65, 449469, 63, 449470, 62, 449471, 62,
-		449472, 19, 449473, 19, 449474, 18, 449477, 16, 449478, 18, 449479, 16, 449480, 19, 449481, 19, 449490, 18,
-		449494, 18, 449496, 17, 449498, 17, 449509, 16, 449511, 16, 449513, 15, 449517, 15, 449526, 14, 449527, 14,
-		449528, 17, 449529, 15, 449530, 17, 449533, 15, 449534, 14, 449535, 14, 449728, 19, 449729, 19, 449730, 18,
-		449734, 18, 449736, 19, 449737, 19, 449746, 18, 449750, 18, 449752, 17, 449754, 17, 449784, 17, 449786, 17,
-		451520, 19, 451521, 19, 451525, 16, 451527, 16, 451528, 19, 451529, 19, 451557, 16, 451559, 16, 451561, 15,
-		451565, 15, 451577, 15, 451581, 15, 451776, 19, 451777, 19, 451784, 19, 451785, 19, 465858, 18, 465861, 16,
-		465862, 18, 465863, 16, 465874, 18, 465878, 18, 465893, 16, 465895, 16, 465910, 14, 465911, 14, 465918, 14,
-		465919, 14, 466114, 18, 466118, 18, 466130, 18, 466134, 18, 467909, 16, 467911, 16, 467941, 16, 467943, 16,
-		468160, 13, 468161, 13, 468162, 13, 468163, 13, 468164, 13, 468165, 13, 468166, 13, 468167, 13, 580568, 17,
-		580570, 17, 580585, 15, 580589, 15, 580598, 14, 580599, 14, 580600, 17, 580601, 15, 580602, 17, 580605, 15,
-		580606, 14, 580607, 14, 580824, 17, 580826, 17, 580856, 17, 580858, 17, 582633, 15, 582637, 15, 582649, 15,
-		582653, 15, 582856, 12, 582857, 12, 582872, 12, 582873, 12, 582888, 12, 582889, 12, 582904, 12, 582905, 12,
-		596982, 14, 596983, 14, 596990, 14, 596991, 14, 597202, 11, 597206, 11, 597210, 11, 597214, 11, 597234, 11,
-		597238, 11, 597242, 11, 597246, 11, 599013, 10, 599015, 10, 599021, 10, 599023, 10, 599029, 10, 599031, 10,
-		599037, 10, 599039, 10, 599232, 13, 599233, 13, 599234, 13, 599235, 13, 599236, 13, 599237, 13, 599238, 13,
-		599239, 13, 599240, 12, 599241, 12, 599250, 11, 599254, 11, 599256, 12, 599257, 12, 599258, 11, 599262, 11,
-		599269, 10, 599271, 10, 599272, 12, 599273, 12, 599277, 10, 599279, 10, 599282, 11, 599285, 10, 599286, 11,
-		599287, 10, 599288, 12, 599289, 12, 599290, 11, 599293, 10, 599294, 11, 599295, 10];
-
-	static #p2D = [0, 0, 1, -1, 0, 0, -1, 1, 0, 2, 1, 1, 1, 2, 2, 0, 1, 2, 0, 2, 1, 0, 0, 0];
-	static #p3D = [0, 0, 1, -1, 0, 0, 1, 0, -1, 0, 0, -1, 1, 0, 0, 0, 1, -1, 0, 0, -1, 0, 1, 0, 0, -1, 1, 0, 2,
-		1, 1, 0, 1, 1, 1, -1, 0, 2, 1, 0, 1, 1, 1, -1, 1, 0, 2, 0, 1, 1, 1, -1, 1, 1, 1, 3, 2, 1, 0, 3, 1, 2, 0,
-		1, 3, 2, 0, 1, 3, 1, 0, 2, 1, 3, 0, 2, 1, 3, 0, 1, 2, 1, 1, 1, 0, 0, 2, 2, 0, 0, 1, 1, 0, 1, 0, 2, 0, 2,
-		0, 1, 1, 0, 0, 1, 2, 0, 0, 2, 2, 0, 0, 0, 0, 1, 1, -1, 1, 2, 0, 0, 0, 0, 1, -1, 1, 1, 2, 0, 0, 0, 0, 1, 1,
-		1, -1, 2, 3, 1, 1, 1, 2, 0, 0, 2, 2, 3, 1, 1, 1, 2, 2, 0, 0, 2, 3, 1, 1, 1, 2, 0, 2, 0, 2, 1, 1, -1, 1, 2,
-		0, 0, 2, 2, 1, 1, -1, 1, 2, 2, 0, 0, 2, 1, -1, 1, 1, 2, 0, 0, 2, 2, 1, -1, 1, 1, 2, 0, 2, 0, 2, 1, 1, 1,
-		-1, 2, 2, 0, 0, 2, 1, 1, 1, -1, 2, 0, 2, 0];
-	static #p4D = [0, 0, 1, -1, 0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 1,
-		0, -1, 0, 0, -1, 0, 1, 0, 0, 0, -1, 1, 0, 0, 0, 0, 1, -1, 0, 0, -1, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, 0, -1,
-		1, 0, 2, 1, 1, 0, 0, 1, 1, 1, -1, 0, 1, 1, 1, 0, -1, 0, 2, 1, 0, 1, 0, 1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 0,
-		2, 0, 1, 1, 0, 1, -1, 1, 1, 0, 1, 0, 1, 1, -1, 0, 2, 1, 0, 0, 1, 1, 1, -1, 0, 1, 1, 1, 0, -1, 1, 0, 2, 0,
-		1, 0, 1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1, 0, 2, 0, 0, 1, 1, 1, -1, 0, 1, 1, 1, 0, -1, 1, 1, 1, 4, 2, 1, 1,
-		0, 4, 1, 2, 1, 0, 4, 1, 1, 2, 0, 1, 4, 2, 1, 0, 1, 4, 1, 2, 0, 1, 4, 1, 1, 0, 2, 1, 4, 2, 0, 1, 1, 4, 1,
-		0, 2, 1, 4, 1, 0, 1, 2, 1, 4, 0, 2, 1, 1, 4, 0, 1, 2, 1, 4, 0, 1, 1, 2, 1, 2, 1, 1, 0, 0, 3, 2, 1, 0, 0,
-		3, 1, 2, 0, 0, 1, 2, 1, 0, 1, 0, 3, 2, 0, 1, 0, 3, 1, 0, 2, 0, 1, 2, 0, 1, 1, 0, 3, 0, 2, 1, 0, 3, 0, 1,
-		2, 0, 1, 2, 1, 0, 0, 1, 3, 2, 0, 0, 1, 3, 1, 0, 0, 2, 1, 2, 0, 1, 0, 1, 3, 0, 2, 0, 1, 3, 0, 1, 0, 2, 1,
-		2, 0, 0, 1, 1, 3, 0, 0, 2, 1, 3, 0, 0, 1, 2, 2, 3, 1, 1, 1, 0, 2, 1, 1, 1, -1, 2, 2, 0, 0, 0, 2, 3, 1, 1,
-		0, 1, 2, 1, 1, -1, 1, 2, 2, 0, 0, 0, 2, 3, 1, 0, 1, 1, 2, 1, -1, 1, 1, 2, 2, 0, 0, 0, 2, 3, 1, 1, 1, 0, 2,
-		1, 1, 1, -1, 2, 0, 2, 0, 0, 2, 3, 1, 1, 0, 1, 2, 1, 1, -1, 1, 2, 0, 2, 0, 0, 2, 3, 0, 1, 1, 1, 2, -1, 1, 1,
-		1, 2, 0, 2, 0, 0, 2, 3, 1, 1, 1, 0, 2, 1, 1, 1, -1, 2, 0, 0, 2, 0, 2, 3, 1, 0, 1, 1, 2, 1, -1, 1, 1, 2, 0,
-		0, 2, 0, 2, 3, 0, 1, 1, 1, 2, -1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 3, 1, 1, 0, 1, 2, 1, 1, -1, 1, 2, 0, 0, 0, 2,
-		2, 3, 1, 0, 1, 1, 2, 1, -1, 1, 1, 2, 0, 0, 0, 2, 2, 3, 0, 1, 1, 1, 2, -1, 1, 1, 1, 2, 0, 0, 0, 2, 2, 1, 1,
-		1, -1, 0, 1, 1, 1, 0, -1, 0, 0, 0, 0, 0, 2, 1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 0, 0, 0, 0, 0, 2, 1, -1, 1, 1,
-		0, 1, 0, 1, 1, -1, 0, 0, 0, 0, 0, 2, 1, 1, -1, 0, 1, 1, 1, 0, -1, 1, 0, 0, 0, 0, 0, 2, 1, -1, 1, 0, 1, 1, 0,
-		1, -1, 1, 0, 0, 0, 0, 0, 2, 1, -1, 0, 1, 1, 1, 0, -1, 1, 1, 0, 0, 0, 0, 0, 2, 1, 1, 1, -1, 0, 1, 1, 1, 0, -1,
-		2, 2, 0, 0, 0, 2, 1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 2, 2, 0, 0, 0, 2, 1, 1, -1, 0, 1, 1, 1, 0, -1, 1, 2, 2, 0,
-		0, 0, 2, 1, 1, 1, -1, 0, 1, 1, 1, 0, -1, 2, 0, 2, 0, 0, 2, 1, -1, 1, 1, 0, 1, 0, 1, 1, -1, 2, 0, 2, 0, 0, 2,
-		1, -1, 1, 0, 1, 1, 0, 1, -1, 1, 2, 0, 2, 0, 0, 2, 1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 2, 0, 0, 2, 0, 2, 1, -1, 1,
-		1, 0, 1, 0, 1, 1, -1, 2, 0, 0, 2, 0, 2, 1, -1, 0, 1, 1, 1, 0, -1, 1, 1, 2, 0, 0, 2, 0, 2, 1, 1, -1, 0, 1, 1,
-		1, 0, -1, 1, 2, 0, 0, 0, 2, 2, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1, 2, 0, 0, 0, 2, 2, 1, -1, 0, 1, 1, 1, 0, -1, 1,
-		1, 2, 0, 0, 0, 2, 3, 1, 1, 0, 0, 0, 2, 2, 0, 0, 0, 2, 1, 1, 1, -1, 3, 1, 0, 1, 0, 0, 2, 0, 2, 0, 0, 2, 1, 1, 1,
-		-1, 3, 1, 0, 0, 1, 0, 2, 0, 0, 2, 0, 2, 1, 1, 1, -1, 3, 1, 1, 0, 0, 0, 2, 2, 0, 0, 0, 2, 1, 1, -1, 1, 3, 1, 0,
-		1, 0, 0, 2, 0, 2, 0, 0, 2, 1, 1, -1, 1, 3, 1, 0, 0, 0, 1, 2, 0, 0, 0, 2, 2, 1, 1, -1, 1, 3, 1, 1, 0, 0, 0, 2, 2,
-		0, 0, 0, 2, 1, -1, 1, 1, 3, 1, 0, 0, 1, 0, 2, 0, 0, 2, 0, 2, 1, -1, 1, 1, 3, 1, 0, 0, 0, 1, 2, 0, 0, 0, 2, 2, 1,
-		-1, 1, 1, 3, 1, 0, 1, 0, 0, 2, 0, 2, 0, 0, 2, -1, 1, 1, 1, 3, 1, 0, 0, 1, 0, 2, 0, 0, 2, 0, 2, -1, 1, 1, 1, 3, 1,
-		0, 0, 0, 1, 2, 0, 0, 0, 2, 2, -1, 1, 1, 1, 3, 3, 2, 1, 0, 0, 3, 1, 2, 0, 0, 4, 1, 1, 1, 1, 3, 3, 2, 0, 1, 0, 3,
-		1, 0, 2, 0, 4, 1, 1, 1, 1, 3, 3, 0, 2, 1, 0, 3, 0, 1, 2, 0, 4, 1, 1, 1, 1, 3, 3, 2, 0, 0, 1, 3, 1, 0, 0, 2, 4, 1,
-		1, 1, 1, 3, 3, 0, 2, 0, 1, 3, 0, 1, 0, 2, 4, 1, 1, 1, 1, 3, 3, 0, 0, 2, 1, 3, 0, 0, 1, 2, 4, 1, 1, 1, 1, 3, 3, 2,
-		1, 0, 0, 3, 1, 2, 0, 0, 2, 1, 1, 1, -1, 3, 3, 2, 0, 1, 0, 3, 1, 0, 2, 0, 2, 1, 1, 1, -1, 3, 3, 0, 2, 1, 0, 3, 0,
-		1, 2, 0, 2, 1, 1, 1, -1, 3, 3, 2, 1, 0, 0, 3, 1, 2, 0, 0, 2, 1, 1, -1, 1, 3, 3, 2, 0, 0, 1, 3, 1, 0, 0, 2, 2, 1,
-		1, -1, 1, 3, 3, 0, 2, 0, 1, 3, 0, 1, 0, 2, 2, 1, 1, -1, 1, 3, 3, 2, 0, 1, 0, 3, 1, 0, 2, 0, 2, 1, -1, 1, 1, 3, 3,
-		2, 0, 0, 1, 3, 1, 0, 0, 2, 2, 1, -1, 1, 1, 3, 3, 0, 0, 2, 1, 3, 0, 0, 1, 2, 2, 1, -1, 1, 1, 3, 3, 0, 2, 1, 0, 3,
-		0, 1, 2, 0, 2, -1, 1, 1, 1, 3, 3, 0, 2, 0, 1, 3, 0, 1, 0, 2, 2, -1, 1, 1, 1, 3, 3, 0, 0, 2, 1, 3, 0, 0, 1, 2, 2,
-		-1, 1, 1, 1];
-
-	static #contributions2D = (() => Simplex.#makeContributions(Simplex.#p2D, Simplex.#base2D, Simplex.#SQUISH_2D, 2))();
-	static #contributions3D = (() => Simplex.#makeContributions(Simplex.#p3D, Simplex.#base3D, Simplex.#SQUISH_3D, 3))();
-	static #contributions4D = (() => Simplex.#makeContributions(Simplex.#p4D, Simplex.#base4D, Simplex.#SQUISH_4D, 4))();
-
-	static #lookup2D = (() => Simplex.#makeLookup(Simplex.#lookupPairs2D, Simplex.#contributions2D))();
-	static #lookup3D = (() => Simplex.#makeLookup(Simplex.#lookupPairs3D, Simplex.#contributions3D))();
-	static #lookup4D = (() => Simplex.#makeLookup(Simplex.#lookupPairs4D, Simplex.#contributions4D))();
-
+	#p;
 	#perm;
-	#perm2D;
-	#perm3D;
-	#perm4D;
-	#source;
-	#seed;
+	#permMod12;
 
 	/**
 	 * Create an OpenSimplex noise generator.
-	 * @param {number} seed - The seed of the generator.
+	 * @param {number[]} [...seeds=[Date.now()]] - The seed(s) of the generator.
 	 */
-	constructor(seed) {
-		/**
-		 * The seed of the generator as input on creation.
-		 * @type {number}
-		 */
-		this.clientSeed = seed;
-
-		/** @ignore */ this.#perm = new Uint8Array(256);
-		/** @ignore */ this.#perm2D = new Uint8Array(256);
-		/** @ignore */ this.#perm3D = new Uint8Array(256);
-		/** @ignore */ this.#perm4D = new Uint8Array(256);
-		/** @ignore */ this.#source = new Uint8Array(256);
-		for (let i = 0; i < 256; i++) { this.#source[i] = i; }
-
-		/** @ignore */ this.#seed = new Uint32Array(1);
-		this.#seed[0] = seed;
-		this.#seed = Simplex.#shuffleSeed(Simplex.#shuffleSeed(Simplex.#shuffleSeed(this.#seed)));
-
-		for (let i = 255; i >= 0; i--) {
-			this.#seed = Simplex.#shuffleSeed(this.#seed);
-			const r = new Uint32Array(1);
-			r[0] = (this.#seed[0] + 31) % (i + 1);
-			if (r[0] < 0) { r[0] += i + 1; }
-			this.#perm[i] = this.#source[r[0]];
-			this.#perm2D[i] = this.#perm[i] & 0x0E;
-			this.#perm3D[i] = (this.#perm[i] % 24) * 3;
-			this.#perm4D[i] = this.#perm[i] & 0xFC;
-			this.#source[r[0]] = this.#source[i];
+	constructor(...seeds) {
+		/** @ignore */ this.#p = Simplex.#buildPermutationTable(seeds);
+		/** @ignore */ this.#perm = new Uint8Array(0x200);
+		/** @ignore */ this.#permMod12 = new Uint8Array(0x200);
+		for (let i = 0; i < 0x200; i++) {
+			this.#perm[i] = this.#p[i & 0xFF];
+			this.#permMod12[i] = this.#perm[i] % 12;
 		}
 	}
 
 	/**
-	 * Gets the value at a given point for this noise generator.
-	 * @param {Vector} point - The point to get a value from. Must be two, three, or four dimensions.
+	 * Samples the noise field.
+	 * @param {Vector} vector - The value of the noise at the given point.
+	 * @return {number} A number in the interval [-1, 1];
 	 */
-	noise(point) {
-		point = new Vector(...point);
+	noise(vector) {
+		// TODO: This function can be minified drastically.
 
-		// Declare variables here since ESLint gets angry if we declare them in the switch.
-		let stretchOffset, xs, ys, zs, ws, xsb, ysb, zsb, wsb, squishOffset, dx0, dy0, dz0,
-			dw0, xins, yins, zins, wins, inSum, hash, value, dx, dy, dz, dw, attn, index;
+		const x = vector.x;
+		const y = vector.y;
+		const z = vector.z;
+		const w = vector.w;
 
-		switch (point.length) {
+		// Define variables here because ESLint doesn't like it when you do it inside of a switch statement.
+		let n0, n1, n2, n3, n4, s, i, j, k, l, t, X0, Y0, Z0, W0, x0, y0, z0,
+			w0, rankx, ranky, rankz, rankw, i1, j1, k1, l1, i2, j2, k2, l2, i3,
+			j3, k3, l3, x1, y1, z1, w1, x2, y2, z2, w2, x3, y3, z3, w3, x4, y4,
+			z4, w4, ii, jj, kk, ll, t0, gi0, t1, gi1, t2, gi2, t3, gi3, t4, gi4;
+
+		switch (vector.length) {
 			case 2:
-				stretchOffset = (point.x + point.y) * Simplex.#STRETCH_2D;
-				xs = point.x + stretchOffset;
-				ys = point.y + stretchOffset;
+				// Noise contributions from the three corners.
+				n0 = 0;
+				n1 = 0;
+				n2 = 0;
 
-				xsb = Math.floor(xs);
-				ysb = Math.floor(ys);
+				// Skew the input space to determine which Simplex cell we're in.
+				s = (x + y) * Simplex.#F2; // Factor for 2D skewing.
+				i = Math.floor(x + s);
+				j = Math.floor(y + s);
+				t = (i + j) * Simplex.#G2; // Factor for 2D unskewing.
 
-				squishOffset = (xsb + ysb) * Simplex.#SQUISH_2D;
-				dx0 = point.x - (xsb + squishOffset);
-				dy0 = point.y - (ysb + squishOffset);
+				// Unskew the cell origin back to (x, y) space.
+				X0 = i - t;
+				Y0 = j - t;
 
-				xins = xs - xsb;
-				yins = ys - ysb;
+				// The x, y distances from the cell origin.
+				x0 = x - X0;
+				y0 = y - Y0;
 
-				inSum = xins + yins;
-				hash = (xins - yins + 1)
-					| (inSum << 1)
-					| ((inSum + yins) << 2)
-					| ((inSum + xins) << 4);
-
-				value = 0;
-				for (let c = Simplex.#lookup2D[hash]; c != undefined; c = c.next) {
-					dx = dx0 + c.dx;
-					dy = dy0 + c.dy;
-
-					attn = 2 - dx * dx - dy * dy;
-					if (attn > 0) {
-						index = this.#perm2D[((this.#perm[
-							(xsb + c.xsb) & 0xFF]) +
-							(ysb + c.ysb)) & 0xFF];
-						value += attn * attn * attn * attn * (
-							Simplex.#gradients2D[index] * dx +
-							Simplex.#gradients2D[index + 1] * dy);
-					}
+				// For the 2D case, the Simplex shape is an equilateral triangle.
+				// Determine which Simplex we are in.
+				// Offsets for second (middle) corner of Simplex in (i, j) coordinates.
+				if (x0 > y0) {
+					// Lower triangle. XY order.
+					i1 = 1;
+					j1 = 0;
+				} else {
+					// Upper triangle. YX order.
+					i1 = 0;
+					j1 = 1;
 				}
 
-				return value * Simplex.#NORM_2D;
+				// Offsets for the middle corner in (x, y) unskewed coordinates.
+				x1 = x0 - i1 + Simplex.#G2;
+				y1 = y0 - j1 + Simplex.#G2;
+
+				// Offsets for the last corner in (x, y) unskewed coordinates.
+				x2 = x0 - 1 + 2 * Simplex.#G2;
+				y2 = y0 - 1 + 2 * Simplex.#G2;
+
+				// Work out the hashed gradient indices of the three Simplex corners.
+				ii = i & 0xFF;
+				jj = j & 0xFF;
+
+				// Calculate the contribution from the three corners.
+				t0 = 0.5 - x0 * x0 - y0 * y0;
+				if (t0 >= 0) {
+					gi0 = this.#permMod12[ii + this.#perm[jj]] * 3;
+					t0 *= t0;
+					n0 = t0 * t0 * (Simplex.#grad3[gi0] * x0 + Simplex.#grad3[gi0 + 1] * y0); // (x, y) coordinates of grad3 used for 2D gradient.
+				}
+
+				t1 = 0.5 - x1 * x1 - y1 * y1;
+				if (t1 >= 0) {
+					gi1 = this.#permMod12[ii + i1 + this.#perm[jj + j1]] * 3;
+					t1 *= t1;
+					n1 = t1 * t1 * (Simplex.#grad3[gi1] * x1 + Simplex.#grad3[gi1 + 1] * y1);
+				}
+
+				t2 = 0.5 - x2 * x2 - y2 * y2;
+				if (t2 >= 0) {
+					gi2 = this.#permMod12[ii + 1 + this.#perm[jj + 1]] * 3;
+					t2 *= t2;
+					n2 = t2 * t2 * (Simplex.#grad3[gi2] * x2 + Simplex.#grad3[gi2 + 1] * y2);
+				}
+
+				// Add contributions from each corner to get the final noise value.
+				return 70 * (n0 + n1 + n2);
 			case 3:
-				stretchOffset = (point.x + point.y + point.z) * Simplex.#STRETCH_3D;
-				xs = point.x + stretchOffset;
-				ys = point.y + stretchOffset;
-				zs = point.z + stretchOffset;
+				// Noise contributions from the four corners.
+				n0 = 0;
+				n1 = 0;
+				n2 = 0;
+				n3 = 0;
 
-				xsb = Math.floor(xs);
-				ysb = Math.floor(ys);
-				zsb = Math.floor(zs);
+				// Skew the input space to determine which Simplex cell we're in.
+				s = (x + y + z) * Simplex.#F3; // Factor for 3D skewing.
+				i = Math.floor(x + s);
+				j = Math.floor(y + s);
+				k = Math.floor(z + s);
+				t = (i + j + k) * Simplex.#G3; // Factor for 3D unskewing.
 
-				squishOffset = (xsb + ysb + zsb) * Simplex.#SQUISH_3D;
-				dx0 = point.x - (xsb + squishOffset);
-				dy0 = point.y - (ysb + squishOffset);
-				dz0 = point.z - (zsb + squishOffset);
+				// Unskew the cell origin back to (x, y, z) space.
+				X0 = i - t;
+				Y0 = j - t;
+				Z0 = k - t;
 
-				xins = xs - xsb;
-				yins = ys - ysb;
-				zins = zs - zsb;
+				// The x, y, z distances from the cell origin.
+				x0 = x - X0;
+				y0 = y - Y0;
+				z0 = z - Z0;
 
-				inSum = xins + yins + zins;
-				hash = (yins - zins + 1)
-					| ((xins - yins + 1) << 1)
-					| ((xins - zins + 1) << 2)
-					| (inSum << 3)
-					| ((inSum + zins) << 5)
-					| ((inSum + yins) << 7)
-					| ((inSum + xins) << 9);
-
-				value = 0;
-				for (let c = Simplex.#lookup3D[hash]; c != undefined; c = c.next) {
-					dx = dx0 + c.dx;
-					dy = dy0 + c.dy;
-					dz = dz0 + c.dz;
-
-					attn = 2 - dx * dx - dy * dy - dz * dz;
-					if (attn > 0) {
-						index = this.#perm3D[((this.#perm[((this.#perm[
-							(xsb + c.xsb) & 0xFF]) +
-							(ysb + c.ysb)) & 0xFF]) +
-							(zsb + c.zsb)) & 0xFF];
-						value += attn * attn * attn * attn * (
-							Simplex.#gradients3D[index] * dx +
-							Simplex.#gradients3D[index + 1] * dy +
-							Simplex.#gradients3D[index + 2] * dz);
+				// For the 3D case, the Simplex shape is a slightly irregular tetrahedron.
+				// Determine which Simplex we are in.
+				// Offsets for second and third corners of Simplex in (i, j, k) coordinates.
+				if (x0 >= y0) {
+					if (y0 >= z0) {
+						// XYZ order.
+						i1 = 1;
+						j1 = 0;
+						k1 = 0;
+						i2 = 1;
+						j2 = 1;
+						k2 = 0;
+					} else if (x0 >= z0) {
+						// XZY order.
+						i1 = 1;
+						j1 = 0;
+						k1 = 0;
+						i2 = 1;
+						j2 = 0;
+						k2 = 1;
+					} else {
+						// ZXY order.
+						i1 = 0;
+						j1 = 0;
+						k1 = 1;
+						i2 = 1;
+						j2 = 0;
+						k2 = 1;
+					}
+				} else {
+					if (y0 < z0) {
+						// ZYX order.
+						i1 = 0;
+						j1 = 0;
+						k1 = 1;
+						i2 = 0;
+						j2 = 1;
+						k2 = 1;
+					} else if (x0 < z0) {
+						// YZX order.
+						i1 = 0;
+						j1 = 1;
+						k1 = 0;
+						i2 = 0;
+						j2 = 1;
+						k2 = 1;
+					} else {
+						// YXZ order.
+						i1 = 0;
+						j1 = 1;
+						k1 = 0;
+						i2 = 1;
+						j2 = 1;
+						k2 = 0;
 					}
 				}
 
-				return value * Simplex.#NORM_3D;
+				// Offsets for the second corner in (x, y, z) coordinates.
+				x1 = x0 - i1 + Simplex.#G3;
+				y1 = y0 - j1 + Simplex.#G3;
+				z1 = z0 - k1 + Simplex.#G3;
+
+				// Offsets for the third corner in (x, y, z) coordinates.
+				x2 = x0 - i2 + 2 * Simplex.#G3;
+				y2 = y0 - j2 + 2 * Simplex.#G3;
+				z2 = z0 - k2 + 2 * Simplex.#G3;
+
+				// Offsets for the last corner in (x, y, z) coordinates.
+				x2 = x0 - 1 + 3 * Simplex.#G3;
+				y3 = y0 - 1 + 3 * Simplex.#G3;
+				z3 = z0 - 1 + 3 * Simplex.#G3;
+
+				// Work out the hashed gradient indices of the four Simplex corners.
+				ii = i & 0xFF;
+				jj = j & 0xFF;
+				kk = k & 0xFF;
+
+				// Calculate the contribution from the four corners.
+				t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+				if (t0 >= 0) {
+					gi0 = this.#permMod12[ii + this.#perm[jj + this.#perm[kk]]] * 3;
+					t0 *= t0;
+					n0 = t0 * t0 * (Simplex.#grad3[gi0] * x0 + Simplex.#grad3[gi0 + 1] * y0 + Simplex.#grad3[gi0 + 2] * z0);
+				}
+
+				t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+				if (t1 >= 0) {
+					gi1 = this.#permMod12[ii + i1 + this.#perm[jj + j1 + this.#perm[kk + k1]]] * 3;
+					t1 *= t1;
+					n1 = t1 * t1 * (Simplex.#grad3[gi1] * x1 + Simplex.#grad3[gi1 + 1] * y1 + Simplex.#grad3[gi1 + 2] * z1);
+				}
+
+				t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+				if (t2 >= 0) {
+					gi2 = this.#permMod12[ii + i2 + this.#perm[jj + j2 + this.#perm[kk + k2]]] * 3;
+					t2 *= t2;
+					n2 = t2 * t2 * (Simplex.#grad3[gi2] * x2 + Simplex.#grad3[gi2 + 1] * y2 + Simplex.#grad3[gi2 + 2] * z2);
+				}
+
+				t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+				if (t3 >= 0) {
+					gi3 = this.#permMod12[ii + 1 + this.#perm[jj + 1 + this.#perm[kk + 1]]] * 3;
+					t3 *= t3;
+					n3 = t3 * t3 * (Simplex.#grad3[gi3] * x3 + Simplex.#grad3[gi3 + 1] * y3 + Simplex.#grad3[gi3 + 2] * z3);
+				}
+
+				// Add contributions from each corner to get the final noise value.
+				return 32 * (n0 + n1 + n2 + n3);
 			case 4:
-				stretchOffset = (point.x + point.y + point.z + point.w) * Simplex.#STRETCH_4D;
-				xs = point.x + stretchOffset;
-				ys = point.y + stretchOffset;
-				zs = point.z + stretchOffset;
-				ws = point.w + stretchOffset;
+				// Noise contributions from the five corners.
+				n0 = 0;
+				n1 = 0;
+				n2 = 0;
+				n3 = 0;
+				n4 = 0;
 
-				xsb = Math.floor(xs);
-				ysb = Math.floor(ys);
-				zsb = Math.floor(zs);
-				wsb = Math.floor(ws);
+				// Skew the (x, y, z, w) space to determine which cell of 24 Simplices we're in.
+				s = (x + y + z + w) * Simplex.#F4; // Factor for 4D skewing.
+				i = Math.floor(x + s);
+				j = Math.floor(y + s);
+				k = Math.floor(z + s);
+				l = Math.floor(w + s);
+				t = Math.floor(i + j + k + l) * Simplex.#G4; // Factor for 4D unskewing.
 
-				squishOffset = (xsb + ysb + zsb + wsb) * Simplex.#SQUISH_4D;
-				dx0 = point.x - (xsb + squishOffset);
-				dy0 = point.y - (ysb + squishOffset);
-				dz0 = point.z - (zsb + squishOffset);
-				dw0 = point.w - (wsb + squishOffset);
+				// Unskew the cell origin back to (x, y, z, w) space.
+				X0 = i - t;
+				Y0 = j - t;
+				Z0 = k - t;
+				W0 = l - t;
 
-				xins = xs - xsb;
-				yins = ys - ysb;
-				zins = zs - zsb;
-				wins = ws - wsb;
+				// The x, y, z, w distances from the cell origin.
+				x0 = x - X0;
+				y0 = y - Y0;
+				z0 = z - Z0;
+				w0 = w - W0;
 
-				inSum = xins + yins + zins + wins;
-				hash = (zins - wins + 1)
-					| ((yins - zins + 1) << 1)
-					| ((yins - wins + 1) << 2)
-					| ((xins - yins + 1) << 3)
-					| ((xins - zins + 1) << 4)
-					| ((xins - wins + 1) << 5)
-					| (inSum << 6)
-					| ((inSum + wins) << 8)
-					| ((inSum + zins) << 11)
-					| ((inSum + yins) << 14)
-					| ((inSum + xins) << 17);
+				// For the 4D case, the Simplex is a 4D shape.
+				// Determine which Simplex we are in.
+				// Offsets for second, third, and fourth corners of Simplex in (i, j, k, l) coordinates.
+				rankx = 0;
+				ranky = 0;
+				rankz = 0;
+				rankw = 0;
+				if (x0 > y0) { rankx++; } else { ranky++; }
+				if (x0 > z0) { rankx++; } else { rankz++; }
+				if (x0 > w0) { rankx++; } else { rankw++; }
+				if (y0 > z0) { ranky++; } else { rankz++; }
+				if (y0 > w0) { ranky++; } else { rankw++; }
+				if (z0 > w0) { rankz++; } else { rankw++; }
 
-				value = 0;
-				for (let c = Simplex.#lookup4D[hash]; c != undefined; c = c.next) {
-					dx = dx0 + c.dx;
-					dy = dy0 + c.dy;
-					dz = dz0 + c.dz;
-					dw = dw0 + c.dw;
+				// The integer offsets for the second Simplex corner.
+				i1 = rankx >= 3 ? 1 : 0;
+				j1 = ranky >= 3 ? 1 : 0;
+				k1 = rankz >= 3 ? 1 : 0;
+				l1 = rankw >= 3 ? 1 : 0;
 
-					attn = 2 - dx * dx - dy * dy - dz * dz - dw * dw;
-					if (attn > 0) {
-						index = this.#perm4D[((this.#perm[((this.#perm[((this.#perm[
-							(xsb + c.xsb) & 0xFF]) +
-							(ysb + c.ysb)) & 0xFF]) +
-							(zsb + c.zsb)) & 0xFF]) +
-							(wsb + c.wsb)) & 0xFF];
-						value += attn * attn * attn * attn * (
-							Simplex.#gradients4D[index] * dx +
-							Simplex.#gradients4D[index + 1] * dy +
-							Simplex.#gradients4D[index + 2] * dz +
-							Simplex.#gradients4D[index + 3] * dw);
-					}
+				// The integer offsets for the third Simplex corner.
+				i2 = rankx >= 2 ? 1 : 0;
+				j2 = ranky >= 2 ? 1 : 0;
+				k2 = rankz >= 2 ? 1 : 0;
+				l2 = rankw >= 2 ? 1 : 0;
+
+				// The integer offsets for the fourth Simplex corner.
+				i3 = rankx >= 1 ? 1 : 0;
+				j3 = ranky >= 1 ? 1 : 0;
+				k3 = rankz >= 1 ? 1 : 0;
+				l3 = rankw >= 1 ? 1 : 0;
+
+				// Offsets for the second corner in (x, y, z, w) coordinates.
+				x1 = x0 - i1 + Simplex.#G4;
+				y1 = y0 - j1 + Simplex.#G4;
+				z1 = z0 - k1 + Simplex.#G4;
+				w1 = w0 - l1 + Simplex.#G4;
+
+				// Offsets for the third corner in (x, y, z, w) coordinates.
+				x2 = x0 - i2 + 2 * Simplex.#G4;
+				y2 = y0 - j2 + 2 * Simplex.#G4;
+				z2 = z0 - k2 + 2 * Simplex.#G4;
+				w2 = w0 - l2 + 2 * Simplex.#G4;
+
+				// Offsets for the fourth corner in (x, y, z, w) coordinates.
+				x3 = x0 - i3 + 3 * Simplex.#G4;
+				y3 = y0 - j3 + 3 * Simplex.#G4;
+				z3 = z0 - k3 + 3 * Simplex.#G4;
+				w3 = w0 - l3 + 3 * Simplex.#G4;
+
+				// Offsets for the fourth corner in (x, y, z, w) coordinates.
+				x4 = x0 - 1 + 4 * Simplex.#G4;
+				y4 = y0 - 1 + 4 * Simplex.#G4;
+				z4 = z0 - 1 + 4 * Simplex.#G4;
+				w4 = w0 - 1 + 4 * Simplex.#G4;
+
+				// Work out the hashed gradient indices of the five Simplex corners.
+				ii = i & 0xFF;
+				jj = j & 0xFF;
+				kk = k & 0xFF;
+				ll = l & 0xFF;
+
+				// Calculate the contribution from the five corners.
+				t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+				if (t0 >= 0) {
+					gi0 = (this.#perm[ii + this.#perm[jj + this.#perm[kk + this.#perm[ll]]]] % 32) * 4;
+					t0 *= t0;
+					n0 = t0 * t0 * (Simplex.#grad4[gi0] * x0 + Simplex.#grad4[gi0 + 1] * y0 + Simplex.#grad4[gi0 + 2] * z0 + Simplex.#grad4[gi0 + 3] * w0);
 				}
 
-				return value * Simplex.#NORM_4D;
+				t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
+				if (t1 >= 0) {
+					gi1 = (this.#perm[ii + i1 + this.#perm[jj + j1 + this.#perm[kk + k1 + this.#perm[ll + l1]]]] % 32) * 4;
+					t1 *= t1;
+					n1 = t1 * t1 * (Simplex.#grad4[gi1] * x1 + Simplex.#grad4[gi1 + 1] * y1 + Simplex.#grad4[gi1 + 2] * z1 + Simplex.#grad4[gi1 + 3] * w1);
+				}
+
+				t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
+				if (t2 >= 0) {
+					gi2 = (this.#perm[ii + i2 + this.#perm[jj + j2 + this.#perm[kk + k2 + this.#perm[ll + l2]]]] % 32) * 4;
+					t2 *= t2;
+					n2 = t2 * t2 * (Simplex.#grad4[gi2] * x2 + Simplex.#grad4[gi2 + 1] * y2 + Simplex.#grad4[gi2 + 2] * z2 + Simplex.#grad4[gi2 + 3] * w2);
+				}
+
+				t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
+				if (t3 >= 0) {
+					gi3 = (this.#perm[ii + i3 + this.#perm[jj + j3 + this.#perm[kk + k3 + this.#perm[ll + l3]]]] % 32) * 4;
+					t3 *= t3;
+					n3 = t3 * t3 * (Simplex.#grad4[gi3] * x3 + Simplex.#grad4[gi3 + 1] * y2 + Simplex.#grad4[gi3 + 2] * z3 + Simplex.#grad4[gi3 + 3] * w3);
+				}
+
+				t4 = 0.6 - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
+				if (t4 >= 0) {
+					gi4 = (this.#perm[ii + 1 + this.#perm[jj + 1 + this.#perm[kk + 1 + this.#perm[ll + 1]]]] % 32) * 4;
+					t4 *= t4;
+					n4 = t4 * t4 * (Simplex.#grad4[gi4] * x4 + Simplex.#grad4[gi4 + 1] * y4 + Simplex.#grad4[gi4 + 2] * z4 + Simplex.#grad4[gi4 + 3] * w4);
+				}
+
+				// Add contributions from each corner to get the final noise value.
+				return 27 * (n0 + n1 + n2 + n3 + n4);
 			default:
-				throw new Error("Can only generate OpenSimplex noise for two, three, and four dimensions.");
+				throw new Error("Invalid dimension for OpenSimplex noise. Supported dimensions are 2, 3, and 4.");
 		}
 	}
 }
