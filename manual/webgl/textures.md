@@ -639,20 +639,13 @@ const kernel = new Matrix(
 );
 ```
 
-### Multiple effects
+### Framebuffers
 In order to use multiple effects on an image, we can use framebuffers. The way this works is that we create two more *work* textures and render to each texture in turn, applying the next effect each time. A framebuffer isn't actually a type of buffer; it's a list of attachments. By attaching a texture to a framebuffer, we can render into that texture.
 ```js
-import { Texture, Framebuffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+import { Framebuffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-// Create blank textures with parameters that allow them to render any size of image and work with pixels.
-const blankTexture1 = new Texture({ gl, generateMipmap: false, minFilter: gl.NEAREST, magFilter: gl.NEAREST });
-const blankTexture2 = new Texture({ gl, generateMipmap: false, minFilter: gl.NEAREST, magFilter: gl.NEAREST });
-
-// Bind them to framebuffers.
-const framebuffer1 = new Framebuffer(gl);
-framebuffer1.add(blankTexture1);
-const framebuffer2 = new Framebuffer(gl);
-framebuffer2.add(blankTexture2);
+const framebuffer1 = new Framebuffer({ gl, size: new Vector(1260, 720) });
+const framebuffer2 = new Framebuffer({ gl, size: new Vector(1260, 720) });
 ```
 
 Whenever there is a framebuffer bound, draw calls draw to that framebuffer instead of the canvas. In order to draw to the canvas after drawing to framebuffers, make sure to set the current framebuffer to null. This can be done using the `Framebuffer.unbind` static method with Umbra.
@@ -661,4 +654,4 @@ Framebuffer.unbind(gl);
 ```
 Chances are, you'll never need to manage binding framebuffers during the render step because Umbra's `VAO.draw` method automatically handles that.
 
-A program which utilizes the above technique to apply two kernels can be seen [here](TODO).
+A program which utilizes the above technique to apply two kernels can be seen [here](https://codepen.io/lakuna/full/rNweWOG). You'll notice that `VAO.draw` is called three times - once for each framebuffer and once for the canvas, and that each of these draw calls has different uniforms.
