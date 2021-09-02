@@ -57,6 +57,7 @@ export class Simplex {
 					dj > 3 ? baseSet[++k] : 0,
 					dj > 4 ? baseSet[++k] : 0,
 					squish);
+				current = current.next;
 			}
 		}
 
@@ -237,6 +238,7 @@ export class Simplex {
 	#perm3D;
 	#perm4D;
 	#source;
+	#seed;
 
 	/**
 	 * Create an OpenSimplex noise generator.
@@ -256,18 +258,14 @@ export class Simplex {
 		/** @ignore */ this.#source = new Uint8Array(256);
 		for (let i = 0; i < 256; i++) { this.#source[i] = i; }
 
-		/**
-		 * The functional seed of the generator.
-		 * @type {Uint32Array}
-		 */
-		this.seed = new Uint32Array(1);
-		this.seed[0] = seed;
-		this.seed = Simplex.#shuffleSeed(Simplex.#shuffleSeed(Simplex.#shuffleSeed(this.seed)));
+		/** @ignore */ this.#seed = new Uint32Array(1);
+		this.#seed[0] = seed;
+		this.#seed = Simplex.#shuffleSeed(Simplex.#shuffleSeed(Simplex.#shuffleSeed(this.#seed)));
 
 		for (let i = 255; i >= 0; i--) {
-			this.seed = Simplex.#shuffleSeed(this.seed);
+			this.#seed = Simplex.#shuffleSeed(this.#seed);
 			const r = new Uint32Array(1);
-			r[0] = (this.seed[0] + 31) % (i + 1);
+			r[0] = (this.#seed[0] + 31) % (i + 1);
 			if (r[0] < 0) { r[0] += i + 1; }
 			this.#perm[i] = this.#source[r[0]];
 			this.#perm2D[i] = this.#perm[i] & 0x0E;
@@ -315,12 +313,12 @@ export class Simplex {
 					dx = dx0 + c.dx;
 					dy = dy0 + c.dy;
 
-					attn = 2 - dx ** 2 - dy ** 2;
+					attn = 2 - dx * dx - dy * dy;
 					if (attn > 0) {
 						index = this.#perm2D[((this.#perm[
 							(xsb + c.xsb) & 0xFF]) +
 							(ysb + c.ysb)) & 0xFF];
-						value += attn ** 4 * (
+						value += attn * attn * attn * attn * (
 							Simplex.#gradients2D[index] * dx +
 							Simplex.#gradients2D[index + 1] * dy);
 					}
@@ -361,13 +359,13 @@ export class Simplex {
 					dy = dy0 + c.dy;
 					dz = dz0 + c.dz;
 
-					attn = 2 - dx ** 2 - dy ** 2 - dz ** 2;
+					attn = 2 - dx * dx - dy * dy - dz * dz;
 					if (attn > 0) {
 						index = this.#perm3D[((this.#perm[((this.#perm[
 							(xsb + c.xsb) & 0xFF]) +
 							(ysb + c.ysb)) & 0xFF]) +
 							(zsb + c.zsb)) & 0xFF];
-						value += attn ** 4 * (
+						value += attn * attn * attn * attn * (
 							Simplex.#gradients3D[index] * dx +
 							Simplex.#gradients3D[index + 1] * dy +
 							Simplex.#gradients3D[index + 2] * dz);
@@ -418,14 +416,14 @@ export class Simplex {
 					dz = dz0 + c.dz;
 					dw = dw0 + c.dw;
 
-					attn = 2 - dx ** 2 - dy ** 2 - dz ** 2 - dw ** 2;
+					attn = 2 - dx * dx - dy * dy - dz * dz - dw * dw;
 					if (attn > 0) {
 						index = this.#perm4D[((this.#perm[((this.#perm[((this.#perm[
 							(xsb + c.xsb) & 0xFF]) +
 							(ysb + c.ysb)) & 0xFF]) +
 							(zsb + c.zsb)) & 0xFF]) +
 							(wsb + c.wsb)) & 0xFF];
-						value += attn ** 4 * (
+						value += attn * attn * attn * attn * (
 							Simplex.#gradients4D[index] * dx +
 							Simplex.#gradients4D[index + 1] * dy +
 							Simplex.#gradients4D[index + 2] * dz +
