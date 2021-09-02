@@ -57,7 +57,6 @@ export class Simplex {
 					dj > 3 ? baseSet[++k] : 0,
 					dj > 4 ? baseSet[++k] : 0,
 					squish);
-				current = current.next;
 			}
 		}
 

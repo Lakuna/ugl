@@ -639,7 +639,7 @@ const kernel = new Matrix(
 );
 ```
 
-### Framebuffers
+## Framebuffers
 In order to use multiple effects on an image, we can use framebuffers. The way this works is that we create two more *work* textures and render to each texture in turn, applying the next effect each time. A framebuffer isn't actually a type of buffer; it's a list of attachments. By attaching a texture to a framebuffer, we can render into that texture.
 ```js
 import { Framebuffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
@@ -655,3 +655,42 @@ Framebuffer.unbind(gl);
 Chances are, you'll never need to manage binding framebuffers during the render step because Umbra's `VAO.draw` method automatically handles that.
 
 A program which utilizes the above technique to apply two kernels can be seen [here](https://codepen.io/lakuna/full/rNweWOG). You'll notice that `VAO.draw` is called three times - once for each framebuffer and once for the canvas, and that each of these draw calls has different uniforms.
+
+### Render to a texture
+TODO
+
+## Data textures
+Instead of downloading an image and making a texture from it, we can make textures from data that we supply directly from JavaScript.
+```js
+import { Texture, Vector } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+
+const texture = new Texture({
+	gl,
+
+	// Supply values for a texture.
+	data: new Uint8Array([
+		32, 64, 96, 128,
+		160, 192, 224, 255
+	]),
+
+	// Don't generate mips.
+	generateMipmap: false,
+
+	// Only pull one value at a time.
+	unpackAlignment: 1,
+
+	// Allow us to use textures of any size so we don't need mips.
+	minFilter: gl.NEAREST,
+	magFilter: gl.NEAREST,
+
+	// Texture is 4 columns and 2 rows of pixels.
+	size: new Vector(4, 2),
+
+	// The data we're supplying is copied for the red, green, and blue values.
+	format: gl.LUMINANCE
+});
+```
+
+[Here](https://codepen.io/lakuna/full/YzQWVmm) is the above in action. It's identical to the first texture example, except with the texture replaced with the above code.
+
+[Here](TODO) is a way cooler example which uses OpenSimplex noise.
