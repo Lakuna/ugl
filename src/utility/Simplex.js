@@ -1,6 +1,7 @@
 // Implementation of https://github.com/jwagner/simplex-noise.js
 
 import { Alea } from "./Alea.js";
+import { Vector } from "../math/Vector.js";
 
 /** JavaScript implementation of OpenSimplex noise. */
 export class Simplex {
@@ -62,6 +63,8 @@ export class Simplex {
 	 */
 	noise(vector) {
 		// TODO: This function can be minified drastically.
+
+		vector = new Vector(...vector);
 
 		const x = vector.x;
 		const y = vector.y;
