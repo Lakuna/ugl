@@ -31,6 +31,7 @@
 
 // Utility
 /** @ignore */ export * from "./utility/Alea.js";
+/** @ignore */ export * from "./utility/clearCanvas.js";
 /** @ignore */ export * from "./utility/Color.js";
 /** @ignore */ export * from "./utility/Geometry.js";
 /** @ignore */ export * from "./utility/Key.js";

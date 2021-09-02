@@ -2,6 +2,7 @@
 
 import { Attribute } from "./Attribute.js";
 import { Buffer } from "./Buffer.js";
+import { Framebuffer } from "./Framebuffer.js";
 import { ELEMENT_ARRAY_BUFFER, UNSIGNED_BYTE, TRIANGLES } from "./constants.js";
 
 /** Class representing a WebGL vertex array object. */
@@ -112,10 +113,21 @@ export class VAO {
 	 * Draws the vertex data stored in this VAO.
 	 * @param {number} [mode=TRIANGLES] - The mode to use when drawing the data.
 	 * @param {number} [offset=0] - The number of elements to skip when drawing arrays.
+	 * @param {Framebuffer} [framebuffer] - The framebuffer to draw to, if any.
+	 * @param {Vector} [sizeMax] - The width and height of the viewport. Uses values from framebuffer/canvas if not set.
+	 * @param {Vector} [sizeMin] - The x and y coordinates of the viewport. Uses values from framebuffer/canvas if not set.
 	 */
-	draw(mode = TRIANGLES, offset = 0) {
+	draw(mode = TRIANGLES, offset = 0, framebuffer, sizeMax, sizeMin) {
 		this.program.use();
 		this.bind();
+
+		if (framebuffer) {
+			framebuffer.bind();
+			this.gl.viewport(sizeMin?.x ?? 0, sizeMin?.y ?? 0, sizeMax?.x ?? framebuffer.size.x, sizeMax?.y ?? framebuffer.size.y);
+		} else {
+			Framebuffer.unbind(this.gl);
+			this.gl.viewport(sizeMin?.x ?? 0, sizeMin?.y ?? 0, sizeMax?.x ?? this.gl.canvas.width, sizeMax?.y ?? this.gl.canvas.height);
+		}
 
 		if (this.indices) {
 			this.gl.drawElements(mode, this.indices.buffer.data.length, this.indices.type, this.indices.offset);
