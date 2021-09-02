@@ -318,7 +318,7 @@ import { resizeCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 resizeCanvas(canvas);
 ```
 
-We need to tell WebGL how to convert from clip space values to screen space values (pixels).
+If you aren't using Umbra, you need to tell WebGL how to convert from clip space values to screen space values (pixels).
 ```js
 gl.viewport(0, 0, canvas.width, canvas.height);
 ```
@@ -332,6 +332,13 @@ gl.clearColor(0, 0, 0, 0); // Transparent (technically black).
 Then, clear the canvas.
 ```js
 gl.clear(gl.COLOR_BUFFER_BIT);
+```
+
+Umbra has a built-in method for this:
+```js
+import { clearCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+
+clearCanvas(gl);
 ```
 
 #### Execute the program

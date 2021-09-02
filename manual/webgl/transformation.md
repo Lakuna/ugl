@@ -334,15 +334,11 @@ import { resizeCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 resizeCanvas(canvas);
 ```
 
-##### Set the viewport
-```js
-gl.viewport(0, 0, canvas.width, canvas.height);
-```
-
 ##### Clear the canvas
 ```js
-gl.clearColor(0, 0, 0, 0);
-gl.clear(gl.COLOR_BUFFER_BIT);
+import { clearCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+
+clearCanvas(gl);
 ```
 
 ##### Set a uniform

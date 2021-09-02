@@ -176,17 +176,15 @@ const texture = Texture.fromColor(gl, new Color(0x0000FF));
 #### Boilerplate
 This boilerplate code has been explained in previous examples, so I'm going to lump it all together from now on.
 ```js
-import { resizeCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+import { resizeCanvas, clearCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const render = (time) => {
 	requestAnimationFrame(render);
 
 	resizeCanvas(canvas);
-	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.enable(gl.CULL_FACE);
 	gl.enable(gl.DEPTH_TEST);
-	gl.clearColor(0, 0, 0, 0);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	clearCanvas(gl);
 }
 requestAnimationFrame(render);
 ```
@@ -383,17 +381,15 @@ const texture = Texture.fromImage(gl, "https://docs.umbra.lakuna.pw/manual/asset
 
 ##### Boilerplate
 ```js
-import { resizeCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+import { resizeCanvas, clearCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const render = (time) => {
 	requestAnimationFrame(render);
 
 	resizeCanvas(canvas);
-	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.enable(gl.CULL_FACE);
 	gl.enable(gl.DEPTH_TEST);
-	gl.clearColor(0, 0, 0, 0);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	clearCanvas(gl);
 }
 requestAnimationFrame(render);
 ```
@@ -663,5 +659,6 @@ Whenever there is a framebuffer bound, draw calls draw to that framebuffer inste
 ```js
 Framebuffer.unbind(gl);
 ```
+Chances are, you'll never need to manage binding framebuffers during the render step because Umbra's `VAO.draw` method automatically handles that.
 
 A program which utilizes the above technique to apply two kernels can be seen [here](TODO).
