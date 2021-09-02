@@ -40,9 +40,9 @@ export class Framebuffer {
 	 * @param {number} [arguments.target=FRAMEBUFFER] - The bind point of the framebuffer.
 	 * @param {Vector} [arguments.size=new Vector(gl.canvas.width, gl.canvas.height)] - The width and height of the framebuffer. Gets values from data if not set.
 	 * @param {number} [arguments.colorTextureCount=1] - The number of color textures to add to this framebuffer.
-	 * @param {boolean} [arguments.depth=true] - Whether to use a depth buffer.
-	 * @param {boolean} [arguments.stencil=true] - Whether to use a stencil buffer.
-	 * @param {boolean} [arguments.depthTexture=true] - Whether to use a depth texture. This overrides depth and stencil buffers.
+	 * @param {boolean} [arguments.depth=false] - Whether to use a depth buffer.
+	 * @param {boolean} [arguments.stencil=false] - Whether to use a stencil buffer.
+	 * @param {boolean} [arguments.depthTexture=false] - Whether to use a depth texture. This overrides depth and stencil buffers.
 	 * @param {number} [arguments.wrapS=CLAMP_TO_EDGE] - The wrapping behavior of the textures on the S axis.
 	 * @param {number} [arguments.wrapT=CLAMP_TO_EDGE] - The wrapping behavior of the textures on the T axis.
 	 * @param {number} [arguments.minFilter=LINEAR] - The minimum mip filter of the texture.
@@ -59,7 +59,7 @@ export class Framebuffer {
 		size = new Vector(gl.canvas.width, gl.canvas.height),
 
 		colorTextureCount = 1,
-		depth = true,
+		depth = false,
 		stencil = false,
 		depthTexture = false,
 
