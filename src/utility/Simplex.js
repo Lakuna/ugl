@@ -86,6 +86,8 @@ export class Simplex {
 	 * @return {number} A number in the interval [-1, 1];
 	 */
 	noise2D(x, y) {
+		// TODO: This method can be minified drastically.
+
 		const permMod12 = this.#permMod12;
 		const perm = this.#perm;
 		let n0 = 0;
@@ -151,6 +153,8 @@ export class Simplex {
 	 * @return {number} A number in the interval [-1, 1];
 	 */
 	noise3D(x, y, z) {
+		// TODO: This method can be minified drastically.
+
 		const permMod12 = this.#permMod12;
 		const perm = this.#perm;
 		let n0, n1, n2, n3;
@@ -286,6 +290,8 @@ export class Simplex {
 	 * @return {number} A number in the interval [-1, 1];
 	 */
 	noise4D(x, y, z, w) {
+		// TODO: This method can be minified drastically.
+		
 		const perm = this.#perm;
 
 		let n0, n1, n2, n3, n4;

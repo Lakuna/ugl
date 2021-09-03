@@ -693,4 +693,4 @@ const texture = new Texture({
 
 [Here](https://codepen.io/lakuna/full/YzQWVmm) is the above in action. It's identical to the first texture example, except with the texture replaced with the above code.
 
-[Here](TODO) is a way cooler example which uses OpenSimplex noise.
+[Here](https://codepen.io/lakuna/full/dyRXRyB) is a way cooler example which uses OpenSimplex noise.
