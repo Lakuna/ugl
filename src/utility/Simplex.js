@@ -6,13 +6,13 @@ import { Vector } from "../math/Vector.js";
 /** JavaScript implementation of OpenSimplex noise. */
 export class Simplex {
 	static #buildPermutationTable(...seeds) {
-		const random = new Alea(...seeds).random;
+		const alea = new Alea(...seeds);
 		const p = new Uint8Array(256);
 		for (let i = 0; i < 256; i++) {
 			p[i] = i;
 		}
 		for (let i = 0; i < 255; i++) {
-			const r = i + ~~(random() * (256 - i));
+			const r = i + ~~(alea.random() * (256 - i));
 			const aux = p[i];
 			p[i] = p[r];
 			p[r] = aux;
