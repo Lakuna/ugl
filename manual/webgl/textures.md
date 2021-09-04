@@ -657,7 +657,9 @@ Chances are, you'll never need to manage binding framebuffers during the render 
 A program which utilizes the above technique to apply two kernels can be seen [here](https://codepen.io/lakuna/full/rNweWOG). You'll notice that `VAO.draw` is called three times - once for each framebuffer and once for the canvas, and that each of these draw calls has different uniforms.
 
 ### Render to a texture
-TODO
+In the same way we can draw a texture to a framebuffer, we can draw our entire scene to a framebuffer. The following example draws a rotating 3D cube to a texture, and then uses that texture on each side of a rotating cube. The only difference between this and the example above is what object we're drawing and what uniforms we're changing.
+
+[Render to texture](https://codepen.io/lakuna/full/gORwbVB).
 
 ## Data textures
 Instead of downloading an image and making a texture from it, we can make textures from data that we supply directly from JavaScript.
