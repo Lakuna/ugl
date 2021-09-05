@@ -63,8 +63,10 @@ export class GameObject {
 	 * @param {GameObject} child - The child to add.
 	 */
 	addChild(child) {
-		child.parent = this;
-		this.#children.push(child);
+		if (child.parent != this) {
+			child.parent = this;
+			this.#children.push(child);
+		}
 	}
 
 	/**
@@ -72,8 +74,10 @@ export class GameObject {
 	 * @param {GameObject} child - The child to add.
 	 */
 	removeChild(child) {
-		child.parent = null;
-		this.#children.splice(this.#children.indexOf(child));
+		if (child.parent == this) {
+			child.parent = null;
+			this.#children.splice(this.#children.indexOf(child));
+		}
 	}
 
 	/**
