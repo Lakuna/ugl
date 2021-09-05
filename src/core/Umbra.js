@@ -22,6 +22,12 @@ export class Umbra {
 		if (!this.gl) { throw new Error("WebGL2 is not supported by your browser."); }
 
 		/**
+		 * The time in milliseconds that the update loop has been running.
+		 * @type {number}
+		 */
+		this.time = 0;
+
+		/**
 		 * The time in seconds between this frame and the last.
 		 * @type {number}
 		 */
@@ -39,6 +45,8 @@ export class Umbra {
 		const update = (now) => {
 			requestAnimationFrame(update);
 
+			this.time = now;
+			
 			this.deltaTime = (now - then) * 0.001;
 			then = now;
 
