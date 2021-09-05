@@ -35,7 +35,7 @@ export class GameObject {
 	}
 
 	/**
-	 * The parent object of this object.
+	 * The parent object of this object. Also adds this object as a child of its parent.
 	 * @type {GameObject}
 	 */
 	get parent() {
@@ -43,41 +43,39 @@ export class GameObject {
 	}
 
 	/**
-	 * The parent object of this object.
+	 * The parent object of this object. Also adds this object as a child of its parent.
 	 * @type {GameObject}
 	 */
 	set parent(value) {
-		if (this.parent && this.parent != value) {
-			this.parent.removeChild(this);
-		}
+		if (this.parent != value) {
+			if (this.parent) {
+				this.parent.removeChild(this);
+			}
 
-		this.#parent = value;
+			this.#parent = value;
 
-		if (this.parent) {
-			this.parent.addChild(this);
+			if (this.parent) {
+				this.parent.addChild(this);
+			}
 		}
 	}
 
 	/**
-	 * Adds a child to this object.
+	 * Adds a child to this object. Also sets the child's parent to this object and removes it from any former parents.
 	 * @param {GameObject} child - The child to add.
 	 */
 	addChild(child) {
-		if (child.parent != this) {
-			child.parent = this;
-			this.#children.push(child);
-		}
+		child.parent = this;
+		this.#children.push(child);
 	}
 
 	/**
-	 * Removes a child from this object.
+	 * Removes a child from this object. Also removes the child's parent.
 	 * @param {GameObject} child - The child to add.
 	 */
 	removeChild(child) {
-		if (child.parent == this) {
-			child.parent = null;
-			this.#children.splice(this.#children.indexOf(child));
-		}
+		child.parent = null;
+		this.#children.splice(this.#children.indexOf(child));
 	}
 
 	/**
