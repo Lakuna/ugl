@@ -39,7 +39,6 @@ export class Umbra {
 		const update = (now) => {
 			requestAnimationFrame(update);
 
-			// fps = 1 / deltaTime
 			this.deltaTime = (now - then) * 0.001;
 			then = now;
 
@@ -55,6 +54,14 @@ export class Umbra {
 				this.trigger(Component.events.FIXED_UPDATE);
 			}
 		}, 1000 / updatesPerSecond);
+	}
+
+	/**
+	 * The frames per second of the program.
+	 * @type {number}
+	 */
+	get fps() {
+		return 1 / this.deltaTime;
 	}
 
 	/**
