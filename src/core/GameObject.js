@@ -48,13 +48,13 @@ export class GameObject {
 	 */
 	set parent(value) {
 		if (this.parent && this.parent != value) {
-			parent.removeChild(this);
+			this.parent.removeChild(this);
 		}
 
 		this.#parent = value;
 
 		if (this.parent) {
-			parent.addChild(this);
+			this.parent.addChild(this);
 		}
 	}
 
@@ -73,7 +73,7 @@ export class GameObject {
 	 */
 	removeChild(child) {
 		child.parent = null;
-		this.#children.remove(child);
+		this.#children.splice(this.#children.indexOf(child));
 	}
 
 	/**
