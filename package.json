@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.22.17",
+  "version": "0.22.18",
   "description": "Lightweight JavaScript game framework, WebGL, and math library.",
   "keywords": [
     "front-end",
@@ -35,7 +35,8 @@
     "lint": "eslint src --fix",
     "build": "webpack",
     "build-babel": "webpack -c ./webpack.babel.config.js",
-    "esdoc": "esdoc"
+    "esdoc": "esdoc",
+    "babel": "babel src -d lib"
   },
   "type": "module",
   "sideEffects": false,
