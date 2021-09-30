@@ -25,6 +25,8 @@ jobs:
         run: npm run beautify
       - name: Lint
         run: npm run lint
+      - name: Babel
+        run: npm run babel
       - name: Build
         run: npm run build
       - name: Build babel
