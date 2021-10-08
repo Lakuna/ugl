@@ -1,6 +1,6 @@
 {
   "name": "@lakuna/umbra.js",
-  "version": "0.22.19",
+  "version": "0.22.20",
   "description": "Lightweight JavaScript game framework, WebGL, and math library.",
   "keywords": [
     "front-end",
@@ -46,7 +46,7 @@
     "@babel/core": "^7.14.8",
     "@babel/eslint-parser": "^7.14.7",
     "@babel/preset-env": "^7.14.8",
-    "@itsjamie/esdoc-cli": "^0.3.1",
+    "@itsjamie/esdoc-cli": "^0.1.0",
     "@itsjamie/esdoc-core": "^0.3.1",
     "@itsjamie/esdoc-ecmascript-proposal-plugin": "^0.3.1",
     "@itsjamie/esdoc-standard-plugin": "^0.3.1",

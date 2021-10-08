@@ -42,7 +42,7 @@ export class Mesh extends Transform {
 			// Calculate depth.
 			depthMap.set(mesh, (mesh.renderOrder != 0 || !mesh.vao.program.allowDepth || !camera)
 				? 0
-				: mesh.worldMatrix.translation.transform(camera.projectionViewMatrix)[2]);
+				: mesh.worldMatrix.translation.transform(camera.viewProjectionMatrix)[2]);
 		});
 
 		// Sort within each render group.
