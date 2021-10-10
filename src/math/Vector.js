@@ -108,7 +108,7 @@ export class Vector extends Array {
 	 * @see https://en.wikipedia.org/wiki/Dot_product
 	 */
 	dot(vector) {
-		return sigma(0, vector.length - 1, (n) => this[n] * vector[n]);
+		return sigma(0, Math.max(this.length, vector.length) - 1, (n) => (this[n] ?? 0) * (vector[n] ?? 0));
 	}
 
 	/**
@@ -128,7 +128,6 @@ export class Vector extends Array {
 	set(...data) {
 		while (this.length > 0) { this.pop(); }
 		for (const value of data) { this.push(value); }
-
 		return this;
 	}
 
@@ -172,11 +171,12 @@ export class Vector extends Array {
 	 * @see https://en.wikipedia.org/wiki/Cross_product
 	 */
 	cross(vector) {
-		return this.set(...Vector.fromRule(this.length, (i) => {
-			const loop = (i) => i < this.length ? i : i - this.length;
+		const length = Math.max(this.length, vector.length);
+		return this.set(...Vector.fromRule(length, (i) => {
+			const loop = (i) => i < length ? i : i - length;
 			i = loop(i + 1);
 			let j = loop(i + 1);
-			return this[i] * vector[j] - this[j] * vector[i];
+			return (this[i] ?? 0) * (vector[j] ?? 0) - (this[j] ?? 0) * (vector[i] ?? 0);
 		}));
 	}
 
@@ -196,7 +196,7 @@ export class Vector extends Array {
 	 * @return {Vector} Self.
 	 */
 	operate(vector, operation) {
-		return this.set(...Vector.fromRule(this.length, (i) => operation(this[i], vector[i])));
+		return this.set(...Vector.fromRule(Math.max(this.length, vector.length), (i) => operation((this[i] ?? 0), (vector[i] ?? 0) ?? 0)));
 	}
 
 	/**

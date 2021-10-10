@@ -18,7 +18,7 @@ export class Alea {
 	* @param {*[]} [...seeds=[Date.now()]] - A list of seeds for the PRNG.
 	*/
 	constructor(...seeds) {
-		seeds ||= [Date.now()];
+		if (!seeds.length) { seeds = [Date.now()]; }
 
 		/**
 		 * The seeds of the instance.
