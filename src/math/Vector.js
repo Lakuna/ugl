@@ -95,8 +95,8 @@ export class Vector extends Array {
 	 */
 	distance(vector) {
 		let output = 0;
-		for (let i = 0; i < vector.length; i++) {
-			output += (vector.length - this.length) ** 2;
+		for (let i = 0; i < Math.max(this.length, vector.length); i++) {
+			output += ((this[i] ?? 0) - (vector[i] ?? 0)) ** 2;
 		}
 		return Math.sqrt(output);
 	}
