@@ -7,6 +7,8 @@ import { Component } from "./Component.js";
 /** Class representing a game (or other program which utilizes Umbra). */
 export class Umbra {
 	#scene;
+	#fixedInterval;
+	#stopLoop;
 
 	/**
 	 * Create an instance of Umbra.
@@ -43,7 +45,7 @@ export class Umbra {
 
 		// Update loop; variable frequency.
 		const update = (now) => {
-			requestAnimationFrame(update);
+			if (!this.#stopLoop) { requestAnimationFrame(update); }
 
 			this.time = now;
 			
@@ -57,7 +59,7 @@ export class Umbra {
 		requestAnimationFrame(update);
 
 		// Fixed update loop; fixed frequency.
-		setInterval(() => {
+		/** @ignore */ this.#fixedInterval = setInterval(() => {
 			if (!this.paused) {
 				this.trigger(Component.events.FIXED_UPDATE);
 			}
@@ -113,5 +115,11 @@ export class Umbra {
 		getComponentsRecursive(this.scene)
 			.sort((a, b) => a.priority > b.priority ? 1 : -1) // Trigger events in order of priority.
 			.forEach((component) => component[event](this));
+	}
+
+	/** Stops all processes on this instance of Umbra. Irreversible. */
+	destroy() {
+		clearInterval(this.#fixedInterval);
+		this.#stopLoop = true;
 	}
 }
