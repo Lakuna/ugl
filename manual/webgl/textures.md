@@ -696,3 +696,5 @@ const texture = new Texture({
 [Here](https://codepen.io/lakuna/full/YzQWVmm) is the above in action. It's identical to the first texture example, except with the texture replaced with the above code.
 
 [Here](https://codepen.io/lakuna/full/dyRXRyB) is a way cooler example which uses OpenSimplex noise.
+
+Bonus example: [here](https://codepen.io/lakuna/full/QWMNKGd) is the above program, but using ASCII characters instead of WebGL. This is meant to be an example of using Umbra without graphics.
