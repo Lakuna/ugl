@@ -8,7 +8,7 @@ A standard Umbra program begins by declaring the Umbra instance, which controls 
 ```js
 import { Umbra } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const u = new Umbra();
+const umbra = new Umbra();
 ```
 By default, Umbra will remove all other elements and styles on the page. If you would like to use a predefined canvas, pass it into the first parameter using a built-in JavaScript function such as `document.querySelector` or `document.getElementById`.
 
@@ -32,34 +32,34 @@ class Cube extends GameObject {
 		[0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]
 	);
 
-	static vertexShaderSource = `#version 300 es
+	static vss = `#version 300 es
 
-	in vec4 a_position;
-	in vec3 a_normal;
+in vec4 a_position;
+in vec3 a_normal;
+uniform mat4 u_matrix;
+out vec4 v_color;
 
-	uniform mat4 u_matrix;
+void main() {
+	gl_Position = u_matrix * a_position;
+	v_color = vec4(a_normal, 1) * 0.5 + 0.5;
+}`;
 
-	out vec4 v_color;
+	static fss = `#version 300 es
 
-	void main() {
-		gl_Position = u_matrix * a_position;
-		v_color = vec4(a_normal, 1) * 0.5 + 0.5;
-	}`;
+precision highp float;
 
-	static fragmentShaderSource = `#version 300 es
+in vec4 v_color;
+out vec4 outColor;
 
-	precision highp float;
-
-	in vec4 v_color;
-
-	out vec4 outColor;
-
-	void main() {
-		outColor = v_color;
-	}`;
-
-	constructor(parent, program) {
+void main() {
+	outColor = v_color;
+}`;
+	
+	constructor(parent, program, camera) {
 		super(parent);
+
+		this.program = program;
+		this.camera = camera;
 
 		// Create a VAO for each cube.
 		this.vao = VAO.fromGeometry(program, Cube.geometry, "a_position", null, "a_normal");
@@ -67,16 +67,14 @@ class Cube extends GameObject {
 		// Attach a Mesh Component to each Cube. Mesh extends Transform.
 		this.mesh = new Mesh(this, 0, this.vao);
 
-		// Add a component to rotate each Cube for demonstration purposes.
-		new Component(this)[Component.events.UPDATE] = (u) => {
-			this.mesh.rotation.x += u.fps * 0.004;
-			this.mesh.rotation.y += u.fps * 0.007;
+		this.rotationalVelocity = new Vector(0, 0, 0);
+
+		// Add a component to animate the cubes.
+		new Component(this)[Component.events.UPDATE] = (umbra) => {
+			this.mesh.rotation.add(this.rotationalVelocity.copy.scale(umbra.deltaTime));
 		};
 	}
 }
-
-// Create a program to draw all of our cubes with.
-const program = Program.fromSource(u.gl, Cube.vertexShaderSource, Cube.fragmentShaderSource);
 ```
 
 Naturally, we also need to tell Umbra to draw the cubes we create. We can do this by creating a "Renderer" Component.
@@ -85,18 +83,18 @@ import { resizeCanvas, clearCanvas } from "https://cdn.skypack.dev/@lakuna/umbra
 
 class Renderer extends Component {
 	constructor(scene, camera) {
-		super(scene, -1);
+		super(scene, 1);
 
-		// Add an update event. This is similar to overriding the "update" method on Unity MonoBehaviour.
-		this[Component.events.UPDATE] = (u) => {
-			resizeCanvas(u.gl.canvas);
-			u.gl.enable(u.gl.CULL_FACE);
-			u.gl.enable(u.gl.DEPTH_TEST);
-			clearCanvas(u.gl);
+		// Add an update event. This is similar to overriding the "update" method on a Unity Monobehaviour.
+		this[Component.events.UPDATE] = (umbra) => {
+			resizeCanvas(umbra.gl.canvas);
+			umbra.gl.enable(umbra.gl.CULL_FACE);
+			umbra.gl.enable(umbra.gl.DEPTH_TEST);
+			clearCanvas(umbra.gl);
 
 			for (const mesh of Mesh.getRenderList(scene, camera)) {
 				mesh.vao.program.use();
-				mesh.vao.program.uniforms.get("u_matrix").value = mesh.matrix;
+				mesh.vao.program.uniforms.get("u_matrix").value = camera.worldViewProjectionMatrix(mesh);
 				mesh.vao.draw();
 			}
 		};
@@ -109,26 +107,30 @@ Finally, let's put together the objects in the scene...
 ```js
 import { Camera, Vector } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-const camera = new Camera({ object: new GameObject(scene) });
-camera.z -= 5; // Move the camera back a little bit to put the cubes in view.
-
-const leftCube = new Cube(scene, program);
-leftCube.x -= 5;
-
-const rightCube = new Cube(scene, program);
-rightCube.x += 5;
-
-const tinyCube = new Cube(rightCube, program);
-tinyCube.scale = new Vector(0.5, 0.5, 0.5);
-tinyCube.y += 5;
+const camera = new Camera({ parent: scene });
+camera.transform.translation.z += 20;
 
 const renderer = new Renderer(scene, camera);
+
+const cubeProgram = Program.fromSource(umbra.gl, Cube.vss, Cube.fss);
+
+const leftCube = new Cube(scene, cubeProgram, camera);
+leftCube.mesh.translation.x -= 5;
+leftCube.rotationalVelocity = new Vector(0.4, 0.7, 0);
+
+const rightCube = new Cube(scene, cubeProgram, camera);
+rightCube.mesh.translation.x += 5;
+rightCube.rotationalVelocity = new Vector(0.7, 0.4, 0);
+
+const tinyCube = new Cube(rightCube, cubeProgram, camera);
+tinyCube.mesh.scale = new Vector(0.5, 0.5, 0.5);
+tinyCube.mesh.translation.y += 3;
 ```
 
 ...and make the scene active in order to start the program.
 ```js
-u.scene = scene;
+umbra.scene = scene;
 ```
 
 ### Result
-WIP
+[Here](https://codepen.io/lakuna/full/ExvvjMZ) is a working version of the example above.
