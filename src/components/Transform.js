@@ -69,6 +69,6 @@ export class Transform extends Component {
 	 * @type {Matrix}
 	 */
 	get worldMatrix() {
-		return this.parent ? this.matrix.multiply(this.parent.worldMatrix) : this.matrix;
+		return this.parent ? this.parent.worldMatrix.multiply(this.matrix) : this.matrix;
 	}
 }
