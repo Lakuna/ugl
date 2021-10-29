@@ -1,5 +1,5 @@
-import { GameObject } from "../core/GameObject";
-import { Component } from "../core/Component";
+import { GameObject } from "../core/GameObject.js";
+import { Component } from "../core/Component.js";
 import { Transform } from "../components/Transform.js";
 import { Matrix } from "../math/Matrix.js";
 
