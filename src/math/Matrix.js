@@ -206,6 +206,14 @@ export class Matrix extends Array {
 	}
 
 	/**
+	 * A copy of this matrix.
+	 * @type {Matrix}
+	 */
+	get copy() {
+		return new Matrix(...this);
+	}
+
+	/**
 	 * Fills this matrix with the supplied data.
 	 * @param {...number} data - The data to fill the matrix with.
 	 * @return {Matrix} Self.

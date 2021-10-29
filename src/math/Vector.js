@@ -89,6 +89,14 @@ export class Vector extends Array {
 	}
 
 	/**
+	 * A copy of this vector.
+	 * @type {Vector}
+	 */
+	get copy() {
+		return new Vector(...this);
+	}
+
+	/**
 	 * Calculate the distance between two vectors.
 	 * @param {Vector} vector - The other vector.
 	 * @return {number} The distance between this and another vector.
