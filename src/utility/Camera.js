@@ -1,25 +1,26 @@
-import { Transform } from "./Transform.js";
+import { GameObject } from "../core/GameObject";
+import { Component } from "../core/Component";
+import { Transform } from "../components/Transform.js";
 import { Matrix } from "../math/Matrix.js";
 
 /** Class representing a camera. */
-export class Camera extends Transform {
+export class Camera extends GameObject {
 	/**
 	 * Create a camera.
 	 * @param {Object} [arguments={}] - An object containing the arguments.
-	 * @param {GameObject} [arguments.gameObject=new GameObject()] - The object to attach this component to.
-	 * @param {number} [arguments.priority=0] - The order this component's events should trigger in relative to other components.
+	 * @param {GameObject} [arguments.parent] - The parent of this camera.
 	 * @param {number} [arguments.near=0.1] - The nearest that the camera can see.
 	 * @param {number} [arguments.far=100] - The farthest that the camera can see.
-	 * @param {number} [arguments.fov=45 * (Math.PI / 180)] - The field of view of the camera in radians.
-	 * @param {number} [arguments.aspectRatio=1] - The aspect ratio of the output.
+	 * @param {number} [arguments.fov=Math.PI / 4] - The field of view of the camera in radians.
+	 * @param {number} [arguments.aspectRatioOverride] - The aspect ratio of the output. If not set, automatically updates with canvas.
 	 * @param {number} [arguments.left] - The left boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.right] - The right boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.bottom] - The bottom boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.top] - The top boundary of the output. Makes the camera orthographic if given a value.
 	 * @param {number} [arguments.zoom=1] - The zoom applied to the camera if it is orthographic.
 	 */
-	constructor({ gameObject, priority, near = 0.1, far = 100, fov = 45 * (Math.PI / 180), aspectRatio = 1, left, right, bottom, top, zoom = 1 } = {}) {
-		super(gameObject, priority);
+	constructor({ parent, near = 0.1, far = 100, fov = Math.PI / 4, aspectRatioOverride, left, right, bottom, top, zoom = 1 } = {}) {
+		super(parent);
 
 		/**
 		 * The nearest that the camera can see.
@@ -40,10 +41,16 @@ export class Camera extends Transform {
 		this.fov = fov;
 
 		/**
+		 * The aspect ratio of the output. If not set, automatically updates with canvas.
+		 * @type {number}
+		 */
+		this.aspectRatioOverride = aspectRatioOverride;
+
+		/**
 		 * The aspect ratio of the output.
 		 * @type {number}
 		 */
-		this.aspectRatio = aspectRatio;
+		this.aspectRatio = aspectRatioOverride;
 
 		/**
 		 * The left boundary of the output. Makes the camera orthographic if given a value.
@@ -74,6 +81,16 @@ export class Camera extends Transform {
 		 * @type {number}
 		 */
 		this.zoom = zoom;
+
+		/**
+		 * The transform component of the camera.
+		 * @type {Transform}
+		 */
+		this.transform = new Transform(this);
+
+		new Component(this)[Component.events.UPDATE] = (umbra) => {
+			this.aspectRatio = this.aspectRatioOverride ?? umbra.gl.canvas.clientWidth / umbra.gl.canvas.clientHeight;
+		};
 	}
 
 	/**
@@ -99,7 +116,7 @@ export class Camera extends Transform {
 	 * @type {Matrix}
 	 */
 	get viewMatrix() {
-		return this.worldMatrix.invert();
+		return this.transform.worldMatrix.invert();
 	}
 
 	/**
@@ -108,5 +125,14 @@ export class Camera extends Transform {
 	 */
 	get viewProjectionMatrix() {
 		return this.projectionMatrix.multiply(this.viewMatrix);
+	}
+
+	/**
+	 * The world view projection matrix for a mesh.
+	 * @param {Mesh} mesh - The mesh to get the world view projection matrix for with this camera.
+	 * @return {Matrix} The world view projection matrix of the mesh.
+	 */
+	worldViewProjectionMatrix(mesh) {
+		return this.viewProjectionMatrix.multiply(mesh.worldMatrix);
 	}
 }

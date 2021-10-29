@@ -105,11 +105,11 @@ export class Mesh extends Transform {
 	}
 
 	/**
-	 * Generate the world view projection matrix of this mesh for a camera.
-	 * @param {Camera} camera - The camera with which to render the mesh.
+	 * The world view projection matrix for this mesh.
+	 * @param {Camera} camera - The camera to use to get the world view projection matrix for this mesh.
 	 * @return {Matrix} The world view projection matrix of this mesh.
 	 */
-	worldViewProjectionMatrixForCamera(camera) {
-		return camera.viewProjectionMatrix.multiply(this.worldMatrix);
+	worldViewProjectionMatrix(camera) {
+		return camera.worldViewProjectionMatrix(this);
 	}
 }

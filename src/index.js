@@ -25,12 +25,12 @@
 /** @ignore */ export * from "./core/Umbra.js";
 
 // Components
-/** @ignore */ export * from "./components/Camera.js";
 /** @ignore */ export * from "./components/Mesh.js";
 /** @ignore */ export * from "./components/Transform.js";
 
 // Utility
 /** @ignore */ export * from "./utility/Alea.js";
+/** @ignore */ export * from "./utility/Camera.js";
 /** @ignore */ export * from "./utility/clearCanvas.js";
 /** @ignore */ export * from "./utility/Color.js";
 /** @ignore */ export * from "./utility/Geometry.js";
