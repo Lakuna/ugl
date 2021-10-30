@@ -48,8 +48,8 @@ in vec4 a_position;
 
 // All shaders have a main function.
 void main() {
-	// gl_Position is a special variable that a vertex shader is responsible for setting.
-	gl_Position = a_position;
+    // gl_Position is a special variable that a vertex shader is responsible for setting.
+    gl_Position = a_position;
 }
 ```
 
@@ -64,8 +64,8 @@ precision highp float;
 out vec4 outColor;
 
 void main() {
-	// Here, we're just setting the output to a color.
-	outColor = vec4(0.314, 0.784, 0.471, 1);
+    // Here, we're just setting the output to a color.
+    outColor = vec4(0.314, 0.784, 0.471, 1);
 }
 ```
 
@@ -74,12 +74,12 @@ In order to draw on the screen, we need an HTML canvas element.
 ```html
 &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
 &lt;style&gt;
-	* {
-		  width: 100%;
-		 height: 100%;
-		 margin:  0px;
-		padding:  0px;
-	}
+    * {
+          width: 100%;
+         height: 100%;
+         margin:  0px;
+        padding:  0px;
+    }
 &lt;/style&gt;
 &lt;script&gt;
 	const canvas = document.querySelector("#canvas");
@@ -89,9 +89,9 @@ In order to draw on the screen, we need an HTML canvas element.
 If you're using Umbra, this can be done without HTML.
 ```html
 &lt;script type="module"&gt;
-	import { makeFullscreenCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
+    import { makeFullscreenCanvas } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
-	const canvas = makeFullscreenCanvas();
+    const canvas = makeFullscreenCanvas();
 &lt;/script&gt;
 ```
 
@@ -108,14 +108,14 @@ Next, we need to compile the shaders to put them on the GPU. First, declare them
 const vertexShaderSource = `#version 300 es
 in vec4 a_position;
 void main() {
-	gl_Position = a_position;
+    gl_Position = a_position;
 }`;
 
 const fragmentShaderSource = `#version 300 es
 precision highp float;
 out vec4 outColor;
 void main() {
-	outColor = vec4(0.314, 0.784, 0.471, 1);
+    outColor = vec4(0.314, 0.784, 0.471, 1);
 }`;
 ```
 
@@ -124,21 +124,21 @@ Note that the `#version 300 es` line must be the **very first line** of your sha
 After we declare the strings, we can create a shader, upload the GLSL source, and compile the shader.
 ```js
 const createShader = (gl, type, source) => {
-	// Create the shader.
-	const shader = gl.createShader(type);
+    // Create the shader.
+    const shader = gl.createShader(type);
 
-	// Assign the source code to the shader.
-	gl.shaderSource(shader, source);
+    // Assign the source code to the shader.
+    gl.shaderSource(shader, source);
 
-	// Compile the shader.
-	gl.compileShader(shader);
+    // Compile the shader.
+    gl.compileShader(shader);
 
-	// Check for compilation errors.
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		throw new Error(gl.getShaderInfoLog(shader));
-	}
+    // Check for compilation errors.
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader));
+    }
 
-	return shader;
+    return shader;
 };
 
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -157,21 +157,21 @@ const fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 Once we create the two shaders, we can link them together into a shader program.
 ```js
 const createProgram = (gl, vertexShader, fragmentShader) => {
-	// Create the shader program.
-	const program = gl.createProgram();
+    // Create the shader program.
+    const program = gl.createProgram();
 
-	// Attach the shaders to the shader program.
-	[vertexShader, fragmentShader].forEach((shader) => gl.attachShader(program, shader));
+    // Attach the shaders to the shader program.
+    [vertexShader, fragmentShader].forEach((shader) => gl.attachShader(program, shader));
 
-	// Link the shader program.
-	gl.linkProgram(program);
+    // Link the shader program.
+    gl.linkProgram(program);
 
-	// Check for linking errors.
-	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		throw new Error(gl.getProgramInfoLog(program));
-	}
+    // Check for linking errors.
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program));
+    }
 
-	return program;
+    return program;
 };
 
 const program = createProgram(gl, vertexShader, fragmentShader);
@@ -218,9 +218,9 @@ Now we can put data in the buffer by referencing it through the bind point.
 ```js
 // Three two-dimensional points.
 const positions = [
-	  0,   0,
-	  0, 0.5,
-	0.7,   0
+      0,   0,
+      0, 0.5,
+    0.7,   0
 ];
 
 // Access the buffer through the bind point.
@@ -236,9 +236,9 @@ If you're using Umbra, you can use the `Buffer` constructor instead of all of th
 import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionBuffer = new Buffer(gl, new Float32Array([
-	  0,   0,
-	  0, 0.5,
-	0.7,   0
+      0,   0,
+      0, 0.5,
+    0.7,   0
 ]));
 ```
 
@@ -266,15 +266,18 @@ gl.enableVertexAttribArray(positionAttributeLocation);
 Then, we can specify how to pull the data out of the buffer.
 ```js
 gl.vertexAttribPointer(
-	positionAttributeLocation,
-	2, // Size; tells WebGL that we want to pull out 2 components per iteration.
-	gl.FLOAT, // Type; tells WebGL that the data is stored as 32-bit floating-point values.
-	false, // Normalize; tells WebGL whether to normalize the data.
-	0, // Stride*; tells WebGL how far to move forward each iteration to get to the next position.
-	0 // Offset; setting this to 0 tells WebGL to start at the beginning of the buffer.
+    positionAttributeLocation,
+    2, // Size; tells WebGL that we want to pull out 2 components per iteration.
+    gl.FLOAT, // Type; tells WebGL that the data is stored as 32-bit floating-point values.
+    false, // Normalize; tells WebGL whether to normalize the data.
+    0, // Stride*; tells WebGL how far to move forward each iteration to get to the next position.
+    0 // Offset; setting this to 0 tells WebGL to start at the beginning of the buffer.
 );
 
-// *Setting stride to 0 automatically calculates stride as if the data is tightly-packed (equal to size * sizeof(type)).
+/*
+*Setting the stride to 0 automatically calculates stride as if
+the data is tightly-packed (equal to size * sizeof(type)).
+*/
 ```
 
 `gl.vertexAttribPointer` also binds the current `ARRAY_BUFFER` to the attribute; in other words, `positionBuffer` is now bound to the attribute at `positionAttributeLocation`. We can now bind something else to `ARRAY_BUFFER`, and the attribute will continue to use `positionBuffer`.
@@ -295,17 +298,17 @@ const vao = new VAO(program, [positionAttribute]);
 Before we draw, we should resize the canvas to match its display size. Just like images, canvases have two sizes: the number of pixels in them, and the size they are displayed. CSS determines the size the canvas is displayed.
 ```js
 const resizeCanvas = (canvas) => {
-	const displayWidth = canvas.clientWidth;
-	const displayHeight = canvas.clientHeight;
+    const displayWidth = canvas.clientWidth;
+    const displayHeight = canvas.clientHeight;
 
-	if (canvas.width != displayWidth || canvas.height != displayHeight) {
-		canvas.width = displayWidth;
-		canvas.height = displayHeight;
+    if (canvas.width != displayWidth || canvas.height != displayHeight) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 };
 
 resizeCanvas(canvas);
@@ -355,9 +358,9 @@ gl.bindVertexArray(vao);
 Execute the shader program.
 ```js
 gl.drawArrays(
-	gl.TRIANGLES, // Primitive type
-	0, // Offset
-	3 // Count; number of times to execute the vertex shader.
+    gl.TRIANGLES, // Primitive type
+    0, // Offset
+    3 // Count; number of times to execute the vertex shader.
 );
 ```
 
@@ -374,9 +377,9 @@ Everything in the render step should be executed every frame, ideally by using `
 // Initialization step.
 
 const render = () => {
-	requestAnimationFrame(render);
+    requestAnimationFrame(render);
 
-	// Render step.
+    // Render step.
 };
 requestAnimationFrame(render);
 ```
@@ -400,19 +403,19 @@ in vec2 a_position;
 uniform vec2 u_resolution;
 
 void main() {
-	// Convert the position from pixels to (0.0 to 1.0).
-	vec2 zeroToOne = a_position / u_resolution;
+    // Convert the position from pixels to (0.0 to 1.0).
+    vec2 zeroToOne = a_position / u_resolution;
 
-	// Convert from (0.0 to 1.0) to (0.0 to 2.0).
-	vec2 zeroToTwo = zeroToOne * 2.0;
+    // Convert from (0.0 to 1.0) to (0.0 to 2.0).
+    vec2 zeroToTwo = zeroToOne * 2.0;
 
-	// Convert from (0.0 to 2.0) to (-1.0 to 1.0).
-	vec2 clipSpace = zeroToTwo - 1.0;
+    // Convert from (0.0 to 2.0) to (-1.0 to 1.0).
+    vec2 clipSpace = zeroToTwo - 1.0;
 
-	// Flip the Y-axis so that the top-left corner is the origin.
-	vec2 clipSpaceFlipped = clipSpace * vec2(1, -1);
+    // Flip the Y-axis so that the top-left corner is the origin.
+    vec2 clipSpaceFlipped = clipSpace * vec2(1, -1);
 
-	gl_Position = vec4(clipSpace, 0, 1);
+    gl_Position = vec4(clipSpace, 0, 1);
 }
 ```
 
@@ -422,7 +425,7 @@ const vertexShaderSource = `#version 300 es
 in vec2 a_position;
 uniform vec2 u_resolution;
 void main() {
-	gl_Position = vec4((a_position / u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
+    gl_Position = vec4((a_position / u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
 }`;
 ```
 
@@ -441,12 +444,12 @@ console.log(program.uniforms.get("u_resolution").location);
 Modify the position buffer to contain six points (twelve values) of pixel coordinates.
 ```js
 const positions = [
-	10, 20,
-	80, 20,
-	10, 30,
-	10, 30,
-	80, 20,
-	80, 30
+    10, 20,
+    80, 20,
+    10, 30,
+    10, 30,
+    80, 20,
+    80, 30
 ];
 
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -457,12 +460,12 @@ For Umbra users:
 import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionBuffer = new Buffer(gl, new Float32Array([
-	10, 20,
-	80, 20,
-	10, 30,
-	10, 30,
-	80, 20,
-	80, 30
+    10, 20,
+    80, 20,
+    10, 30,
+    10, 30,
+    80, 20,
+    80, 30
 ]));
 ```
 
@@ -514,11 +517,15 @@ in vec4 a_position;
 out vec4 v_color;
 
 void main() {
-	gl_Position = a_position;
+    gl_Position = a_position;
 
-	// a_position uses clip space coordinates (-1 to +1), while colors use color space coordinates (0 to 1).
-	// Therefore, we must convert the data before we pass it to the fragment shader as a color.
-	v_color = gl_Position * 0.5 + 0.5;
+    /*
+    a_position uses clip space coordinates (-1 to +1),
+    while colors use color space coordinates (0 to 1).
+    Therefore, we must convert the data before we pass
+    it to the fragment shader as a color.
+    */
+    v_color = gl_Position * 0.5 + 0.5;
 }
 ```
 
@@ -528,8 +535,8 @@ const vertexShaderSource = `#version 300 es
 in vec4 a_position;
 out vec4 v_color;
 void main() {
-	gl_Position = a_position;
-	v_color = gl_Position * 0.5 + 0.5;
+    gl_Position = a_position;
+    v_color = gl_Position * 0.5 + 0.5;
 }`;
 ```
 
@@ -545,7 +552,7 @@ in vec4 v_color; // Must use the same name as in the vertex shader.
 out vec4 outColor;
 
 void main() {
-	outColor = v_color;
+    outColor = v_color;
 }
 ```
 
@@ -556,7 +563,7 @@ precision highp float;
 in vec4 v_color;
 out vec4 outColor;
 void main() {
-	outColor = v_color;
+    outColor = v_color;
 }`;
 ```
 

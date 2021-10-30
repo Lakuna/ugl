@@ -7,34 +7,34 @@ To draw images in WebGL, we need to use textures. Similarly to the way WebGL exp
 // Clip space coordinates go from (-1, -1) (bottom left) to (1, 1) (top right).
 // Notice that the vertices go counter-clockwise so that this is a front face.
 const planeVertexPositions = [
-	-1,  1, 0, // Top left
-	-1, -1, 0, // Bottom left
-	 1, -1, 0, // Bottom right
-	 1,  1, 0 // Top right
+    -1,  1, 0, // Top left
+    -1, -1, 0, // Bottom left
+     1, -1, 0, // Bottom right
+     1,  1, 0 // Top right
 ];
 
 // Normals are used primarily for lighting. They will be covered in more detail later.
 // Although they are all the same for a plane, they still go counter-clockwise.
 const planeNormals = [
-	0, 0, 1,
-	0, 0, 1,
-	0, 0, 1,
-	0, 0, 1
+    0, 0, 1,
+    0, 0, 1,
+    0, 0, 1,
+    0, 0, 1
 ];
 
 // Texture coordinates go from (0, 0) (bottom left) to (1, 1) (top right).
 // Notice that the texture coordinates go counter-clockwise and match the position of the vertex.
 const planeTextureCoordinates = [
-	0, 1,
-	0, 0,
-	1, 0,
-	1, 1
+    0, 1,
+    0, 0,
+    1, 0,
+    1, 1
 ];
 
 // We use indices so that we don't have to repeat values.
 const planeIndices = [
-	0, 1, 2,
-	0, 2, 3
+    0, 1, 2,
+    0, 2, 3
 ];
 ```
 
@@ -46,7 +46,7 @@ in vec2 a_texcoord;
 out vec2 v_texcoord;
 
 void main() {
-	v_texcoord = a_texcoord;
+    v_texcoord = a_texcoord;
 }
 ```
 
@@ -59,7 +59,7 @@ in vec2 v_texcoord;
 out vec4 outColor;
 
 void main() {
-	outColor = texture(u_image, v_texcoord);
+    outColor = texture(u_image, v_texcoord);
 }
 ```
 
@@ -72,7 +72,8 @@ gl.activeTexture(gl.TEXTURE0 + 0); // Use texture unit 0.
 gl.bindTexture(gl.TEXTURE_2D, texture);
 
 // Fill it with a 1x1 blue pixel.
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0,
+	gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
 ```
 
 In Umbra, the `Texture` class handles all of the specifics for us.
@@ -98,9 +99,9 @@ uniform mat4 u_matrix;
 out vec2 v_texcoord;
 
 void main() {
-	gl_Position = u_matrix * a_position;
+    gl_Position = u_matrix * a_position;
 
-	v_texcoord = a_texcoord;
+    v_texcoord = a_texcoord;
 }
 ```
 
@@ -111,8 +112,8 @@ in vec2 a_texcoord;
 uniform mat4 u_matrix;
 out vec2 v_texcoord;
 void main() {
-	gl_Position = u_matrix * a_position;
-	v_texcoord = a_texcoord;
+    gl_Position = u_matrix * a_position;
+    v_texcoord = a_texcoord;
 }`;
 ```
 
@@ -128,7 +129,7 @@ uniform sampler2D u_texture;
 out vec4 outColor;
 
 void main() {
-	outColor = texture(u_texture, v_texcoord);
+    outColor = texture(u_texture, v_texcoord);
 }
 ```
 
@@ -139,7 +140,7 @@ in vec2 v_texcoord;
 uniform sampler2D u_texture;
 out vec4 outColor;
 void main() {
-	outColor = texture(u_texture, v_texcoord);
+    outColor = texture(u_texture, v_texcoord);
 }`;
 ```
 
@@ -160,7 +161,8 @@ import { Geometry, VAO } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 // Put the plane data from above here.
 
-const plane = new Geometry(planeVertexPositions, planeTextureCoordinates, planeNormals, planeIndices);
+const plane
+    = new Geometry(planeVertexPositions, planeTextureCoordinates, planeNormals, planeIndices);
 const vao = VAO.fromGeometry(program, plane, "a_position", "a_texcoord", null);
 ```
 
@@ -179,12 +181,12 @@ This boilerplate code has been explained in previous examples, so I'm going to l
 import { resizeCanvas, clearCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const render = (time) => {
-	requestAnimationFrame(render);
+    requestAnimationFrame(render);
 
-	resizeCanvas(canvas);
-	gl.enable(gl.CULL_FACE);
-	gl.enable(gl.DEPTH_TEST);
-	clearCanvas(gl);
+    resizeCanvas(canvas);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    clearCanvas(gl);
 }
 requestAnimationFrame(render);
 ```
@@ -208,9 +210,9 @@ If we'd like to load an image into the texture, we have to do so asynchronously.
 ```js
 const image = new Image();
 image.addEventListener("load", () => {
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
 });
 image.src = "https://docs.umbra.lakuna.pw/manual/asset/rgb.png";
 ```
@@ -366,7 +368,8 @@ const cubeTextureCoordinates = [
     1, 1
 ];
 
-const atlasCube = new Geometry(cubeVertexPositions, cubeTextureCoordinates, cubeNormals, cubeIndices);
+const atlasCube
+    = new Geometry(cubeVertexPositions, cubeTextureCoordinates, cubeNormals, cubeIndices);
 const vao = VAO.fromGeometry(program, atlasCube, "a_position", "a_texcoord", null);
 ```
 
@@ -384,12 +387,12 @@ const texture = Texture.fromImage(gl, "https://docs.umbra.lakuna.pw/manual/asset
 import { resizeCanvas, clearCanvas, Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const render = (time) => {
-	requestAnimationFrame(render);
+    requestAnimationFrame(render);
 
-	resizeCanvas(canvas);
-	gl.enable(gl.CULL_FACE);
-	gl.enable(gl.DEPTH_TEST);
-	clearCanvas(gl);
+    resizeCanvas(canvas);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    clearCanvas(gl);
 }
 requestAnimationFrame(render);
 ```
@@ -398,7 +401,8 @@ requestAnimationFrame(render);
 ```js
 program.use();
 
-camera.aspectRatio = canvas.clientWidth / canvas.clientHeight; // Update the camera's aspect ratio in case the canvas changed dimensions.
+// Update the camera's aspect ratio in case the canvas changed dimensions.
+camera.aspectRatio = canvas.clientWidth / canvas.clientHeight;
 
 program.uniforms.get("u_matrix").value = new Matrix(); // Not using any transforms.
 program.uniforms.get("u_texture").value = texture;
@@ -416,7 +420,7 @@ Before we get started with image processing, look over [this](https://codepen.io
 By adding `.bgra` to the end of our `outColor` setter in the fragment shader, we can swap red and blue in the image.
 ```glsl
 void main() {
-	outColor = texture(u_texture, v_texcoord).bgra;
+    outColor = texture(u_texture, v_texcoord).bgra;
 }
 ```
 
@@ -438,19 +442,19 @@ uniform float u_kernelWeight;
 out vec4 outColor;
 
 void main() {
-	vec2 onePixel = vec2(1) / vec2(textureSize(u_texture, 0));
+    vec2 onePixel = vec2(1) / vec2(textureSize(u_texture, 0));
 
-	vec4 colorSum = 
-		texture(u_texture, v_texcoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 0, -1)) * u_kernel[1] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 1, -1)) * u_kernel[2] +
-		texture(u_texture, v_texcoord + onePixel * vec2(-1,  0)) * u_kernel[3] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 0,  0)) * u_kernel[4] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 1,  0)) * u_kernel[5] +
-		texture(u_texture, v_texcoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
-		texture(u_texture, v_texcoord + onePixel * vec2( 1,  1)) * u_kernel[8];
-	outColor = vec4((colorSum / u_kernelWeight).rgb, 1);
+    vec4 colorSum = 
+        texture(u_texture, v_texcoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 0, -1)) * u_kernel[1] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 1, -1)) * u_kernel[2] +
+        texture(u_texture, v_texcoord + onePixel * vec2(-1,  0)) * u_kernel[3] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 0,  0)) * u_kernel[4] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 1,  0)) * u_kernel[5] +
+        texture(u_texture, v_texcoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
+        texture(u_texture, v_texcoord + onePixel * vec2( 1,  1)) * u_kernel[8];
+    outColor = vec4((colorSum / u_kernelWeight).rgb, 1);
 }
 ```
 
@@ -458,9 +462,9 @@ In JavaScript, we need to supply the kernel and its weight.
 ```js
 // Initialization step
 const kernel = new Matrix(
-	-5, 0, 0,
-	 0, 0, 0,
-	 0, 0, 5
+    -5, 0, 0,
+     0, 0, 0,
+     0, 0, 5
 );
 const kernelWeight = Math.max(kernel.reduce((a, b) => a + b), 1);
 
@@ -476,166 +480,166 @@ There are a ton of things that can be done with convolution kernels. The example
 #### Normal
 ```js
 const kernel = new Matrix(
-	0, 0, 0,
-	0, 1, 0,
-	0, 0, 0
+    0, 0, 0,
+    0, 1, 0,
+    0, 0, 0
 );
 ```
 
 #### Gaussian blur
 ```js
 const kernel = new Matrix(
-	0.045, 0.122, 0.045,
-	0.122, 0.332, 0.122,
-	0.045, 0.122, 0.045
+    0.045, 0.122, 0.045,
+    0.122, 0.332, 0.122,
+    0.045, 0.122, 0.045
 );
 ```
 ```js
 const kernel = new Matrix(
-	1, 2, 1,
-	2, 4, 2,
-	1, 2, 1
+    1, 2, 1,
+    2, 4, 2,
+    1, 2, 1
 );
 ```
 ```js
 const kernel = new Matrix(
-	0, 1, 0,
-	1, 1, 1,
-	0, 1, 0
+    0, 1, 0,
+    1, 1, 1,
+    0, 1, 0
 );
 ```
 
 #### Unsharpen
 ```js
 const kernel = new Matrix(
-	-1, -1, -1,
-	-1,  9, -1,
-	-1, -1, -1
+    -1, -1, -1,
+    -1,  9, -1,
+    -1, -1, -1
 );
 ```
 
 #### Sharpness
 ```js
 const kernel = new Matrix(
-	 0, -1,  0,
-	-1,  5, -1,
-	 0, -1,  0
+     0, -1,  0,
+    -1,  5, -1,
+     0, -1,  0
 );
 ```
 
 #### Sharpen
 ```js
 const kernel = new Matrix(
-	-1, -1, -1,
-	-1, 16, -1,
-	-1, -1, -1
+    -1, -1, -1,
+    -1, 16, -1,
+    -1, -1, -1
 );
 ```
 
 #### Edge detect
 ```js
 const kernel = new Matrix(
-	-0.125, -0.125, -0.125,
-	-0.125,      1, -0.125,
-	-0.125, -0.125, -0.125
+    -0.125, -0.125, -0.125,
+    -0.125,      1, -0.125,
+    -0.125, -0.125, -0.125
 );
 ```
 ```js
 const kernel = new Matrix(
-	-1, -1, -1,
-	-1,  8, -1,
-	-1, -1, -1
+    -1, -1, -1,
+    -1,  8, -1,
+    -1, -1, -1
 );
 ```
 ```js
 const kernel = new Matrix(
-	-5, 0, 0,
-	 0, 0, 0,
-	 0, 0, 5
+    -5, 0, 0,
+     0, 0, 0,
+     0, 0, 5
 );
 ```
 ```js
 const kernel = new Matrix(
-	-1, -1, -1,
-	 0,  0,  0,
-	 1,  1,  1
+    -1, -1, -1,
+     0,  0,  0,
+     1,  1,  1
 );
 ```
 ```js
 const kernel = new Matrix(
-	-1, -1, -1,
-	 2,  2,  2,
-	-1, -1, -1
+    -1, -1, -1,
+     2,  2,  2,
+    -1, -1, -1
 );
 ```
 ```js
 const kernel = new Matrix(
-	-5, -5, -5,
-	-5, 39, -5,
-	-5, -5, -5
+    -5, -5, -5,
+    -5, 39, -5,
+    -5, -5, -5
 );
 ```
 
 #### Sobel horizontal
 ```js
 const kernel = new Matrix(
-	 1,  2,  1,
-	 0,  0,  0,
-	-1, -2, -1
+     1,  2,  1,
+     0,  0,  0,
+    -1, -2, -1
 );
 ```
 
 #### Sobel vertical
 ```js
 const kernel = new Matrix(
-	1, 0, -1,
-	2, 0, -2,
-	1, 0, -1
+    1, 0, -1,
+    2, 0, -2,
+    1, 0, -1
 );
 ```
 
 #### Previt horizontal
 ```js
 const kernel = new Matrix(
-	 1,  1,  1,
-	 0,  0,  0,
-	-1, -1, -1
+     1,  1,  1,
+     0,  0,  0,
+    -1, -1, -1
 );
 ```
 
 #### Previt vertical
 ```js
 const kernel = new Matrix(
-	1, 0, -1,
-	1, 0, -1,
-	1, 0, -1
+    1, 0, -1,
+    1, 0, -1,
+    1, 0, -1
 );
 ```
 
 #### Box blur
 ```js
 const kernel = new Matrix(
-	0.111, 0.111, 0.111,
-	0.111, 0.111, 0.111,
-	0.111, 0.111, 0.111
+    0.111, 0.111, 0.111,
+    0.111, 0.111, 0.111,
+    0.111, 0.111, 0.111
 );
 ```
 
 #### Triangle blur
 ```js
 const kernel = new Matrix(
-	0.0625, 0.125, 0.0625,
-	 0.125,  0.25,  0.125,
-	0.0625, 0.125, 0.0625
+    0.0625, 0.125, 0.0625,
+     0.125,  0.25,  0.125,
+    0.0625, 0.125, 0.0625
 );
 ```
 
 #### Emboss
 ```js
 const kernel = new Matrix(
-	-2, -1, 0,
-	-1,  1, 1,
-	 0,  1, 2
+    -2, -1, 0,
+    -1,  1, 1,
+     0,  1, 2
 );
 ```
 
@@ -667,29 +671,29 @@ Instead of downloading an image and making a texture from it, we can make textur
 import { Texture, Vector } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const texture = new Texture({
-	gl,
+    gl,
 
-	// Supply values for a texture.
-	data: new Uint8Array([
-		32, 64, 96, 128,
-		160, 192, 224, 255
-	]),
+    // Supply values for a texture.
+    data: new Uint8Array([
+         32,  64,  96, 128,
+        160, 192, 224, 255
+    ]),
 
-	// Don't generate mips.
-	generateMipmap: false,
+    // Don't generate mips.
+    generateMipmap: false,
 
-	// Only pull one value at a time.
-	unpackAlignment: 1,
+    // Only pull one value at a time.
+    unpackAlignment: 1,
 
-	// Allow us to use textures of any size so we don't need mips.
-	minFilter: gl.NEAREST,
-	magFilter: gl.NEAREST,
+    // Allow us to use textures of any size so we don't need mips.
+    minFilter: gl.NEAREST,
+    magFilter: gl.NEAREST,
 
-	// Texture is 4 columns and 2 rows of pixels.
-	size: new Vector(4, 2),
+    // Texture is 4 columns and 2 rows of pixels.
+    size: new Vector(4, 2),
 
-	// The data we're supplying is copied for the red, green, and blue values.
-	format: gl.LUMINANCE
+    // The data we're supplying is copied for the red, green, and blue values.
+    format: gl.LUMINANCE
 });
 ```
 

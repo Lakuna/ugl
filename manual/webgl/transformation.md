@@ -10,7 +10,7 @@ in vec4 a_position;
 uniform vec2 u_translation;
 
 void main() {
-	gl_Position = a_position + u_translation;
+    gl_Position = a_position + u_translation;
 }
 ```
 
@@ -24,10 +24,10 @@ in vec4 a_position;
 uniform vec2 u_rotation;
 
 void main() {
-	gl_Position = vec2(
-		a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-		a_position.y * u_rotation.y - a_position.x * u_rotation.x
-	);
+    gl_Position = vec2(
+        a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+        a_position.y * u_rotation.y - a_position.x * u_rotation.x
+    );
 }
 ```
 
@@ -35,7 +35,7 @@ For any given angle, we can calculate the point on a unit circle using the sine 
 ```js
 const angleInRadians = angleInDegrees * Math.PI / 180;
 
-const sine = Math.sin(angleInRadians); // x
+const sine = Math.sin(angleInRadians);   // x
 const cosine = Math.cos(angleInRadians); // y
 ```
 
@@ -49,7 +49,7 @@ in vec4 a_position;
 uniform vec2 u_scale;
 
 void main() {
-	gl_Position = a_position * u_scale;
+    gl_Position = a_position * u_scale;
 }
 ```
 
@@ -61,30 +61,30 @@ Scaling by a negative number flips the geometry. Scaling takes place from `(0, 0
 Before we begin talking about matrices, you should know that there is a small difference between matrices in WebGL and matrices in normal linear algebra. In programming, a row typically goes from left to right, and a column goes from top to bottom. When we make a matrix in JavaScript, we do it like this (row-major order):
 ```js
 const matrix = [
-	 0,  1,  2,  3,
-	 4,  5,  6,  7,
-	 8,  9, 10, 11,
-	12, 13, 14, 15
+     0,  1,  2,  3,
+     4,  5,  6,  7,
+     8,  9, 10, 11,
+    12, 13, 14, 15
 ];
 ```
 
 However, math conventions for matrix math typically do things in columns (column-major order):
 ```js
 const matrix = [
-	0, 4,  8, 12,
-	1, 5,  9, 13,
-	2, 6, 10, 14,
-	3, 7, 11, 15
+    0, 4,  8, 12,
+    1, 5,  9, 13,
+    2, 6, 10, 14,
+    3, 7, 11, 15
 ];
 ```
 
 Therefore, in the context of WebGL, rows are typically called "columns."
 ```js
 const matrix = [
-	 0,  1,  2,  3, // Column 0
-	 4,  5,  6,  7, // Column 1
-	 8,  9, 10, 11, // Column 2
-	12, 13, 14, 15 // Column 3
+     0,  1,  2,  3, // Column 0
+     4,  5,  6,  7, // Column 1
+     8,  9, 10, 11, // Column 2
+    12, 13, 14, 15  // Column 3
 ];
 ```
 
@@ -94,9 +94,9 @@ However, since this manual is written from the point-of-view of a programmer, we
 Aside from bloating your code, an issue with translating, rotating, and scaling vertices separately is that the operations are order-dependent. The solution to this is to use matrices to apply transformations instead. For 2D programs, we use a 3x3 matrix.
 ```js
 const matrix = [
-	1, 2, 3,
-	4, 5, 6,
-	7, 8, 9
+    1, 2, 3,
+    4, 5, 6,
+    7, 8, 9
 ];
 ```
 
@@ -112,16 +112,16 @@ newX = x * 1 +    newY = x * 2 +    extra = x * 3 +
 #### Translation
 For example, a translation matrix looks like this:
 ```
-1,  0,  0,
-0,  1,  0,
+ 1,  0, 0,
+ 0,  1, 0,
 tx, ty, 1
 ```
 Where `tx` and `ty` are the amount we want to translate by.
 
 The result of the transformation would be solved like:
 ```
-newX = x * 1 +    newY = x * 0 +    extra = x * 0 +
-       y * 0 +           y * 1 +            y * 0 +
+newX = x *  1 +   newY = x *  0 +   extra = x * 0 +
+       y *  0 +          y *  1 +           y * 0 +
        1 * tx            1 * ty             1 * 1
 ```
 
@@ -143,13 +143,13 @@ Where `c` is the cosine of our rotation in radians and `s` is the sine.
 The result of the transformation would be solved like:
 ```
 newX = x * c +    newY = x * -s +    extra = x * 0 +
-       y * s +           y * c +             y * 0 +
-       1 * 0             1 * 0               1 * 1
+       y * s +           y *  c +            y * 0 +
+       1 * 0             1 *  0              1 * 1
 ```
 
 We can simplify this operation to:
 ```
-newX = x * c + y * s;
+newX = x *  c + y * s;
 newY = x * -s + y * c;
 ```
 
@@ -157,16 +157,16 @@ newY = x * -s + y * c;
 A scale matrix looks like this:
 ```
 sx,  0, 0,
-0,  sy, 0,
-0,   0, 1
+ 0, sy, 0,
+ 0,  0, 1
 ```
 Where `sx` and `sy` are the scale factors.
 
 The result of the transformation would be solved like:
 ```
-newX = x * sx +    newY = x * 0 +    extra = x * 0 +
-       y * 0 +            y * sy +           y * 0 +
-       1 * 0              1 * 0              1 * 1
+newX = x * sx +    newY = x *  0 +   extra = x * 0 +
+       y *  0 +           y * sy +           y * 0 +
+       1 *  0             1 *  0             1 * 1
 ```
 
 We can simplify this operation to:
@@ -225,9 +225,9 @@ uniform mat4 u_matrix;
 out vec4 v_color;
 
 void main() {
-	gl_Position = u_matrix * a_position;
+    gl_Position = u_matrix * a_position;
 
-	v_color = gl_Position * 0.5 + 0.5;
+    v_color = gl_Position * 0.5 + 0.5;
 }
 ```
 
@@ -238,8 +238,8 @@ in vec4 a_position;
 uniform mat4 u_matrix;
 out vec4 v_color;
 void main() {
-	gl_Position = u_matrix * a_position;
-	v_color = gl_Position * 0.5 + 0.5;
+    gl_Position = u_matrix * a_position;
+    v_color = gl_Position * 0.5 + 0.5;
 }`;
 ```
 
@@ -254,7 +254,7 @@ in vec4 v_color;
 out vec4 outColor;
 
 void main() {
-	outColor = v_color;
+    outColor = v_color;
 }
 ```
 
@@ -265,7 +265,7 @@ precision highp float;
 in vec4 v_color;
 out vec4 outColor;
 void main() {
-	outColor = v_color;
+    outColor = v_color;
 }`;
 ```
 
@@ -294,10 +294,10 @@ const program = Program.fromSource(gl, vertexShaderSource, fragmentShaderSource)
 import { Buffer } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionBuffer = new Buffer(gl, new Float32Array([
-	-300,  300,
-	-300, -300,
-	 300, -300,
-	 300,  300
+    -300,  300,
+    -300, -300,
+     300, -300,
+     300,  300
 ]));
 ```
 
@@ -307,8 +307,8 @@ import { Attribute, VAO } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 
 const positionAttribute = new Attribute("a_position", positionBuffer, 2);
 const vao = new VAO(program, [positionAttribute], [
-	0, 1, 2,
-	0, 2, 3
+    0, 1, 2,
+    0, 2, 3
 ]);
 ```
 
@@ -318,9 +318,9 @@ const vao = new VAO(program, [positionAttribute], [
 Remember to wrap the render step in a loop.
 ```js
 const render = (time) => {
-	requestAnimationFrame(render);
+    requestAnimationFrame(render);
 
-	// Render step
+    // Render step...
 };
 requestAnimationFrame(render);
 ```
@@ -349,9 +349,9 @@ import { Matrix } from "https://cdn.skypack.dev/@lakuna/umbra.js";
 program.use();
 
 program.uniforms.get("u_matrix").value = new Matrix()
-	.orthographic(0, canvas.clientWidth, canvas.clientHeight, 0, 1, 0) // Convert from clip space to screen space.
-	.translate([canvas.clientWidth / 2, canvas.clientHeight / 2]) // Move to center of screen.
-	.rotateZ(time * 0.001); // Rotate about the Z axis because our shape is on the XY plane.
+    .orthographic(0, canvas.clientWidth, canvas.clientHeight, 0, 1, 0) // Convert to screen space.
+    .translate([canvas.clientWidth / 2, canvas.clientHeight / 2]) // Move to center of screen.
+    .rotateZ(time * 0.001); // Rotate about the Z axis because our shape is on the XY plane.
 ```
 
 ##### Execute the program
