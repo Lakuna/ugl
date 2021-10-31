@@ -111,7 +111,7 @@ class Renderer extends Component {
     }
 }
 ```
-The Renderer Component uses the `Mesh.getRenderList` function to decide the order in which to draw all Meshes. This function takes into account the distance of the Mesh from the Camera (if one is supplied), the transparency of the object, the program used to draw the object, and more. Notice that this Renderer assumes that the only uniform that every shader in your game uses is called `u_matrix` and expects the matrix of a Mesh. Obviously, you wouldn't want to use this exact implementation of a Renderer for every game.
+The Renderer Component uses the `Mesh.getRenderList` function to decide the order in which to draw all Meshes. This function takes into account the distance of the Mesh from the Camera (if one is supplied), the transparency of the object, the program used to draw the object, and more. Notice that this Renderer assumes that the only uniform that every shader in your game uses is called `u_matrix` and expects the matrix of a Mesh. Obviously, you wouldn't want to use this exact implementation of a Renderer for every game. It would be far more proper to make a custom class for each renderable "thing" in your game, and design your renderer to render those "things." This is not supplied as default functionality in Umbra because the needs of each program should be different.
 
 Finally, let's put together the objects in the scene...
 ```js
