@@ -1,4 +1,9 @@
-import { Attribute, AttributeType, Buffer, BufferTarget, Framebuffer, Program, Vector, WebGLConstant } from "../index";
+import { Attribute, AttributeType } from "./Attribute";
+import { Buffer, BufferTarget } from "./Buffer";
+import { Framebuffer } from "./Framebuffer";
+import { Program } from "./Program";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "./WebGLConstant";
 
 export enum DrawMode {
 	POINTS = WebGLConstant.POINTS,

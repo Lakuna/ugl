@@ -10,7 +10,7 @@ export * from "./math/Vector";
 // WebGL
 export * from "./webgl/Attribute";
 export * from "./webgl/Buffer";
-export * from "./webgl/constants";
+export * from "./webgl/WebGLConstant";
 export * from "./webgl/Framebuffer";
 export * from "./webgl/Program";
 export * from "./webgl/Renderbuffer";

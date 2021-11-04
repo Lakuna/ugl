@@ -1,4 +1,6 @@
-import { Matrix, Vector, WebGLConstant } from "../index";
+import { Matrix } from "../math/Matrix";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "./WebGLConstant";
 
 /** Data that can be stored in a buffer. */
 export type BufferData = number[] | Vector[] | Matrix[] | ArrayBuffer | ArrayBufferView | BufferSource;

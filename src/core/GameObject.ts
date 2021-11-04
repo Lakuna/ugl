@@ -1,4 +1,4 @@
-import { Component } from "../index";
+import { Component } from "./Component";
 
 /** A "thing" in an Umbra program. */
 export class GameObject {

@@ -1,4 +1,4 @@
-import { Vector } from "../index";
+import { Vector } from "../math/Vector";
 
 /** Events which can trigger on a pointer. */
 export type PointerEvent = MouseEvent | TouchEvent;

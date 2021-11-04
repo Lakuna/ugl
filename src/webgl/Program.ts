@@ -1,4 +1,6 @@
-import { Shader, ShaderType, Variable, VariableType, VariableValueType, WebGLConstant } from "../index";
+import { Shader, ShaderType } from "./Shader";
+import { Variable, VariableType, VariableValueType } from "./Variable";
+import { WebGLConstant } from "./WebGLConstant";
 
 export enum TransformFeedbackMode {
 	INTERLEAVED_ATTRIBS = WebGLConstant.INTERLEAVED_ATTRIBS,

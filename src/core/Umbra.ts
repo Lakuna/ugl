@@ -1,4 +1,6 @@
-import { Component, ComponentEvent, GameObject, makeFullscreenCanvas } from "../index";
+import { Component, ComponentEvent } from "./Component";
+import { GameObject } from "./GameObject";
+import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas";
 
 /** A controller for a program which uses Umbra. */
 export class Umbra {

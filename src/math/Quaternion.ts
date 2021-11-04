@@ -1,4 +1,6 @@
-import { Euler, Matrix, Vector } from "../index";
+import { Euler } from "./Euler";
+import { Matrix } from "./Matrix";
+import { Vector } from "./Vector";
 
 /** A complex number with four parts. */
 export class Quaternion extends Vector {

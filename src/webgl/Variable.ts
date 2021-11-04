@@ -1,4 +1,9 @@
-import { Attribute, Matrix, Program, Texture, Vector, WebGLConstant } from "../index";
+import { Attribute } from "./Attribute";
+import { Matrix } from "../math/Matrix";
+import { Program } from "./Program";
+import { Texture } from "./Texture";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "./WebGLConstant";
 
 /** Possible location values of a variable. */
 export type VariableLocation = number | WebGLUniformLocation;

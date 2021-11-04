@@ -1,4 +1,6 @@
-import { Color, Vector, WebGLConstant } from "../index";
+import { Color } from "../utility/Color";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "../webgl/WebGLConstant";
 
 /** Types of data that can be stored in a texture. */
 export type TextureData = ArrayBuffer | ArrayBufferView | BufferSource | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;

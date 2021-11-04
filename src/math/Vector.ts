@@ -1,4 +1,6 @@
-import { clamp, Matrix, sigma } from "../index";
+import { clamp } from "./clamp";
+import { Matrix } from "./Matrix";
+import { sigma } from "./sigma";
 
 /** A quantity with direction and magnitude. */
 export class Vector extends Array<number> {

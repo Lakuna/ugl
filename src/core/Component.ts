@@ -1,4 +1,5 @@
-import { GameObject, Umbra } from "../index";
+import { GameObject } from "./GameObject";
+import { Umbra } from "./Umbra";
 
 /** Events which can be triggered on components. */
 export enum ComponentEvent {

@@ -1,4 +1,4 @@
-import { BigDecimal } from "../index";
+import { BigDecimal } from "../math/BigDecimal";
 
 class Gradient {
 	constructor(dx: number, dy: number, dz?: number, dw?: number) {

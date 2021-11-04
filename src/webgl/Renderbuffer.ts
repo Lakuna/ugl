@@ -1,4 +1,5 @@
-import { Vector, WebGLConstant } from "../index";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "./WebGLConstant";
 
 /** Formats for a renderbuffer. */
 export enum RenderbufferMode {

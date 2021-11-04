@@ -1,4 +1,6 @@
-import { Matrix, Quaternion, Vector } from "../index";
+import { Matrix } from "./Matrix";
+import { Quaternion } from "./Quaternion";
+import { Vector } from "./Vector";
 
 /** Three angles used to describe the orientation of a rigid body with respect to a fixed coordinate system. */
 export class Euler extends Vector {

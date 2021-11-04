@@ -1,4 +1,8 @@
-import { Component, Euler, GameObject, Matrix, Vector } from "../index";
+import { Component } from "../core/Component";
+import { Euler } from "../math/Euler";
+import { GameObject } from "../core/GameObject";
+import { Matrix } from "../math/Matrix";
+import { Vector } from "../math/Vector";
 
 /** A transform of a gameobject. */
 export class Transform extends Component {

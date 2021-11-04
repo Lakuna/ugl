@@ -1,4 +1,8 @@
-import { clamp, Euler, Quaternion, sigma, Vector } from "../index";
+import { clamp } from "./clamp";
+import { Euler } from "./Euler";
+import { Quaternion } from "./Quaternion";
+import { sigma } from "./sigma";
+import { Vector } from "./Vector";
 
 /** A rectangular array of quantities. */
 export class Matrix extends Array<number> {

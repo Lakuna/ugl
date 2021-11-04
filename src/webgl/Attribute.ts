@@ -1,4 +1,6 @@
-import { Buffer, Program, WebGLConstant } from "../index";
+import { Buffer } from "./Buffer";
+import { Program } from "./Program";
+import { WebGLConstant } from "./WebGLConstant";
 
 /** Types of data for attributes. */
 export enum AttributeType {

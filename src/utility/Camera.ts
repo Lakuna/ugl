@@ -1,4 +1,9 @@
-import { Component, ComponentEvent, GameObject, Matrix, Mesh, Transform, Umbra } from "../index";
+import { Component, ComponentEvent } from "../core/Component";
+import { GameObject } from "../core/GameObject";
+import { Matrix } from "../math/Matrix";
+import { Mesh } from "./Mesh";
+import { Transform } from "./Transform";
+import { Umbra } from "../core/Umbra";
 
 /** Parameters for creating a camera. */
 export type CameraParameters = {

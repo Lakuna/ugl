@@ -1,4 +1,7 @@
-import { Renderbuffer, RenderbufferMode, Texture, TextureDataType, TextureFilter, TextureFormat, TextureWrapMode, Vector, WebGLConstant } from "../index"
+import { Renderbuffer, RenderbufferMode } from "./Renderbuffer";
+import { Texture, TextureDataType, TextureFilter, TextureFormat, TextureWrapMode } from "./Texture";
+import { Vector } from "../math/Vector";
+import { WebGLConstant } from "../webgl/WebGLConstant";
 
 /** Update modes for data in a framebuffer. */
 export enum FramebufferMode {

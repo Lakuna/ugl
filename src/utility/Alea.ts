@@ -1,4 +1,4 @@
-import { Mash, SeedData } from "../index";
+import { Mash, SeedData } from "./Mash";
 
 /** Seedable pseudo-random number generator by Johannes Baagøe. */
 export class Alea {

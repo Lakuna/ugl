@@ -1,4 +1,4 @@
-import { WebGLConstant } from "../index";
+import { WebGLConstant } from "./WebGLConstant";
 
 /** Types of shaders. */
 export enum ShaderType {
