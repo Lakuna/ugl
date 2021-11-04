@@ -1,5 +1,4 @@
 dist
 docs/*
 !docs/CNAME
-lib
 node_modules

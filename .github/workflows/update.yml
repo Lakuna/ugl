@@ -1,0 +1,47 @@
+name: Update
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  update:
+    name: Update
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js for NPM
+        uses: actions/setup-node@v2
+        with:
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: npm i
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Setup Node.js for GPR
+        uses: actions/setup-node@v2
+        with:
+          registry-url: https://npm.pkg.github.com
+      - name: Publish to GPR
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build documentation
+        run: npm run doc
+      - name: Publish documentation
+        uses: s0/git-publish-subdir-action@v2.5.0
+        env:
+          REPO: self
+          BRANCH: gh-pages
+          FOLDER: docs

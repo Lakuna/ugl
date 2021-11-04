@@ -1,8 +1,15 @@
 # Umbra
-Umbra is a lightweight JavaScript game framework, WebGL library, and math library. It includes a variety of functions which can be useful for developing two- and three-dimensional games, animations, or simulations. The math portion contains all of the basic linear algebra operations necessary to work with transformation matrices.
 
-Umbra was originally intended to be used in the [JS13KGames](https://js13kgames.com/) game jam, which requires all submissions to be under 13 kilobytes (zipped).
+Umbra is a lightweight visual application framework for WebGL. It includes a variety of classes which are useful for developing two- and three-dimensional games, animations, and simulations.
 
-View the [online documentation](https://docs.umbra.lakuna.pw) to get started.
+Visit the [website](https://umbra.lakuna.pw) for more information.
 
-View the [website](https://umbra.lakuna.pw) for examples and more information.
+## Getting started
+
+Install using your package manager of choice:
+
+```
+npm i @lakuna/umbra.js
+```
+
+Full, up-to-date documentation is available on the [website](https://umbra.lakuna.pw). How-to guides for WebGL and other Umbra tools are available on [my website](https://lakuna.pw).
