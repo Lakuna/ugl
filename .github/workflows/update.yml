@@ -37,6 +37,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build documentation
         run: npm run doc
+      - name: Create CNAME
+        run: echo umbra.lakuna.pw > docs/CNAME
       - name: Publish documentation
         uses: s0/git-publish-subdir-action@v2.5.0
         env:
