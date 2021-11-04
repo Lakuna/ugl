@@ -9,9 +9,7 @@ jobs:
   update:
     name: Update
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
+    permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
