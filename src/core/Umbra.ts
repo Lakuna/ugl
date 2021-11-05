@@ -60,7 +60,7 @@ export class Umbra {
 
 	/** The frames per second of this Umbra instance. */
 	get fps(): number {
-		return 1 / this.deltaTime;
+		return 1000 / this.deltaTime;
 	}
 
 	/** The top-level object of the current scene of this Umbra instance. */
