@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/umbra.js",
-	"version": "1.0.4",
+	"version": "1.0.6",
 	"description": "A lightweight visual application framework for WebGL.",
 	"keywords": [
 		"front-end",
@@ -22,12 +22,12 @@
 	"files": [
 		"dist/*"
 	],
-	"main": "dist/index.js",
-	"browser": "dist/index.js",
+	"main": "dist/main.js",
+	"browser": "dist/main.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "dist/index.js"
+			"import": "./dist/main.js"
 		}
 	},
 	"repository": {
@@ -35,7 +35,7 @@
 		"url": "git+https://github.com/Lakuna/Umbra.git"
 	},
 	"scripts": {
-		"build": "webpack && tsc",
+		"build": "webpack",
 		"lint": "eslint src",
 		"doc": "typedoc src"
 	},

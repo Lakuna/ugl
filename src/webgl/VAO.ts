@@ -1,6 +1,7 @@
 import { Attribute, AttributeType } from "./Attribute";
 import { Buffer, BufferTarget } from "./Buffer";
 import { Framebuffer } from "./Framebuffer";
+import { Geometry } from "../utility/Geometry";
 import { Program } from "./Program";
 import { Vector } from "../math/Vector";
 import { WebGLConstant } from "./WebGLConstant";
@@ -17,6 +18,21 @@ export enum DrawMode {
 
 /** A collection of attribute state. */
 export class VAO {
+	static fromGeometry(program: Program, geometry: Geometry, positionAttributeName = "a_position",
+		texcoordAttributeName = "a_texcoord", normalAttributeName = "a_normal") {
+		const attributes: Attribute[] = [];
+		if (positionAttributeName && geometry.positions.length) {
+			attributes.push(new Attribute(positionAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.positions)))));
+		}
+		if (texcoordAttributeName && geometry.texcoords.length) {
+			attributes.push(new Attribute(texcoordAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.texcoords)))));
+		}
+		if (normalAttributeName && geometry.normals.length) {
+			attributes.push(new Attribute(normalAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.normals)))));
+		}
+		return new VAO(program, attributes, geometry.indices);
+	}
+
 	#indices: Attribute;
 	#attributes: Attribute[];
 
