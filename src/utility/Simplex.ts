@@ -26,9 +26,8 @@ class LatticePoint {
 	constructor(xsv: number, ysv: number, zsv: number, wsv: number);
 
 	constructor(xsv: number, ysv: number, zsv?: number, wsv?: number, lattice?: number) {
-		if (zsv && wsv) {
-			if (wsv) {
-				this.dimensions = 4;
+		if (typeof zsv != "undefined") {
+			if (typeof wsv != "undefined") {
 				this.xsv = xsv;
 				this.ysv = ysv;
 				this.zsv = zsv;
@@ -38,8 +37,7 @@ class LatticePoint {
 				this.dy = -ysv - ssv;
 				this.dz = -zsv - ssv;
 				this.dw = -wsv - ssv;
-			} else if (lattice) {
-				this.dimensions = 3;
+			} else if (typeof lattice != "undefined") {
 				this.dx = -xsv + lattice * 0.5;
 				this.dy = -ysv + lattice * 0.5;
 				this.dz = -zsv + lattice * 0.5;
@@ -50,7 +48,6 @@ class LatticePoint {
 				throw new Error("Cannot create a lattice point with a third dimension without either a fourth dimension or a lattice value.");
 			}
 		} else {
-			this.dimensions = 2;
 			this.xsv = xsv;
 			this.ysv = ysv;
 			const ssv: number = (xsv + ysv) * -0.211324865405187;
@@ -59,7 +56,6 @@ class LatticePoint {
 		}
 	}
 
-	dimensions: 2 | 3 | 4;
 	xsv: number;
 	ysv: number;
 	zsv?: number;
@@ -148,7 +144,7 @@ export class Simplex {
 			const c3: LatticePoint = new LatticePoint(i1, j1 ^ 1, k1 ^ 1, undefined, 0);
 
 			// (1, 0, 0) vs (0, 1, 1) away from octant on second half-lattice
-			const c4: LatticePoint = new LatticePoint(i1 + (i2 ^ 1), j1 +j2, k1 + k2, undefined, 1);
+			const c4: LatticePoint = new LatticePoint(i1 + (i2 ^ 1), j1 + j2, k1 + k2, undefined, 1);
 			const c5: LatticePoint = new LatticePoint(i1 + i2, j1 + (j2 ^ 1), k1 + (k2 ^ 1), undefined, 1);
 
 			// (0, 1, 0) vs (1, 0, 1) away from octant
@@ -585,7 +581,7 @@ export class Simplex {
 			((grad3[i] as Gradient).dz as number) /= Simplex.#N3;
 		}
 		for (let i = 0; i < Simplex.#PSIZE; i++) {
-			output[i] = (grad3[i % grad3.length] as Gradient);
+			output[i] = grad3[i % grad3.length] as Gradient;
 		}
 
 		return output;
@@ -807,7 +803,9 @@ export class Simplex {
 			const pxm: number = (xsb + c.xsv) & Simplex.#PMASK;
 			const pym: number = (ysb + c.ysv) % Simplex.#PMASK;
 			const gradient: Gradient = (this.#permGradient2[(this.#perm[pxm] as number) ^ pym] as Gradient);
-			const extrapolation: number = gradient.dx * dx + gradient.dy * dy;
+			const extrapolation: number =
+				(gradient.dx ?? 0) * dx
+				+ (gradient.dy ?? 0) * dy;
 
 			attn *= attn;
 			value += attn * attn * extrapolation;
@@ -851,7 +849,10 @@ export class Simplex {
 						(this.#perm[pxm] as number) ^ pym
 					] as number) ^ pzm
 				] as Gradient;
-				const extrapolation: number = gradient.dx * dxr + gradient.dy * dyr + (gradient.dz as number) * dzr;
+				const extrapolation: number =
+					(gradient.dx ?? 0) * dxr
+					+ (gradient.dy ?? 0) * dyr
+					+ (gradient.dz ?? 0) * dzr;
 
 				attn *= attn;
 				value += attn * attn * extrapolation;
@@ -909,7 +910,11 @@ export class Simplex {
 						] as number) ^ pzm
 					] as number) ^ pwm
 				] as Gradient;
-				const extrapolation: number = gradient.dx * dx + gradient.dy * dy + (gradient.dz as number) * dz + (gradient.dw as number) * dw;
+				const extrapolation: number =
+					(gradient.dx ?? 0) * dx
+					+ (gradient.dy ?? 0) * dy
+					+ (gradient.dz ?? 0) * dz
+					+ (gradient.dw ?? 0) * dw;
 
 				value += attn * attn * extrapolation;
 			}
