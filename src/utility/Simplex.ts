@@ -804,8 +804,8 @@ export class Simplex {
 			const pym: number = (ysb + c.ysv) % Simplex.#PMASK;
 			const gradient: Gradient = (this.#permGradient2[(this.#perm[pxm] as number) ^ pym] as Gradient);
 			const extrapolation: number =
-				(gradient.dx ?? 0) * dx
-				+ (gradient.dy ?? 0) * dy;
+				(gradient.dx || 0) * dx
+				+ (gradient.dy || 0) * dy;
 
 			attn *= attn;
 			value += attn * attn * extrapolation;
@@ -850,9 +850,9 @@ export class Simplex {
 					] as number) ^ pzm
 				] as Gradient;
 				const extrapolation: number =
-					(gradient.dx ?? 0) * dxr
-					+ (gradient.dy ?? 0) * dyr
-					+ (gradient.dz ?? 0) * dzr;
+					(gradient.dx || 0) * dxr
+					+ (gradient.dy || 0) * dyr
+					+ (gradient.dz || 0) * dzr;
 
 				attn *= attn;
 				value += attn * attn * extrapolation;
@@ -911,10 +911,10 @@ export class Simplex {
 					] as number) ^ pwm
 				] as Gradient;
 				const extrapolation: number =
-					(gradient.dx ?? 0) * dx
-					+ (gradient.dy ?? 0) * dy
-					+ (gradient.dz ?? 0) * dz
-					+ (gradient.dw ?? 0) * dw;
+					(gradient.dx || 0) * dx
+					+ (gradient.dy || 0) * dy
+					+ (gradient.dz || 0) * dz
+					+ (gradient.dw || 0) * dw;
 
 				value += attn * attn * extrapolation;
 			}
