@@ -2,3 +2,4 @@ dist
 docs/*
 !docs/CNAME
 node_modules
+**/*.tsbuildinfo
