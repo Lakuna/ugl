@@ -5,7 +5,7 @@ import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
 /** A controller for a program which uses Umbra. */
 export class Umbra {
 	#scene?: GameObject;
-	readonly #fixedInterval: NodeJS.Timer;
+	readonly #fixedInterval: number;
 	#stopLoop: boolean;
 
 	/**
