@@ -1,9 +1,9 @@
-import { Component, ComponentEvent } from "../core/Component";
-import { GameObject } from "../core/GameObject";
-import { Matrix } from "../math/Matrix";
-import { Mesh } from "./Mesh";
-import { Transform } from "./Transform";
-import { Umbra } from "../core/Umbra";
+import { Component, ComponentEvent } from "../core/Component.js";
+import { GameObject } from "../core/GameObject.js";
+import { Matrix } from "../math/Matrix.js";
+import { Mesh } from "./Mesh.js";
+import { Transform } from "./Transform.js";
+import { Umbra } from "../core/Umbra.js";
 
 /** Parameters for creating a camera. */
 export type CameraParameters = {
@@ -58,13 +58,17 @@ export class Camera extends GameObject {
 		this.near = near;
 		this.far = far;
 		this.fov = fov;
-		this.aspectRatioOverride = aspectRatioOverride;
-		this.aspectRatio = aspectRatioOverride;
-		this.left = left;
-		this.right = right;
-		this.bottom = bottom;
-		this.top = top;
-		this.zoom = zoom;
+		if (aspectRatioOverride) {
+			this.aspectRatioOverride = aspectRatioOverride;
+		}
+		this.aspectRatio = aspectRatioOverride ?? 0;
+		if (left || right || top || bottom) {
+			this.left = left ?? 0;
+			this.right = right ?? 0;
+			this.bottom = bottom ?? 0;
+			this.top = top ?? 0;
+			this.zoom = zoom ?? 1;
+		}
 		this.transform = new Transform(this);
 
 		new Component(this).events.set(ComponentEvent.Update, (umbra: Umbra): void => {
@@ -116,14 +120,14 @@ export class Camera extends GameObject {
 	get projectionMatrix(): Matrix {
 		return this.orthographic
 			? new Matrix().orthographic(
-				this.left / this.zoom,
-				this.right / this.zoom,
-				this.bottom / this.zoom,
-				this.top / this.zoom,
+				(this.left ?? 0) / (this.zoom ?? 1),
+				(this.right ?? 0) / (this.zoom ?? 1),
+				(this.bottom ?? 0) / (this.zoom ?? 1),
+				(this.top ?? 0) / (this.zoom ?? 1),
 				this.near,
 				this.far)
 			: new Matrix().perspective(
-				this.fov,
+				this.fov ?? (Math.PI / 4),
 				this.aspectRatio,
 				this.near,
 				this.far);

@@ -22,9 +22,13 @@ export class Color extends Array<number> {
 				data = `${data[0]}${data[0]}${data[1]}${data[1]}${data[2]}${data[2]}`;
 			}
 
-			const regex: RegExpExecArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(data);
-			regex.shift()
-			data = regex.map((hex: string): number => parseInt(hex, 0x10) / 0xFF);
+			const regex: RegExpExecArray | null = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(data);
+			if (regex) {
+				regex.shift()
+				data = regex.map((hex: string): number => parseInt(hex, 0x10) / 0xFF);
+			} else {
+				data = [];
+			}
 		}
 
 		while (data.length < 4) {

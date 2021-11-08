@@ -1,6 +1,6 @@
-import { Euler } from "./Euler";
-import { Matrix } from "./Matrix";
-import { Vector } from "./Vector";
+import { Euler } from "./Euler.js";
+import { Matrix } from "./Matrix.js";
+import { Vector } from "./Vector.js";
 
 /** A complex number with four parts. */
 export class Quaternion extends Vector {
@@ -74,7 +74,7 @@ export class Quaternion extends Vector {
 		const w2: number = quaternion.w;
 
 		// Imaginary 3D vector values
-		const v = (quaternion: Quaternion): Vector => Vector.fromRule(3, (i: number): number => quaternion[i]);
+		const v = (quaternion: Quaternion): Vector => Vector.fromRule(3, (i: number): number => quaternion[i] ?? 0);
 		const v1 = (): Vector => v(this);
 		const v2 = (): Vector => v(quaternion);
 

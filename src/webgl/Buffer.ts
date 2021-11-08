@@ -1,6 +1,6 @@
-import { Matrix } from "../math/Matrix";
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "./WebGLConstant";
+import { Matrix } from "../math/Matrix.js";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Data that can be stored in a buffer. */
 export type BufferData = number[] | Vector[] | Matrix[] | ArrayBuffer | ArrayBufferView | BufferSource;
@@ -46,7 +46,13 @@ export class Buffer {
 		this.gl = gl;
 		this.target = target;
 		this.usage = usage;
-		this.buffer = gl.createBuffer();
+		const buffer = gl.createBuffer();
+		if (buffer) {
+			this.buffer = buffer;
+		} else {
+			throw new Error("Failed to create a WebGL buffer.");
+		}
+		this.#data = [];
 		this.data = data;
 	}
 

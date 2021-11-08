@@ -1,8 +1,8 @@
-import { Component } from "../core/Component";
-import { Euler } from "../math/Euler";
-import { GameObject } from "../core/GameObject";
-import { Matrix } from "../math/Matrix";
-import { Vector } from "../math/Vector";
+import { Component } from "../core/Component.js";
+import { Euler } from "../math/Euler.js";
+import { GameObject } from "../core/GameObject.js";
+import { Matrix } from "../math/Matrix.js";
+import { Vector } from "../math/Vector.js";
 
 /** A transform of a gameobject. */
 export class Transform extends Component {
@@ -35,12 +35,25 @@ export class Transform extends Component {
 	target?: Vector;
 
 	/** The transform of this transform's parent. */
-	get parent(): Transform {
+	get parent(): Transform | undefined {
+		const findParent = (): Component | undefined =>
+			this.gameObject.parent?.components.find((component: Component): boolean => component instanceof Transform);
+			
 		if (this.#parentObject == this.gameObject.parent) {
-			this.#parent ||= this.gameObject.parent?.components.find((component: Component): boolean => component instanceof Transform) as Transform;
+			if (!this.#parent) {
+				const found: Component | undefined = findParent();
+				if (found) {
+					this.#parent = found as Transform;
+				}
+			}
 		} else {
-			this.#parentObject = this.gameObject.parent;
-			this.#parent = this.gameObject.parent?.components.find((component: Component): boolean => component instanceof Transform) as Transform;
+			if (this.gameObject.parent) {
+				this.#parentObject = this.gameObject.parent;
+			}
+			const found: Component | undefined = findParent();
+			if (found) {
+				this.#parent = found as Transform;
+			}
 		}
 		return this.#parent;
 	}

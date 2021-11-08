@@ -1,4 +1,4 @@
-import { Vector } from "../math/Vector";
+import { Vector } from "../math/Vector.js";
 
 /** Events which can trigger on a pointer. */
 export type PointerEvent = MouseEvent | TouchEvent;
@@ -23,8 +23,8 @@ export class Pointer {
 		const moveHandler: (event: PointerEvent) => void = (event: PointerEvent): void => {
 			this.position = (event as TouchEvent).targetTouches?.length
 				? new Vector(
-					(event as TouchEvent).targetTouches[0].pageX - canvas.offsetLeft,
-					(event as TouchEvent).targetTouches[0].pageY - canvas.offsetTop)
+					((event as TouchEvent).targetTouches[0]?.pageX ?? 0) - canvas.offsetLeft,
+					((event as TouchEvent).targetTouches[0]?.pageY ?? 0) - canvas.offsetTop)
 				: new Vector(
 					(event as MouseEvent).pageX - (event.target as HTMLElement).offsetLeft,
 					(event as MouseEvent).pageY - (event.target as HTMLElement).offsetTop);

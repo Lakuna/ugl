@@ -1,4 +1,4 @@
-import { WebGLConstant } from "./WebGLConstant";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Types of shaders. */
 export enum ShaderType {
@@ -19,11 +19,16 @@ export class Shader {
 		this.type = type;
 		this.source = source;
 
-		this.shader = gl.createShader(type);
+		const shader: WebGLShader | null = gl.createShader(type);
+		if (shader) {
+			this.shader = shader;
+		} else {
+			throw new Error("Failed to create a WebGL shader.");
+		}
 		gl.shaderSource(this.shader, source);
 		gl.compileShader(this.shader);
 		if (!gl.getShaderParameter(this.shader, WebGLConstant.COMPILE_STATUS)) {
-			throw new Error(gl.getShaderInfoLog(this.shader));
+			throw new Error(gl.getShaderInfoLog(this.shader) ?? "");
 		}
 	}
 

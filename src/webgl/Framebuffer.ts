@@ -1,7 +1,7 @@
-import { Renderbuffer, RenderbufferMode } from "./Renderbuffer";
-import { Texture, TextureDataType, TextureFilter, TextureFormat, TextureWrapMode } from "./Texture";
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "../webgl/WebGLConstant";
+import { Renderbuffer, RenderbufferMode } from "./Renderbuffer.js";
+import { Texture, TextureDataType, TextureFilter, TextureFormat, TextureWrapMode } from "./Texture.js";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "../webgl/WebGLConstant.js";
 
 /** Update modes for data in a framebuffer. */
 export enum FramebufferMode {
@@ -112,18 +112,25 @@ export class Framebuffer {
 		premultiplyAlpha = false
 	}: FramebufferParameters) {
 		this.gl = gl;
+		this.#data = [];
+		this.#size = new Vector();
 		this.size = size;
 		this.depth = depth;
 		this.target = target;
 
-		this.framebuffer = gl.createFramebuffer();
+		const framebuffer: WebGLFramebuffer | null = gl.createFramebuffer();
+		if (framebuffer) {
+			this.framebuffer = framebuffer;
+		} else {
+			throw new Error("Failed to create a WebGL framebuffer.");
+		}
 		this.textures = [];
 
 		this.bind();
 
 		const drawBuffers: number[] = [];
 		for (let i = 0; i < colorTextureCount; i++) {
-			this.textures.push(new Texture({
+			const texture: Texture = new Texture({
 				gl,
 				generateMipmap: false,
 				flipY: false,
@@ -137,8 +144,9 @@ export class Framebuffer {
 				format,
 				internalFormat,
 				type
-			}));
-			this.add(this.textures[i]);
+			});
+			this.textures.push(texture);
+			this.add(texture);
 			drawBuffers.push(WebGLConstant.COLOR_ATTACHMENT0 + i);
 		}
 

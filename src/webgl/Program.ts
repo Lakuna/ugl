@@ -1,6 +1,6 @@
-import { Shader, ShaderType } from "./Shader";
-import { Variable, VariableType, VariableValueType } from "./Variable";
-import { WebGLConstant } from "./WebGLConstant";
+import { Shader, ShaderType } from "./Shader.js";
+import { Variable, VariableType, VariableValueType } from "./Variable.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 export enum TransformFeedbackMode {
 	INTERLEAVED_ATTRIBS = WebGLConstant.INTERLEAVED_ATTRIBS,
@@ -44,13 +44,18 @@ export class Program {
 		this.allowTransparent = true;
 		this.allowDepth = true;
 
-		this.program = gl.createProgram();
+		const program: WebGLProgram | null = gl.createProgram();
+		if (program) {
+			this.program = program;
+		} else {
+			throw new Error("Failed to create a WebGL program.");
+		}
 		gl.attachShader(this.program, vertexShader.shader);
 		gl.attachShader(this.program, fragmentShader.shader);
 		gl.transformFeedbackVaryings(this.program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
 		gl.linkProgram(this.program);
 		if (!gl.getProgramParameter(this.program, WebGLConstant.LINK_STATUS)) {
-			throw new Error(gl.getProgramInfoLog(this.program));
+			throw new Error(gl.getProgramInfoLog(this.program) ?? "");
 		}
 
 		const uniforms: Map<string, Variable> = new Map();

@@ -1,4 +1,4 @@
-import { Component } from "./Component";
+import { Component } from "./Component.js";
 
 /** A "thing" in an Umbra program. */
 export class GameObject {
@@ -11,7 +11,9 @@ export class GameObject {
 	 * @param enabled - Whether the components on the gameobject should trigger.
 	 */
 	constructor(parent?: GameObject, enabled = true) {
-		this.parent = parent;
+		if (parent) {
+			this.parent = parent;
+		}
 		this.enabled = enabled;
 		this.components = [];
 		this.#children = [];
@@ -29,17 +31,19 @@ export class GameObject {
 	}
 
 	/** The parent gameobject of this gameobject. */
-	get parent(): GameObject {
+	get parent(): GameObject | undefined {
 		return this.#parent;
 	}
 
-	set parent(value: GameObject) {
+	set parent(value: GameObject | undefined) {
 		if (this.parent != value) {
 			if (this.parent) {
 				this.parent.removeChild(this);
 			}
 
-			this.#parent = value;
+			if (value) {
+				this.#parent = value;
+			}
 
 			if (this.parent) {
 				this.parent.addChild(this);
@@ -61,7 +65,7 @@ export class GameObject {
 	 * @param child - The child.
 	 */
 	removeChild(child: GameObject): void {
-		child.parent = null;
+		child.parent = undefined;
 		this.#children.splice(this.#children.indexOf(child));
 	}
 

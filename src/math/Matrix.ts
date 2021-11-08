@@ -1,8 +1,8 @@
-import { clamp } from "./clamp";
-import { Euler } from "./Euler";
-import { Quaternion } from "./Quaternion";
-import { sigma } from "./sigma";
-import { Vector } from "./Vector";
+import { clamp } from "./clamp.js";
+import { Euler } from "./Euler.js";
+import { Quaternion } from "./Quaternion.js";
+import { sigma } from "./sigma.js";
+import { Vector } from "./Vector.js";
 
 /** A rectangular array of quantities. */
 export class Matrix extends Array<number> {
@@ -62,7 +62,11 @@ export class Matrix extends Array<number> {
 	get determinant(): number {
 		// End of recursion
 		if (this.length == 1) {
-			return this[0];
+			if (this[0]) {
+				return this[0];
+			} else {
+				throw new Error("Cannot get determinant of a matrix with an undefined index.");
+			}
 		}
 
 		if (!this.isSquare) {
@@ -88,7 +92,7 @@ export class Matrix extends Array<number> {
 
 		let out = 0;
 		for (let i = 0; i < this.width; i++) {
-			out += -(i % 2 || -1) * this[i] * oppositeMatrix(i).determinant;
+			out += -(i % 2 || -1) * (this[i] ?? 0) * oppositeMatrix(i).determinant;
 		}
 		return out;
 	}
@@ -100,7 +104,16 @@ export class Matrix extends Array<number> {
 	 * @returns The value at the given point.
 	 */
 	getPoint(x: number, y: number): number {
-		return x < this.width ? this[y * this.width + x] : undefined;
+		if (x < this.width) {
+			const value: number | undefined = this[y * this.width + x];
+			if (value) {
+				return value;
+			} else {
+				throw new Error("Tried to get undefined point of a matrix.");
+			}
+		} else {
+			throw new Error("Cannot get a point outside of a matrix.");
+		}
 	}
 
 	/**
@@ -141,15 +154,15 @@ export class Matrix extends Array<number> {
 		const m: Matrix = this.copy.resize(3);
 
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles)
-		return Math.abs(m[6]) < 1
+		return Math.abs(m[6] ?? 0) < 1
 			? new Euler(
-				Math.atan2(-m[7], m[8]),
-				Math.asin(clamp(m[6], -1, 1)),
-				Math.atan2(-m[3], m[0])
+				Math.atan2(-(m[7] ?? 0), m[8] ?? 0),
+				Math.asin(clamp(m[6] ?? 0, -1, 1)),
+				Math.atan2(-(m[3] ?? 0), m[0] ?? 0)
 			)
 			: new Euler(
-				Math.atan2(m[5], m[4]),
-				Math.asin(clamp(m[6], -1, 1)),
+				Math.atan2(m[5] ?? 0, m[4] ?? 0),
+				Math.asin(clamp(m[6] ?? 0, -1, 1)),
 				0
 			);
 	}
@@ -158,24 +171,24 @@ export class Matrix extends Array<number> {
 	get quaternion(): Quaternion {
 		const m: Matrix = this.copy.resize(3);
 
-		const fTrace: number = m[0] + m[4] + m[8];
+		const fTrace: number = (m[0] ?? 0) + (m[4] ?? 0) + (m[8] ?? 0);
 		if (fTrace > 0) {
 			const fRoot: number = Math.sqrt(fTrace + 1); // 2w
 			const r4w: number = 0.5 / fRoot; // 1/(4w)
 
 			return new Quaternion(
-				(m[5] - m[7]) * r4w,
-				(m[6] - m[2]) * r4w,
-				(m[1] - m[3]) * r4w,
+				((m[5] ?? 0) - (m[7] ?? 0)) * r4w,
+				((m[6] ?? 0) - (m[2] ?? 0)) * r4w,
+				((m[1] ?? 0) - (m[3] ?? 0)) * r4w,
 				fRoot / 2
 			);
 		}
 
 		let i = 0;
-		if (m[4] > m[0]) {
+		if ((m[4] ?? 0) > (m[0] ?? 0)) {
 			i = 1;
 		}
-		if (m[8] > m[i * 3 + i]) {
+		if ((m[8] ?? 0) > (m[i * 3 + i] ?? 0)) {
 			i = 2;
 		}
 		const j: number = (i + 1) % 3;
@@ -183,12 +196,12 @@ export class Matrix extends Array<number> {
 
 		const out: Quaternion = new Quaternion();
 
-		let fRoot: number = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1);
+		let fRoot: number = Math.sqrt((m[i * 3 + i] ?? 0) - (m[j * 3 + j] ?? 0) - (m[k * 3 + k] ?? 0) + 1);
 		out[i] = fRoot / 2;
 		fRoot = 0.5 / fRoot;
-		out[3] = (m[j * 3 + k] - m[k * 3 + j]) * fRoot;
-		out[j] = (m[j * 3 + i] + m[i * 3 + j]) * fRoot;
-		out[k] = (m[k * 3 + i] + m[i * 3 + k]) * fRoot;
+		out[3] = ((m[j * 3 + k] ?? 0) - (m[k * 3 + j] ?? 0)) * fRoot;
+		out[j] = ((m[j * 3 + i] ?? 0) + (m[i * 3 + j] ?? 0)) * fRoot;
+		out[k] = ((m[k * 3 + i] ?? 0) + (m[i * 3 + k] ?? 0)) * fRoot;
 
 		return out;
 	}
@@ -462,6 +475,6 @@ export class Matrix extends Array<number> {
 	 * @returns This matrix.
 	 */
 	multiplyScalar(scalar: number): Matrix {
-		return this.set(...Vector.fromRule(this.length, (i: number): number => this[i] * scalar));
+		return this.set(...Vector.fromRule(this.length, (i: number): number => (this[i] ?? 0) * scalar));
 	}
 }

@@ -1,10 +1,10 @@
-import { Attribute, AttributeType } from "./Attribute";
-import { Buffer, BufferTarget } from "./Buffer";
-import { Framebuffer } from "./Framebuffer";
-import { Geometry } from "../utility/Geometry";
-import { Program } from "./Program";
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "./WebGLConstant";
+import { Attribute, AttributeType } from "./Attribute.js";
+import { Buffer, BufferTarget } from "./Buffer.js";
+import { Framebuffer } from "./Framebuffer.js";
+import { Geometry } from "../utility/Geometry.js";
+import { Program } from "./Program.js";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 export enum DrawMode {
 	POINTS = WebGLConstant.POINTS,
@@ -22,18 +22,18 @@ export class VAO {
 		texcoordAttributeName = "a_texcoord", normalAttributeName = "a_normal") {
 		const attributes: Attribute[] = [];
 		if (positionAttributeName && geometry.positions.length) {
-			attributes.push(new Attribute(positionAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.positions)))));
+			attributes.push(new Attribute(positionAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.positions as never[])))));
 		}
 		if (texcoordAttributeName && geometry.texcoords.length) {
-			attributes.push(new Attribute(texcoordAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.texcoords)))));
+			attributes.push(new Attribute(texcoordAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.texcoords as never[])))));
 		}
 		if (normalAttributeName && geometry.normals.length) {
-			attributes.push(new Attribute(normalAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.normals)))));
+			attributes.push(new Attribute(normalAttributeName, new Buffer(program.gl, new Float32Array([].concat(...geometry.normals as never[])))));
 		}
 		return new VAO(program, attributes, geometry.indices);
 	}
 
-	#indices: Attribute;
+	#indices?: Attribute;
 	#attributes: Attribute[];
 
 	/**
@@ -42,11 +42,16 @@ export class VAO {
 	 * @param attributes - The attributes associated with the VAO.
 	 * @param indexData - THe data to pass to the element array buffer for the VAO.
 	 */
-	constructor(program: Program, attributes: Attribute[], indexData: number[]) {
+	constructor(program: Program, attributes: Attribute[], indexData: number[] | undefined) {
 		this.program = program;
 		this.gl = program.gl;
 
-		this.vao = this.gl.createVertexArray();
+		const vao: WebGLVertexArrayObject | null = this.gl.createVertexArray();
+		if (vao) {
+			this.vao = vao;
+		} else {
+			throw new Error("Failed to create a WebGL vertex array object.");
+		}
 		this.#attributes = [];
 		attributes.forEach((attribute: Attribute): void => this.addAttribute(attribute));
 		this.indexData = indexData;
@@ -67,20 +72,20 @@ export class VAO {
 	}
 
 	/** The element array buffer attribute of this VAO. */
-	get indices(): Attribute {
+	get indices(): Attribute | undefined {
 		return this.#indices;
 	}
 
 	/** The data of the element array buffer attribute of this VAO. */
-	set indexData(value: number[]) {
+	set indexData(value: number[] | undefined) {
 		this.bind();
-		this.#indices = value
-			? this.#indices = new Attribute(
-				null,
+		if (value) {
+			this.#indices = this.#indices = new Attribute(
+				"",
 				new Buffer(this.gl, new Uint8Array(value), BufferTarget.ELEMENT_ARRAY_BUFFER),
 				1,
-				AttributeType.UNSIGNED_BYTE)
-			: null;
+				AttributeType.UNSIGNED_BYTE);
+		}
 	}
 
 	/** Binds this VAO. */
@@ -130,10 +135,13 @@ export class VAO {
 				this.indices.type,
 				this.indices.offset);
 		} else {
+			const firstAttribute: Attribute | undefined = this.attributes[0];
+			const dataLength: number = firstAttribute ? (firstAttribute.buffer.data as number[]).length : 0;
+			const dataSize: number = firstAttribute ? firstAttribute.size : 1;
 			this.gl.drawArrays(
 				mode,
 				offset,
-				(this.attributes?.[0].buffer.data as number[]).length / this.attributes?.[0].size ?? 0);
+				dataLength / dataSize);
 		}
 	}
 }

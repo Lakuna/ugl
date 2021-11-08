@@ -1,6 +1,6 @@
-import { Color } from "../utility/Color";
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "../webgl/WebGLConstant";
+import { Color } from "../utility/Color.js";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "../webgl/WebGLConstant.js";
 
 /** Types of data that can be stored in a texture. */
 export type TextureData = ArrayBuffer | ArrayBufferView | BufferSource | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
@@ -310,11 +310,9 @@ export class Texture {
 		return texture;
 	}
 
-	#cache: TextureParameters;
-
 	constructor({
 		gl,
-		data = null,
+		data,
 		target = TextureTarget.TEXTURE_2D,
 		generateMipmap = true,
 		flipY = target == TextureTarget.TEXTURE_2D,
@@ -337,7 +335,9 @@ export class Texture {
 		updateMode = TextureMode.Texture
 	}: TextureParameters) {
 		this.gl = gl;
-		this.data = data;
+		if (data) {
+			this.data = data;
+		}
 		this.target = target;
 		this.generateMipmap = generateMipmap;
 		this.flipY = flipY;
@@ -354,12 +354,20 @@ export class Texture {
 		this.internalFormat = internalFormat;
 		this.type = type;
 		this.level = level;
-		this.sourceLength = sourceLength;
+		if (sourceLength) {
+			this.sourceLength = sourceLength;
+		}
 		this.sourceOffset = sourceOffset;
-		this.sourceLengthOverride = sourceLengthOverride;
+		if (sourceLengthOverride) {
+			this.sourceLengthOverride = sourceLengthOverride;
+		}
 		this.updateMode = updateMode;
-		this.texture = gl.createTexture();
-
+		const texture: WebGLTexture | null = gl.createTexture();
+		if (texture) {
+			this.texture = texture;
+		} else {
+			throw new Error("Failed to create a WebGL texture.");
+		}
 		this.update();
 	}
 
@@ -400,13 +408,13 @@ export class Texture {
 	wrapT: TextureWrapMode;
 
 	/** The width, height, and depth of this texture. */
-	size?: Vector;
+	size: Vector;
 
 	/** The coordinate offset of this texture if it is a sub-image. */
-	offset?: Vector;
+	offset: Vector;
 
 	/** The starting coordinates (bottom-left) of this texture if it is a copy of a sub-image. */
-	copyStart?: Vector;
+	copyStart: Vector;
 
 	/** The format of the data supplied to this texture. */
 	format: TextureFormat;
@@ -447,23 +455,6 @@ export class Texture {
 		}
 		this.bind();
 
-		// Check if an update is required.
-		const current: TextureParameters = Object.assign({}, this);
-		if (Object.keys(this.#cache ?? {}).length == Object.keys(current).length) {
-			let needsUpdate = false;
-			for (const key of Object.keys(current)) {
-				if (current[key] != this.#cache[key]) {
-					needsUpdate = true;
-					break;
-				}
-			}
-
-			if (!needsUpdate) {
-				return;
-			}
-		}
-		this.#cache = current;
-
 		this.gl.pixelStorei(WebGLConstant.UNPACK_FLIP_Y_WEBGL, this.flipY);
 		this.gl.pixelStorei(WebGLConstant.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
 		this.gl.pixelStorei(WebGLConstant.UNPACK_ALIGNMENT, this.unpackAlignment);
@@ -483,7 +474,7 @@ export class Texture {
 						this.size.y,
 						0,
 						this.sourceLength,
-						this.sourceOffset);
+						this.sourceOffset ?? 0);
 				} else {
 					this.gl.compressedTexImage2D(
 						this.target,
@@ -508,7 +499,7 @@ export class Texture {
 						this.size.y,
 						this.format,
 						this.sourceLength,
-						this.sourceOffset);
+						this.sourceOffset ?? 0);
 				} else {
 					this.gl.compressedTexSubImage2D(
 						this.target,
@@ -642,7 +633,7 @@ export class Texture {
 						this.size.z,
 						0,
 						this.sourceLength,
-						this.sourceOffset);
+						this.sourceOffset ?? 0);
 				} else {
 					this.gl.compressedTexImage3D(
 						this.target,
@@ -670,7 +661,7 @@ export class Texture {
 						this.size.z,
 						this.format,
 						this.sourceLength,
-						this.sourceOffset);
+						this.sourceOffset ?? 0);
 				} else {
 					this.gl.compressedTexSubImage3D(
 						this.target,

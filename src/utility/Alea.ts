@@ -1,4 +1,4 @@
-import { Mash, SeedData } from "./Mash";
+import { Mash, SeedData } from "./Mash.js";
 
 /** Seedable pseudo-random number generator by Johannes Baagøe. */
 export class Alea {
@@ -26,17 +26,17 @@ export class Alea {
 		this.#s1 = mash.random(" ");
 		this.#s2 = mash.random(" ");
 		for (let i = 0; i < seeds.length; i++) {
-			this.#s0 -= mash.random(seeds[i]);
+			this.#s0 -= mash.random(seeds[i] ?? 0);
 			if (this.#s0 < 0) {
 				this.#s0 += 1;
 			}
 
-			this.#s1 -= mash.random(seeds[i]);
+			this.#s1 -= mash.random(seeds[i] ?? 0);
 			if (this.#s1 < 0) {
 				this.#s1 += 1;
 			}
 
-			this.#s2 -= mash.random(seeds[i]);
+			this.#s2 -= mash.random(seeds[i] ?? 0);
 			if (this.#s2 < 0) {
 				this.#s2 += 1;
 			}

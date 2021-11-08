@@ -1,40 +1,40 @@
 // Math
-export * from "./math/BigDecimal";
-export * from "./math/clamp";
-export * from "./math/Euler";
-export * from "./math/Matrix";
-export * from "./math/Quaternion";
-export * from "./math/sigma";
-export * from "./math/Vector";
+export * from "./math/BigDecimal.js";
+export * from "./math/clamp.js";
+export * from "./math/Euler.js";
+export * from "./math/Matrix.js";
+export * from "./math/Quaternion.js";
+export * from "./math/sigma.js";
+export * from "./math/Vector.js";
 
 // WebGL
-export * from "./webgl/Attribute";
-export * from "./webgl/Buffer";
-export * from "./webgl/WebGLConstant";
-export * from "./webgl/Framebuffer";
-export * from "./webgl/Program";
-export * from "./webgl/Renderbuffer";
-export * from "./webgl/Shader";
-export * from "./webgl/Texture";
-export * from "./webgl/VAO";
-export * from "./webgl/Variable";
+export * from "./webgl/Attribute.js";
+export * from "./webgl/Buffer.js";
+export * from "./webgl/WebGLConstant.js";
+export * from "./webgl/Framebuffer.js";
+export * from "./webgl/Program.js";
+export * from "./webgl/Renderbuffer.js";
+export * from "./webgl/Shader.js";
+export * from "./webgl/Texture.js";
+export * from "./webgl/VAO.js";
+export * from "./webgl/Variable.js";
 
 // Core
-export * from "./core/Component";
-export * from "./core/GameObject";
-export * from "./core/Umbra";
+export * from "./core/Component.js";
+export * from "./core/GameObject.js";
+export * from "./core/Umbra.js";
 
 // Utility
-export * from "./utility/Alea";
-export * from "./utility/Camera";
-export * from "./utility/clearContext";
-export * from "./utility/Color";
-export * from "./utility/Geometry";
-export * from "./utility/Key";
-export * from "./utility/makeFullscreenCanvas";
-export * from "./utility/Mash";
-export * from "./utility/Mesh";
-export * from "./utility/Pointer";
-export * from "./utility/resizeCanvas";
-export * from "./utility/Simplex";
-export * from "./utility/Transform";
+export * from "./utility/Alea.js";
+export * from "./utility/Camera.js";
+export * from "./utility/clearContext.js";
+export * from "./utility/Color.js";
+export * from "./utility/Geometry.js";
+export * from "./utility/Key.js";
+export * from "./utility/makeFullscreenCanvas.js";
+export * from "./utility/Mash.js";
+export * from "./utility/Mesh.js";
+export * from "./utility/Pointer.js";
+export * from "./utility/resizeCanvas.js";
+export * from "./utility/Simplex.js";
+export * from "./utility/Transform.js";

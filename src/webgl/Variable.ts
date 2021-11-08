@@ -1,9 +1,9 @@
-import { Attribute } from "./Attribute";
-import { Matrix } from "../math/Matrix";
-import { Program } from "./Program";
-import { Texture } from "./Texture";
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "./WebGLConstant";
+import { Attribute } from "./Attribute.js";
+import { Matrix } from "../math/Matrix.js";
+import { Program } from "./Program.js";
+import { Texture } from "./Texture.js";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Possible location values of a variable. */
 export type VariableLocation = number | WebGLUniformLocation;
@@ -64,7 +64,7 @@ export type VariableValue = number | number[] | Vector | Vector[] | Matrix | Mat
 
 /** A variable in a WebGL shader program. */
 export class Variable {
-	#value: VariableValue;
+	#value?: VariableValue;
 
 	/**
 	 * Creates a variable.
@@ -79,16 +79,32 @@ export class Variable {
 		const gl: WebGL2RenderingContext = program.gl;
 		this.gl = gl;
 
-		this.activeInfo =
-			type == VariableType.Attribute ? gl.getActiveAttrib(program.program, index) : (
-			type == VariableType.Uniform ? gl.getActiveUniform(program.program, index) : (
-			type == VariableType.Varying ? gl.getTransformFeedbackVarying(program.program, index) :
-			null));
-
-		this.location =
-			type == VariableType.Attribute ? gl.getAttribLocation(program.program, this.name) : (
-			type == VariableType.Uniform ? gl.getUniformLocation(program.program, this.name) :
-			null);
+		let activeInfo: WebGLActiveInfo | null;
+		let location: VariableLocation | null;
+		switch (type) {
+			case VariableType.Attribute:
+				activeInfo = gl.getActiveAttrib(program.program, index);
+				location = gl.getAttribLocation(program.program, activeInfo?.name ?? "");
+				break;
+			case VariableType.Uniform:
+				activeInfo = gl.getActiveUniform(program.program, index);
+				location = gl.getUniformLocation(program.program, activeInfo?.name ?? "");
+				break;
+			case VariableType.Varying:
+				activeInfo = gl.getTransformFeedbackVarying(program.program, index);
+				location = null;
+				break;
+			default:
+				throw new Error("Cannot create a variable with an unknown type.");
+		}
+		if (activeInfo) {
+			this.activeInfo = activeInfo;
+		} else {
+			throw new Error("Could not determine the active information of a WebGL variable.");
+		}
+		if (location) {
+			this.location = location;
+		}
 	}
 
 	/** The program that this variable belongs to. */
@@ -104,7 +120,7 @@ export class Variable {
 	readonly activeInfo: WebGLActiveInfo;
 
 	/** The location of this variable in its program. */
-	readonly location: VariableLocation;
+	readonly location?: VariableLocation;
 
 	/** The name of this variable. */
 	get name(): string {
@@ -122,11 +138,15 @@ export class Variable {
 	}
 
 	/** The value assigned to this variable. */
-	get value(): VariableValue {
+	get value(): VariableValue | undefined {
 		return this.#value;
 	}
 
-	set value(value: VariableValue) {
+	set value(value: VariableValue | undefined) {
+		if (!value) {
+			return;
+		}
+
 		this.#value = value;
 
 		// Declare variables outside of switch block.
@@ -138,7 +158,7 @@ export class Variable {
 		let stride: number;
 		let uniform: VariableValue;
 		let uniformLocation: WebGLUniformLocation;
-		let textureUnit: number;
+		let textureUnit: number | undefined;
 		let textures: Texture[];
 		let textureUnits: Int32Array;
 		let texture: Texture;
@@ -186,8 +206,8 @@ export class Variable {
 					case VariableValueType.FLOAT_MAT3:
 					case VariableValueType.FLOAT_MAT4:
 						data = attribute.buffer.data as Matrix[];
-						size = data[0].length ?? 0;
-						count = data[0].width ?? 1;
+						size = data[0]?.length ?? 0;
+						count = data[0]?.width ?? 1;
 						stride = size * attribute.size ?? 0;
 						for (let i = 0; i < count; i++) {
 							this.gl.enableVertexAttribArray(attributeLocation + i);
@@ -210,20 +230,20 @@ export class Variable {
 
 				switch (this.type) {
 					case VariableValueType.FLOAT:
-						if (uniform[Symbol.iterator]) {
-							this.gl.uniform1fv(this.location, value as number[])
+						if (Array.isArray(uniform)) {
+							this.gl.uniform1fv(this.location as WebGLUniformLocation, value as number[])
 						} else {
-							this.gl.uniform1f(this.location, value as number);
+							this.gl.uniform1f(this.location as WebGLUniformLocation, value as number);
 						}
 						break;
 					case VariableValueType.FLOAT_VEC2:
-						this.gl.uniform2fv(this.location, value as number[]);
+						this.gl.uniform2fv(this.location as WebGLUniformLocation, value as number[]);
 						break;
 					case VariableValueType.FLOAT_VEC3:
-						this.gl.uniform3fv(this.location, value as number[]);
+						this.gl.uniform3fv(this.location as WebGLUniformLocation, value as number[]);
 						break;
 					case VariableValueType.FLOAT_VEC4:
-						this.gl.uniform4fv(this.location, value as number[]);
+						this.gl.uniform4fv(this.location as WebGLUniformLocation, value as number[]);
 						break;
 					case VariableValueType.SAMPLER_2D:
 					case VariableValueType.SAMPLER_3D:
@@ -236,9 +256,9 @@ export class Variable {
 					case VariableValueType.INT_SAMPLER_3D:
 					case VariableValueType.INT_SAMPLER_CUBE:
 					case VariableValueType.INT_SAMPLER_2D_ARRAY:
-						textureUnit = this.program.textureUnits.get(this);
+						textureUnit = this.program.textureUnits.get(this) as number;
 
-						if (value[Symbol.iterator]) {
+						if (Array.isArray(value)) {
 							textures = value as Texture[];
 
 							textureUnits = new Int32Array(textures.length);
@@ -259,7 +279,7 @@ export class Variable {
 						break;
 					case VariableValueType.BOOL:
 					case VariableValueType.INT:
-						if (value[Symbol.iterator]) {
+						if (Array.isArray(value)) {
 							this.gl.uniform1iv(uniformLocation, value as number[]);
 						} else {
 							this.gl.uniform1i(uniformLocation, value as number);
@@ -278,7 +298,7 @@ export class Variable {
 						this.gl.uniform4iv(uniformLocation, value as number[]);
 						break;
 					case VariableValueType.UNSIGNED_INT:
-						if (value[Symbol.iterator]) {
+						if (Array.isArray(value)) {
 							this.gl.uniform1uiv(uniformLocation, value as number[]);
 						} else {
 							this.gl.uniform1ui(uniformLocation, value as number);

@@ -1,6 +1,7 @@
-import { Buffer } from "./Buffer";
-import { Program } from "./Program";
-import { WebGLConstant } from "./WebGLConstant";
+import { Buffer } from "./Buffer.js";
+import { Program } from "./Program.js";
+import { Variable } from "./Variable.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Types of data for attributes. */
 export enum AttributeType {
@@ -66,6 +67,9 @@ export class Attribute {
 	 * @param program - The program which will utilize this attribute.
 	 */
 	use(program: Program): void {
-		program.attributes.get(this.name).value = this;
+		const attribute: Variable | undefined = program.attributes.get(this.name);
+		if (attribute) {
+			attribute.value = this;
+		}
 	}
 }

@@ -1,5 +1,5 @@
-import { Vector } from "../math/Vector";
-import { WebGLConstant } from "./WebGLConstant";
+import { Vector } from "../math/Vector.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Formats for a renderbuffer. */
 export enum RenderbufferMode {
@@ -63,7 +63,12 @@ export class Renderbuffer {
 		this.format = format;
 		this.size = size;
 
-		this.renderbuffer = gl.createRenderbuffer();
+		const renderbuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
+		if (renderbuffer) {
+			this.renderbuffer = renderbuffer;
+		} else {
+			throw new Error("Failed to create a WebGL renderbuffer.");
+		}
 		this.bind();
 		gl.renderbufferStorage(WebGLConstant.RENDERBUFFER, format, size.x, size.y);
 	}

@@ -1,6 +1,6 @@
-import { Matrix } from "./Matrix";
-import { Quaternion } from "./Quaternion";
-import { Vector } from "./Vector";
+import { Matrix } from "./Matrix.js";
+import { Quaternion } from "./Quaternion.js";
+import { Vector } from "./Vector.js";
 
 /** Three angles used to describe the orientation of a rigid body with respect to a fixed coordinate system. */
 export class Euler extends Vector {

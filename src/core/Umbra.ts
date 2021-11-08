@@ -1,10 +1,10 @@
-import { Component, ComponentEvent } from "./Component";
-import { GameObject } from "./GameObject";
-import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas";
+import { Component, ComponentEvent } from "./Component.js";
+import { GameObject } from "./GameObject.js";
+import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
 
 /** A controller for a program which uses Umbra. */
 export class Umbra {
-	#scene: GameObject;
+	#scene?: GameObject;
 	readonly #fixedInterval: NodeJS.Timer;
 	#stopLoop: boolean;
 
@@ -14,10 +14,14 @@ export class Umbra {
 	 * @param ups - Updates per second of the fixed update loop.
 	 */
 	constructor(canvas: HTMLCanvasElement = makeFullscreenCanvas(), ups = 30) {
-		this.gl = canvas.getContext("webgl2");
-		if (!this.gl) {
+		const context: WebGL2RenderingContext | null = canvas.getContext("webgl2");
+		if (context) {
+			this.gl = context;
+		} else {
 			throw new Error("WebGL2 is not supported by your browser.");
 		}
+
+		this.#stopLoop = false;
 
 		this.time = 0;
 		this.deltaTime = 0;
@@ -64,13 +68,15 @@ export class Umbra {
 	}
 
 	/** The top-level object of the current scene of this Umbra instance. */
-	get scene(): GameObject {
+	get scene(): GameObject | undefined {
 		return this.#scene;
 	}
 
-	set scene(value: GameObject) {
-		this.#scene = value;
-		this.trigger(ComponentEvent.Load);
+	set scene(value: GameObject | undefined) {
+		if (value) {
+			this.#scene = value;
+			this.trigger(ComponentEvent.Load);
+		}
 	}
 
 	/**
@@ -78,6 +84,10 @@ export class Umbra {
 	 * @param event - The event to trigger.
 	 */
 	trigger(event: ComponentEvent): void {
+		if (!this.scene) {
+			return;
+		}
+
 		const getComponentsRecursive = (gameObject: GameObject, output: Component[] = []): Component[] => {
 			if (!gameObject?.enabled) {
 				return output;
@@ -99,7 +109,7 @@ export class Umbra {
 		getComponentsRecursive(this.scene)
 			.sort((a: Component, b: Component): number => a.priority > b.priority ? 1 : -1)
 			.forEach((component: Component): void => {
-				component.events.get(event)(this);
+				component.events.get(event)?.(this);
 			});
 	}
 

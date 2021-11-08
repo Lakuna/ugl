@@ -103,11 +103,15 @@ export enum KeyCode {
 
 /** A key on a keyboard. */
 export class Key {
-	static #keys: Key[] = [];
+	static #keys: Key[];
 
 	static #addKey(key: Key): void {
 		if (typeof window == "undefined") {
 			throw new Error("Cannot use window events in a headless environment.");
+		}
+
+		if (!Key.#keys) {
+			Key.#keys = [];
 		}
 
 		if (!Key.#keys.length) {

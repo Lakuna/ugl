@@ -1,11 +1,15 @@
-import { BigDecimal } from "../math/BigDecimal";
+import { BigDecimal } from "../math/BigDecimal.js";
 
 class Gradient {
 	constructor(dx: number, dy: number, dz?: number, dw?: number) {
 		this.dx = dx;
 		this.dy = dy;
-		this.dz = dz;
-		this.dw = dw;
+		if (dz) {
+			this.dz = dz;
+			if (dw) {
+				this.dw = dw;
+			}
+		}
 	}
 
 	dx: number;
@@ -22,25 +26,29 @@ class LatticePoint {
 	constructor(xsv: number, ysv: number, zsv: number, wsv: number);
 
 	constructor(xsv: number, ysv: number, zsv?: number, wsv?: number, lattice?: number) {
-		if (wsv) {
-			this.dimensions = 4;
-			this.xsv = xsv;
-			this.ysv = ysv;
-			this.zsv = zsv;
-			this.wsv = wsv;
-			const ssv: number = (xsv + ysv + zsv + wsv) * -0.138196601125011;
-			this.dx = -xsv - ssv;
-			this.dy = -ysv - ssv;
-			this.dz = -zsv - ssv;
-			this.dw = -wsv - ssv;
-		} else if (zsv) {
-			this.dimensions = 3;
-			this.dx = -xsv + lattice * 0.5;
-			this.dy = -ysv + lattice * 0.5;
-			this.dz = -zsv + lattice * 0.5;
-			this.xsv = xsv + lattice * 0x400;
-			this.ysv = ysv + lattice * 0x400;
-			this.zsv = zsv + lattice * 0x400;
+		if (zsv && wsv) {
+			if (wsv) {
+				this.dimensions = 4;
+				this.xsv = xsv;
+				this.ysv = ysv;
+				this.zsv = zsv;
+				this.wsv = wsv;
+				const ssv: number = (xsv + ysv + zsv + wsv) * -0.138196601125011;
+				this.dx = -xsv - ssv;
+				this.dy = -ysv - ssv;
+				this.dz = -zsv - ssv;
+				this.dw = -wsv - ssv;
+			} else if (lattice) {
+				this.dimensions = 3;
+				this.dx = -xsv + lattice * 0.5;
+				this.dy = -ysv + lattice * 0.5;
+				this.dz = -zsv + lattice * 0.5;
+				this.xsv = xsv + lattice * 0x400;
+				this.ysv = ysv + lattice * 0x400;
+				this.zsv = zsv + lattice * 0x400;
+			} else {
+				throw new Error("Cannot create a lattice point with a third dimension without either a fourth dimension or a lattice value.");
+			}
 		} else {
 			this.dimensions = 2;
 			this.xsv = xsv;
@@ -464,10 +472,14 @@ export class Simplex {
 			latticePoints[i] = new LatticePoint(cx, cy, cz, cw);
 		}
 		for (let i = 0; i < 0xFF; i++) {
-			output[i] = [];
-			for (let j = 0; j < lookup4DPregen[i].length; j++) {
-				output[i][j] = latticePoints[lookup4DPregen[i][j]];
+			const row: LatticePoint[] = [];
+			for (let j = 0; j < (lookup4DPregen[i]?.length ?? 0); j++) {
+				const point: LatticePoint | undefined = latticePoints[lookup4DPregen[i]?.[j] ?? 0];
+				if (point) {
+					row[j] = point;
+				}
 			}
+			output[i] = row;
 		}
 
 		return output;
@@ -505,11 +517,11 @@ export class Simplex {
 			new Gradient(-0.130526192220052, 0.99144486137381)
 		];
 		for (let i = 0; i < grad2.length; i++) {
-			grad2[i].dx /= Simplex.#N2;
-			grad2[i].dy /= Simplex.#N2;
+			(grad2[i] as Gradient).dx /= Simplex.#N2;
+			(grad2[i] as Gradient).dy /= Simplex.#N2;
 		}
 		for (let i = 0; i < Simplex.#PSIZE; i++) {
-			output[i] = grad2[i % grad2.length];
+			output[i] = grad2[i % grad2.length] as Gradient;
 		}
 
 		return output;
@@ -568,12 +580,12 @@ export class Simplex {
 			new Gradient(1.1721513422464978, 3.0862664687972017, 0.0)
 		];
 		for (let i = 0; i < grad3.length; i++) {
-			grad3[i].dx /= Simplex.#N3;
-			grad3[i].dy /= Simplex.#N3;
-			grad3[i].dz /= Simplex.#N3;
+			(grad3[i] as Gradient).dx /= Simplex.#N3;
+			(grad3[i] as Gradient).dy /= Simplex.#N3;
+			((grad3[i] as Gradient).dz as number) /= Simplex.#N3;
 		}
 		for (let i = 0; i < Simplex.#PSIZE; i++) {
-			output[i] = grad3[i % grad3.length];
+			output[i] = (grad3[i % grad3.length] as Gradient);
 		}
 
 		return output;
@@ -744,13 +756,13 @@ export class Simplex {
 			new Gradient(0.753341017856078, 0.37968289875261624, 0.37968289875261624, 0.37968289875261624)
 		];
 		for (let i = 0; i < grad4.length; i++) {
-			grad4[i].dx /= Simplex.#N4;
-			grad4[i].dy /= Simplex.#N4;
-			grad4[i].dz /= Simplex.#N4;
-			grad4[i].dw /= Simplex.#N4;
+			(grad4[i] as Gradient).dx /= Simplex.#N4;
+			(grad4[i] as Gradient).dy /= Simplex.#N4;
+			((grad4[i] as Gradient).dz as number) /= Simplex.#N4;
+			((grad4[i] as Gradient).dw as number) /= Simplex.#N4;
 		}
 		for (let i = 0; i < Simplex.#PSIZE; i++) {
-			output[i] = grad4[i % grad4.length];
+			output[i] = (grad4[i % grad4.length] as Gradient);
 		}
 
 		return output;
@@ -783,7 +795,7 @@ export class Simplex {
 
 		// Point contributions.
 		for (let i = 0; i < 4; i++) {
-			const c: LatticePoint = Simplex.#LOOKUP_2D[index + i];
+			const c: LatticePoint = Simplex.#LOOKUP_2D[index + i] as LatticePoint;
 
 			const dx: number = xi + c.dx;
 			const dy: number = yi + c.dy;
@@ -794,7 +806,7 @@ export class Simplex {
 
 			const pxm: number = (xsb + c.xsv) & Simplex.#PMASK;
 			const pym: number = (ysb + c.ysv) % Simplex.#PMASK;
-			const gradient: Gradient = this.#permGradient2[this.#perm[pxm] ^ pym];
+			const gradient: Gradient = (this.#permGradient2[(this.#perm[pxm] as number) ^ pym] as Gradient);
 			const extrapolation: number = gradient.dx * dx + gradient.dy * dy;
 
 			attn *= attn;
@@ -822,24 +834,28 @@ export class Simplex {
 
 		// Point contributions
 		let value = 0;
-		let c: LatticePoint = Simplex.#LOOKUP_3D[index];
+		let c: LatticePoint = Simplex.#LOOKUP_3D[index] as LatticePoint;
 		while (c != null) {
 			const dxr: number = xri + c.dx;
 			const dyr: number = yri + c.dy;
-			const dzr: number = zri + c.dz;
+			const dzr: number = zri + (c.dz as number);
 			let attn: number = 0.75 - dxr * dxr - dyr * dyr - dzr * dzr;
 			if (attn < 0) {
-				c = c.nextOnFailure;
+				c = c.nextOnFailure as LatticePoint;
 			} else {
 				const pxm: number = (xrb + c.xsv) & Simplex.#PMASK;
 				const pym: number = (yrb + c.ysv) & Simplex.#PMASK;
-				const pzm: number = (zrb + c.zsv) & Simplex.#PMASK;
-				const gradient: Gradient = this.#permGradient3[this.#perm[this.#perm[pxm] ^ pym] ^ pzm];
-				const extrapolation: number = gradient.dx * dxr + gradient.dy * dyr + gradient.dz * dzr;
+				const pzm: number = (zrb + (c.zsv as number)) & Simplex.#PMASK;
+				const gradient: Gradient = this.#permGradient3[
+					(this.#perm[
+						(this.#perm[pxm] as number) ^ pym
+					] as number) ^ pzm
+				] as Gradient;
+				const extrapolation: number = gradient.dx * dxr + gradient.dy * dyr + (gradient.dz as number) * dzr;
 
 				attn *= attn;
 				value += attn * attn * extrapolation;
-				c = c.nextOnSuccess;
+				c = c.nextOnSuccess as LatticePoint;
 			}
 		}
 		return value;
@@ -872,7 +888,7 @@ export class Simplex {
 			| ((Simplex.#fastFloor(ws * 4) & 3) << 6);
 
 		// Point contributions
-		for (const c of Simplex.#LOOKUP_4D[index]) {
+		for (const c of (Simplex.#LOOKUP_4D[index] as LatticePoint[])) {
 			const dx: number = xi + c.dx;
 			const dy: number = yi + c.dx;
 			const dz: number = zi + c.dx;
@@ -883,11 +899,17 @@ export class Simplex {
 
 				const pxm: number = (xsb + c.xsv) & Simplex.#PMASK;
 				const pym: number = (ysb + c.ysv) & Simplex.#PMASK;
-				const pzm: number = (zsb + c.zsv) & Simplex.#PMASK;
-				const pwm: number = (wsb + c.wsv) & Simplex.#PMASK;
+				const pzm: number = (zsb + (c.zsv as number)) & Simplex.#PMASK;
+				const pwm: number = (wsb + (c.wsv as number)) & Simplex.#PMASK;
 
-				const gradient: Gradient = this.#permGradient4[this.#perm[this.#perm[this.#perm[pxm] ^ pym] ^ pzm] ^ pwm];
-				const extrapolation: number = gradient.dx * dx + gradient.dy * dy + gradient.dz * dz + gradient.dw * dw;
+				const gradient: Gradient = this.#permGradient4[
+					(this.#perm[
+						(this.#perm[
+							(this.#perm[pxm] as number) ^ pym
+						] as number) ^ pzm
+					] as number) ^ pwm
+				] as Gradient;
+				const extrapolation: number = gradient.dx * dx + gradient.dy * dy + (gradient.dz as number) * dz + (gradient.dw as number) * dw;
 
 				value += attn * attn * extrapolation;
 			}
@@ -919,11 +941,11 @@ export class Simplex {
 			if (r < 0) {
 				(r as bigint) += BigInt(i) + 1n;
 			}
-			perm[i] = source[Number(r)];
-			permGradient2[i] = Simplex.#GRADIENTS_2D[perm[i]];
-			permGradient3[i] = Simplex.#GRADIENTS_3D[perm[i]];
-			permGradient4[i] = Simplex.#GRADIENTS_4D[perm[i]];
-			source[Number(r)] = source[i];
+			perm[i] = source[Number(r)] as number;
+			permGradient2[i] = Simplex.#GRADIENTS_2D[perm[i] as number] as Gradient;
+			permGradient3[i] = Simplex.#GRADIENTS_3D[perm[i] as number] as Gradient;
+			permGradient4[i] = Simplex.#GRADIENTS_4D[perm[i] as number] as Gradient;
+			source[Number(r)] = source[i] as number;
 		}
 		this.#perm = perm;
 		this.#permGradient2 = permGradient2;
@@ -957,7 +979,7 @@ export class Simplex {
 	 * @param y - The Y coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise2DX_Y(x: number, y: number): number {
+	noise2DXBeforeY(x: number, y: number): number {
 		// Skew transformation and rotation
 		const xx: number = x * 0.7071067811865476;
 		const yy: number = y * 1.224744871380249;
@@ -995,7 +1017,7 @@ export class Simplex {
 	 * @param z - The Z coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise3XY_Z(x: number, y: number, z: number): number {
+	noise3DXYBeforeZ(x: number, y: number, z: number): number {
 		// Reorient the cubic lattices without skewing to make X and Y triangular like 2D
 		// Orthonormal rotation. Not a skew transform
 		const xy: number = x + y;
@@ -1021,7 +1043,7 @@ export class Simplex {
 	 * @param z - The Z coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise3XZ_Y(x: number, y: number, z: number): number {
+	noise3DXZBeforeY(x: number, y: number, z: number): number {
 		// Reorient the cubic lattices without skewing to make X and Z triangular like 2D
 		// Orthonormal rotation. Not a skew transform
 		const xz: number = x + z;
@@ -1064,7 +1086,7 @@ export class Simplex {
 	 * @param w - The W coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise4XY_ZW(x: number, y: number, z: number, w: number): number {
+	noise4DXYBeforeZW(x: number, y: number, z: number, w: number): number {
 		const s2 = Number(new BigDecimal(x).add(y).multiply("-0.28522513987434876941").add(z).add(w).multiply("0.83897065470611435718"));
 		const t2 = Number(new BigDecimal(z).add(w).multiply("0.21939749883706435719").add(x).add(y).multiply("-0.48214856493302476942"));
 		const xs: number = x + s2;
@@ -1084,7 +1106,7 @@ export class Simplex {
 	 * @param w - The W coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise4XZ_YW(x: number, y: number, z: number, w: number): number {
+	noise4DXZBeforeYW(x: number, y: number, z: number, w: number): number {
 		const s2 = Number(new BigDecimal(x).add(z).multiply("-0.28522513987434876941").add(y).add(w).multiply("0.83897065470611435718"));
 		const t2 = Number(new BigDecimal(y).add(w).multiply("0.21939749883706435719").add(x).add(z).multiply("-0.48214856493302476942"));
 		const xs: number = x + s2;
@@ -1104,7 +1126,7 @@ export class Simplex {
 	 * @param w - The W coordinate to sample.
 	 * @returns A value in the range [-1, 1].
 	 */
-	noise4XYZ_W(x: number, y: number, z: number, w: number): number {
+	noise4DXYZBeforeW(x: number, y: number, z: number, w: number): number {
 		const xyz: number = x + y + z;
 		const ww: number = w * 1.118033988749894;
 		const s2: number = xyz * -0.16666666666666666 + ww;

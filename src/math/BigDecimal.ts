@@ -19,13 +19,10 @@ export class BigDecimal {
 	 * @param rounded - Whether to round the number. Truncates otherwise.
 	 */
 	constructor(value: BigDecimalData, decimalPlaces = 100, rounded = true) {
-		if (value instanceof BigDecimal) {
-			return value;
-		}
-
 		this.decimalPlaces = decimalPlaces;
 		this.rounded = rounded;
 		this.#shift = BigInt("1" + "0".repeat(Number(decimalPlaces)));
+		this.expandedValue = 0n;
 		this.value = value;
 	}
 
@@ -45,9 +42,9 @@ export class BigDecimal {
 	}
 
 	set value(value: BigDecimalData) {
-		const [integer, decimal] = String(value).split(".").concat("");
-		this.expandedValue = BigInt(integer + decimal.padEnd(this.decimalPlaces, "0").slice(0, this.decimalPlaces))
-			+ BigInt(this.rounded && decimal[this.decimalPlaces] >= "5");
+		const [integer, decimal]: string[] = String(value).split(".").concat("");
+		this.expandedValue = BigInt(integer + (decimal?.padEnd(this.decimalPlaces, "0").slice(0, this.decimalPlaces) ?? ""))
+			+ BigInt(this.rounded && (decimal?.[this.decimalPlaces] ?? "") >= "5");
 	}
 
 	/** Converts the bigdecimal to a string. */

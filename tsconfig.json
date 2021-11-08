@@ -1,7 +1,22 @@
 {
 	"compilerOptions": {
-		"target": "es2021",
-		"declaration": true,
-		"outDir": "dist"
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strict": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"removeComments": true,
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"target": "esnext",
+		"useDefineForClassFields": true,
+		"composite": true
 	}
 }

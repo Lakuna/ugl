@@ -1,6 +1,6 @@
-import { clamp } from "./clamp";
-import { Matrix } from "./Matrix";
-import { sigma } from "./sigma";
+import { clamp } from "./clamp.js";
+import { Matrix } from "./Matrix.js";
+import { sigma } from "./sigma.js";
 
 /** A quantity with direction and magnitude. */
 export class Vector extends Array<number> {
@@ -28,7 +28,7 @@ export class Vector extends Array<number> {
 
 	/** The magnitude (size) of this vector. */
 	get magnitude(): number {
-		return Math.sqrt(sigma(0, this.length - 1, (n: number): number => this[n] ** 2));
+		return Math.sqrt(sigma(0, this.length - 1, (n: number): number => (this[n] ?? 0) ** 2));
 	}
 
 	/** The first value of this vector. */
@@ -134,7 +134,7 @@ export class Vector extends Array<number> {
 	 * @returns This vector.
 	 */
 	negate(): Vector {
-		return this.set(...Vector.fromRule(this.length, (i: number): number => -this[i]));
+		return this.set(...Vector.fromRule(this.length, (i: number): number => -(this[i] ?? 0)));
 	}
 
 	/**
@@ -142,7 +142,7 @@ export class Vector extends Array<number> {
 	 * @returns This vector.
 	 */
 	invert(): Vector {
-		return this.set(...Vector.fromRule(this.length, (i: number): number => 1 / this[i]));
+		return this.set(...Vector.fromRule(this.length, (i: number): number => 1 / (this[i] ?? 0)));
 	}
 
 	/**
@@ -150,7 +150,7 @@ export class Vector extends Array<number> {
 	 * @returns This vector.
 	 */
 	normalize(): Vector {
-		return this.set(...Vector.fromRule(this.length, (i: number): number => this[i] / this.magnitude));
+		return this.set(...Vector.fromRule(this.length, (i: number): number => (this[i] ?? 0) / this.magnitude));
 	}
 
 	/**
@@ -174,7 +174,7 @@ export class Vector extends Array<number> {
 	 * @returns This vector.
 	 */
 	scale(scalar: number): Vector {
-		return this.set(...Vector.fromRule(this.length, (i: number): number => this[i] * scalar));
+		return this.set(...Vector.fromRule(this.length, (i: number): number => (this[i] ?? 0) * scalar));
 	}
 
 	/**
