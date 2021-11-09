@@ -1,5 +1,4 @@
 // Math
-export * from "./math/BigDecimal.js";
 export * from "./math/clamp.js";
 export * from "./math/Euler.js";
 export * from "./math/Matrix.js";
@@ -25,16 +24,13 @@ export * from "./core/GameObject.js";
 export * from "./core/Umbra.js";
 
 // Utility
-export * from "./utility/Alea.js";
 export * from "./utility/Camera.js";
 export * from "./utility/clearContext.js";
 export * from "./utility/Color.js";
 export * from "./utility/Geometry.js";
 export * from "./utility/Key.js";
 export * from "./utility/makeFullscreenCanvas.js";
-export * from "./utility/Mash.js";
 export * from "./utility/Mesh.js";
 export * from "./utility/Pointer.js";
 export * from "./utility/resizeCanvas.js";
-export * from "./utility/Simplex.js";
 export * from "./utility/Transform.js";
