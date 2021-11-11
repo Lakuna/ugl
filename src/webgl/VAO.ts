@@ -1,20 +1,5 @@
-import { Attribute, AttributeType } from "./Attribute.js";
-import { Buffer, BufferTarget } from "./Buffer.js";
-import { Framebuffer } from "./Framebuffer.js";
-import { Geometry } from "../utility/Geometry.js";
-import { Program } from "./Program.js";
-import { Vector } from "../math/Vector.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-
-export enum DrawMode {
-	POINTS = WebGLConstant.POINTS,
-	LINE_STRIP = WebGLConstant.LINE_STRIP,
-	LINE_LOOP = WebGLConstant.LINE_LOOP,
-	LINES = WebGLConstant.LINES,
-	TRIANGLE_STRIP = WebGLConstant.TRIANGLE_STRIP,
-	TRIANGLE_FAN = WebGLConstant.TRIANGLE_FAN,
-	TRIANGLES = WebGLConstant.TRIANGLES
-}
+import { Geometry, AttributeType, BufferTarget, DrawMode, Attribute, Buffer,
+	Program, Framebuffer, Vector } from "../index.js";
 
 /** A collection of attribute state. */
 export class VAO {

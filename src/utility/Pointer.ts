@@ -1,7 +1,4 @@
-import { Vector } from "../math/Vector.js";
-
-/** Events which can trigger on a pointer. */
-export type PointerEvent = MouseEvent | TouchEvent;
+import { PointerEvent, Vector } from "../index.js";
 
 /** Unified mouse and touchscreen input. */
 export class Pointer {

@@ -1,12 +1,4 @@
-import { GameObject } from "./GameObject.js";
-import { Umbra } from "./Umbra.js";
-
-/** Events which can be triggered on components. */
-export enum ComponentEvent {
-	Update = "Update",
-	FixedUpdate = "Fixed update",
-	Load = "Load"
-}
+import { ComponentEvent, GameObject, Umbra } from "../index.js";
 
 /** A script which attaches to a gameobject in an Umbra program. */
 export class Component {

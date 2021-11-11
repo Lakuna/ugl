@@ -1,11 +1,5 @@
-import { Shader, ShaderType } from "./Shader.js";
-import { Variable, VariableType, VariableValueType } from "./Variable.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-
-export enum TransformFeedbackMode {
-	INTERLEAVED_ATTRIBS = WebGLConstant.INTERLEAVED_ATTRIBS,
-	SEPARATE_ATTRIBS = WebGLConstant.SEPARATE_ATTRIBS
-}
+import { VariableType, WebGLConstant, ShaderType, TransformFeedbackMode,
+	VariableValueType, Shader, Variable } from "../index.js";
 
 /** A pair of a vertex shader and a fragment shader which is used to render primitives. */
 export class Program {

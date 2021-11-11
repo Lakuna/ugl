@@ -1,5 +1,4 @@
-import { Color } from "./Color.js";
-import { WebGLConstant } from "../webgl/WebGLConstant.js";
+import { WebGLConstant, Color } from "../index.js";
 
 /**
  * Clears a rendering context to a color.

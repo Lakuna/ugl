@@ -1,18 +1,4 @@
-import { Buffer } from "./Buffer.js";
-import { Program } from "./Program.js";
-import { Variable } from "./Variable.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-
-/** Types of data for attributes. */
-export enum AttributeType {
-	BYTE = WebGLConstant.BYTE,
-	SHORT = WebGLConstant.SHORT,
-	UNSIGNED_BYTE = WebGLConstant.UNSIGNED_BYTE,
-	UNSIGNED_SHORT = WebGLConstant.UNSIGNED_SHORT,
-	FLOAT = WebGLConstant.FLOAT,
-	HALF_FLOAT = WebGLConstant.HALF_FLOAT,
-	UNSIGNED_INT = WebGLConstant.UNSIGNED_INT
-}
+import { AttributeType, Buffer, Variable, Program } from "../index.js";
 
 /** Information about how to access the data in a buffer. */
 export class Attribute {

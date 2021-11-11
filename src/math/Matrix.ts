@@ -1,8 +1,4 @@
-import { clamp } from "./clamp.js";
-import { Euler } from "./Euler.js";
-import { Quaternion } from "./Quaternion.js";
-import { sigma } from "./sigma.js";
-import { Vector } from "./Vector.js";
+import { clamp, sigma, Vector, Euler, Quaternion } from "../index.js";
 
 /** A rectangular array of quantities. */
 export class Matrix extends Array<number> {

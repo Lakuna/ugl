@@ -1,6 +1,4 @@
-import { Euler } from "./Euler.js";
-import { Matrix } from "./Matrix.js";
-import { Vector } from "./Vector.js";
+import { Matrix, Vector, Euler } from "../index.js";
 
 /** A complex number with four parts. */
 export class Quaternion extends Vector {

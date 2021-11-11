@@ -1,6 +1,4 @@
-import { clamp } from "./clamp.js";
-import { Matrix } from "./Matrix.js";
-import { sigma } from "./sigma.js";
+import { clamp, sigma, Matrix } from "../index.js";
 
 /** A quantity with direction and magnitude. */
 export class Vector extends Array<number> {

@@ -1,5 +1,4 @@
-/** Data that can be used to create a color. */
-export type ColorData = number | number[] | string;
+import { ColorData } from "../index.js";
 
 /** A color. */
 export class Color extends Array<number> {

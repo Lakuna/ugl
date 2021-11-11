@@ -1,8 +1,4 @@
-import { Component } from "../core/Component.js";
-import { Euler } from "../math/Euler.js";
-import { GameObject } from "../core/GameObject.js";
-import { Matrix } from "../math/Matrix.js";
-import { Vector } from "../math/Vector.js";
+import { GameObject, Component, Matrix, Vector, Euler } from "../index.js";
 
 /** A transform of a gameobject. */
 export class Transform extends Component {
