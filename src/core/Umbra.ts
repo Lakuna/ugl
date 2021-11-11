@@ -3,7 +3,7 @@ import { ComponentEvent, makeFullscreenCanvas, GameObject, Component } from "../
 /** A controller for a program which uses Umbra. */
 export class Umbra {
 	#scene?: GameObject;
-	readonly #fixedInterval: number;
+	readonly #fixedInterval: NodeJS.Timer;
 	#stopLoop: boolean;
 
 	/**
