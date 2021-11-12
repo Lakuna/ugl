@@ -1,4 +1,4 @@
-import { ColorData } from "../index.js";
+import { ColorData } from "./ColorData.js";
 
 /** A color. */
 export class Color extends Array<number> {

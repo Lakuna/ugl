@@ -1,4 +1,7 @@
-import { ComponentEvent, makeFullscreenCanvas, GameObject, Component } from "../index.js";
+import { Event } from "./Event.js";
+import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
+import { GameObject } from "./GameObject.js";
+import { Component } from "./Component.js";
 
 /** A controller for a program which uses Umbra. */
 export class Umbra {
@@ -36,14 +39,14 @@ export class Umbra {
 			then = now;
 
 			if (!this.paused) {
-				this.trigger(ComponentEvent.Update);
+				this.trigger(Event.Update);
 			}
 		}
 		requestAnimationFrame(update);
 
 		this.#fixedInterval = setInterval((): void => {
 			if (!this.paused) {
-				this.trigger(ComponentEvent.FixedUpdate);
+				this.trigger(Event.FixedUpdate);
 			}
 		}, 1000 / ups);
 	}
@@ -73,7 +76,7 @@ export class Umbra {
 	set scene(value: GameObject | undefined) {
 		if (value) {
 			this.#scene = value;
-			this.trigger(ComponentEvent.Load);
+			this.trigger(Event.Load);
 		}
 	}
 
@@ -81,7 +84,7 @@ export class Umbra {
 	 * Triggers an event on every component on every object in the current scene of this Umbra instance.
 	 * @param event - The event to trigger.
 	 */
-	trigger(event: ComponentEvent): void {
+	trigger(event: Event): void {
 		if (!this.scene) {
 			return;
 		}

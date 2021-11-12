@@ -1,4 +1,11 @@
-import { ComponentEvent, CameraParameters, GameObject, Umbra, Component, Matrix, Transform, Mesh } from "../index.js";
+import { Event } from "../core/Event.js";
+import { CameraParameters } from "./CameraParameters.js";
+import { GameObject } from "../core/GameObject.js";
+import { Umbra } from "../core/Umbra.js";
+import { Component } from "../core/Component.js";
+import { Matrix } from "../math/Matrix.js";
+import { Transform } from "./Transform.js";
+import { Mesh } from "./Mesh.js";
 
 /** A camera. */
 export class Camera extends GameObject {
@@ -33,7 +40,7 @@ export class Camera extends GameObject {
 		}
 		this.transform = new Transform(this);
 
-		new Component(this).events.set(ComponentEvent.Update, (umbra: Umbra): void => {
+		new Component(this).events.set(Event.Update, (umbra: Umbra): void => {
 			this.aspectRatio =
 				this.aspectRatioOverride
 				?? umbra.gl.canvas.clientWidth / umbra.gl.canvas.clientHeight;

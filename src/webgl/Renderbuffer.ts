@@ -1,4 +1,6 @@
-import { WebGLConstant, RenderbufferMode, Vector } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
+import { RenderbufferMode } from "./RenderbufferMode.js";
+import { Vector } from "../math/Vector.js";
 
 /** A buffer that can contain an image or be the source or target of a rendering operation. */
 export class Renderbuffer {

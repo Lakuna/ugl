@@ -1,4 +1,5 @@
-import { PointerEvent, Vector } from "../index.js";
+import { PointerEvent } from "./PointerEvent.js";
+import { Vector } from "../math/Vector.js";
 
 /** Unified mouse and touchscreen input. */
 export class Pointer {

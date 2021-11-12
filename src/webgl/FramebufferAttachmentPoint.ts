@@ -1,4 +1,4 @@
-import { WebGLConstant } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Attachment points for framebuffers. */
 export enum FramebufferAttachmentPoint {

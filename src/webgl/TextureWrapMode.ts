@@ -1,4 +1,4 @@
-import { WebGLConstant } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Wrap modes for textures. */
 export enum TextureWrapMode {

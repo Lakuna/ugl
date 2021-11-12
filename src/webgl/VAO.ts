@@ -1,5 +1,12 @@
-import { Geometry, AttributeType, BufferTarget, DrawMode, Attribute, Buffer,
-	Program, Framebuffer, Vector } from "../index.js";
+import { Geometry } from "../utility/Geometry.js";
+import { AttributeType } from "./AttributeType.js";
+import { BufferTarget } from "./BufferTarget.js";
+import { DrawMode } from "./DrawMode.js";
+import { Attribute } from "./Attribute.js";
+import { Buffer } from "./Buffer.js";
+import { Program } from "./Program.js";
+import { Framebuffer } from "./Framebuffer.js";
+import { Vector } from "../math/Vector.js";
 
 /** A collection of attribute state. */
 export class VAO {

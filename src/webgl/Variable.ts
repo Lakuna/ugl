@@ -1,5 +1,11 @@
-import { VariableLocation, VariableType, VariableValueType, Attribute,
-	VariableValue, Program, Matrix, Texture } from "../index.js";
+import { VariableLocation } from "./VariableLocation.js";
+import { VariableType } from "./VariableType.js";
+import { VariableValueType } from "./VariableValueType.js";
+import { Attribute } from "./Attribute.js";
+import { VariableValue } from "./VariableValue.js";
+import { Program } from "./Program.js";
+import { Matrix } from "../math/Matrix.js";
+import { Texture } from "./Texture.js";
 
 /** A variable in a WebGL shader program. */
 export class Variable {

@@ -1,4 +1,4 @@
-import { WebGLConstant } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Data types for texel data in textures. */
 export enum TextureDataType {

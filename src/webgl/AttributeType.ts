@@ -1,4 +1,4 @@
-import { WebGLConstant } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** Types of data for attributes. */
 export enum AttributeType {

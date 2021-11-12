@@ -1,4 +1,9 @@
-import { GameObject, Component, Camera, Matrix, Transform, VAO } from "../index.js";
+import { GameObject } from "../core/GameObject.js";
+import { Component } from "../core/Component.js";
+import { Camera } from "./Camera.js";
+import { Matrix } from "../math/Matrix.js";
+import { Transform } from "./Transform.js";
+import { VAO } from "../webgl/VAO.js";
 
 /** A drawable mesh. */
 export class Mesh extends Transform {

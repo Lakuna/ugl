@@ -1,4 +1,6 @@
-import { clamp, sigma, Matrix } from "../index.js";
+import { clamp } from "./clamp.js";
+import { sigma } from "./sigma.js";
+import { Matrix } from "../math/Matrix.js";
 
 /** A quantity with direction and magnitude. */
 export class Vector extends Array<number> {
@@ -124,7 +126,7 @@ export class Vector extends Array<number> {
 	 * @returns This vector.
 	 */
 	transform(matrix: Matrix): Vector {
-		return this.set(...matrix.copy.multiply(new Matrix(...this)));
+		return this.set(...matrix.copy.multiply([...this] as Matrix));
 	}
 
 	/**
@@ -205,6 +207,93 @@ export class Vector extends Array<number> {
 	}
 
 	/**
+	 * Calculates the conjugate of this Vector as if it were a Quaternion.
+	 * @returns This vector.
+	 */
+	quaternionConjugate(): Vector {
+		return this.set(-this.x, -this.y, -this.z, this.w);
+	}
+
+	/**
+	 * Multiplies this vector with another as if both were quaternions.
+	 * @param quaternion - The other vector.
+	 * @returns This vector.
+	 */
+	quaternionMultiply(quaternion: Vector) {
+		quaternion = quaternion.copy;
+
+		// Real scalar values
+		const w1: number = this.w;
+		const w2: number = quaternion.w;
+
+		// Imaginary 3D vector values
+		const v = (quaternion: Vector): Vector => Vector.fromRule(3, (i: number): number => quaternion[i] ?? 0);
+		const v1 = (): Vector => v(this);
+		const v2 = (): Vector => v(quaternion);
+
+		return this.set(
+			...v2().scale(w1)
+				.add(v1().scale(w2))
+				.add(v1().cross(v2())),
+			w1 * w2 - v1().dot(v2())
+		);
+	}
+
+	/**
+	 * Divides this vector with another as if both were quaternions.
+	 * @param quaternion - The other vector.
+	 * @returns This vector.
+	 */
+	quaternionDivide(quaternion: Vector) {
+		return this.quaternionMultiply(quaternion.copy.invert());
+	}
+
+	/**
+	 * Sets the angle of this vector on an axis as if it were a quaternion.
+	 * @param axis - The axis.
+	 * @param radians - The rotation about the axis in radians.
+	 * @returns This vector.
+	 */
+	quaternionSetAngle(axis: Vector, radians: number): Vector {
+		axis = axis.copy;
+
+		radians /= 2;
+		const c: number = Math.cos(radians);
+		const s: number = Math.sin(radians);
+		return this.set(s * axis.x, s * axis.y, s * axis.z, c);
+	}
+
+	/**
+	 * Rolls this vector about the X axis as if it were a quaternion.
+	 * @param radians - The rotation about the axis in radians.
+	 * @returns This vector.
+	 */
+	quaternionRotateX(radians: number): Vector {
+		return this.quaternionMultiply(new Vector(0, 0, 0, 1)
+			.quaternionSetAngle(new Vector(1, 0, 0), radians));
+	}
+
+	/**
+	 * Pitches this vector about the Y axis as if it were a quaternion.
+	 * @param radians - The rotation about the axis in radians.
+	 * @returns This vector.
+	 */
+	quaternionRotateY(radians: number): Vector {
+		return this.quaternionMultiply(new Vector(0, 0, 0, 1)
+			.quaternionSetAngle(new Vector(0, 1, 0), radians));
+	}
+
+	/**
+	 * Yaws this vector about the Z axis as if it were a quaternion.
+	 * @param radians - The rotation about the axis in radians.
+	 * @returns This vector.
+	 */
+	quaternionRotateZ(radians: number): Vector {
+		return this.quaternionMultiply(new Vector(0, 0, 0, 1)
+			.quaternionSetAngle(new Vector(0, 0, 1), radians));
+	}
+
+	/**
 	 * Performs a linear interpolation betweem two vectors.
 	 * @param vector - The other vector.
 	 * @param t - The interpolation parameter. Should be between 0 and 1.
@@ -212,5 +301,27 @@ export class Vector extends Array<number> {
 	 */
 	lerp(vector: Vector, t: number): Vector {
 		return this.operate(vector, (a: number, b: number): number => a + t * (b - a));
+	}
+
+	/**
+	 * Performs a spherical linear interpolation between two vectors as if they were quaternions.
+	 * @param quaternion - The other quaternion.
+	 * @param t - The interpolation parameter. Should be between 0 and 1.
+	 * @returns This vector.
+	 */
+	quaternionSlerp(quaternion: Vector, t: number): Vector {
+		let cosom = this.dot(quaternion);
+		if (cosom < 0) {
+			cosom = -cosom;
+			quaternion = quaternion.copy.negate();
+		}
+
+		const omega: number = Math.acos(cosom);
+		const sinom: number = Math.sin(omega);
+
+		const scale0: number = Math.sin((1 - t) * omega) / sinom;
+		const scale1: number = Math.sin(t * omega) / sinom;
+
+		return this.operate(quaternion, (a: number, b: number): number => scale0 * a + scale1 * b);
 	}
 }

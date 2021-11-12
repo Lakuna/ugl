@@ -1,4 +1,5 @@
-import { WebGLConstant, ShaderType } from "../index.js";
+import { WebGLConstant } from "./WebGLConstant.js";
+import { ShaderType } from "./ShaderType.js";
 
 /** A program that runs on the GPU. */
 export class Shader {

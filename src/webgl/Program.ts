@@ -1,5 +1,10 @@
-import { VariableType, WebGLConstant, ShaderType, TransformFeedbackMode,
-	VariableValueType, Shader, Variable } from "../index.js";
+import { VariableType } from "./VariableType.js";
+import { WebGLConstant } from "./WebGLConstant.js";
+import { ShaderType } from "./ShaderType.js";
+import { TransformFeedbackMode } from "./TransformFeedbackMode.js";
+import { VariableValueType } from "./VariableValueType.js";
+import { Shader } from "./Shader.js";
+import { Variable } from "./Variable.js";
 
 /** A pair of a vertex shader and a fragment shader which is used to render primitives. */
 export class Program {

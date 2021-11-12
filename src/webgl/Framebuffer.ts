@@ -1,7 +1,17 @@
-import { FramebufferMode, WebGLConstant, FramebufferAttachmentPoint,
-	FramebufferTarget, RenderbufferMode, TextureDataType, TextureFilter,
-	TextureFormat, TextureWrapMode, FramebufferData, FramebufferParameters,
-	Renderbuffer, Texture, Vector } from "../index.js";
+import { FramebufferMode } from "./FramebufferMode.js";
+import { WebGLConstant } from "./WebGLConstant.js";
+import { FramebufferAttachmentPoint } from "./FramebufferAttachmentPoint.js";
+import { FramebufferTarget } from "./FramebufferTarget.js";
+import { RenderbufferMode } from "./RenderbufferMode.js";
+import { TextureDataType } from "./TextureDataType.js";
+import { TextureFilter } from "./TextureFilter.js";
+import { TextureFormat } from "./TextureFormat.js";
+import { TextureWrapMode } from "./TextureWrapMode.js";
+import { FramebufferData } from "./FramebufferData.js";
+import { FramebufferParameters } from "./FramebufferParameters.js";
+import { Renderbuffer } from "./Renderbuffer.js";
+import { Texture } from "./Texture.js";
+import { Vector } from "../math/Vector.js";
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
 export class Framebuffer {

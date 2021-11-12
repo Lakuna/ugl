@@ -1,4 +1,4 @@
-import { GameObject } from "../index.js";
+import { GameObject } from "../core/GameObject.js";
 
 /** Parameters for creating a camera. */
 export type CameraParameters = {

@@ -1,4 +1,6 @@
-import { BufferMode, BufferTarget, BufferData } from "../index.js";
+import { BufferMode } from "./BufferMode.js";
+import { BufferTarget } from "./BufferTarget.js";
+import { BufferData } from "./BufferData.js";
 
 /** A data structure that supplies per-vertex data to the GPU. */
 export class Buffer {

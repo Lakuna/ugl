@@ -1,6 +1,14 @@
-import { TextureData, TextureMode, WebGLConstant, Color, TextureDataType,
-	TextureFilter, TextureFormat, TextureTarget, TextureWrapMode,
-	TextureParameters, Vector } from "../index.js";
+import { TextureData } from "./TextureData.js";
+import { TextureMode } from "./TextureMode.js";
+import { WebGLConstant } from "./WebGLConstant.js";
+import { Color } from "../utility/Color.js";
+import { TextureDataType } from "./TextureDataType.js";
+import { TextureFilter } from "./TextureFilter.js";
+import { TextureFormat } from "./TextureFormat.js";
+import { TextureTarget } from "./TextureTarget.js";
+import { TextureWrapMode } from "./TextureWrapMode.js";
+import { TextureParameters } from "./TextureParameters.js";
+import { Vector } from "../math/Vector.js";
 
 /** An array of data that can be randomly accessed in a shader program. Usually used to store image data. */
 export class Texture {

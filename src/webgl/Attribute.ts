@@ -1,4 +1,7 @@
-import { AttributeType, Buffer, Variable, Program } from "../index.js";
+import { AttributeType } from "./AttributeType.js";
+import { Buffer } from "./Buffer.js";
+import { Variable } from "./Variable.js";
+import { Program } from "./Program.js";
 
 /** Information about how to access the data in a buffer. */
 export class Attribute {

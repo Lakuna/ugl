@@ -1,4 +1,6 @@
-import { ComponentEvent, GameObject, Umbra } from "../index.js";
+import { Event } from "./Event.js";
+import { GameObject } from "./GameObject.js";
+import { Umbra } from "./Umbra.js";
 
 /** A script which attaches to a gameobject in an Umbra program. */
 export class Component {
@@ -20,7 +22,7 @@ export class Component {
 	priority: number;
 
 	/** Events attached to this component. */
-	events: Map<ComponentEvent, (umbra: Umbra) => void>
+	events: Map<Event, (umbra: Umbra) => void>
 
 	/** The gameobject that this component is attached to. */
 	get gameObject(): GameObject {

@@ -1,4 +1,6 @@
-import { clamp, sigma, Vector, Euler, Quaternion } from "../index.js";
+import { clamp } from "./clamp.js";
+import { sigma } from "./sigma.js";
+import { Vector } from "./Vector.js";
 
 /** A rectangular array of quantities. */
 export class Matrix extends Array<number> {
@@ -28,6 +30,57 @@ export class Matrix extends Array<number> {
 	 */
 	static identity(dim = 4): Matrix {
 		return Matrix.fromRule(dim, dim, (x: number, y: number): number => x == y ? 1 : 0);
+	}
+
+		/**
+	 * Creates a rotation matrix from a Euler angle.
+	 * @returns This matrix.
+	 */
+	static fromEuler(euler: Vector): Matrix {
+		const sinX: number = Math.sin(euler.x / 2);
+		const cosX: number = Math.cos(euler.x / 2);
+		const sinY: number = Math.sin(euler.y / 2);
+		const cosY: number = Math.cos(euler.y / 2);
+		const sinZ: number = Math.sin(euler.z / 2);
+		const cosZ: number = Math.cos(euler.z / 2);
+
+		return Matrix.fromQuaternion(new Vector(
+			sinX * cosY * cosZ + cosX * sinY * sinZ,
+			cosX * sinY * cosZ - sinX * cosY * sinZ,
+			cosX * cosY * sinZ + sinX * sinY * cosZ,
+			cosX * cosY * cosZ - sinX * sinY * sinZ
+		));
+	}
+
+	/**
+	 * Creates a rotation matrix from a quaternion.
+	 * @returns A rotation matrix.
+	 */
+	static fromQuaternion(quaternion: Vector): Matrix {
+		const x: number = quaternion.x;
+		const y: number = quaternion.y;
+		const z: number = quaternion.z;
+		const w: number = quaternion.w;
+
+		const x2: number = x * 2;
+		const y2: number = y * 2;
+		const z2: number = z * 2;
+
+		const xx: number = x * x2;
+		const yx: number = y * x2;
+		const yy: number = y * y2;
+		const zx: number = z * x2;
+		const zy: number = z * y2;
+		const zz: number = z * z2;
+		const wx: number = w * x2;
+		const wy: number = w * y2;
+		const wz: number = w * z2;
+
+		return new Matrix(
+			1 - yy - zz, yx + wz, zx - wy,
+			yx - wz, 1 - xx - zz, zy + wx,
+			zx + wy, zy - wx, 1 - xx - yy
+		);
 	}
 	
 	#width?: number;
@@ -145,18 +198,18 @@ export class Matrix extends Array<number> {
 		return Vector.fromRule(3, (i: number): number => sigma(0, 2, (j: number): number => m.getPoint(i, j) ** 2));
 	}
 
-	/** The rotation of this matrix. */
-	get rotation(): Euler {
+	/** The rotation of this matrix as a Euler angle. */
+	get rotation(): Vector {
 		const m: Matrix = this.copy.resize(3);
 
 		// Order of rotations: XYZ (intrinsic Tait-Bryan angles)
 		return Math.abs(m[6] ?? 0) < 1
-			? new Euler(
+			? new Vector(
 				Math.atan2(-(m[7] ?? 0), m[8] ?? 0),
 				Math.asin(clamp(m[6] ?? 0, -1, 1)),
 				Math.atan2(-(m[3] ?? 0), m[0] ?? 0)
 			)
-			: new Euler(
+			: new Vector(
 				Math.atan2(m[5] ?? 0, m[4] ?? 0),
 				Math.asin(clamp(m[6] ?? 0, -1, 1)),
 				0
@@ -164,7 +217,7 @@ export class Matrix extends Array<number> {
 	}
 
 	/** The rotation of this matrix in quaternion form. */
-	get quaternion(): Quaternion {
+	get quaternion(): Vector {
 		const m: Matrix = this.copy.resize(3);
 
 		const fTrace: number = (m[0] ?? 0) + (m[4] ?? 0) + (m[8] ?? 0);
@@ -172,7 +225,7 @@ export class Matrix extends Array<number> {
 			const fRoot: number = Math.sqrt(fTrace + 1); // 2w
 			const r4w: number = 0.5 / fRoot; // 1/(4w)
 
-			return new Quaternion(
+			return new Vector(
 				((m[5] ?? 0) - (m[7] ?? 0)) * r4w,
 				((m[6] ?? 0) - (m[2] ?? 0)) * r4w,
 				((m[1] ?? 0) - (m[3] ?? 0)) * r4w,
@@ -190,7 +243,7 @@ export class Matrix extends Array<number> {
 		const j: number = (i + 1) % 3;
 		const k: number = (i + 2) % 3;
 
-		const out: Quaternion = new Quaternion();
+		const out: Vector = new Vector(0, 0, 0, 1);
 
 		let fRoot: number = Math.sqrt((m[i * 3 + i] ?? 0) - (m[j * 3 + j] ?? 0) - (m[k * 3 + k] ?? 0) + 1);
 		out[i] = fRoot / 2;

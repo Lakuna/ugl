@@ -1,4 +1,7 @@
-import { GameObject, Component, Matrix, Vector, Euler } from "../index.js";
+import { GameObject } from "../core/GameObject.js";
+import { Component } from "../core/Component.js";
+import { Matrix } from "../math/Matrix.js";
+import { Vector } from "../math/Vector.js";
 
 /** A transform of a gameobject. */
 export class Transform extends Component {
@@ -14,7 +17,7 @@ export class Transform extends Component {
 		super(gameObject, priority);
 
 		this.translation = new Vector(0, 0, 0);
-		this.rotation = new Euler(0, 0, 0);
+		this.rotation = new Vector(0, 0, 0);
 		this.scale = new Vector(1, 1, 1);
 	}
 
@@ -22,7 +25,7 @@ export class Transform extends Component {
 	translation: Vector;
 
 	/** The rotation of this transform. */
-	rotation: Euler;
+	rotation: Vector;
 
 	/** The scale of this transform. */
 	scale: Vector;

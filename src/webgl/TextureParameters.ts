@@ -1,5 +1,11 @@
-import { TextureData, TextureMode, TextureDataType, TextureFilter,
-	TextureFormat, TextureTarget, TextureWrapMode, Vector } from "../index.js";
+import { TextureData } from "./TextureData.js";
+import { TextureMode } from "./TextureMode.js";
+import { TextureDataType } from "./TextureDataType.js";
+import { TextureFilter } from "./TextureFilter.js";
+import { TextureFormat } from "./TextureFormat.js";
+import { TextureTarget } from "./TextureTarget.js";
+import { TextureWrapMode } from "./TextureWrapMode.js";
+import { Vector } from "../math/Vector.js";
 
 /** Parameters for creating a texture. */
 export type TextureParameters = {

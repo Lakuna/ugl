@@ -1,9 +1,9 @@
-import { Component } from "../index.js";
+import { Component } from "./Component.js";
 
 /** A "thing" in an Umbra program. */
 export class GameObject {
 	#children: GameObject[];
-	#parent?: GameObject;
+	#parent: GameObject | undefined;
 
 	/**
 	 * Creates a gameobject.
@@ -11,9 +11,7 @@ export class GameObject {
 	 * @param enabled - Whether the components on the gameobject should trigger.
 	 */
 	constructor(parent?: GameObject, enabled = true) {
-		if (parent) {
-			this.parent = parent;
-		}
+		if (parent) { this.parent = parent; }
 		this.enabled = enabled;
 		this.components = [];
 		this.#children = [];
@@ -37,17 +35,9 @@ export class GameObject {
 
 	set parent(value: GameObject | undefined) {
 		if (this.parent != value) {
-			if (this.parent) {
-				this.parent.removeChild(this);
-			}
-
-			if (value) {
-				this.#parent = value;
-			}
-
-			if (this.parent) {
-				this.parent.addChild(this);
-			}
+			if (this.parent) { this.parent.removeChild(this); }
+			this.#parent = value;
+			if (this.parent) { this.parent.addChild(this); }
 		}
 	}
 
@@ -74,12 +64,8 @@ export class GameObject {
 	 * @param callback - The function to execute on each gameobject.
 	 */
 	traverse(callback: (gameObject: GameObject) => boolean): void {
-		if (callback(this)) {
-			return;
-		}
+		if (callback(this)) { return; }
 
-		this.children.forEach((child: GameObject): void => {
-			child.traverse(callback);
-		});
+		this.children.forEach((child: GameObject): void => { child.traverse(callback); });
 	}
 }

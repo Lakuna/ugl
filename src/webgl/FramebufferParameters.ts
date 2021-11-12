@@ -1,4 +1,9 @@
-import { FramebufferTarget, TextureDataType, TextureFilter, TextureFormat, TextureWrapMode, Vector } from "../index.js";
+import { FramebufferTarget } from "./FramebufferTarget.js";
+import { TextureDataType } from "./TextureDataType.js";
+import { TextureFilter } from "./TextureFilter.js";
+import { TextureFormat } from "./TextureFormat.js";
+import { TextureWrapMode } from "./TextureWrapMode.js";
+import { Vector } from "../math/Vector.js";
 
 /** Parameters for creating a framebuffer. */
 export type FramebufferParameters = {
