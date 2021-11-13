@@ -11,7 +11,7 @@ export * from "./utility/Key.js";
 export * from "./utility/KeyCode.js";
 export * from "./utility/PointerEvent.js";
 export * from "./utility/makeFullscreenCanvas.js";
-export * from "./utility/resizeCanvas.js";
+export * from "./utility/resizeContext.js";
 export * from "./webgl/AttributeType.js";
 export * from "./webgl/BufferData.js";
 export * from "./webgl/BufferMode.js";
