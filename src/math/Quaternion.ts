@@ -1,5 +1,4 @@
 import { Vector3 } from "./Vector3.js";
-import { Vector4 } from "./Vector4.js";
 import { Matrix3 } from "./Matrix3.js";
 
 const EPSILON = 0.000001;
@@ -7,12 +6,12 @@ const xUnitVector3: Vector3 = new Vector3(1, 0, 0);
 const yUnitVector3: Vector3 = new Vector3(0, 1, 0);
 
 /** The quotient of two vectors in a three-dimensional space. Immutable. */
-export class Quaternion extends Vector4 {
+export class Quaternion extends Float32Array {
 	/**
 	 * Generates a random unit quaternion.
 	 * @returns A unit quaternion.
 	 */
-	static override random(): Quaternion {
+	static random(): Quaternion {
 		const u1: number = Math.random();
 		const u2: number = Math.random();
 		const u3: number = Math.random();
@@ -126,16 +125,11 @@ export class Quaternion extends Vector4 {
 			return new Quaternion();
 		} else {
 			const cross: Vector3 = a.cross(b);
-			const out: Vector4 = new Quaternion(
+			return new Quaternion(
 				cross[0] as number,
 				cross[1] as number,
 				cross[2] as number,
 				1 + dot).normalize;
-			return new Quaternion(
-				out[0] as number,
-				out[1] as number,
-				out[2] as number,
-				out[3] as number);
 		}
 	}
 
@@ -151,12 +145,7 @@ export class Quaternion extends Vector4 {
 			right[0] as number, right[1] as number, right[2] as number,
 			up[0] as number, up[1] as number, up[2] as number,
 			-(view[0] as number), -(view[1] as number), -(view[2] as number));
-		const out: Vector4 = Quaternion.fromMatrix3(m).normalize;
-		return new Quaternion(
-			out[0] as number,
-			out[1] as number,
-			out[2] as number,
-			out[3] as number);
+		return Quaternion.fromMatrix3(m).normalize;
 	}
 
 	/** Creates an identity quaternion. */
@@ -172,7 +161,7 @@ export class Quaternion extends Vector4 {
 	constructor(x: number, y: number, z: number, w: number);
 
 	constructor(x = 0, y = 0, z = 0, w = 1) {
-		super(x, y, z, w);
+		super([x, y, z, w]);
 	}
 
 	/** The rotation axis and angle of this quaternion. */
@@ -208,7 +197,7 @@ export class Quaternion extends Vector4 {
 	 * @param q - The other quaternion
 	 * @returns The product of the quaternions.
 	 */
-	override multiply(q: Quaternion): Quaternion {
+	multiply(q: Quaternion): Quaternion {
 		const ax: number = this[0] as number;
 		const ay: number = this[1] as number;
 		const az: number = this[2] as number;
@@ -345,12 +334,7 @@ export class Quaternion extends Vector4 {
 	 * @returns The scalar power of this unit quaternion.
 	 */
 	pow(s: number): Quaternion {
-		const v: Vector4 = this.ln.scale(s);
-		return new Quaternion(
-			v[0] as number,
-			v[1] as number,
-			v[2] as number,
-			v[3] as number).exp;
+		return this.ln.scale(s).exp;
 	}
 
 	/**
@@ -447,5 +431,132 @@ export class Quaternion extends Vector4 {
 		const t1: Quaternion = this.slerp(q, t);
 		const t2: Quaternion = a.slerp(b, t);
 		return t1.slerp(t2, 2 * t * (1 - t));
+	}
+
+	/**
+	 * Adds another quaternion to this quaternion.
+	 * @param q - The other quaternion.
+	 * @returns The sum of the quaternion.
+	 */
+	add(q: Quaternion): Quaternion {
+		return new Quaternion(
+			(this[0] as number) + (q[0] as number),
+			(this[1] as number) + (q[1] as number),
+			(this[2] as number) + (q[2] as number),
+			(this[3] as number) + (q[3] as number));
+	}
+
+	/**
+	 * Scales this quaternion by a scalar number.
+	 * @param s - The scalar number.
+	 * @returns The scaled quaternion.
+	 */
+	scale(s: number): Quaternion {
+		return new Quaternion(
+			(this[0] as number) * s,
+			(this[1] as number) * s,
+			(this[2] as number) * s,
+			(this[3] as number) * s);
+	}
+
+	/**
+	 * Calculates the dot product of this quaternion and another.
+	 * @param q - The other quaternion.
+	 * @returns The dot product of the quaternions.
+	 */
+	dot(q: Quaternion): number {
+		return (this[0] as number) * (q[0] as number)
+			+ (this[1] as number) * (q[1] as number)
+			+ (this[2] as number) * (q[2] as number)
+			+ (this[3] as number) * (q[3] as number);
+	}
+
+	/**
+	 * Performs a linear interpolation between this quaternion and another.
+	 * @param q - The other quaternion.
+	 * @param t - The interpolation amount. Must be in the range [0, 1].
+	 * @returns The interpolated quaternion.
+	 */
+	lerp(q: Quaternion, t: number): Quaternion {
+		const x: number = this[0] as number;
+		const y: number = this[1] as number;
+		const z: number = this[2] as number;
+		const w: number = this[3] as number;
+
+		return new Quaternion(
+			x + t * ((q[0] as number) - x),
+			y + t * ((q[1] as number) - y),
+			z + t * ((q[2] as number) - z),
+			w + t * ((q[3] as number) - w));
+	}
+
+	/** Calculates the length of this quaternion. */
+	override get length(): number {
+		return Math.hypot(
+			this[0] as number,
+			this[1] as number,
+			this[2] as number,
+			this[3] as number);
+	}
+
+	/** Calculates the squared length of this quaternion. */
+	get squaredLength(): number {
+		const x: number = this[0] as number;
+		const y: number = this[1] as number;
+		const z: number = this[2] as number;
+		const w: number = this[3] as number;
+
+		return x * x + y * y + z * z + w * w;
+	}
+
+	/** Normalizes this quaternion. */
+	get normalize(): Quaternion {
+		const x: number = this[0] as number;
+		const y: number = this[1] as number;
+		const z: number = this[2] as number;
+		const w: number = this[3] as number;
+
+		let length: number = x * x + y * y + z * z + w * w;
+		if (length > 0) { length = 1 / Math.sqrt(length); }
+
+		return new Quaternion(
+			x * length,
+			y * length,
+			z * length,
+			w * length);
+	}
+
+	/**
+	 * Returns whether or not this quaternion has exactly the same elements as another.
+	 * @param q - The other quaternion.
+	 * @returns Whether or not the quaternions have exactly the same elements.
+	 */
+	exactEquals(q: Quaternion): boolean {
+		return this[0] === q[0]
+			&& this[1] === q[1]
+			&& this[2] === q[2]
+			&& this[3] === q[3];
+	}
+
+	/**
+	 * Returns whether or not this quaternion has approximately the same elements as another.
+	 * @param q - The other quaternion.
+	 * @returns Whether or not the quaternions have approximately the same elements.
+	 */
+	equals(q: Quaternion): boolean {
+		const x1: number = this[0] as number;
+		const y1: number = this[1] as number;
+		const z1: number = this[2] as number;
+		const w1: number = this[3] as number;
+
+		const x2: number = q[0] as number;
+		const y2: number = q[1] as number;
+		const z2: number = q[2] as number;
+		const w2: number = q[3] as number;
+		
+		return (Math.abs(x1 - x2) <= EPSILON * Math.max(1, Math.abs(x1), Math.abs(x2))
+			&& Math.abs(y1 - y2) <= EPSILON * Math.max(1, Math.abs(y1), Math.abs(y2))
+			&& Math.abs(z1 - z2) <= EPSILON * Math.max(1, Math.abs(z1), Math.abs(z2))
+			&& Math.abs(w1 - w2) <= EPSILON * Math.max(1, Math.abs(w1), Math.abs(w2)));
 	}
 }
