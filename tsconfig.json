@@ -9,6 +9,7 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"strict": true,
+		"moduleResolution": "node",
 		"rootDir": "src",
 		"outDir": "dist",
 		"removeComments": true,
