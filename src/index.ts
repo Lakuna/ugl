@@ -5,3 +5,6 @@ export * from "./math/Quaternion.js";
 export * from "./math/Vector2.js";
 export * from "./math/Vector3.js";
 export * from "./math/Vector4.js";
+export * from "./utility/HeadlessError.js";
+export * from "./utility/makeFullscreenCanvas.js";
+export * from "./utility/Pointer.js";
