@@ -1,3 +1,7 @@
+export * from "./core/Component.js";
+export * from "./core/Event.js";
+export * from "./core/GameObject.js";
+export * from "./core/Umbra.js";
 export * from "./math/Matrix2.js";
 export * from "./math/Matrix3.js";
 export * from "./math/Matrix4.js";
@@ -8,3 +12,4 @@ export * from "./math/Vector4.js";
 export * from "./utility/HeadlessError.js";
 export * from "./utility/makeFullscreenCanvas.js";
 export * from "./utility/Pointer.js";
+export * from "./utility/UnsupportedError.js";
