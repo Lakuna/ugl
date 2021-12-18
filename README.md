@@ -1,6 +1,6 @@
 # Umbra
 
-Umbra is a lightweight visual application framework for WebGL. It includes a variety of classes which are useful for developing two- and three-dimensional games, animations, and simulations.
+A fully object-oriented, strictly typed implementation of WebGL2.
 
 Visit the [website](https://umbra.lakuna.pw) for more information.
 

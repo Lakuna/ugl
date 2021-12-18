@@ -26,6 +26,8 @@ export class DrawingBuffer {
 
 	readonly #gl: WebGL2RenderingContext;
 
+	// Width and height are not cached because the canvas size may be modified externally.
+
 	/** The width of this drawing buffer. */
 	get width(): number {
 		return this.#gl.drawingBufferWidth;
@@ -70,8 +72,10 @@ export class ScissorBox {
 		return this.#x as number;
 	}
 	set x(value: number) {
-		this.#x = value;
-		this.#updateInternal();
+		if (value != this.#x) {
+			this.#x = value;
+			this.#updateInternal();
+		}
 	}
 
 	#y?: number;
@@ -81,8 +85,10 @@ export class ScissorBox {
 		return this.#y as number;
 	}
 	set y(value: number) {
-		this.#y = value;
-		this.#updateInternal();
+		if (value != this.#y) {
+			this.#y = value;
+			this.#updateInternal();
+		}
 	}
 
 	#width?: number;
@@ -92,8 +98,10 @@ export class ScissorBox {
 		return this.#width as number;
 	}
 	set width(value: number) {
-		this.#width = value;
-		this.#updateInternal();
+		if (value != this.#width) {
+			this.#width = value;
+			this.#updateInternal();
+		}
 	}
 
 	#height?: number;
@@ -103,8 +111,10 @@ export class ScissorBox {
 		return this.#height as number;
 	}
 	set height(value: number) {
-		this.#height = value;
-		this.#updateInternal();
+		if (value != this.#height) {
+			this.#height = value;
+			this.#updateInternal();
+		}
 	}
 
 	/** Sets all values in this scissor box. */
@@ -122,8 +132,10 @@ export class ScissorBox {
 		return this.#enabled;
 	}
 	set enabled(value: boolean) {
-		(value ? this.#gl.enable : this.#gl.disable)(WebGLConstant.SCISSOR_TEST);
-		this.#enabled = value;
+		if (value != this.#enabled) {
+			(value ? this.#gl.enable : this.#gl.disable)(WebGLConstant.SCISSOR_TEST);
+			this.#enabled = value;
+		}
 	}
 }
 
@@ -137,16 +149,13 @@ export class Viewport {
 		this.#gl.viewport(this.x, this.y, this.width, this.height);
 	}
 
-	#updateMaxValueCache(): void {
-		[this.#maxWidth, this.#maxHeight] = this.#gl.getParameter(WebGLConstant.MAX_VIEWPORT_DIMS);
-	}
-
 	/**
 	 * Creates a viewport.
 	 * @param gl - The standard context interface.
 	 */
 	constructor(gl: WebGL2RenderingContext) {
 		this.#gl = gl;
+		[this.maxWidth, this.maxHeight] = this.#gl.getParameter(WebGLConstant.MAX_VIEWPORT_DIMS);
 	}
 
 	readonly #gl: WebGL2RenderingContext;
@@ -158,8 +167,10 @@ export class Viewport {
 		return this.#x as number;
 	}
 	set x(value: number) {
-		this.#x = value;
-		this.#updateInternal();
+		if (value != this.#x) {
+			this.#x = value;
+			this.#updateInternal();
+		}
 	}
 
 	#y?: number;
@@ -169,8 +180,10 @@ export class Viewport {
 		return this.#y as number;
 	}
 	set y(value: number) {
-		this.#y = value;
-		this.#updateInternal();
+		if (value != this.#y) {
+			this.#y = value;
+			this.#updateInternal();
+		}
 	}
 
 	#width?: number;
@@ -180,8 +193,11 @@ export class Viewport {
 		return this.#width as number;
 	}
 	set width(value: number) {
-		this.#width = value;
-		this.#updateInternal();
+		if (value != this.#width) {
+			if (value > this.maxWidth) { 	throw new Error("Width is greater than maximum width."); }
+			this.#width = value;
+			this.#updateInternal();
+		}
 	}
 
 	#height?: number;
@@ -191,8 +207,11 @@ export class Viewport {
 		return this.#height as number;
 	}
 	set height(value: number) {
-		this.#height = value;
-		this.#updateInternal();
+		if (value != this.#height) {
+			if (value > this.maxHeight) { throw new Error("Height is greater than maximum height."); }
+			this.#height = value;
+			this.#updateInternal();
+		}
 	}
 
 	/** Sets all values in this viewport. */
@@ -203,19 +222,11 @@ export class Viewport {
 		this.height = height;
 	}
 
-	#maxWidth?: number;
 	/** The maximum allowed width of this viewport. */
-	get maxWidth(): number {
-		if (!this.#maxWidth) { this.#updateMaxValueCache(); }
-		return this.#maxWidth as number;
-	}
+	readonly maxWidth: number;
 
-	#maxHeight?: number;
 	/** The maximum allowed height of this viewport. */
-	get maxHeight(): number {
-		if (!this.#maxHeight) { this.#updateMaxValueCache(); }
-		return this.#maxHeight as number;
-	}
+	readonly maxHeight: number;
 }
 
 /** A WebGL2 rendering context. */
@@ -276,6 +287,8 @@ export class RenderingContext extends WebGLObject {
 
 		this.scissorBox = new ScissorBox(gl);
 		this.viewport = new Viewport(gl);
+
+		this.maxTextureUnits = gl.getParameter(WebGLConstant.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 	}
 
 	/** The canvas that this rendering context belongs to. */
@@ -316,11 +329,26 @@ export class RenderingContext extends WebGLObject {
 		return (this.internal as WebGL2RenderingContext).isContextLost();
 	}
 
-	// TODO: Add XR support once the WebXR API is standardized.
+	// TODO: Add XR support once the WebXR API is standardized. gl.makeXRCompatible();
 
 	/** The scissor box of this context. */
 	readonly scissorBox: ScissorBox;
 
 	/** The viewport of this context. */
 	readonly viewport: Viewport;
+
+	#activeTexture?: number;
+	/** The active texture unit of the rendering context. */
+	get activeTexture(): number {
+		this.#activeTexture ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.ACTIVE_TEXTURE);
+		return this.#activeTexture as number;
+	}
+	set activeTexture(value: number) {
+		if (value > this.maxTextureUnits) { throw new Error("Texture unit is greater than maximum texture units."); }
+		(this.internal as WebGL2RenderingContext).activeTexture(value);
+		this.#activeTexture = value;
+	}
+
+	/** The maximum number of texture units for this rendering context. */
+	readonly maxTextureUnits: number;
 }

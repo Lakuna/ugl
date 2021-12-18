@@ -16,3 +16,4 @@ export * from "./utility/makeFullscreenCanvas.js";
 export * from "./utility/UnsupportedError.js";
 export * from "./webgl/RenderingContext.js";
 export * from "./webgl/WebGLConstant.js";
+export * from "./webgl/WebGLObject.js";
