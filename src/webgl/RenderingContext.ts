@@ -1,5 +1,6 @@
 import { WebGLObject } from "./WebGLObject.js";
 import { UnsupportedError } from "../utility/UnsupportedError.js";
+import { WebGLConstant } from "./WebGLConstant.js";
 
 /** GPU configurations for a rendering context. */
 export enum PowerPreference {
@@ -13,10 +14,10 @@ export enum PowerPreference {
 	LowPower = "low-power"
 }
 
-/** The size of a drawing buffer. */
-export class DrawingBufferSize {
+/** The drawing buffer of a rendering context. */
+export class DrawingBuffer {
 	/**
-	 * Creates a drawing buffer size.
+	 * Creates a drawing buffer.
 	 * @param gl - The standard context interface.
 	 */
 	constructor(gl: WebGL2RenderingContext) {
@@ -25,14 +26,195 @@ export class DrawingBufferSize {
 
 	readonly #gl: WebGL2RenderingContext;
 
-	/** The width of the drawing buffer. */
+	/** The width of this drawing buffer. */
 	get width(): number {
 		return this.#gl.drawingBufferWidth;
 	}
+	set width(value: number) {
+		this.#gl.canvas.width = value;
+	}
 
-	/** The height of the drawing buffer. */
+	/** The height of this drawing buffer. */
 	get height(): number {
 		return this.#gl.drawingBufferHeight;
+	}
+	set height(value: number) {
+		this.#gl.canvas.height = value;
+	}
+}
+
+/** The scissor box of a rendering context. */
+export class ScissorBox {
+	#updateCache(): void {
+		[this.#x, this.#y, this.#width, this.#height] = this.#gl.getParameter(WebGLConstant.SCISSOR_BOX);
+	}
+
+	#updateInternal(): void {
+		this.#gl.scissor(this.x, this.y, this.width, this.height);
+	}
+
+	/**
+	 * Creates a scissor box.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	readonly #gl: WebGL2RenderingContext;
+
+	#x?: number;
+	/** The horizontal coordinate of the lower left corner of this scissor box. */
+	get x(): number {
+		if (!this.#x) { this.#updateCache(); }
+		return this.#x as number;
+	}
+	set x(value: number) {
+		this.#x = value;
+		this.#updateInternal();
+	}
+
+	#y?: number;
+	/** The vertical coordinate of the lower left corner of this scissor box. */
+	get y(): number {
+		if (!this.#y) { this.#updateCache(); }
+		return this.#y as number;
+	}
+	set y(value: number) {
+		this.#y = value;
+		this.#updateInternal();
+	}
+
+	#width?: number;
+	/** The width of this scissor box. */
+	get width(): number {
+		if (!this.#width) { this.#updateCache(); }
+		return this.#width as number;
+	}
+	set width(value: number) {
+		this.#width = value;
+		this.#updateInternal();
+	}
+
+	#height?: number;
+	/** The height of this scissor box. */
+	get height(): number {
+		if (!this.#height) { this.#updateCache(); }
+		return this.#height as number;
+	}
+	set height(value: number) {
+		this.#height = value;
+		this.#updateInternal();
+	}
+
+	/** Sets all values in this scissor box. */
+	setAll(x: number, y: number, width: number, height: number): void {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
+
+	#enabled?: boolean;
+	/** Whether this scissor box is enabled. */
+	get enabled(): boolean {
+		this.#enabled ??= this.#gl.isEnabled(WebGLConstant.SCISSOR_TEST);
+		return this.#enabled;
+	}
+	set enabled(value: boolean) {
+		(value ? this.#gl.enable : this.#gl.disable)(WebGLConstant.SCISSOR_TEST);
+		this.#enabled = value;
+	}
+}
+
+/** The viewport of a rendering context. */
+export class Viewport {
+	#updateCache(): void {
+		[this.#x, this.#y, this.#width, this.#height] = this.#gl.getParameter(WebGLConstant.VIEWPORT);
+	}
+
+	#updateInternal(): void {
+		this.#gl.viewport(this.x, this.y, this.width, this.height);
+	}
+
+	#updateMaxValueCache(): void {
+		[this.#maxWidth, this.#maxHeight] = this.#gl.getParameter(WebGLConstant.MAX_VIEWPORT_DIMS);
+	}
+
+	/**
+	 * Creates a viewport.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	readonly #gl: WebGL2RenderingContext;
+
+	#x?: number;
+	/** The horizontal coordinate of the lower left corner of this viewport's origin. */
+	get x(): number {
+		if (!this.#x) { this.#updateCache(); }
+		return this.#x as number;
+	}
+	set x(value: number) {
+		this.#x = value;
+		this.#updateInternal();
+	}
+
+	#y?: number;
+	/** The vertical coordinate of the lower left corner of this viewport's origin. */
+	get y(): number {
+		if (!this.#y) { this.#updateCache(); }
+		return this.#y as number;
+	}
+	set y(value: number) {
+		this.#y = value;
+		this.#updateInternal();
+	}
+
+	#width?: number;
+	/** The width of this viewport. */
+	get width(): number {
+		if (!this.#width) { this.#updateCache(); }
+		return this.#width as number;
+	}
+	set width(value: number) {
+		this.#width = value;
+		this.#updateInternal();
+	}
+
+	#height?: number;
+	/** The height of this viewport. */
+	get height(): number {
+		if (!this.#height) { this.#updateCache(); }
+		return this.#height as number;
+	}
+	set height(value: number) {
+		this.#height = value;
+		this.#updateInternal();
+	}
+
+	/** Sets all values in this viewport. */
+	setAll(x: number, y: number, width: number, height: number): void {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
+
+	#maxWidth?: number;
+	/** The maximum allowed width of this viewport. */
+	get maxWidth(): number {
+		if (!this.#maxWidth) { this.#updateMaxValueCache(); }
+		return this.#maxWidth as number;
+	}
+
+	#maxHeight?: number;
+	/** The maximum allowed height of this viewport. */
+	get maxHeight(): number {
+		if (!this.#maxHeight) { this.#updateMaxValueCache(); }
+		return this.#maxHeight as number;
 	}
 }
 
@@ -79,7 +261,7 @@ export class RenderingContext extends WebGLObject {
 
 		this.canvas = canvas;
 
-		this.drawingBufferSize = new DrawingBufferSize(gl);
+		this.drawingBuffer = new DrawingBuffer(gl);
 
 		// Context attributes
 		this.allowAlpha = allowAlpha;
@@ -91,13 +273,16 @@ export class RenderingContext extends WebGLObject {
 		this.powerPreference = powerPreference;
 		this.assumePremultipliedAlpha = assumePremultipliedAlpha;
 		this.preserveDrawingBuffer = preserveDrawingBuffer;
+
+		this.scissorBox = new ScissorBox(gl);
+		this.viewport = new Viewport(gl);
 	}
 
 	/** The canvas that this rendering context belongs to. */
 	readonly canvas: HTMLCanvasElement;
 
 	/** The actual size of the drawing buffer. */
-	readonly drawingBufferSize: DrawingBufferSize;
+	readonly drawingBuffer: DrawingBuffer;
 
 	/** Whether the canvas contains an alpha buffer. */
 	readonly allowAlpha: boolean;
@@ -132,4 +317,10 @@ export class RenderingContext extends WebGLObject {
 	}
 
 	// TODO: Add XR support once the WebXR API is standardized.
+
+	/** The scissor box of this context. */
+	readonly scissorBox: ScissorBox;
+
+	/** The viewport of this context. */
+	readonly viewport: Viewport;
 }

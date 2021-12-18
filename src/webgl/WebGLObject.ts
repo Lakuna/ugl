@@ -43,5 +43,5 @@ export class WebGLObject {
   }
 
   /** The standard WebGL interface represented by this object. */
-  internal: WebGLAny;
+  protected internal: WebGLAny;
 }
