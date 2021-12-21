@@ -1,6 +1,7 @@
 import { WebGLObject } from "./WebGLObject.js";
 import { UnsupportedError } from "../utility/UnsupportedError.js";
-import { WebGLConstant } from "./WebGLConstant.js";
+import { WebGLConstant, BlendEquation, BlendFunction, PolygonFace, DepthFunction } from "./WebGLConstant.js";
+import { Color } from "../utility/Color.js";
 
 /** GPU configurations for a rendering context. */
 export enum PowerPreference {
@@ -117,7 +118,13 @@ export class ScissorBox {
 		}
 	}
 
-	/** Sets all values in this scissor box. */
+	/**
+	 * Sets all values in this scissor box.
+	 * @param x - The horizontal coordinate of the lower left corner of this scissor box.
+	 * @param y - The vertical coordinate of the lower left corner of this scissor box.
+	 * @param width - The width of this scissor box.
+	 * @param height - The height of this scissor box.
+	 */
 	setAll(x: number, y: number, width: number, height: number): void {
 		this.x = x;
 		this.y = y;
@@ -214,7 +221,13 @@ export class Viewport {
 		}
 	}
 
-	/** Sets all values in this viewport. */
+	/**
+	 * Sets all values in this viewport.
+	 * @param x - The horizontal coordinate of the lower left corner of this viewport's origin.
+	 * @param y - The vertical coordinate of the lower left corner of this viewport's origin.
+	 * @param width - The width of this viewport.
+	 * @param height - The height of this viewport.
+	 */
 	setAll(x: number, y: number, width: number, height: number): void {
 		this.x = x;
 		this.y = y;
@@ -227,6 +240,373 @@ export class Viewport {
 
 	/** The maximum allowed height of this viewport. */
 	readonly maxHeight: number;
+}
+
+/** The blend color of a rendering context. */
+export class BlendColor {
+	#updateCache(): void {
+		[this.#red, this.#green, this.#blue, this.#alpha] = this.#gl.getParameter(WebGLConstant.BLEND_COLOR);
+	}
+
+	#updateInternal(): void {
+		this.#gl.blendColor(this.red, this.green, this.blue, this.alpha);
+	}
+
+	/**
+	 * Creates a blend color.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	readonly #gl: WebGL2RenderingContext;
+
+	// TODO: Clamp RGBA values between 0 and 1.
+
+	#red?: number;
+	/** The red component of the source and destination blending factors of this blend color. */
+	get red(): number {
+		if (!this.#red) { this.#updateCache(); }
+		return this.#red as number;
+	}
+	set red(value: number) {
+		if (value != this.#red) {
+			this.#red = value;
+			this.#updateInternal();
+		}
+	}
+
+	#green?: number;
+	/** The green component of the source and destination blending factors of this blend color. */
+	get green(): number {
+		if (!this.#green) { this.#updateCache(); }
+		return this.#green as number;
+	}
+	set green(value: number) {
+		if (value != this.#green) {
+			this.#green = value;
+			this.#updateInternal();
+		}
+	}
+
+	#blue?: number;
+	/** The blue component of the source and destination blending factors of this blend color. */
+	get blue(): number {
+		if (!this.#blue) { this.#updateCache(); }
+		return this.#blue as number;
+	}
+	set blue(value: number) {
+		if (value != this.#blue) {
+			this.#blue = value;
+			this.#updateInternal();
+		}
+	}
+
+	#alpha?: number;
+	/** The alpha component of the source and destination blending factors of this blend color. */
+	get alpha(): number {
+		if (!this.#alpha) { this.#updateCache(); }
+		return this.#alpha as number;
+	}
+	set alpha(value: number) {
+		if (value != this.#alpha) {
+			this.#alpha = value;
+			this.#updateInternal();
+		}
+	}
+
+	/**
+	 * Sets all values in this blend color.
+	 * @param red - The red component of the source and destination blending factors of this blend color.
+	 * @param green - The green component of the source and destination blending factors of this blend color.
+	 * @param blue - The blue component of the source and destination blending factors of this blend color.
+	 * @param alpha - The alpha component of the source and destination blending factors of this blend color.
+	 */
+	setAll(red: number, green: number, blue: number, alpha: number): void {
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
+	}
+}
+
+/** The blend equations of a rendering context. */
+export class BlendEquations {
+	#updateInternal(): void {
+		this.#gl.blendEquationSeparate(this.rgb, this.alpha);
+	}
+
+	/**
+	 * Creates a blend equation.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	#gl: WebGL2RenderingContext;
+
+	#rgb?: BlendEquation;
+	/** The RGB blend equation of the rendering context. */
+	get rgb(): BlendEquation {
+		this.#rgb ??= this.#gl.getParameter(WebGLConstant.BLEND_EQUATION_RGB);
+		return this.#rgb as BlendEquation;
+	}
+	set rgb(value: BlendEquation) {
+		if (value != this.#rgb) {
+			this.#rgb = value;
+			this.#updateInternal();
+		}
+	}
+
+	#alpha?: BlendEquation;
+	/** The RGB blend equation of the rendering context. */
+	get alpha(): BlendEquation {
+		this.#alpha ??= this.#gl.getParameter(WebGLConstant.BLEND_EQUATION_ALPHA);
+		return this.#alpha as BlendEquation;
+	}
+	set alpha(value: BlendEquation) {
+		if (value != this.#alpha) {
+			this.#alpha = value;
+			this.#updateInternal();
+		}
+	}
+
+	/** The RGB and alpha blend equations of the rendering context. */
+	get both(): BlendEquation {
+		if (this.rgb == this.alpha) { return this.rgb; }
+		throw new Error("The RGB and alpha blend equations are different.");
+	}
+	set both(value: BlendEquation) {
+		this.rgb = value;
+		this.alpha = value;
+	}
+}
+
+/** The blend functions of a rendering context. */
+export class BlendFunctions {
+	#updateInternal(): void {
+		this.#gl.blendFuncSeparate(this.sourceRGB, this.destinationRGB, this.sourceAlpha, this.destinationAlpha);
+	}
+
+	/**
+	 * Creates a blend function.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	readonly #gl: WebGL2RenderingContext;
+
+	#sourceRGB?: BlendFunction;
+	/** The function used for blending pixel arithmetic for the red, green, and blue source blending factors. */
+	get sourceRGB(): BlendFunction {
+		this.#sourceRGB ??= this.#gl.getParameter(WebGLConstant.BLEND_SRC_RGB);
+		return this.#sourceRGB as BlendFunction;
+	}
+	set sourceRGB(value: BlendFunction) {
+		if (value != this.#sourceRGB) {
+			this.#sourceRGB = value;
+			this.#updateInternal();
+		}
+	}
+
+	#destinationRGB?: BlendFunction;
+	/** The function used for blending pixel arithmetic for the red, green, and blue destination blending factors. */
+	get destinationRGB(): BlendFunction {
+		this.#destinationRGB ??= this.#gl.getParameter(WebGLConstant.BLEND_DST_RGB);
+		return this.#destinationRGB as BlendFunction;
+	}
+	set destinationRGB(value: BlendFunction) {
+		if (value != this.#destinationRGB) {
+			this.#destinationRGB = value;
+			this.#updateInternal();
+		}
+	}
+
+	#sourceAlpha?: BlendFunction;
+	/** The function used for blending pixel arithmetic for the alpha source blending factor. */
+	get sourceAlpha(): BlendFunction {
+		this.#sourceAlpha ??= this.#gl.getParameter(WebGLConstant.BLEND_SRC_ALPHA);
+		return this.#sourceAlpha as BlendFunction;
+	}
+	set sourceAlpha(value: BlendFunction) {
+		if (value != this.#sourceAlpha) {
+			this.#sourceAlpha = value;
+			this.#updateInternal();
+		}
+	}
+
+	#destinationAlpha?: BlendFunction;
+	/** The function used for blending pixel arithmetic for the alpha destination blending factor. */
+	get destinationAlpha(): BlendFunction {
+		this.#destinationAlpha ??= this.#gl.getParameter(WebGLConstant.BLEND_DST_ALPHA);
+		return this.#destinationAlpha as BlendFunction;
+	}
+	set destinationAlpha(value: BlendFunction) {
+		if (value != this.#destinationAlpha) {
+			this.#destinationAlpha = value;
+			this.#updateInternal();
+		}
+	}
+
+	/** The RGB and alpha blending functions for the source. */
+	get source(): BlendFunction {
+		if (this.sourceRGB == this.sourceAlpha) { return this.sourceRGB; }
+		throw new Error("The source RGB and alpha blending functions do not match.");
+	}
+	set source(value: BlendFunction) {
+		this.sourceRGB = value;
+		this.sourceAlpha = value;
+	}
+
+	/** The RGB and alpha blending functions for the destination. */
+	get destination(): BlendFunction {
+		if (this.destinationRGB == this.destinationAlpha) { return this.destinationRGB; }
+		throw new Error("The destination RGB and alpha blending functions do not match.");
+	}
+	set destination(value: BlendFunction) {
+		this.destinationRGB = value;
+		this.destinationAlpha = value;
+	}
+}
+
+/** The color mask of a rendering context. */
+export class ColorMask {
+	#updateCache(): void {
+		[this.#red, this.#green, this.#blue, this.#alpha] = this.#gl.getParameter(WebGLConstant.COLOR_WRITEMASK);
+	}
+
+	#updateInternal(): void {
+		this.#gl.colorMask(this.red, this.green, this.blue, this.alpha);
+	}
+
+	/**
+	 * Creates a color mask.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	readonly #gl: WebGL2RenderingContext;
+
+	#red?: boolean;
+	/** Whether or not the red color component can be written into the frame buffer for this context. */
+	get red(): boolean {
+		if (!this.#red) { this.#updateCache(); }
+		return this.#red as boolean;
+	}
+	set red(value: boolean) {
+		if (value != this.#red) {
+			this.#red = value;
+			this.#updateInternal();
+		}
+	}
+
+	#green?: boolean;
+	/** Whether or not the green color component can be written into the frame buffer for this context. */
+	get green(): boolean {
+		if (!this.#green) { this.#updateCache(); }
+		return this.#green as boolean;
+	}
+	set green(value: boolean) {
+		if (value != this.#green) {
+			this.#green = value;
+			this.#updateInternal();
+		}
+	}
+
+	#blue?: boolean;
+	/** Whether or not the blue color component can be written into the frame buffer for this context. */
+	get blue(): boolean {
+		if (!this.#blue) { this.#updateCache(); }
+		return this.#blue as boolean;
+	}
+	set blue(value: boolean) {
+		if (value != this.#blue) {
+			this.#blue = value;
+			this.#updateInternal();
+		}
+	}
+
+	#alpha?: boolean;
+	/** Whether or not the alpha color component can be written into the frame buffer for this context. */
+	get alpha(): boolean {
+		if (!this.#alpha) { this.#updateCache(); }
+		return this.#alpha as boolean;
+	}
+	set alpha(value: boolean) {
+		if (value != this.#alpha) {
+			this.#alpha = value;
+			this.#updateInternal();
+		}
+	}
+
+	/**
+	 * Sets all values in this color mask.
+	 * @param red - Whether or not the red color component can be written into the frame buffer for this context.
+	 * @param green - Whether or not the green color component can be written into the frame buffer for this context.
+	 * @param blue - Whether or not the blue color component can be written into the frame buffer for this context.
+	 * @param alpha - Whether or not the alpha color component can be written into the frame buffer for this context.
+	 */
+	setAll(red: boolean, green: boolean, blue: boolean, alpha: boolean): void {
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
+	}
+}
+
+/** The depth range of a rendering context. */
+export class DepthRange {
+	#updateCache(): void {
+		[this.#near, this.#far] = this.#gl.getParameter(WebGLConstant.DEPTH_RANGE);
+	}
+
+	#updateInternal(): void {
+		this.#gl.depthRange(this.near, this.far);
+	}
+
+	/**
+	 * Creates a depth range.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+	}
+
+	#gl: WebGL2RenderingContext;
+
+	// TODO: Clamp near and far to 0 to 1.
+
+	#near?: number;
+	/** The mapping of the near clipping pane to window or viewport coordinates for this rendering context. */
+	get near(): number {
+		if (!this.#near) { this.#updateCache(); }
+		return this.#near as number;
+	}
+	set near(value: number) {
+		if (value != this.#near) {
+			this.#near = value;
+			this.#updateInternal();
+		}
+	}
+
+	#far?: number;
+	/** The mapping of the far clipping pane to window or viewport coordinates for this rendering context. */
+	get far(): number {
+		if (!this.#far) { this.#updateCache(); }
+		return this.#far as number;
+	}
+	set far(value: number) {
+		if (value != this.#far) {
+			this.#far = value;
+			this.#updateInternal();
+		}
+	}
 }
 
 /** A WebGL2 rendering context. */
@@ -270,8 +650,8 @@ export class RenderingContext extends WebGLObject {
 		});
 		if (gl) { super(gl); } else { throw new UnsupportedError("WebGL2 is not supported by your browser."); }
 
+		// Context
 		this.canvas = canvas;
-
 		this.drawingBuffer = new DrawingBuffer(gl);
 
 		// Context attributes
@@ -285,10 +665,16 @@ export class RenderingContext extends WebGLObject {
 		this.assumePremultipliedAlpha = assumePremultipliedAlpha;
 		this.preserveDrawingBuffer = preserveDrawingBuffer;
 
+		// Viewing and clipping
 		this.scissorBox = new ScissorBox(gl);
 		this.viewport = new Viewport(gl);
 
+		// State information
 		this.maxTextureUnits = gl.getParameter(WebGLConstant.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		this.blendColor = new BlendColor(gl);
+		this.blendEquations = new BlendEquations(gl);
+		this.blendFunctions = new BlendFunctions(gl);
+		this.depthRange = new DepthRange(gl);
 	}
 
 	/** The canvas that this rendering context belongs to. */
@@ -344,11 +730,105 @@ export class RenderingContext extends WebGLObject {
 		return this.#activeTexture as number;
 	}
 	set activeTexture(value: number) {
-		if (value > this.maxTextureUnits) { throw new Error("Texture unit is greater than maximum texture units."); }
-		(this.internal as WebGL2RenderingContext).activeTexture(value);
-		this.#activeTexture = value;
+		if (value != this.#activeTexture) {
+			if (value > this.maxTextureUnits) { throw new Error("Texture unit is greater than maximum texture units."); }
+			(this.internal as WebGL2RenderingContext).activeTexture(value);
+			this.#activeTexture = value;
+		}
 	}
 
 	/** The maximum number of texture units for this rendering context. */
 	readonly maxTextureUnits: number;
+
+	/** The source and destination blending factors for this rendering context. */
+	readonly blendColor: BlendColor;
+
+	/** The RGB and alpha blend equations for this rendering context. */
+	readonly blendEquations: BlendEquations;
+
+	/** The source and destination blend functions for this rendering context. */
+	readonly blendFunctions: BlendFunctions;
+
+	#clearColor?: Color;
+	/** The color to be used when clearing this rendering context. */
+	get clearColor(): Color {
+		this.#clearColor ??= new Color([...(this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.COLOR_CLEAR_VALUE)]);
+		return this.#clearColor;
+	}
+	set clearColor(value: Color) {
+		if (value != this.#clearColor) {
+			(this.internal as WebGL2RenderingContext).clearColor(value[0] as number, value[1] as number, value[2] as number, value[3] as number);
+			this.#clearColor = value;
+		}
+	}
+
+	// TODO: Clamp clear depth between 0 and 1.
+
+	#clearDepth?: number;
+	/** The depth value to use when clearing this rendering context. */
+	get clearDepth(): number {
+		this.#clearDepth ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.DEPTH_CLEAR_VALUE);
+		return this.#clearDepth as number;
+	}
+	set clearDepth(value: number) {
+		if (value != this.#clearDepth) {
+			(this.internal as WebGL2RenderingContext).clearDepth(value);
+			this.#clearDepth = value;
+		}
+	}
+
+	#clearStencil?: number;
+	/** The depth value to use when clearing this rendering context. */
+	get clearStencil(): number {
+		this.#clearStencil ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.STENCIL_CLEAR_VALUE);
+		return this.#clearStencil as number;
+	}
+	set clearStencil(value: number) {
+		if (value != this.#clearStencil) {
+			(this.internal as WebGL2RenderingContext).clearStencil(value);
+			this.#clearStencil = value;
+		}
+	}
+
+	#cullFace?: PolygonFace;
+	/** Whether front- and/or back-facing polygons can be culled. */
+	get cullFace(): PolygonFace {
+		this.#cullFace ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.CULL_FACE_MODE);
+		return this.#cullFace as PolygonFace;
+	}
+	set cullFace(value: PolygonFace) {
+		if (value != this.#cullFace) {
+			(this.internal as WebGL2RenderingContext).cullFace(value);
+			this.#cullFace = value;
+		}
+	}
+
+	#depthFunction?: DepthFunction;
+	/** The function that compares incoming pixel depth to the current depth buffer value for this rendering context. */
+	get depthFunction(): DepthFunction {
+		this.#depthFunction ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.DEPTH_FUNC);
+		return this.#depthFunction as DepthFunction;
+	}
+	set depthFunction(value: DepthFunction) {
+		if (value != this.#depthFunction) {
+			(this.internal as WebGL2RenderingContext).depthFunc(value);
+			this.#depthFunction = value;
+		}
+	}
+
+	#depthMask?: boolean;
+	/** Whether writing into the depth buffer is enabled for this rendering context. */
+	get depthMask(): boolean {
+		this.#depthMask ??= (this.internal as WebGL2RenderingContext).getParameter(WebGLConstant.DEPTH_WRITEMASK);
+		return this.#depthMask as boolean;
+	}
+	set depthMask(value: boolean) {
+		if (value != this.#depthMask) {
+			(this.internal as WebGL2RenderingContext).depthMask(value);
+			this.#depthMask = value;
+		}
+	}
+
+	/** The depth range of this rendering context. */
+	readonly depthRange: DepthRange;
 }
