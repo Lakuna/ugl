@@ -15,6 +15,71 @@ export enum PowerPreference {
 	LowPower = "low-power"
 }
 
+/** Attributes of a rendering context. */
+export class ContextAttributes {
+	/**
+	 * Creates a rendering context.
+	 * @param allowAlpha - Whether the canvas should contain an alpha buffer.
+	 * @param allowDepth - Whether the drawing buffer should be requested to have at least a 16-bit depth buffer.
+	 * @param allowStencil - Whether the drawing buffer should be requested to have at least an 8-bit stencil buffer.
+	 * @param desynchronized - Whether the user agent should reduce latency by desynchronizing the canvas paint cycle from the event loop.
+	 * @param allowAntiAliasing - Whether to perform anti-aliasing if possible.
+	 * @param requirePerformantHardware - Whether the context should be created if the system performance is low or if no hardware GPU is available.
+	 * @param powerPreference - How the GPU should be configured for the context.
+	 * @param assumePremultipliedAlpha - Whether the page compositor should assume that the drawing buffer contains colors with pre-multiplied alpha.
+	 * @param preserveDrawingBuffer - Whether buffers should preserve their values until cleared or overwritten by the author.
+	 */
+	constructor(
+		allowAlpha = true,
+		allowDepth = true,
+		allowStencil = false,
+		desynchronized = true,
+		allowAntiAliasing = true,
+		requirePerformantHardware = false,
+		powerPreference: PowerPreference = PowerPreference.Default,
+		assumePremultipliedAlpha = true,
+		preserveDrawingBuffer = false
+	) {
+		// Context attributes
+		this.allowAlpha = allowAlpha;
+		this.allowDepth = allowDepth;
+		this.allowStencil = allowStencil;
+		this.desynchronized = desynchronized;
+		this.allowAntiAliasing = allowAntiAliasing;
+		this.requirePerformantHardware = requirePerformantHardware;
+		this.powerPreference = powerPreference;
+		this.assumePremultipliedAlpha = assumePremultipliedAlpha;
+		this.preserveDrawingBuffer = preserveDrawingBuffer;
+	}
+
+	/** Whether the canvas contains an alpha buffer. */
+	readonly allowAlpha: boolean;
+
+	/** Whether the drawing buffer has been requested to have at least a 16-bit depth buffer. */
+	readonly allowDepth: boolean;
+
+	/** Whether the drawing buffer should be requested to have at least an 8-bit stencil buffer. */
+	readonly allowStencil: boolean;
+
+	/** Whether the user agent reduces latency by desynchronizing the canvas paint cycle from the event loop. */
+	readonly desynchronized: boolean;
+
+	/** Whether this context performs anti-aliasing if possible. */
+	readonly allowAntiAliasing: boolean;
+
+	/** Whether the context should have been created if the system performance is low or if no hardware GPU is available. */
+	readonly requirePerformantHardware: boolean;
+
+	/** How the GPU has been configured for the context. */
+	readonly powerPreference: PowerPreference;
+
+	/** Whether the page compositor assumes that the drawing buffer contains colors with pre-multiplied alpha. */
+	readonly assumePremultipliedAlpha: boolean;
+
+	/** Whether buffers preserve their values until cleared or overwritten by the author. */
+	readonly preserveDrawingBuffer: boolean;
+}
+
 /** The drawing buffer of a rendering context. */
 export class DrawingBuffer {
 	/**
@@ -240,6 +305,49 @@ export class Viewport {
 
 	/** The maximum allowed height of this viewport. */
 	readonly maxHeight: number;
+}
+
+/** Blending properties of a rendering context. */
+export class Blend {
+	/**
+	 * Creates a blend.
+	 * @param gl - The standard context interface.
+	 */
+	constructor(gl: WebGL2RenderingContext) {
+		this.#gl = gl;
+
+		this.color = new BlendColor(gl);
+		this.equations = new BlendEquations(gl);
+		this.functions = new BlendFunctions(gl);
+	}
+
+	#gl: WebGL2RenderingContext;
+
+	/** The source and destination blending factors for this rendering context. */
+	color: BlendColor;
+
+	/** The RGB and alpha blend equations for this rendering context. */
+	equations: BlendEquations;
+
+	/** The source and destination blend functions for this rendering context. */
+	functions: BlendFunctions;
+
+	#enabled?: boolean;
+	/** Whether to blend the computed fragment color values. */
+	get enabled(): boolean {
+		this.#enabled ??= this.#gl.isEnabled(WebGLConstant.BLEND);
+		return this.#enabled as boolean;
+	}
+	set enabled(value: boolean) {
+		if (value != this.#enabled) {
+			if (value) {
+				this.#gl.enable(WebGLConstant.BLEND);
+			} else {
+				this.#gl.disable(WebGLConstant.BLEND);
+			}
+			this.#enabled = value;
+		}
+	}
 }
 
 /** The blend color of a rendering context. */
@@ -614,38 +722,22 @@ export class RenderingContext extends WebGLObject {
 	/**
 	 * Creates a rendering context.
 	 * @param canvas - The canvas that the context should belong to.
-	 * @param allowAlpha - Whether the canvas should contain an alpha buffer.
-	 * @param allowDepth - Whether the drawing buffer should be requested to have at least a 16-bit depth buffer.
-	 * @param allowStencil - Whether the drawing buffer should be requested to have at least an 8-bit stencil buffer.
-	 * @param desynchronized - Whether the user agent should reduce latency by desynchronizing the canvas paint cycle from the event loop.
-	 * @param allowAntiAliasing - Whether to perform anti-aliasing if possible.
-	 * @param requirePerformantHardware - Whether the context should be created if the system performance is low or if no hardware GPU is available.
-	 * @param powerPreference - How the GPU should be configured for the context.
-	 * @param assumePremultipliedAlpha - Whether the page compositor should assume that the drawing buffer contains colors with pre-multiplied alpha.
-	 * @param preserveDrawingBuffer - Whether buffers should preserve their values until cleared or overwritten by the author.
+	 * @param contextAttributes - The attributes to initialize the rendering context with.
 	 */
 	constructor(
 		canvas: HTMLCanvasElement,
-		allowAlpha = true,
-		allowDepth = true,
-		allowStencil = false,
-		desynchronized = true,
-		allowAntiAliasing = true,
-		requirePerformantHardware = false,
-		powerPreference: PowerPreference = PowerPreference.Default,
-		assumePremultipliedAlpha = true,
-		preserveDrawingBuffer = false
+		contextAttributes = new ContextAttributes()
 	) {
 		const gl: WebGL2RenderingContext | null = canvas.getContext("webgl2", {
-			alpha: allowAlpha,
-			depth: allowDepth,
-			stencil: allowStencil,
-			desynchronized: desynchronized,
-			antialias: allowAntiAliasing,
-			failIfMajorPerformanceCaveat: requirePerformantHardware,
-			powerPreference,
-			premultipliedAlpha: assumePremultipliedAlpha,
-			preserveDrawingBuffer
+			alpha: contextAttributes.allowAlpha,
+			depth: contextAttributes.allowDepth,
+			stencil: contextAttributes.allowStencil,
+			desynchronized: contextAttributes.desynchronized,
+			antialias: contextAttributes.allowAntiAliasing,
+			failIfMajorPerformanceCaveat: contextAttributes.requirePerformantHardware,
+			powerPreference: contextAttributes.powerPreference,
+			premultipliedAlpha: contextAttributes.assumePremultipliedAlpha,
+			preserveDrawingBuffer: contextAttributes.preserveDrawingBuffer
 			// xrCompatible is not set because its use is discouraged.
 		});
 		if (gl) { super(gl); } else { throw new UnsupportedError("WebGL2 is not supported by your browser."); }
@@ -655,15 +747,7 @@ export class RenderingContext extends WebGLObject {
 		this.drawingBuffer = new DrawingBuffer(gl);
 
 		// Context attributes
-		this.allowAlpha = allowAlpha;
-		this.allowDepth = allowDepth;
-		this.allowStencil = allowStencil;
-		this.desynchronized = desynchronized;
-		this.allowAntiAliasing = allowAntiAliasing;
-		this.requirePerformantHardware = requirePerformantHardware;
-		this.powerPreference = powerPreference;
-		this.assumePremultipliedAlpha = assumePremultipliedAlpha;
-		this.preserveDrawingBuffer = preserveDrawingBuffer;
+		this.attributes = contextAttributes;
 
 		// Viewing and clipping
 		this.scissorBox = new ScissorBox(gl);
@@ -671,9 +755,7 @@ export class RenderingContext extends WebGLObject {
 
 		// State information
 		this.maxTextureUnits = gl.getParameter(WebGLConstant.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		this.blendColor = new BlendColor(gl);
-		this.blendEquations = new BlendEquations(gl);
-		this.blendFunctions = new BlendFunctions(gl);
+		this.blend = new Blend(gl);
 		this.depthRange = new DepthRange(gl);
 	}
 
@@ -683,32 +765,8 @@ export class RenderingContext extends WebGLObject {
 	/** The actual size of the drawing buffer. */
 	readonly drawingBuffer: DrawingBuffer;
 
-	/** Whether the canvas contains an alpha buffer. */
-	readonly allowAlpha: boolean;
-
-	/** Whether the drawing buffer has been requested to have at least a 16-bit depth buffer. */
-	readonly allowDepth: boolean;
-
-	/** Whether the drawing buffer should be requested to have at least an 8-bit stencil buffer. */
-	readonly allowStencil: boolean;
-
-	/** Whether the user agent reduces latency by desynchronizing the canvas paint cycle from the event loop. */
-	readonly desynchronized: boolean;
-
-	/** Whether this context performs anti-aliasing if possible. */
-	readonly allowAntiAliasing: boolean;
-
-	/** Whether the context should have been created if the system performance is low or if no hardware GPU is available. */
-	readonly requirePerformantHardware: boolean;
-
-	/** How the GPU has been configured for the context. */
-	readonly powerPreference: PowerPreference;
-
-	/** Whether the page compositor assumes that the drawing buffer contains colors with pre-multiplied alpha. */
-	readonly assumePremultipliedAlpha: boolean;
-
-	/** Whether buffers preserve their values until cleared or overwritten by the author. */
-	readonly preserveDrawingBuffer: boolean;
+	/** The attributes of this rendering context. */
+	readonly attributes: ContextAttributes;
 
 	/** Whether this context is lost. */
 	get isLost(): boolean {
@@ -740,14 +798,10 @@ export class RenderingContext extends WebGLObject {
 	/** The maximum number of texture units for this rendering context. */
 	readonly maxTextureUnits: number;
 
-	/** The source and destination blending factors for this rendering context. */
-	readonly blendColor: BlendColor;
+	/** The blending properties of this rendering context. */
+	readonly blend: Blend;
 
-	/** The RGB and alpha blend equations for this rendering context. */
-	readonly blendEquations: BlendEquations;
-
-	/** The source and destination blend functions for this rendering context. */
-	readonly blendFunctions: BlendFunctions;
+	// TODO: Combine clearX accessors into a class.
 
 	#clearColor?: Color;
 	/** The color to be used when clearing this rendering context. */
@@ -790,6 +844,8 @@ export class RenderingContext extends WebGLObject {
 		}
 	}
 
+	// TODO: Create cull class.
+
 	#cullFace?: PolygonFace;
 	/** Whether front- and/or back-facing polygons can be culled. */
 	get cullFace(): PolygonFace {
@@ -802,6 +858,8 @@ export class RenderingContext extends WebGLObject {
 			this.#cullFace = value;
 		}
 	}
+
+	// TODO: Combine depthX accessors into a class.
 
 	#depthFunction?: DepthFunction;
 	/** The function that compares incoming pixel depth to the current depth buffer value for this rendering context. */
@@ -831,4 +889,6 @@ export class RenderingContext extends WebGLObject {
 
 	/** The depth range of this rendering context. */
 	readonly depthRange: DepthRange;
+
+
 }
