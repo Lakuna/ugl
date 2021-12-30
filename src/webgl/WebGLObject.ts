@@ -22,6 +22,8 @@ export type WebGLAny =
 export class WebGLObject {
   static readonly #map: Map<WebGLAny, WebGLObject> = new Map();
 
+  static #nextID = 0;
+
   /**
    * Converts a standard WebGL interface to its existing object-oriented version.
    * @param internal - The standard WebGL object.
@@ -39,9 +41,13 @@ export class WebGLObject {
    */
   constructor(internal: WebGLAny) {
     this.internal = internal;
+    this.id = WebGLObject.#nextID++;
     WebGLObject.#map.set(internal, this);
   }
 
   /** The standard WebGL interface represented by this object. */
   protected internal: WebGLAny;
+
+  /** The ID of this object. */
+  readonly id: number;
 }
