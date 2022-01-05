@@ -1,6 +1,8 @@
 import { UnsupportedError } from "../utility/UnsupportedError.js";
-import { WebGLConstant, TextureUnit, BlendEquation } from "./WebGLConstant.js";
+import { WebGLConstant, TextureUnit, BlendEquation, BlendFunction } from "./WebGLConstant.js";
 import { WebGLObject } from "./WebGLObject.js";
+import { Rectangle } from "../utility/Rectangle.js";
+import { Color } from "../utility/Color.js";
 
 /** GPU configurations. */
 export enum PowerPreference {
@@ -62,20 +64,20 @@ export class RenderingContext extends WebGLObject {
 
   // TODO: makeXRCompatible()
 
-  /** The scissor box, which limits the drawing to a specified rectangle. Uses the form `[x, y, width, height]`, with the origin being the lower left corner of the box. */
-  get scissor(): [number, number, number, number] {
-    return [...(this.#gl.getParameter(WebGLConstant.SCISSOR_BOX) as Int32Array)] as [number, number, number, number];
+  /** The scissor box, which limits the drawing to a specified rectangle. The origin is the lower left corner. */
+  get scissor(): Rectangle {
+    return new Rectangle(...(this.#gl.getParameter(WebGLConstant.SCISSOR_BOX) as [number, number, number, number]));
   }
-  set scissor(value: [number, number, number, number]) {
-    this.#gl.scissor(...value);
+  set scissor(value: Rectangle) {
+    this.#gl.scissor(value.x, value.y, value.width, value.height);
   }
 
-  /** The viewport, which specifies the affine transformation of `x` and `y` from normalized device coordinates to window coordinates. Uses the form `[x, y, width, height]`, with the origin being the lower left corner of the box. */
-  get viewport(): [number, number, number, number] {
-    return [...(this.#gl.getParameter(WebGLConstant.VIEWPORT) as Int32Array)] as [number, number, number, number];
+  /** The viewport, which specifies the affine transformation of `x` and `y` from normalized device coordinates to window coordinates. The origin is the lower left corner. */
+  get viewport(): Rectangle {
+    return new Rectangle(...(this.#gl.getParameter(WebGLConstant.VIEWPORT) as [number, number, number, number]));
   }
-  set viewport(value: [number, number, number, number]) {
-    this.#gl.viewport(...value);
+  set viewport(value: Rectangle) {
+    this.#gl.viewport(value.x, value.y, value.width, value.height);
   }
 
   /** The maximum size of the viewport, of the form `[x, y]`.*/
@@ -97,11 +99,11 @@ export class RenderingContext extends WebGLObject {
   }
 
   /** The source and desination blending factors. Uses the form `[red, green, blue, alpha]`. */
-  get blendColor(): [number, number, number, number] {
-    return [...(this.#gl.getParameter(WebGLConstant.BLEND_COLOR) as Float32Array)] as [number, number, number, number];
+  get blendColor(): Color {
+    return new Color(this.#gl.getParameter(WebGLConstant.BLEND_COLOR));
   }
-  set blendColor(value: [number, number, number, number]) {
-    this.#gl.blendColor(...value);
+  set blendColor(value: Color) {
+    this.#gl.blendColor(value.r, value.g, value.b, value.a);
   }
 
   /** Determines how a new pixel is combined with a pixel already in a framebuffer. */
@@ -123,5 +125,50 @@ export class RenderingContext extends WebGLObject {
   }
   set blendEquationAlpha(value: BlendEquation) {
     this.#gl.blendEquationSeparate(this.blendEquationRgb, value);
+  }
+
+  /** Defines which function is used for blending pixel arithmetic. Uses the form `[source, destination]`. */
+  set blendFunction(value: [BlendFunction, BlendFunction]) {
+    this.#gl.blendFunc(...value);
+  }
+
+  /** The source RGB blend function. */
+  get blendFunctionSourceRgb(): BlendFunction {
+    return this.#gl.getParameter(WebGLConstant.BLEND_SRC_RGB);
+  }
+  set blendFunctionSourceRgb(value: BlendFunction) {
+    this.#gl.blendFuncSeparate(value, this.blendFunctionDestinationRgb, this.blendFunctionSourceAlpha, this.blendFunctionDestinationAlpha);
+  }
+
+  /** The destination RGB blend function. */
+  get blendFunctionDestinationRgb(): BlendFunction {
+    return this.#gl.getParameter(WebGLConstant.BLEND_DST_RGB);
+  }
+  set blendFunctionDestinationRgb(value: BlendFunction) {
+    this.#gl.blendFuncSeparate(this.blendFunctionSourceRgb, value, this.blendFunctionSourceAlpha, this.blendFunctionDestinationAlpha);
+  }
+
+  /** The source alpha blend function. */
+  get blendFunctionSourceAlpha(): BlendFunction {
+    return this.#gl.getParameter(WebGLConstant.BLEND_SRC_ALPHA);
+  }
+  set blendFunctionSourceAlpha(value: BlendFunction) {
+    this.#gl.blendFuncSeparate(this.blendFunctionSourceRgb, this.blendFunctionDestinationRgb, value, this.blendFunctionDestinationAlpha);
+  }
+
+  /** The destination alpha blend function. */
+  get blendFunctionDestinationAlpha(): BlendFunction {
+    return this.#gl.getParameter(WebGLConstant.BLEND_SRC_ALPHA);
+  }
+  set blendFunctionDestinationAlpha(value: BlendFunction) {
+    this.#gl.blendFuncSeparate(this.blendFunctionSourceRgb, this.blendFunctionDestinationRgb, this.blendFunctionSourceAlpha, value);
+  }
+
+  /** The color values used when clearing color buffers. Values are clamped between 0 and 1. Uses the form `[red, green, blue, alpha]`. */
+  get clearColor(): Color {
+    return new Color(this.#gl.getParameter(WebGLConstant.COLOR_CLEAR_VALUE));
+  }
+  set clearColor(value: Color) {
+    this.#gl.clearColor(value.r, value.g, value.b, value.a);
   }
 }

@@ -13,6 +13,7 @@ export * from "./utility/Color.js";
 export * from "./utility/ContextLostError.js";
 export * from "./utility/HeadlessError.js";
 export * from "./utility/makeFullscreenCanvas.js";
+export * from "./utility/Rectangle.js";
 export * from "./utility/UnsupportedError.js";
 export * from "./webgl/RenderingContext.js";
 export * from "./webgl/WebGLConstant.js";
