@@ -1,10 +1,10 @@
 /**
- * Clamps a number to a range.
- * @param i - The number.
- * @param min - The minimum value to clamp to.
- * @param max - The maximum value to clamp to.
- * @returns The number, clamped to the range.
+ * Restricts a number to a range.
+ * @param number - The number to clamp.
+ * @param min - The lower bound of the range.
+ * @param max - The upper bound of the range.
+ * @returns The nearest number to `number` within the range.
  */
-export function clamp(i: number, min: number, max: number): number {
-	return Math.min(Math.max(i, min), max);
+export function clamp(number: number, min: number, max: number): number {
+	return Math.min(Math.max(number, min), max);
 }
