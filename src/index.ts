@@ -3,6 +3,8 @@ export * from "./core/Event.js";
 export * from "./core/GameObject.js";
 export * from "./math/clamp.js";
 export * from "./math/sigma.js";
+export * from "./types/Numbers.js";
+export * from "./types/Rectangle.js";
 export * from "./utility/CameraParameters.js";
 export * from "./utility/Color.js";
 export * from "./utility/ColorData.js";
