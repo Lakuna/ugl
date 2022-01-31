@@ -53,7 +53,7 @@ export * from "./webgl/Shader.js";
 export * from "./webgl/Variable.js";
 
 // Tier 2
-export * from "./math/Matrix.js";
+export * from "./math/matrix/Matrix.js";
 export * from "./utility/Pointer.js";
 export * from "./webgl/Program.js";
 export * from "./webgl/Texture.js";

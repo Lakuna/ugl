@@ -1,4 +1,5 @@
 import { Rectangle } from "./Rectangle.js";
+import { Matrix2 } from "../math/matrix/Matrix2.js";
 
 /** Two numbers. */
 export type Numbers1x2 = [number, number];
@@ -10,7 +11,7 @@ export type Numbers1x3 = [number, number, number];
 export type Numbers1x4 = Rectangle | [number, number, number, number];
 
 /** Two rows of two numbers. */
-export type Numbers2x2 = [
+export type Numbers2x2 = Matrix2 | [
   number, number,
   number, number
 ];
