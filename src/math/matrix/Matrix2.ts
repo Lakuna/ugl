@@ -1,60 +1,68 @@
 import { Numbers1x2, Numbers2x2 } from "../../types/Numbers.js";
-
-// Based on code from glMatrix.
+import { mat2 } from "gl-matrix";
 
 /** A 2x2 matrix. */
 export class Matrix2 extends Float32Array {
-  /**
-   * Creates a 2x2 matrix from a rotation.
-   * @param r - The rotation in radians.
-   * @returns A matrix.
-   */
-  static fromRotation(r: number): Matrix2 {
-    const s: number = Math.sin(r);
-    const c: number = Math.cos(r);
+  /** Creates a 2x2 identity matrix. */
+  constructor();
 
-    return new Matrix2(
-      c, s,
-      -s, c
-    );
-  }
+  /** Creates a copy of a 2x2 matrix. */
+  constructor(data: Numbers2x2);
 
   /**
-   * Creates a 2x2 matrix from a vector scaling.
-   * @param v - The scaling vector.
-   * @returns A matrix.
-   */
-  static fromScaling(v: Numbers1x2): Matrix2 {
-    return new Matrix2(
-      v[0], 0,
-      0, v[1]
-    );
-  }
-
-  /**
-   * Creates a 2x2 matrix.
+   * Creates a 2x2 matrix from values.
    * @param x0y0 - The value in the first row and first column.
    * @param x0y1 - The value in the second row and first column.
    * @param x1y0 - The value in the first row and second column.
    * @param x1y1 - The value in the second row and second column.
    */
   constructor(
-    x0y0 = 1, x0y1 = 0,
-    x1y0 = 0, x1y1 = 1
+    x0y0: number, x0y1: number,
+    x1y0: number, x1y1: number
+  );
+
+  constructor(
+    x0y0?: number | Numbers2x2, x0y1?: number,
+    x1y0?: number, x1y1?: number
   ) {
-    super(2 * 2);
+    if (x0y0) {
+      if (typeof x0y0 == "number") {
+        super([
+          x0y0 as number, x0y1 as number,
+          x1y0 as number, x1y1 as number
+        ]);
+      } else {
+        super(x0y0);
+      }
+    } else {
+      super(4);
 
-    // Only assign values if they aren't 0 to speed up creation.
-    if (x0y0) { this[0] = x0y0; }
-    if (x0y1) { this[1] = x0y1; }
-
-    if (x1y0) { this[2] = x1y0; }
-    if (x1y1) { this[3] = x1y1; }
+      this[0] = 1;
+      this[3] = 1;
+    }
   }
 
   /** A clone of this matrix. */
   get clone(): Matrix2 {
-    return new Matrix2(...this);
+    return new Matrix2(this);
+  }
+
+  /**
+   * Copy the values from another matrix into this one.
+   * @param m - The other matrix.
+   * @returns This.
+   */
+  copy(m: Numbers2x2): this {
+    return mat2.copy(this, m) as this;
+  }
+
+  /**
+   * Creates a copy of a matrix.
+   * @param m - The matrix to copy.
+   * @returns A copy of the matrix.
+   */
+  static copy(m: Numbers2x2): Matrix2 {
+    return new Matrix2(m);
   }
 
   /**
@@ -62,9 +70,32 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   identity(): this {
-    return this.setValues(
-      1, 0,
-      0, 1
+    return mat2.identity(this) as this;
+  }
+
+  /**
+   * Creates an identity matrix.
+   * @returns An identity matrix.
+   */
+  static identity(): Matrix2 {
+    return new Matrix2();
+  }
+
+  /**
+   * Creates a 2x2 matrix from values.
+   * @param x0y0 - The value in the first row and first column.
+   * @param x0y1 - The value in the second row and first column.
+   * @param x1y0 - The value in the first row and second column.
+   * @param x1y1 - The value in the second row and second column.
+   * @returns A matrix.
+   */
+  static fromValues(
+    x0y0: number, x0y1: number,
+    x1y0: number, x1y1: number
+  ): Matrix2 {
+    return new Matrix2(
+      x0y0, x0y1,
+      x1y0, x1y1
     );
   }
 
@@ -80,12 +111,10 @@ export class Matrix2 extends Float32Array {
     x0y0: number, x0y1: number,
     x1y0: number, x1y1: number
   ): this {
-    this[0] = x0y0;
-    this[1] = x0y1;
-    this[2] = x1y0;
-    this[3] = x1y1;
-
-    return this;
+    return mat2.set(this,
+      x0y0, x0y1,
+      x1y0, x1y1
+    ) as this;
   }
 
   /**
@@ -93,9 +122,7 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   transpose(): this {
-    [this[1], this[2]] = [this[2] as number, this[1] as number];
-
-    return this;
+    return mat2.transpose(this, this) as this;
   }
 
   /**
@@ -103,12 +130,7 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   invert(): this {
-    const d: number = 1 / this.determinant;
-
-    return this.setValues(
-      this[3] as number * d, -(this[1] as number) * d,
-      -(this[2] as number) * d, this[0] as number * d
-    );
+    return mat2.invert(this, this) as this;
   }
 
   /**
@@ -116,15 +138,12 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   adjoint(): this {
-    return this.setValues(
-      this[3] as number, -(this[1] as number),
-      -(this[2] as number), this[0] as number
-    );
+    return mat2.adjoint(this, this) as this;
   }
 
   /** The determinant of this matrix. */
   get determinant(): number {
-    return (this[0] as number) * (this[3] as number) - (this[2] as number) * (this[1] as number);
+    return mat2.determinant(this);
   }
 
   /**
@@ -133,30 +152,16 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   multiply(m: Numbers2x2): this {
-    return this.setValues(
-      (this[0] as number) * m[0] + (this[2] as number) * m[1],
-      (this[1] as number) * m[0] + (this[3] as number) * m[1],
-
-      (this[1] as number) * m[0] + (this[3] as number) * m[1],
-      (this[1] as number) * m[2] + (this[3] as number) * m[3]
-    );
+    return mat2.multiply(this, this, m) as this;
   }
 
   /**
    * Rotates this matrix by the given angle.
    * @param r - The angle to rotate by in radians.
+   * @returns This.
    */
   rotate(r: number): this {
-    const s: number = Math.sin(r);
-    const c: number = Math.cos(r);
-
-    return this.setValues(
-      (this[0] as number) * c + (this[2] as number) * s,
-      (this[1] as number) * c + (this[3] as number) * s,
-
-      (this[0] as number) * -s + (this[2] as number) * c,
-      (this[1] as number) * -s + (this[3] as number) * c
-    );
+    return mat2.rotate(this, this, r) as this;
   }
 
   /**
@@ -165,29 +170,48 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   scale(v: Numbers1x2): this {
-    return this.setValues(
-      (this[0] as number) * v[0],
-      (this[1] as number) * v[0],
-
-      (this[2] as number) * v[1],
-      (this[3] as number) * v[1]
-    );
+    return mat2.scale(this, this, v) as this;
   }
 
   /**
-   * Returns a string representation of this matrix.
-   * @returns A string representation of this matrix.
+   * Sets the values of this matrix from a rotation.
+   * @param r - The angle of rotation in radians.
+   * @returns This.
    */
-  override toString(): string {
-    return `[[${this[0]}, ${this[1]}], [${this[2]}, ${this[3]}]]`;
+  fromRotation(r: number): this {
+    return mat2.fromRotation(this, r) as this;
+  }
+
+  /**
+   * Creates a matrix from a rotation.
+   * @param r - The angle of rotation in radians.
+   * @returns A matrix.
+   */
+  static fromRotation(r: number): Matrix2 {
+    return new Matrix2().fromRotation(r);
+  }
+
+  /**
+   * Sets the values of this matrix from a vector scaling.
+   * @param v - The scaling vector.
+   * @returns This.
+   */
+  fromScaling(v: Numbers1x2): this {
+    return mat2.fromScaling(this, v) as this;
+  }
+
+  /**
+   * Creates a matrix from a vector scaling.
+   * @param v - The scaling vector.
+   * @returns A matrix.
+   */
+  static fromScaling(v: Numbers1x2): Matrix2 {
+    return new Matrix2().fromScaling(v);
   }
 
   /** The Frobenius normal of this matrix. */
   get frob(): number {
-    return Math.hypot(
-      this[0] as number, this[1] as number,
-      this[2] as number, this[3] as number
-    );
+    return mat2.frob(this);
   }
 
   /**
@@ -196,10 +220,7 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   add(m: Numbers2x2): this {
-    return this.setValues(
-      (this[0] as number) + m[0], (this[1] as number) + m[1],
-      (this[2] as number) + m[2], (this[3] as number) + m[3]
-    );
+    return mat2.add(this, this, m) as this;
   }
 
   /**
@@ -208,10 +229,7 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
   subtract(m: Numbers2x2): this {
-    return this.setValues(
-      (this[0] as number) - m[0], (this[1] as number) - m[1],
-      (this[2] as number) - m[2], (this[3] as number) - m[3]
-    );
+    return mat2.subtract(this, this, m) as this;
   }
 
   /**
@@ -220,8 +238,7 @@ export class Matrix2 extends Float32Array {
    * @return Whether the matrices are equivalent.
    */
   equals(m: Numbers2x2): boolean {
-    return this[0] == m[0] && this[1] == m[1]
-      && this[2] == m[2] && this[3] == m[3];
+    return mat2.equals(this, m);
   }
 
   /**
@@ -230,9 +247,6 @@ export class Matrix2 extends Float32Array {
    * @returns This.
    */
    multiplyScalar(s: number): this {
-     return this.setValues(
-       (this[0] as number) * s, (this[1] as number) * s,
-       (this[2] as number) * s,  (this[3] as number) * s
-     );
+     return mat2.multiplyScalar(this, this, s) as this;
    }
 }
