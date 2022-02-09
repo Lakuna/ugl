@@ -6,6 +6,8 @@ Includes a fully object-oriented implementation of WebGL2.
 
 Visit the [website](https://umbra.lakuna.pw) for more information.
 
+---
+
 ## Getting started
 
 Install using your package manager of choice, or use Umbra directly in the browser through a CDN:
@@ -39,6 +41,8 @@ import * as Umbra from "https://cdn.jsdelivr.net/npm/@lakuna/umbra.js/dist/index
 ```js
 import * as Umbra from "https://unpkg.com/@lakuna/umbra.js";
 ```
+
+---
 
 ## Documentation
 
