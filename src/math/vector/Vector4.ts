@@ -1,8 +1,9 @@
 import { Numbers1x4, Numbers4x4 } from "../../types/Numbers.js";
+import { IVector } from "./IVector.js";
 import { vec4 } from "gl-matrix";
 
 /** A four-dimensional vector. */
-export class Vector4 extends Float32Array {
+export class Vector4 extends Float32Array implements IVector {
   /** Creates an empty three-dimensional vector. */
   constructor();
 

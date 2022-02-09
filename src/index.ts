@@ -2,6 +2,7 @@ export * from "./math/matrix/IMatrix.js";
 export * from "./math/matrix/Matrix2.js";
 export * from "./math/matrix/Matrix3.js";
 export * from "./math/matrix/Matrix4.js";
+export * from "./math/vector/IVector.js";
 export * from "./math/vector/Vector2.js";
 export * from "./math/vector/Vector3.js";
 export * from "./math/vector/Vector4.js";
