@@ -1,8 +1,9 @@
 import { Numbers1x2, Numbers1x4, Numbers3x3, Numbers4x4 } from "../../types/Numbers.js";
+import { IMatrix } from "./IMatrix.js";
 import { mat3 } from "gl-matrix";
 
 /** A 3x3 matrix. */
-export class Matrix3 extends Float32Array {
+export class Matrix3 extends Float32Array implements IMatrix {
   /** Creates a 3x3 identity matrix. */
   constructor();
 

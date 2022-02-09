@@ -1,8 +1,9 @@
 import { Numbers1x2, Numbers2x2 } from "../../types/Numbers.js";
+import { IMatrix } from "./IMatrix.js";
 import { mat2 } from "gl-matrix";
 
 /** A 2x2 matrix. */
-export class Matrix2 extends Float32Array {
+export class Matrix2 extends Float32Array implements IMatrix {
   /** Creates a 2x2 identity matrix. */
   constructor();
 

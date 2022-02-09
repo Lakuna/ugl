@@ -1,3 +1,4 @@
+export * from "./math/matrix/IMatrix.js";
 export * from "./math/matrix/Matrix2.js";
 export * from "./math/matrix/Matrix3.js";
 export * from "./math/matrix/Matrix4.js";

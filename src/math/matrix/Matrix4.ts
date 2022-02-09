@@ -1,10 +1,11 @@
 import { Numbers1x3, Numbers1x4, Numbers4x4 } from "../../types/Numbers.js";
+import { IMatrix } from "./IMatrix.js";
 import { vec3, mat4, quat } from "gl-matrix";
 import { Vector3 } from "../vector/Vector3.js";
 import { Quaternion } from "../Quaternion.js";
 
 /** A 4x4 matrix. */
-export class Matrix4 extends Float32Array {
+export class Matrix4 extends Float32Array implements IMatrix {
   /** Creates a 4x4 identity matrix. */
   constructor();
 
