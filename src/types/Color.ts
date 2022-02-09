@@ -1,7 +1,8 @@
-import { ColorData } from "./ColorData.js";
+/** Data that can be used to create a color. */
+export type ColorData = number | number[] | string;
 
 /** A color. */
-export class Color extends Array<number> {
+export class Color extends Float32Array {
 	/**
 	 * Creates a color.
 	 * @param data - The data used to create the color. This can be of any of the following forms: `0xFFFFFF`, `[1, 1, 1]`, `[1, 1, 1, 1]`, `"#FFFFFF"`, `"FFFFFF"`, `"#FFF"`, `"FFF"`.
@@ -38,7 +39,7 @@ export class Color extends Array<number> {
 			data.pop();
 		}
 
-		super(...data);
+		super(data);
 	}
 
 	/** The red value of this color. */

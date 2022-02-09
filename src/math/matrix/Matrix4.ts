@@ -12,7 +12,7 @@ export class Matrix4 extends Float32Array {
   constructor(data: Numbers4x4);
 
   /**
-   * Creates a 3x3 matrix from values.
+   * Creates a 4x4 matrix from values.
    * @param x0y0 - The value in the first row and first column.
    * @param x0y1 - The value in the second row and first column.
    * @param x0y2 - The value in the third row and first column.
@@ -82,40 +82,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a 3x3 matrix from values.
-   * @param x0y0 - The value in the first row and first column.
-   * @param x0y1 - The value in the second row and first column.
-   * @param x0y2 - The value in the third row and first column.
-   * @param x0y3 - The value in the fourth row and first column.
-   * @param x1y0 - The value in the first row and second column.
-   * @param x1y1 - The value in the second row and second column.
-   * @param x1y2 - The value in the third row and second column.
-   * @param x1y3 - The value in the fourth row and second column.
-   * @param x2y0 - The value in the first row and third column.
-   * @param x2y1 - The value in the second row and third column.
-   * @param x2y2 - The value in the third row and third column.
-   * @param x2y3 - The value in the fourth row and third column.
-   * @param x3y0 - The value in the first row and fourth column.
-   * @param x3y1 - The value in the second row and fourth column.
-   * @param x3y2 - The value in the third row and fourth column.
-   * @param x3y3 - The value in the fourth row and fourth column.
-   * @returns A matrix.
-   */
-  static fromValues(
-    x0y0: number, x0y1: number, x0y2: number, x0y3: number,
-    x1y0: number, x1y1: number, x1y2: number, x1y3: number,
-    x2y0: number, x2y1: number, x2y2: number, x2y3: number,
-    x3y0: number, x3y1: number, x3y2: number, x3y3: number
-  ): Matrix4 {
-    return new Matrix4(
-      x0y0, x0y1, x0y2, x0y3,
-      x1y0, x1y1, x1y2, x1y3,
-      x2y0, x2y1, x2y2, x2y3,
-      x3y0, x3y1, x3y2, x3y3
-    );
-  }
-
-  /**
    * Sets the values in this matrix.
    * @param x0y0 - The value in the first row and first column.
    * @param x0y1 - The value in the second row and first column.
@@ -155,14 +121,6 @@ export class Matrix4 extends Float32Array {
    */
   identity(): this {
     return mat4.identity(this) as this;
-  }
-
-  /**
-   * Creates an identity matrix.
-   * @returns An identity matrix.
-   */
-  static identity(): Matrix4 {
-    return new Matrix4();
   }
 
   /**
@@ -268,30 +226,12 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a translation.
-   * @param v - The translation vector.
-   * @returns A matrix.
-   */
-  static fromTranslation(v: Numbers1x3): Matrix4 {
-    return new Matrix4().fromTranslation(v);
-  }
-
-  /**
    * Sets the values of this matrix from a vector scaling.
    * @param v - The scaling vector.
    * @returns This.
    */
   fromScaling(v: Numbers1x3): this {
     return mat4.fromScaling(this, v) as this;
-  }
-
-  /**
-   * Creates a matrix from a vector scaling.
-   * @param v - The scaling vector.
-   * @returns A matrix.
-   */
-  static fromScaling(v: Numbers1x3): Matrix4 {
-    return new Matrix4().fromScaling(v);
   }
 
   /**
@@ -305,31 +245,12 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a rotation around the given axis.
-   * @param r - The angle of rotation in radians.
-   * @param a - The axis to rotate around.
-   * @returns A matrix.
-   */
-  static fromRotation(r: number, a: Numbers1x3): Matrix4 {
-    return new Matrix4().fromRotation(r, a);
-  }
-
-  /**
    * Sets the values of this matrix from a rotation around the X axis.
    * @param r - The angle of rotation in radians.
    * @returns This.
    */
   fromXRotation(r: number): this {
     return mat4.fromXRotation(this, r) as this;
-  }
-
-  /**
-   * Creates a matrix from a rotation around the X axis.
-   * @param r - The angle of rotation in radians.
-   * @returns A matrix.
-   */
-  static fromXRotation(r: number): Matrix4 {
-    return new Matrix4().fromXRotation(r);
   }
 
   /**
@@ -342,30 +263,12 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a rotation around the Y axis.
-   * @param r - The angle of rotation in radians.
-   * @returns A matrix.
-   */
-  static fromYRotation(r: number): Matrix4 {
-    return new Matrix4().fromYRotation(r);
-  }
-
-  /**
    * Sets the values of this matrix from a rotation around the Z axis.
    * @param r - The angle of rotation in radians.
    * @returns This.
    */
   fromZRotation(r: number): this {
     return mat4.fromZRotation(this, r) as this;
-  }
-
-  /**
-   * Creates a matrix from a rotation around the Z axis.
-   * @param r - The angle of rotation in radians.
-   * @returns A matrix.
-   */
-  static fromZRotation(r: number): Matrix4 {
-    return new Matrix4().fromZRotation(r);
   }
 
   /**
@@ -376,16 +279,6 @@ export class Matrix4 extends Float32Array {
    */
   fromRotationTranslation(q: Numbers1x4, v: Numbers1x3): this {
     return mat4.fromRotationTranslation(this, q, v) as this;
-  }
-
-  /**
-   * Creates a matrix from a quaternion rotation and a vector translation.
-   * @param q - The rotation quaternion.
-   * @param v - The translation vector.
-   * @returns A matrix.
-   */
-  static fromRotationTranslation(q: Numbers1x4, v: Numbers1x3): Matrix4 {
-    return new Matrix4().fromRotationTranslation(q, v);
   }
 
   /** The translation vector component of a transformation matrix. */
@@ -415,17 +308,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a quaternion rotation, a vector translation, and a vector scale.
-   * @param q - The rotation quaternion.
-   * @param v - The translation vector.
-   * @param s - The scaling vector.
-   * @returns A matrix.
-   */
-  static fromRotationTranslationScale(q: Numbers1x4, v: Numbers1x3, s: Numbers1x3): Matrix4 {
-    return new Matrix4().fromRotationTranslationScale(q, v, s);
-  }
-
-  /**
    * Sets the values of this matrix from a quaternion rotation, a vector translation, and a vector scale. Rotated and scaled around an origin.
    * @param q - The rotation quaternion.
    * @param v - The translation vector.
@@ -438,33 +320,12 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a quaternion rotation, a vector translation, and a vector scale. Rotated and scaled around an origin.
-   * @param q - The rotation quaternion.
-   * @param v - The translation vector.
-   * @param s - The scaling vector.
-   * @param o - The origin around which to scale and rotate.
-   * @returns A matrix.
-   */
-  static fromRotationTranslationScaleOrigin(q: Numbers1x4, v: Numbers1x3, s: Numbers1x3, o: Numbers1x3): Matrix4 {
-    return new Matrix4().fromRotationTranslationScaleOrigin(q, v, s, o);
-  }
-
-  /**
    * Sets the values of this matrix from a quaternion.
    * @param q - The quaternion.
    * @returns This.
    */
   fromQuaternion(q: Numbers1x4): this {
     return mat4.fromQuat(this, q) as this;
-  }
-
-  /**
-   * Calculates a matrix from a quaternion.
-   * @param q - The quaternion.
-   * @returns A matrix.
-   */
-  static fromQuaternion(q: Numbers1x4): Matrix4 {
-    return new Matrix4().fromQuaternion(q);
   }
 
   /**
@@ -482,20 +343,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Generates a frustum matrix.
-   * @param left - The left bound of the frustum.
-   * @param right - The right bound of the frustum.
-   * @param bottom - The bottom bound of the frustum.
-   * @param top - The top bound of the frustum.
-   * @param near - The near bound of the frustum.
-   * @param far - The far bound of the frustum.
-   * @returns A matrix.
-   */
-  static frustum(left: number, right: number, bottom: number, top: number, near: number, far: number): Matrix4 {
-    return new Matrix4().frustum(left, right, bottom, top, near, far);
-  }
-
-  /**
    * Sets the values of this matrix to a perspective projection.
    * @param fovy - The vertical field of view in radians.
    * @param aspect - The aspect ratio.
@@ -505,18 +352,6 @@ export class Matrix4 extends Float32Array {
    */
   perspective(fovy: number, aspect: number, near: number, far?: number): this {
     return mat4.perspective(this, fovy, aspect, near, far ?? Infinity) as this;
-  }
-
-  /**
-   * Generates a perspective projection matrix.
-   * @param fovy - The vertical field of view in radians.
-   * @param aspect - The aspect ratio.
-   * @param near - The near bound of the frustum.
-   * @param far - The far bound of the frustum. Defaults to infinity.
-   * @returns This.
-   */
-  static perspective(fovy: number, aspect: number, near: number, far?: number): Matrix4 {
-    return new Matrix4().perspective(fovy, aspect, near, far);
   }
 
   /**
@@ -534,20 +369,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Generates a perspective projection matrix from a field of view. For use with the WebXR API.
-   * @param up - The angle to the top of the field of view in degrees.
-   * @param down - The angle to the bottom of the field of view in degrees.
-   * @param left - The angle to the left side of the field of view in degrees.
-   * @param right - The angle to the right side of the field of view in degrees.
-   * @param near - The near bound of the frustum.
-   * @param far - The far bound of the frustum.
-   * @returns A perspective projection matrix.
-   */
-  static perspectiveFromFieldOfView(up: number, down: number, left: number, right: number, near: number, far: number): Matrix4 {
-    return new Matrix4().perspectiveFromFieldOfView(up, down, left, right, near, far);
-  }
-
-  /**
    * Sets the values of this matrix to an orthogonal projection.
    * @param left - The left bound of the frustum.
    * @param right - The right bound of the frustum.
@@ -562,20 +383,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Generates an orthogonal projection matrix.
-   * @param left - The left bound of the frustum.
-   * @param right - The right bound of the frustum.
-   * @param bottom - The bottom bound of the frustum.
-   * @param top - The top bound of the frustum.
-   * @param near - The near bound of the frustum.
-   * @param far - The far bound of the frustum.
-   * @returns This.
-   */
-  static orthogonal(left: number, right: number, bottom: number, top: number, near: number, far: number): Matrix4 {
-    return new Matrix4().orthogonal(left, right, bottom, top, near, far);
-  }
-
-  /**
    * Sets the values of this matrix to a look-at matrix. If you want a matrix that actually makes an object look at another object, use `targetTo` instead.
    * @param eye - The position of the viewer.
    * @param center - The point that the viewer is looking at.
@@ -587,17 +394,6 @@ export class Matrix4 extends Float32Array {
   }
 
   /**
-   * Generates a look-at matrix. If you want a matrix that actually makes an object look at another object, use `targetTo` instead.
-   * @param eye - The position of the viewer.
-   * @param center - The point that the viewer is looking at.
-   * @param up - A vector pointing up.
-   * @returns A look-at matrix.
-   */
-  static lookAt(eye: Numbers1x3, center: Numbers1x3, up: Numbers1x3 = [0, 1, 0]): Matrix4 {
-    return new Matrix4().lookAt(eye, center, up);
-  }
-
-  /**
    * Sets the values of this matrix to make something look at something else.
    * @param eye - The position of the viewer.
    * @param target - The point that the viewer is looking at.
@@ -606,17 +402,6 @@ export class Matrix4 extends Float32Array {
    */
   targetTo(eye: Numbers1x3, target: Numbers1x3, up: Numbers1x3 = [0, 1, 0]): this {
     return mat4.targetTo(this, eye, target, up) as this;
-  }
-
-  /**
-   * Generates a matrix that makes something look at something else.
-   * @param eye - The position of the viewer.
-   * @param target - The point that the viewer is looking at.
-   * @param up - A vector pointing up.
-   * @returns This.
-   */
-  static targetTo(eye: Numbers1x3, target: Numbers1x3, up: Numbers1x3 = [0, 1, 0]): Matrix4 {
-    return new Matrix4().targetTo(eye, target, up);
   }
 
   /** The Frobenius normal of this matrix. */

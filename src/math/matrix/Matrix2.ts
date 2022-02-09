@@ -57,46 +57,11 @@ export class Matrix2 extends Float32Array {
   }
 
   /**
-   * Creates a copy of a matrix.
-   * @param m - The matrix to copy.
-   * @returns A copy of the matrix.
-   */
-  static copy(m: Numbers2x2): Matrix2 {
-    return new Matrix2(m);
-  }
-
-  /**
    * Resets this matrix to identity.
    * @returns This.
    */
   identity(): this {
     return mat2.identity(this) as this;
-  }
-
-  /**
-   * Creates an identity matrix.
-   * @returns An identity matrix.
-   */
-  static identity(): Matrix2 {
-    return new Matrix2();
-  }
-
-  /**
-   * Creates a 2x2 matrix from values.
-   * @param x0y0 - The value in the first row and first column.
-   * @param x0y1 - The value in the second row and first column.
-   * @param x1y0 - The value in the first row and second column.
-   * @param x1y1 - The value in the second row and second column.
-   * @returns A matrix.
-   */
-  static fromValues(
-    x0y0: number, x0y1: number,
-    x1y0: number, x1y1: number
-  ): Matrix2 {
-    return new Matrix2(
-      x0y0, x0y1,
-      x1y0, x1y1
-    );
   }
 
   /**
@@ -183,30 +148,12 @@ export class Matrix2 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a rotation.
-   * @param r - The angle of rotation in radians.
-   * @returns A matrix.
-   */
-  static fromRotation(r: number): Matrix2 {
-    return new Matrix2().fromRotation(r);
-  }
-
-  /**
    * Sets the values of this matrix from a vector scaling.
    * @param v - The scaling vector.
    * @returns This.
    */
   fromScaling(v: Numbers1x2): this {
     return mat2.fromScaling(this, v) as this;
-  }
-
-  /**
-   * Creates a matrix from a vector scaling.
-   * @param v - The scaling vector.
-   * @returns A matrix.
-   */
-  static fromScaling(v: Numbers1x2): Matrix2 {
-    return new Matrix2().fromScaling(v);
   }
 
   /** The Frobenius normal of this matrix. */

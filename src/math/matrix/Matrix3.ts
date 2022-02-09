@@ -61,15 +61,6 @@ export class Matrix3 extends Float32Array {
   }
 
   /**
-   * Copies the upper-left 3x3 values of a 4x4 matrix into a new matrix.
-   * @param m - The 4x4 matrix.
-   * @returns A matrix.
-   */
-  static fromMatrix4(m: Numbers4x4): Matrix3 {
-    return new Matrix3().fromMatrix4(m);
-  }
-
-  /**
    * Creates a clone of this matrix.
    * @returns A clone of this matrix.
    */
@@ -84,40 +75,6 @@ export class Matrix3 extends Float32Array {
    */
   copy(m: Numbers3x3): this {
     return mat3.copy(this, m) as this;
-  }
-
-  /**
-   * Creates a copy of a matrix.
-   * @param m - The matrix to copy.
-   * @returns A copy of the matrix.
-   */
-  static copy(m: Numbers3x3): Matrix3 {
-    return new Matrix3(m);
-  }
-
-  /**
-   * Creates a 3x3 matrix from values.
-   * @param x0y0 - The value in the first row and first column.
-   * @param x0y1 - The value in the second row and first column.
-   * @param x0y2 - The value in the third row and first column.
-   * @param x1y0 - The value in the first row and second column.
-   * @param x1y1 - The value in the second row and second column.
-   * @param x1y2 - The value in the third row and second column.
-   * @param x2y0 - The value in the first row and third column.
-   * @param x2y1 - The value in the second row and third column.
-   * @param x2y2 - The value in the third row and third column.
-   * @returns A matrix.
-   */
-  static fromValues(
-    x0y0: number, x0y1: number, x0y2: number,
-    x1y0: number, x1y1: number, x1y2: number,
-    x2y0: number, x2y1: number, x2y2: number
-  ): Matrix3 {
-    return new Matrix3(
-      x0y0, x0y1, x0y2,
-      x1y0, x1y1, x1y2,
-      x2y0, x2y1, x2y2
-    );
   }
 
   /**
@@ -151,14 +108,6 @@ export class Matrix3 extends Float32Array {
    */
   identity(): this {
     return mat3.identity(this) as this;
-  }
-
-  /**
-   * Creates an identity matrix.
-   * @returns An identity matrix.
-   */
-  static identity(): Matrix3 {
-    return new Matrix3();
   }
 
   /**
@@ -236,30 +185,12 @@ export class Matrix3 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a translation.
-   * @param v - The translation vector.
-   * @returns A matrix.
-   */
-  static fromTranslation(v: Numbers1x2): Matrix3 {
-    return new Matrix3().fromTranslation(v);
-  }
-
-  /**
    * Sets the values of this matrix from a rotation.
    * @param r - The angle of rotation in radians.
    * @returns This.
    */
   fromRotation(r: number): this {
     return mat3.fromRotation(this, r) as this;
-  }
-
-  /**
-   * Creates a matrix from a rotation.
-   * @param r - The angle of rotation in radians.
-   * @returns A matrix.
-   */
-  static fromRotation(r: number): Matrix3 {
-    return new Matrix3().fromRotation(r);
   }
 
   /**
@@ -272,30 +203,12 @@ export class Matrix3 extends Float32Array {
   }
 
   /**
-   * Creates a matrix from a vector scaling.
-   * @param v - The scaling vector.
-   * @returns A matrix.
-   */
-  static fromScaling(v: Numbers1x2): Matrix3 {
-    return new Matrix3().fromScaling(v);
-  }
-
-  /**
    * Sets the values of this matrix from a quaternion.
    * @param q - The quaternion.
    * @returns This.
    */
   fromQuaternion(q: Numbers1x4): this {
     return mat3.fromQuat(this, q) as this;
-  }
-
-  /**
-   * Calculates a matrix from a quaternion.
-   * @param q - The quaternion.
-   * @returns A matrix.
-   */
-  static fromQuaternion(q: Numbers1x4): Matrix3 {
-    return new Matrix3().fromQuaternion(q);
   }
 
   /**
@@ -308,15 +221,6 @@ export class Matrix3 extends Float32Array {
   }
 
   /**
-   * Calculates a normal matrix from a 4x4 matrix.
-   * @param m - The 4x4 matrix.
-   * @returns A normal matrix.
-   */
-  static normalFromMatrix4(m: Numbers4x4): Matrix3 {
-    return new Matrix3().normalFromMatrix4(m);
-  }
-
-  /**
    * Sets the values of this matrix to a 2D projection matrix.
    * @param width - The width of the projection.
    * @param height - The height of the projection.
@@ -324,16 +228,6 @@ export class Matrix3 extends Float32Array {
    */
   projection(width: number, height: number): this {
     return mat3.projection(this, width, height) as this;
-  }
-
-  /**
-   * Generates a 2D projection matrix.
-   * @param width - The width of the projection.
-   * @param height - The height of the projection.
-   * @returns A projection matrix.
-   */
-  static projection(width: number, height: number): Matrix3 {
-    return new Matrix3().projection(width, height);
   }
 
   /** The Frobenius normal of this matrix. */
