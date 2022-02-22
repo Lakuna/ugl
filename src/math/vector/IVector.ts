@@ -1,4 +1,4 @@
-import { Numbers4x4 } from "../../types/Numbers.js";
+import { Numbers4x4 } from "../../types/Tuples.js";
 
 /** The interface for vectors. */
 export interface IVector extends Iterable<number> {

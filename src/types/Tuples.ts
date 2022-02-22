@@ -1,4 +1,5 @@
-import { Color } from "./Color.js";
+import { Color, ColorMask } from "./Color.js";
+import { Range } from "./Range.js";
 import { Rectangle } from "./Rectangle.js";
 import { Quaternion } from "../math/Quaternion.js";
 import { Matrix2 } from "../math/matrix/Matrix2.js";
@@ -9,7 +10,7 @@ import { Vector3 } from "../math/vector/Vector3.js";
 import { Vector4 } from "../math/vector/Vector4.js";
 
 /** Two numbers. */
-export type Numbers1x2 = Vector2 | [number, number];
+export type Numbers1x2 = Vector2 | Range | [number, number];
 
 /** Three numbers. */
 export type Numbers1x3 = Vector3 | [number, number, number];
@@ -37,3 +38,6 @@ export type Numbers4x4 = Matrix4 | [
   number, number, number, number,
   number, number, number, number
 ];
+
+/** Four booleans. */
+export type Booleans1x4 = ColorMask | [boolean, boolean, boolean, boolean];

@@ -1,4 +1,4 @@
-import { Numbers1x3, Numbers1x4, Numbers4x4 } from "../../types/Numbers.js";
+import { Numbers1x3, Numbers1x4, Numbers4x4 } from "../../types/Tuples.js";
 import { IMatrix } from "./IMatrix.js";
 import { vec3, mat4, quat } from "gl-matrix";
 import { Vector3 } from "../vector/Vector3.js";

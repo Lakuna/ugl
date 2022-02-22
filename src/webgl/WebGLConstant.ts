@@ -1,5 +1,5 @@
 /** WebGL constant values. */
-export enum WebGLConstant {
+export const enum WebGLConstant {
 	DEPTH_BUFFER_BIT = 0x00000100,
 	STENCIL_BUFFER_BIT = 0x00000400,
 	COLOR_BUFFER_BIT = 0x00004000,
@@ -551,4 +551,196 @@ export enum WebGLConstant {
 	TIME_ELAPSED_EXT = 0x88bf,
 	TIMESTAMP_EXT = 0x8e28,
 	GPU_DISJOINT_EXT = 0x8fbb
+}
+
+/** Blend equation modes, which determines how a new pixel is combined with a pixel already in the framebuffer. */
+export const enum BlendEquation {
+	/** Source + destination (default). */
+	FUNC_ADD = WebGLConstant.FUNC_ADD,
+
+	/** Source - destination. */
+	FUNC_SUBTRACT = WebGLConstant.FUNC_SUBTRACT,
+
+	/** Destination - source. */
+	FUNC_REVERSE_SUBTRACT = WebGLConstant.FUNC_REVERSE_SUBTRACT,
+
+	/** Minimum of source and destination. */
+	MIN_EXT = WebGLConstant.MIN_EXT,
+
+	/** Maximum of source and destination. */
+	MAX_EXT = WebGLConstant.MAX_EXT,
+
+	/** Minimum of source and destination. */
+	MIN = WebGLConstant.MIN,
+
+	/** Maximum of source and destination. */
+	MAX = WebGLConstant.MAX
+}
+
+/** Blend function modes, which are used for blending pixel arithmetic. */
+export const enum BlendFunction {
+	/** Multiplies all colors by zero. */
+	ZERO = WebGLConstant.ZERO,
+
+	/** Multiplies all colors by one. */
+	ONE = WebGLConstant.ONE,
+
+	/** Multiplies all colors by the source colors. */
+	SRC_COLOR = WebGLConstant.SRC_COLOR,
+
+	/** Multiplies all colors by one minus each source color. */
+	ONE_MINUS_SRC_COLOR = WebGLConstant.ONE_MINUS_SRC_COLOR,
+
+	/** Multiplies all colors by the destination color. */
+	DST_COLOR = WebGLConstant.DST_COLOR,
+
+	/** Multiplies all colors by one minus each destination color. */
+	ONE_MINUS_DST_COLOR = WebGLConstant.ONE_MINUS_DST_COLOR,
+
+	/** Multiplies all colors by the source alpha color. */
+	SRC_ALPHA = WebGLConstant.SRC_ALPHA,
+
+	/** Multiplies all colors by one minus the source alpha color. */
+	ONE_MINUS_SRC_ALPHA = WebGLConstant.ONE_MINUS_SRC_ALPHA,
+
+	/** Multiplies all colors by the destination alpha color. */
+	DST_ALPHA = WebGLConstant.DST_ALPHA,
+
+	/** Multiplies all colors by one minus the destination alpha color. */
+	ONE_MINUS_DST_ALPHA = WebGLConstant.ONE_MINUS_DST_ALPHA,
+
+	/** Multiplies all colors by a constant color. */
+	CONSTANT_COLOR = WebGLConstant.CONSTANT_COLOR,
+
+	/** Multiplies all colors by one minus a constant color. */
+	ONE_MINUS_CONSTANT_COLOR = WebGLConstant.ONE_MINUS_CONSTANT_COLOR,
+
+	/** Multiplies all colors by a constant alpha value. */
+	CONSTANT_ALPHA = WebGLConstant.CONSTANT_ALPHA,
+
+	/** Multiplies all colors by one minus a constant alpha value. */
+	ONE_MINUS_CONSTANT_ALPHA = WebGLConstant.ONE_MINUS_CONSTANT_ALPHA,
+
+	/** Multiplies the RGB colors by the smaller of either the source alpha color or the value of one minus the destination alpha color. The alpha value is multiplied by one. */
+	SRC_ALPHA_SATURATE = WebGLConstant.SRC_ALPHA_SATURATE
+}
+
+/** Directions that polygons can be facing. */
+export const enum PolygonFace {
+	/** Front-facing polygons. */
+	FRONT = WebGLConstant.FRONT,
+
+	/** Back-facing polygons. */
+	BACK = WebGLConstant.BACK,
+
+	/** Both front- and back-facing polygons. */
+	FRONT_AND_BACK = WebGLConstant.FRONT_AND_BACK
+}
+
+/** Depth functions, which compare incoming pixel depth to the current depth buffer value. */
+export const enum TestFunction {
+	/** Never pass. */
+	NEVER = WebGLConstant.NEVER,
+
+	/** Pass if the incoming value is less than the depth buffer value. */
+	LESS = WebGLConstant.LESS,
+
+	/** Pass if the incoming value is equal to the depth buffer value. */
+	EQUAL = WebGLConstant.EQUAL,
+
+	/** Pass if the incoming value is less than or equal to the depth buffer value. */
+	LEQUAL = WebGLConstant.LEQUAL,
+
+	/** Pass if the incoming value is greater than the depth buffer value. */
+	GREATER = WebGLConstant.GREATER,
+
+	/** Pass if the incoming value is not equal to the depth buffer value. */
+	NOTEQUAL = WebGLConstant.NOTEQUAL,
+
+	/** Pass if the incoming value is greater than or equal to the depth buffer value. */
+	GEQUAL = WebGLConstant.GEQUAL,
+
+	/** Always pass. */
+	ALWAYS = WebGLConstant.ALWAYS
+}
+
+/** Used to determine whether polygons are front- or back-facing. */
+export const enum WindingOrientation {
+	/** Clockwise winding. */
+	CW = WebGLConstant.CW,
+
+	/** Counter-clockwise winding. */
+	CCW = WebGLConstant.CCW
+}
+
+/** WebGL error codes. */
+export const enum ErrorCode {
+	/** No error has been recorded. */
+	NO_ERROR = WebGLConstant.NO_ERROR,
+
+	/** An unacceptable value has been specified for an enumerated argument. */
+	INVALID_ENUM = WebGLConstant.INVALID_ENUM,
+
+	/** A numeric argument is out of range. */
+	INVALID_VALUE = WebGLConstant.INVALID_VALUE,
+
+	/** The specified command is not allowed for the current state. */
+	INVALID_OPERATION = WebGLConstant.INVALID_OPERATION,
+
+	/** The currently bound framebuffer is not framebuffer complete when trying to render or read from it. */
+	INVALID_FRAMEBUFFER_OPERATION = WebGLConstant.INVALID_FRAMEBUFFER_OPERATION,
+
+	/** Not enough memory is left to execute the command. */
+	OUT_OF_MEMORY = WebGLConstant.OUT_OF_MEMORY,
+
+	/** The WebGL context is lost. */
+	CONTEXT_LOST_WEBGL = WebGLConstant.CONTEXT_LOST_WEBGL
+}
+
+/** Hints for certain behaviors. */
+export const enum BehaviorHint {
+	/** The most efficient behavior should be used. */
+	FASTEST = WebGLConstant.FASTEST,
+
+	/** The most correct or highest quality option should be used. */
+	NICEST = WebGLConstant.NICEST,
+
+	/** There is no preference for this behavior. */
+	DONT_CARE = WebGLConstant.DONT_CARE
+}
+
+/** Color space conversion types. */
+export const enum ColorSpaceConversionType {
+	/** Browser default color space conversion. */
+	BROWSER_DEFAULT_WEBGL = WebGLConstant.BROWSER_DEFAULT_WEBGL,
+
+	/** No color space conversion. */
+	NONE = WebGLConstant.NONE
+}
+
+/** Stencil test actions. */
+export const enum StencilTestAction {
+	/** Keeps the current value. */
+	KEEP = WebGLConstant.KEEP,
+
+	/** Sets the stencil buffer to zero. */
+	ZERO = WebGLConstant.ZERO,
+
+	/** Sets the stencil buffer value to the reference value. */
+	REPLACE = WebGLConstant.REPLACE,
+
+	/** Increments the current stencil buffer value. */
+	INCR = WebGLConstant.INCR,
+
+	/** Increments the current stencil buffer value, wrapping to zero when incrementing the maximum representable unsigned value. */
+	INCR_WRAP = WebGLConstant.INCR_WRAP,
+
+	/** Decrements the current stencil buffer value. Clamps to zero. */
+	DECR = WebGLConstant.DECR,
+
+	/** Decrements the current stencil buffer value, wrapping to the maximum representable unsigned value when decrementing zero. */
+	DECR_WRAP = WebGLConstant.DECR_WRAP,
+
+	/** Inverts the current stencil buffer value bitwise. */
+	INVERT = WebGLConstant.INVERT
 }

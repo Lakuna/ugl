@@ -1,52 +1,33 @@
-/** Data that can be used to create a color. */
-export type ColorData = number | number[] | string;
-
 /** A color. */
 export class Color extends Float32Array {
 	/**
-	 * Creates a color.
-	 * @param data - The data used to create the color. This can be of any of the following forms: `0xFFFFFF`, `[1, 1, 1]`, `[1, 1, 1, 1]`, `"#FFFFFF"`, `"FFFFFF"`, `"#FFF"`, `"FFF"`.
+	 * Creates a color from a hexadecimal value.
+	 * @param hex - The color as a hexadecimal number.
 	 */
-	constructor(data: ColorData = 0xFFFFFF) {
-		if (typeof data == "number") {
-			data = [
-				((data >> 16) & 0xFF) / 0xFF,
-				((data >> 8) & 0xFF) / 0xFF,
-				(data & 0xFF) / 0xFF
-			];
-		} else if (typeof data == "string") {
-			if (data.length < 6) {
-				if (data.startsWith("#")) {
-					data = data.substring(1);
-				}
-				data = `${data[0]}${data[0]}${data[1]}${data[1]}${data[2]}${data[2]}`;
-			}
+	constructor(hex: number);
 
-			const regex: RegExpExecArray | null = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(data);
-			if (regex) {
-				regex.shift()
-				data = regex.map((hex: string): number => parseInt(hex, 0x10) / 0xFF);
-			} else {
-				data = [];
-			}
-		}
+	/**
+	 * Creates a color from RGBA values.
+	 * @param r - The amount of red in the color, from `0` to `1`.
+	 * @param g - The amount of green in the color, from `0` to `1`.
+	 * @param b - The amount of blue in the color, from `0` to `1`.
+	 * @param a - The opacity of the color, from `0` to `1`.
+	 */
+	constructor(r: number, g: number, b: number, a?: number);
 
-		while (data.length < 4) {
-			data.push(0xFF / 0xFF);
-		}
-
-		while (data.length > 4) {
-			data.pop();
-		}
-
-		super(data);
+	constructor(r = 0xFFFFFF, g?: number, b?: number, a?: number) {
+		super(g ? [r, g, b as number, a as number] : [
+			((r >> 16) & 0xFF) / 0xFF,
+			((r >> 8) & 0xFF) / 0xFF,
+			(r & 0xFF) / 0xFF,
+			0xFF / 0xFF
+		]);
 	}
 
 	/** The red value of this color. */
 	get r(): number {
 		return this[0] ?? 0;
 	}
-
 	set r(value: number) {
 		this[0] = value;
 	}
@@ -55,7 +36,6 @@ export class Color extends Float32Array {
 	get g(): number {
 		return this[1] ?? 0;
 	}
-
 	set g(value: number) {
 		this[1] = value;
 	}
@@ -64,7 +44,6 @@ export class Color extends Float32Array {
 	get b(): number {
 		return this[2] ?? 0;
 	}
-
 	set b(value: number) {
 		this[2] = value;
 	}
@@ -73,8 +52,53 @@ export class Color extends Float32Array {
 	get a(): number {
 		return this[3] ?? 0;
 	}
-
 	set a(value: number) {
+		this[3] = value;
+	}
+}
+
+/** A color mask. */
+export class ColorMask extends Array<boolean> {
+	/**
+	 * Creates a color mask.
+	 * @param r - Whether to allow red values.
+	 * @param g - Whether to allow green values.
+	 * @param b - Whether to allow blue values.
+	 * @param a - Whether to allow alpha values.
+	 */
+	constructor(r: boolean, g: boolean, b: boolean, a: boolean) {
+		super(r, g, b, a);
+	}
+
+	/** Whether to allow red values. */
+	get r(): boolean {
+		return this[0] ?? false;
+	}
+	set r(value: boolean) {
+		this[0] = value;
+	}
+
+	/** Whether to allow green values. */
+	get g(): boolean {
+		return this[1] ?? false;
+	}
+	set g(value: boolean) {
+		this[1] = value;
+	}
+
+	/** Whether to allow blue values. */
+	get b(): boolean {
+		return this[2] ?? false;
+	}
+	set b(value: boolean) {
+		this[2] = value;
+	}
+
+	/** Whether to allow alpha values. */
+	get a(): boolean {
+		return this[3] ?? false;
+	}
+	set a(value: boolean) {
 		this[3] = value;
 	}
 }
