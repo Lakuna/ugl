@@ -744,3 +744,91 @@ export const enum StencilTestAction {
 	/** Inverts the current stencil buffer value bitwise. */
 	INVERT = WebGLConstant.INVERT
 }
+
+/** Binding points (targets) for buffers. */
+export const enum BufferTarget {
+	/** A buffer containing vertex attributes. */
+	ARRAY_BUFFER = WebGLConstant.ARRAY_BUFFER,
+
+	/** A buffer used for element indices. */
+	ELEMENT_ARRAY_BUFFER = WebGLConstant.ELEMENT_ARRAY_BUFFER,
+
+	/** A buffer for copying from one buffer object to another. */
+	COPY_READ_BUFFER = WebGLConstant.COPY_READ_BUFFER,
+
+	/** A buffer for copying from one buffer object to another. */
+	COPY_WRITE_BUFFER = WebGLConstant.COPY_WRITE_BUFFER,
+
+	/** A buffer used for transform feedback operations. */
+	TRANSFORM_FEEDBACK_BUFFER = WebGLConstant.TRANSFORM_FEEDBACK_BUFFER,
+
+	/** A buffer used for storing uniform blocks. */
+	UNIFORM_BUFFER = WebGLConstant.UNIFORM_BUFFER,
+
+	/** A buffer used for pixel transfer operations. */
+	PIXEL_PACK_BUFFER = WebGLConstant.PIXEL_PACK_BUFFER,
+
+	/** A buffer used for pixel transfer operations. */
+	PIXEL_UNPACK_BUFFER = WebGLConstant.PIXEL_UNPACK_BUFFER
+}
+
+/** Usage patterns for the data store of a buffer. */
+export const enum BufferUsage {
+	/** The contents are intended to be specified once by the application, then used many times as the source for drawing and image specification. */
+	STATIC_DRAW = WebGLConstant.STATIC_DRAW,
+
+	/** The contents are intended to be respecified repeatedly by the application, and used many times as the source for drawing and image specification. */
+	DYNAMIC_DRAW = WebGLConstant.DYNAMIC_DRAW,
+
+	/** The contents are intended to be specified once by the application, and used at most a few times as the source for drawing and image specification. */
+	STREAM_DRAW = WebGLConstant.STREAM_DRAW,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and queried many times by the application. */
+	STATIC_READ = WebGLConstant.STATIC_READ,
+
+	/** The contents are intended to be respecified repeatedly by reading data from WebGL, and queried at most a few times by the application. */
+	DYNAMIC_READ = WebGLConstant.DYNAMIC_READ,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application. */
+	STREAM_READ = WebGLConstant.STREAM_READ,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and used many times as the source for drawing and image specification. */
+	STATIC_COPY = WebGLConstant.STATIC_COPY,
+
+	/** The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for drawing and image specification. */
+	DYNAMIC_COPY = WebGLConstant.DYNAMIC_COPY,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for drawing and image specification. */
+	STREAM_COPY = WebGLConstant.STREAM_COPY
+}
+
+/** Types of primitives. */
+export const enum PrimitiveType {
+	/** Draws a dot at each vertex. */
+	POINTS = WebGLConstant.POINTS,
+
+	/** Draws a line between each vertex. */
+	LINE_STRIP = WebGLConstant.LINE_STRIP,
+
+	/** Draws a line between each vertex, then draws a line between the first and last vertices. */
+	LINE_LOOP = WebGLConstant.LINE_LOOP,
+
+	/** Draws lines between each pair of vertices. */
+	LINES = WebGLConstant.LINES,
+
+	/** Draws triangles from each vertex and the previous two, starting at the third vertex. */
+	TRIANGLE_STRIP = WebGLConstant.TRIANGLE_STRIP,
+
+	/** Draws triangles from each vertex, the previous vertex, and the first vertex, starting at the third vertex. */
+	TRIANGLE_FAN = WebGLConstant.TRIANGLE_FAN,
+
+	/** Draws triangles between every three vertices. */
+	TRIANGLES = WebGLConstant.TRIANGLES
+}
+
+/** Possible types of values to go into an element array buffer. */
+export const enum ElementIndexValues {
+	UNSIGNED_BYTE = WebGLConstant.UNSIGNED_BYTE,
+	UNSIGNED_SHORT = WebGLConstant.UNSIGNED_SHORT,
+	UNSIGNED_INT = WebGLConstant.UNSIGNED_INT
+}

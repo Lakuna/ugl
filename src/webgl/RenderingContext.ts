@@ -4,7 +4,7 @@ import { Range } from "../types/Range.js";
 import { Numbers1x2, Numbers1x4, Booleans1x4 } from "../types/Tuples.js";
 import { Rectangle } from "../types/Rectangle.js";
 import { WebGLConstant, BlendEquation, BlendFunction, PolygonFace, TestFunction, WindingOrientation,
-  ErrorCode, BehaviorHint, ColorSpaceConversionType, StencilTestAction } from "./WebGLConstant.js";
+  ErrorCode, BehaviorHint, ColorSpaceConversionType, StencilTestAction, PrimitiveType, ElementIndexValues } from "./WebGLConstant.js";
 
 /** GPU configurations for a WebGL rendering context. */
 export const enum PowerPreference {
@@ -48,6 +48,12 @@ export class RenderingContext {
     } as WebGLContextAttributes);
     if (!gl) { throw new Error("WebGL2 is not available for your browser."); }
     this.gl = gl;
+
+    /*
+    Enables anisotropic filtering, which improves the quality of mipmapped texture access when viewed at an oblique angle.
+    This extension is enabled here because its presence is assumed by the Texture class. Other extensions are up to the user to enable.
+     */
+    this.gl.getExtension("EXT_texture_filter_anisotropic");
   }
 
   /** The standard WebGL2 interface. */
@@ -651,7 +657,51 @@ export class RenderingContext {
   set stencilZPass(value: StencilTestAction) {
     this.gl.stencilOp(this.stencilFail, this.stencilZFail, value);
   }
+
+  /**
+   * Clears the specified buffers to their preset values.
+   * @param color - Whether to clear the color buffer.
+   * @param depth - Whether to clear the depth buffer.
+   * @param stencil - Whether to clear the stencil buffer.
+   */
+  clear(color = true, depth = true, stencil = true): void {
+    this.gl.clear((color ? WebGLConstant.COLOR_BUFFER_BIT : 0)
+      | (depth ? WebGLConstant.DEPTH_BUFFER_BIT : 0)
+      | (stencil ? WebGLConstant.STENCIL_BUFFER_BIT : 0));
+  }
+
+  /**
+   * Renders primitives from array data.
+   * @param mode - The primitive type to render.
+   * @param first - The starting index in the array of vector points.
+   * @param count - The number of indices to be rendered.
+   */
+  drawArrays(mode: PrimitiveType, first: number, count: number): void {
+    this.gl.drawArrays(mode, first, count);
+  }
+
+  /**
+   * Renders primitives from element array data.
+   * @param mode - The primitive type to render.
+   * @param count - The number of elements of the bound element array buffer to be rendered.
+   * @param type - The type of the values in the element array buffer.
+   * @param offset - The byte offset to use from the start of the element array buffer.
+   */
+  drawElements(mode: PrimitiveType, count: number, type: ElementIndexValues, offset: number): void {
+    this.gl.drawElements(mode, count, type, offset);
+  }
+
+  /** Block execution until all previously-called commands are finished. */
+  finish(): void {
+    this.gl.finish();
+  }
+
+  /** Empties different buffer commands, causing all commands to be executed as quickly as possible. */
+  flush(): void {
+    this.gl.flush();
+  }
 }
 
+// TODO: WebGL2RenderingContext.
 // TODO: gl.getParameter() getters for every extra parameter.
 // TODO: Restore lost context. See https://www.khronos.org/webgl/wiki/HandlingContextLost.
