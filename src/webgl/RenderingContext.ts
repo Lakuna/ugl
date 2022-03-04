@@ -3,8 +3,9 @@ import { Color, ColorMask } from "../types/Color.js";
 import { Range } from "../types/Range.js";
 import { Numbers1x2, Numbers1x4, Booleans1x4 } from "../types/Tuples.js";
 import { Rectangle } from "../types/Rectangle.js";
-import { WebGLConstant, BlendEquation, BlendFunction, PolygonFace, TestFunction, WindingOrientation,
-  ErrorCode, BehaviorHint, ColorSpaceConversionType, StencilTestAction, PrimitiveType, ElementIndexValues } from "./WebGLConstant.js";
+import { WebGLConstant, TextureUnit, BlendEquation, BlendFunction, PolygonFace, TestFunction, WindingOrientation,
+  ErrorCode, BehaviorHint, ColorSpaceConversionType, StencilTestAction, PrimitiveType, ElementIndexValues,
+  DrawBuffer, CompressedTextureFormat, PixelFormat, PixelType } from "./WebGLConstant.js";
 
 /** GPU configurations for a WebGL rendering context. */
 export const enum PowerPreference {
@@ -100,12 +101,12 @@ export class RenderingContext {
     return new Vector2(...(this.gl.getParameter(WebGLConstant.MAX_VIEWPORT_DIMS) as [number, number]));
   }
 
-  /** The active texture unit. Automatically added to `TEXTURE0`. */
-  get activeTextureUnit(): number {
-    return this.gl.getParameter(WebGLConstant.ACTIVE_TEXTURE) - WebGLConstant.TEXTURE0;
+  /** The active texture unit. */
+  get activeTextureUnit(): TextureUnit {
+    return this.gl.getParameter(WebGLConstant.ACTIVE_TEXTURE);
   }
-  set activeTextureUnit(value: number) {
-    this.gl.activeTexture(WebGLConstant.TEXTURE0 + value);
+  set activeTextureUnit(value: TextureUnit) {
+    this.gl.activeTexture(value);
   }
 
   /** The maximum texture unit. */
@@ -138,6 +139,9 @@ export class RenderingContext {
   }
 
   /** The blend equation. Determines how a new pixel is combined with a pixel already in the framebuffer. */
+  get blendEquation(): BlendEquation {
+    return this.gl.getParameter(WebGLConstant.BLEND_EQUATION)
+  }
   set blendEquation(value: BlendEquation) {
     this.gl.blendEquation(value);
   }
@@ -700,8 +704,130 @@ export class RenderingContext {
   flush(): void {
     this.gl.flush();
   }
+
+  /**
+   * Renders primitives from array data. Can execute multiple instances of the range of elements.
+   * @param mode - The primitive type to render.
+   * @param first - The starting index in the array of vector points.
+   * @param count - The number of indices to be rendered.
+   * @param instanceCount - The number of instances of the range of elements to execute.
+   */
+   drawArraysInstanced(mode: PrimitiveType, first: number, count: number, instanceCount: number): void {
+     this.gl.drawArraysInstanced(mode, first, count, instanceCount);
+   }
+
+   /**
+    * Renders primitives from element array data. Can execute multiple instances of the range of elements.
+    * @param mode - The primitive type to render.
+    * @param count - The number of elements of the bound element array buffer to be rendered.
+    * @param type - The type of the values in the element array buffer.
+    * @param offset - The byte offset to use from the start of the element array buffer.
+    * @param instanceCount - The number of instances of the range of elements to execute.
+    */
+   drawElementsInstanced(mode: PrimitiveType, count: number, type: ElementIndexValues, offset: number, instanceCount: number): void {
+     this.gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+   }
+
+   /**
+    * Renders primitives from array data in a given range.
+    * @param mode - The primitive type to render.
+    * @param start - The minimum array index contained in `offset`.
+    * @param end - The maximum array index contained in `offset`.
+    * @param count - The number of elements to be rendered.
+    * @param type - The type of the values in the element array buffer.
+    * @param offset - The bye offset to use from the start of the element array buffer.
+    */
+   drawRangeElements(mode: PrimitiveType, start: number, end: number, count: number, type: ElementIndexValues, offset: number): void {
+     this.gl.drawRangeElements(mode, start, end, count, type, offset);
+   }
+
+   /** Defines the draw buffers to which fragment colors are written. */
+   set drawBuffers(value: DrawBuffer[]) {
+     this.gl.drawBuffers(value);
+   }
+
+   /** The range of possible point sizes. */
+   get pointSizeRange(): Range {
+     return new Range(...(this.gl.getParameter(WebGLConstant.ALIASED_POINT_SIZE_RANGE) as [number, number]));
+   }
+
+   /** The number of bits in the alpha buffer. */
+   get alphaBits(): number {
+     return this.gl.getParameter(WebGLConstant.ALPHA_BITS);
+   }
+
+   /** The currently-bound array buffer. */
+   // TODO
+   /*
+   get arrayBufferBinding(): Buffer {
+     return this.gl.getParameter(WebGLConstant.ARRAY_BUFFER_BINDING);
+   }
+   */
+
+   /** The number of bits in the blue buffer. */
+   get blueBits(): number {
+     return this.gl.getParameter(WebGLConstant.BLUE_BITS);
+   }
+
+   /** A list of usable compressed texture formats. */
+   get compressedTextureFormats(): Iterable<CompressedTextureFormat> {
+     return this.gl.getParameter(WebGLConstant.COMPRESSED_TEXTURE_FORMATS);
+   }
+
+   /** The currently-bound program. */
+   // TODO
+   /*
+   get currentProgram(): Program {
+     return this.gl.getParameter(WebGLConstant.CURRENT_PROGRAM);
+   }
+   */
+
+   /** The number of bits in the depth buffer. */
+   get depthBits(): number {
+     return this.gl.getParameter(WebGLConstant.DEPTH_BITS);
+   }
+
+   /** The currently-bound element array buffer. */
+   // TODO
+   /*
+   get elementArrayBufferBinding(): Buffer {
+     return this.gl.getParameter(WebGLConstant.ELEMENT_ARRAY_BUFFER_BINDING);
+   }
+   */
+
+   /** The currently-bound framebuffer. */
+   // TODO
+   /*
+   get framebufferBinding(): Framebuffer {
+     return this.gl.getParameter(WebGLConstant.FRAMEBUFFER_BINDING);
+   }
+   */
+
+   /** The number of bits in the green buffer. */
+   get greenBits(): number {
+     return this.gl.getParameter(WebGLConstant.GREEN_BITS);
+   }
+
+   /** The current implementation's pixel read format. */
+   get implementationColorReadFormat(): PixelFormat {
+     return this.gl.getParameter(WebGLConstant.IMPLEMENTATION_COLOR_READ_FORMAT);
+   }
+
+   /** The current implementation's pixel read type. */
+   get implementationColorReadType(): PixelType {
+     return this.gl.getParameter(WebGLConstant.IMPLEMENTATION_COLOR_READ_TYPE);
+   }
+
+   /** The maximum size for a cube map texture. */
+   get maxCubeMapTextureSize(): number {
+     return this.gl.getParameter(WebGLConstant.MAX_CUBE_MAP_TEXTURE_SIZE);
+   }
+
+   /** The maximum number of fragment uniform vectors. */
+   get maxFragmentUniformVectors(): number {
+     return this.gl.getParameter(WebGLConstant.MAX_FRAGMENT_UNIFORM_VECTORS);
+   }
 }
 
-// TODO: WebGL2RenderingContext.
-// TODO: gl.getParameter() getters for every extra parameter.
+// TODO: gl.getParameter() getters for every extra parameter - done up to (not including) MAX_RENDERBUFFER_SIZE - https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter
 // TODO: Restore lost context. See https://www.khronos.org/webgl/wiki/HandlingContextLost.

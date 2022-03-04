@@ -1,6 +1,8 @@
 Buffer
 - constructor	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer
 - bind		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer
+		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindBufferBase
+		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindBufferRange
 - setData	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData
 		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData
 - delete	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteBuffer
@@ -15,8 +17,14 @@ Framebuffer
 - delete	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteFramebuffer
 - attach	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer
 		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D
+		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer
 - get isValid	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isFramebuffer
 - readPixels	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels
+- blit		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/blitFramebuffer
+- invalidate	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/invalidateFramebuffer
+		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/invalidateSubFramebuffer
+- read		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer
+- clearBuffer	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/clearBuffer
 
 FramebufferAttachment
 - get objectType		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getFramebufferAttachmentParameter
@@ -51,6 +59,8 @@ Renderbuffer
 - get numSamples	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getRenderbufferParameter
 - get isValid		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isRenderbuffer
 - setData		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/renderbufferStorageMultisample
+- get numSamples	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getInternalformatParameter
 
 Texture
 - constructor		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture
@@ -62,6 +72,13 @@ Texture
 			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap
 			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D
 			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texImage3D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texSubImage3D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/copyTexSubImage3D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D
+- setStorage		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D
 - delete		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture
 - get set magFilter	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter
 			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter
@@ -90,12 +107,15 @@ Texture
 - get set wrapR		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter
 			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter
 - get isValid		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isTexture
+- copyData		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/copyBufferSubData
+- getData		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData
 
 Program
 - constructor				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader
 					https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram
 					https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram
 					https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/validateProgram
+					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/transformFeedbackVaryings
 - bindAttribLocation			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation
 - delete				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram
 - detachShader				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/detachShader
@@ -112,6 +132,7 @@ Program
 - get infoLog				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog
 - get isValid				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/isProgram
 - use					https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram
+- get fragDataLocation			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getFragDataLocation
 
 Shader
 - constructor			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader
@@ -151,18 +172,115 @@ Attribute
 				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
 - get currentVertexAttrib	https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
 - get isInteger			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
-- get divisor			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
+- get set divisor		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
+				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribDivisor
 - get divisorAngle		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
 - get address			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttribOffset
 - set value			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttrib
 				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer	?
+				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribI
+				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribIPointer
 - set offset			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
 
 Uniform
-- get name			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
-- get size			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
-- get type			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
-- get set value			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniform
-				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniform
-				https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniformMatrix
-- get location			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation
+- get name		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
+- get size		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get type		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get set value		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniform
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniform
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniformMatrix
+- get location		https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation
+- get bufferBinding	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+- get bufferSize	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+- get bufferStart	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+- get indices		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getUniformIndices
+- get blockIndex	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get offset		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get arrayStride	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get matrixStride	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+- get isRowMajor	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniforms
+
+Varying
+- get bufferBinding	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+- get bufferSize	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+- get bufferStart	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getIndexedParameter
+
+Query
+- constructor					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createQuery
+- delete					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteQuery
+- get isValid					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isQuery
+- begin						https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/beginQuery
+- end						https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/endQuery
+- static get anySamplesPassed			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getQuery
+- static get anySamplesPassedConservative	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getQuery
+- static get transformFeedbackPrimitivesWritten	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getQuery
+- get result					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getQueryParameter
+- get resultAvailable				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getQueryParameter
+
+Sampler
+- constructor		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createSampler
+- delete		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteSampler
+- bind			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindSampler
+- get isValid		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isSampler
+- get set compareFunc	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set compareMode	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set magFilter	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set maxLod	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set minFilter	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set minLod	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set wrapR		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set wrapS		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+- get set wrapT		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/samplerParameter
+			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSamplerParameter
+
+Sync
+- constructor			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync
+- get isValid			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isSync
+- delete			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isSync
+- clientWait			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/clientWaitSync
+- wait				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/waitSync
+- get objectType		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSyncParameter
+- get status			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSyncParameter
+- get condition			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSyncParameter
+- get gpuCommandsComplete	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSyncParameter
+- get flags			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getSyncParameter
+
+TransformFeedback
+- constructor	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createTransformFeedback
+- delete	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteTransformFeedback
+- get isValid	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isTransformFeedback
+- bind		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindTransformFeedback
+- begin		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/beginTransformFeedback
+- end		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/endTransformFeedback
+- get name	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying
+- get size	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying
+- get type	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying
+- pause		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/pauseTransformFeedback
+- resume	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/resumeTransformFeedback
+
+UniformBlock
+- get index				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getUniformBlockIndex
+- get set binding			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+					https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniformBlockBinding
+- get dataSize				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+- get activeUniforms			https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+- get activeUniformIndices		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+- get referencedByVertexShader		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+- get referencedByFragmentShader	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockParameter
+- get name				https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getActiveUniformBlockName
+
+VAO
+- constructor	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray
+- delete	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteVertexArray
+- get isValid	https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/isVertexArray
+- bind		https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray
