@@ -33,7 +33,7 @@ export class VAO {
    * @param attributes - The attributes associated with the VAO.
    * @param indices - The indices to supply to the element array buffer of this VAO if the data should be indexed.
    */
-  constructor(program: Program, attributes: AttributeState[], indices?: Uint8Array) {
+  constructor(program: Program, attributes: AttributeState[] = [], indices?: Uint8Array) {
     this.program = program;
     this.gl = program.gl;
 
