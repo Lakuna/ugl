@@ -1,149 +1,149 @@
-import { VariableType } from "./VariableType.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-import { ShaderType } from "./ShaderType.js";
-import { TransformFeedbackMode } from "./TransformFeedbackMode.js";
-import { VariableValueType } from "./VariableValueType.js";
 import { Shader } from "./Shader.js";
-import { Variable } from "./Variable.js";
+import { ShaderType, TransformFeedbackBufferMode } from "./WebGLConstant.js";
+import { Uniform } from "./Uniform.js";
+import { Attribute } from "./Attribute.js";
+import { TransformFeedbackVarying } from "./TransformFeedbackVarying.js";
 
-/** A pair of a vertex shader and a fragment shader which is used to render primitives. */
+const DELETE_STATUS = 0x8B80;
+const LINK_STATUS = 0x8B82;
+const VALIDATE_STATUS = 0x8B83;
+const ACTIVE_ATTRIBUTES = 0x8B89;
+const ACTIVE_UNIFORMS = 0x8B86;
+const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
+
+/** A vertex shader and a fragment shader which are used together to rasterize primitives. */
 export class Program {
-	static #nextProgramId = 0;
+  /**
+   * Creates a shader program from source code.
+   * @param gl - The rendering context of the shader program.
+   * @param vertexShaderSource - The source code of the vertex shader.
+   * @param fragmentShaderSource - The source code of the fragment shader.
+   * @returns A shader program.
+   */
+  static fromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string): Program {
+    return new Program(new Shader(gl, ShaderType.VERTEX_SHADER, vertexShaderSource), new Shader(gl, ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
+  }
 
-	/**
-	 * Creates a shader program from source code.
-	 * @param gl - The rendering context of the program.
-	 * @param vertexSource - The source code of the vertex shader.
-	 * @param fragmentSource - The source code of the fragment shader.
-	 * @returns A program.
-	 */
-	static fromSource(gl: WebGL2RenderingContext, vertexSource: string, fragmentSource: string): Program {
-		return new Program(
-			new Shader(gl, ShaderType.VERTEX_SHADER, vertexSource),
-			new Shader(gl, ShaderType.FRAGMENT_SHADER, fragmentSource));
-	}
+  /**
+   * Creates a shader program.
+   * @param vertexShader - The vertex shader.
+   * @param fragmentShader - The fragment shader.
+   * @param transformFeedbackVaryingNames - The names of the varyings which should be tracked for transform feedback.
+   * @param transformFeedbackBufferMode - The mode to use when capturing transform feedback varyings.
+   */
+  constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
+    if (vertexShader.gl != fragmentShader.gl) { throw new Error("Shaders have different rendering contexts."); }
+    if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new Error("Invalid vertex shader."); }
+    if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new Error("Invalid fragment shader."); }
 
-	/**
-	 * Creates a program.
-	 * @param vertexShader - The vertex shader.
-	 * @param fragmentShader - The fragment shader.
-	 * @param transformFeedbackVaryingNames - A list of the names of varyings which will be used for transform feedback.
-	 * @param transformFeedbackBufferMode - The mode to use when buffering transform feedback.
-	 */
-	constructor(vertexShader: Shader, fragmentShader: Shader,
-		transformFeedbackVaryingNames: string[] = [],
-		transformFeedbackBufferMode: TransformFeedbackMode = TransformFeedbackMode.SEPARATE_ATTRIBS) {
-		const gl: WebGL2RenderingContext = vertexShader.gl;
+    this.vertexShader = vertexShader;
+    this.fragmentShader = fragmentShader;
+    this.transformFeedbackBufferMode = transformFeedbackBufferMode;
 
-		this.vertexShader = vertexShader;
-		this.fragmentShader = fragmentShader;
+    this.gl = vertexShader.gl;
 
-		this.gl = gl;
-		this.id = Program.#nextProgramId++;
-		this.allowTransparent = true;
-		this.allowDepth = true;
+    const program: WebGLProgram | null = this.gl.createProgram();
+    if (!program) { throw new Error("Unable to create a shader program."); }
+    this.program = program;
 
-		const program: WebGLProgram | null = gl.createProgram();
-		if (program) {
-			this.program = program;
-		} else {
-			throw new Error("Failed to create a WebGL program.");
-		}
-		gl.attachShader(this.program, vertexShader.shader);
-		gl.attachShader(this.program, fragmentShader.shader);
-		gl.transformFeedbackVaryings(this.program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
-		gl.linkProgram(this.program);
-		if (!gl.getProgramParameter(this.program, WebGLConstant.LINK_STATUS)) {
-			throw new Error(gl.getProgramInfoLog(this.program) ?? "");
-		}
+    this.gl.attachShader(program, vertexShader.shader);
+    this.gl.attachShader(program, fragmentShader.shader);
+    this.gl.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
+    this.gl.linkProgram(program);
 
-		const uniforms: Map<string, Variable> = new Map();
-		const textureUnits: Map<Variable, number> = new Map();
-		let nextTextureUnit = 0;
-		const uniformCount: number = gl.getProgramParameter(this.program, WebGLConstant.ACTIVE_UNIFORMS);
-		for (let i = 0; i < uniformCount; i++) {
-			const uniform: Variable = new Variable(this, VariableType.Uniform, i);
-			uniforms.set(uniform.name, uniform);
+    if (!this.linkStatus) {
+      console.error(this.infoLog);
+      this.delete();
+      throw new Error("Program failed to link.");
+    }
 
-			if ([
-				VariableValueType.SAMPLER_2D,
-				VariableValueType.SAMPLER_3D,
-				VariableValueType.SAMPLER_CUBE,
-				VariableValueType.SAMPLER_2D_SHADOW,
-				VariableValueType.SAMPLER_2D_ARRAY,
-				VariableValueType.SAMPLER_2D_ARRAY_SHADOW,
-				VariableValueType.SAMPLER_CUBE_SHADOW,
-				VariableValueType.INT_SAMPLER_2D,
-				VariableValueType.INT_SAMPLER_3D,
-				VariableValueType.INT_SAMPLER_CUBE,
-				VariableValueType.INT_SAMPLER_2D_ARRAY,
-				VariableValueType.INT_SAMPLER_3D,
-				VariableValueType.INT_SAMPLER_CUBE,
-				VariableValueType.INT_SAMPLER_2D_ARRAY,
-				VariableValueType.UNSIGNED_INT_SAMPLER_2D,
-				VariableValueType.UNSIGNED_INT_SAMPLER_3D,
-				VariableValueType.UNSIGNED_INT_SAMPLER_CUBE,
-				VariableValueType.UNSIGNED_INT_SAMPLER_2D_ARRAY
-			].indexOf(uniform.type) != -1) {
-				textureUnits.set(uniform, nextTextureUnit);
-				nextTextureUnit += uniform.size;
-			}
-		}
-		this.uniforms = uniforms;
-		this.textureUnits = textureUnits;
+    const uniforms: Map<string, Uniform> = new Map();
+    let nextTextureUnit = 0;
+    const numUniforms: number = this.gl.getProgramParameter(program, ACTIVE_UNIFORMS);
+    for (let i = 0; i < numUniforms; i++) {
+      const uniform: Uniform = new Uniform(this, i, nextTextureUnit);
+      uniforms.set(uniform.name, uniform);
+      if (typeof uniform.textureUnit == "number") { nextTextureUnit++; }
+    }
+    this.uniforms = uniforms;
 
-		const attributes: Map<string, Variable> = new Map();
-		const attributeCount: number = gl.getProgramParameter(this.program, WebGLConstant.ACTIVE_ATTRIBUTES);
-		for (let i = 0; i < attributeCount; i++) {
-			const attribute: Variable = new Variable(this, VariableType.Attribute, i);
-			attributes.set(attribute.name, attribute);
-		}
-		this.attributes = attributes;
+    const attributes: Map<string, Attribute> = new Map();
+    const numAttributes: number = this.gl.getProgramParameter(program, ACTIVE_ATTRIBUTES);
+    for (let i = 0; i < numAttributes; i++) {
+      const attribute: Attribute = new Attribute(this, i);
+      attributes.set(attribute.name, attribute);
+    }
+    this.attributes = attributes;
 
-		const varyings: Map<string, Variable> = new Map();
-		const varyingCount: number = gl.getProgramParameter(this.program, WebGLConstant.TRANSFORM_FEEDBACK_VARYINGS);
-		for (let i = 0; i < varyingCount; i++) {
-			const varying: Variable = new Variable(this, VariableType.Varying, i);
-			varyings.set(varying.name, varying);
-		}
-		this.varyings = varyings;
-	}
+    const transformFeedbackVaryings: Map<string, TransformFeedbackVarying> = new Map();
+    const numTransformFeedbackVaryings: number = this.gl.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
+    for (let i = 0; i < numTransformFeedbackVaryings; i++) {
+      const transformFeedbackVarying: TransformFeedbackVarying = new TransformFeedbackVarying(this, i);
+      transformFeedbackVaryings.set(transformFeedbackVarying.name, transformFeedbackVarying);
+    }
+    this.transformFeedbackVaryings = transformFeedbackVaryings;
 
-	/** The rendering context of this program. */
-	readonly gl: WebGL2RenderingContext;
+    this.allowTransparent = true;
+    this.allowDepth = true;
+  }
 
-	/** The ID of this program. */
-	readonly id: number;
+  /** The vertex shader of this shader program. */
+  readonly vertexShader: Shader;
 
-	/** The vertex shader of this shader program. */
-	readonly vertexShader: Shader;
+  /** The fragment shader of this shader program. */
+  readonly fragmentShader: Shader;
 
-	/** The fragment shader of this shader program. */
-	readonly fragmentShader: Shader;
+  /** The mode this program uses when capturing transform feedback varyings. */
+  readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
 
-	/** The shader program used by WebGL that this program represents. */
-	readonly program: WebGLProgram;
+  /** The rendering context of this shader program. */
+  readonly gl: WebGL2RenderingContext;
 
-	/** A map of uniforms to their names for this program. */
-	readonly uniforms: ReadonlyMap<string, Variable>
+  /** The WebGL API interface of this shader program. */
+  readonly program: WebGLProgram;
 
-	/** A map of attributes to their names for this program. */
-	readonly attributes: ReadonlyMap<string, Variable>
+  /** A map of uniform names to uniforms. */
+  readonly uniforms: ReadonlyMap<string, Uniform>;
 
-	/** A map of transform feedback varyings to their names for this program. */
-	readonly varyings: ReadonlyMap<string, Variable>
+  /** A map of attribute names to attributes. */
+  readonly attributes: ReadonlyMap<string, Attribute>;
 
-	/** A map of sampler uniforms to their texture units for this program. */
-	readonly textureUnits: ReadonlyMap<Variable, number>
+  /** A map of transform feedback varying names to varyings. */
+  readonly transformFeedbackVaryings: ReadonlyMap<string, TransformFeedbackVarying>;
 
-	/** Whether this program will be used to draw transparent shapes. */
-	allowTransparent: boolean;
+  /** Whether this program is allowed to draw transparent objects. Used for optimization only. */
+  allowTransparent: boolean;
 
-	/** Whether this program will be used to draw shapes with depth. */
-	allowDepth: boolean;
+  /** Whether this program is allowed to draw with depth. Used for optimization only. */
+  allowDepth: boolean;
 
-	/** Sets this program as part of the current rendering state. */
-	use(): void {
-		this.gl.useProgram(this.program);
-	}
+  /** Whether this program is flagged for deletion. */
+  get deleteStatus(): boolean {
+    return this.gl.getProgramParameter(this.program, DELETE_STATUS);
+  }
+
+  /** Whether the last link operation was successful. */
+  get linkStatus(): boolean {
+    return this.gl.getProgramParameter(this.program, LINK_STATUS);
+  }
+
+  /** Whether the last validation operation was successful. */
+  get validateStatus(): boolean {
+    return this.gl.getProgramParameter(this.program, VALIDATE_STATUS);
+  }
+
+  /** The information log for this shader program. */
+  get infoLog(): string {
+    return this.gl.getProgramInfoLog(this.program) ?? "";
+  }
+
+  /** Deletes this shader program. */
+  delete(): void {
+    this.gl.deleteProgram(this.program);
+  }
+
+  /** Sets this as the active shader program. */
+  use(): void {
+    this.gl.useProgram(this.program);
+  }
 }

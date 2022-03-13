@@ -1,429 +1,244 @@
-import { TextureData } from "./TextureData.js";
-import { TextureMode } from "./TextureMode.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-import { Color } from "../utility/Color.js";
-import { TextureDataType } from "./TextureDataType.js";
-import { TextureFilter } from "./TextureFilter.js";
-import { TextureFormat } from "./TextureFormat.js";
-import { TextureTarget } from "./TextureTarget.js";
-import { TextureWrapMode } from "./TextureWrapMode.js";
-import { TextureParameters } from "./TextureParameters.js";
-import { Vector } from "../math/Vector.js";
+import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction } from "./WebGLConstant.js";
 
-/** An array of data that can be randomly accessed in a shader program. Usually used to store image data. */
-export class Texture {
-	/**
-	 * Creates a texture from a color.
-	 * @param gl - The rendering context of the texture.
-	 * @param color - The color of the texture.
-	 * @returns A monocolored texture.
-	 */
-	static fromColor(gl: WebGL2RenderingContext, color: Color): Texture {
-		return new Texture({
-			gl,
-			data: new Uint8Array([color.r * 0xFF, color.g * 0xFF, color.b * 0xFF, color.a * 0xFF]),
-			size: new Vector(1, 1)
-		});
-	}
+const TEXTURE0 = 0x84C0;
+const TEXTURE_MAG_FILTER = 0x2800;
+const TEXTURE_MIN_FILTER = 0x2801;
+const TEXTURE_WRAP_S = 0x2802;
+const TEXTURE_WRAP_T = 0x2803;
 
-	/**
-	 * Creates a texture from an image.
-	 * @param gl - The rendering context of the texture.
-	 * @param source - The source URL or Base64 of the image.
-	 * @returns A texture containing the image.
-	 */
-	static fromImage(gl: WebGL2RenderingContext, source: string): Texture {
-		const texture: Texture = Texture.fromColor(gl, new Color(0xFF00FF));
+/** An array of data that can be randomly accessed in a shader program. */
+export abstract class Texture {
+  /**
+   * Creates a texture.
+   * @param gl - The rendering context of the texture.
+   * @param target - The target binding point of the texture.
+   */
+  constructor(gl: WebGL2RenderingContext, target: TextureTarget) {
+    this.gl = gl;
+    this.target = target;
 
-		const image: HTMLImageElement = new Image();
-		if ((new URL(source, location.href)).origin != location.origin) {
-			image.crossOrigin = "";
-		}
+    const texture: WebGLTexture | null = gl.createTexture();
+    if (!texture) { throw new Error("Failed to create a texture."); }
+    this.texture = texture;
+  }
 
-		image.addEventListener("load", (): void => {
-			texture.data = image;
-			texture.size.set();
-		});
+  /** The rendering context of this texture. */
+  readonly gl: WebGL2RenderingContext;
 
-		image.src = source;
+  /** The target binding point of this texture. */
+  target: TextureTarget;
 
-		return texture;
-	}
+  /** The WebGL API interface of this texture. */
+  readonly texture: WebGLTexture;
 
-	constructor({
-		gl,
-		data,
-		target = TextureTarget.TEXTURE_2D,
-		generateMipmap = true,
-		flipY = target == TextureTarget.TEXTURE_2D,
-		premultiplyAlpha = false,
-		unpackAlignment = 4,
-		minFilter = generateMipmap ? TextureFilter.NEAREST_MIPMAP_LINEAR : TextureFilter.LINEAR,
-		magFilter = TextureFilter.LINEAR,
-		wrapS = TextureWrapMode.CLAMP_TO_EDGE,
-		wrapT = TextureWrapMode.CLAMP_TO_EDGE,
-		size = new Vector(),
-		offset = new Vector(),
-		copyStart = new Vector(),
-		format = TextureFormat.RGBA,
-		internalFormat = format,
-		type = TextureDataType.UNSIGNED_BYTE,
-		level = 0,
-		sourceLength,
-		sourceOffset = 0,
-		sourceLengthOverride,
-		updateMode = TextureMode.Texture
-	}: TextureParameters) {
-		this.gl = gl;
-		if (data) {
-			this.data = data;
-		}
-		this.target = target;
-		this.generateMipmap = generateMipmap;
-		this.flipY = flipY;
-		this.premultiplyAlpha = premultiplyAlpha;
-		this.unpackAlignment = unpackAlignment;
-		this.minFilter = minFilter;
-		this.magFilter = magFilter;
-		this.wrapS = wrapS;
-		this.wrapT = wrapT;
-		this.size = size;
-		this.offset = offset;
-		this.copyStart = copyStart;
-		this.format = format;
-		this.internalFormat = internalFormat;
-		this.type = type;
-		this.level = level;
-		if (sourceLength) {
-			this.sourceLength = sourceLength;
-		}
-		this.sourceOffset = sourceOffset;
-		if (sourceLengthOverride) {
-			this.sourceLengthOverride = sourceLengthOverride;
-		}
-		this.updateMode = updateMode;
-		const texture: WebGLTexture | null = gl.createTexture();
-		if (texture) {
-			this.texture = texture;
-		} else {
-			throw new Error("Failed to create a WebGL texture.");
-		}
-		this.update();
-	}
+  /** Binds this texture to its target. */
+  bind(): void {
+    this.gl.bindTexture(this.target, this.texture);
+  }
 
-	/** The rendering context of this texture. */
-	readonly gl: WebGL2RenderingContext;
+  /**
+   * Updates the texture parameters of this texture.
+   * @param textureUnit - The texture unit of this texture in the current shader program.
+   */
+  abstract update(textureUnit: number): void;
 
-	/** The data contained within this texture. */
-	data?: TextureData;
+  /** Generates a mipmap for this texture. */
+  generateMipmap(): void {
+    this.gl.generateMipmap(this.target);
+  }
+}
 
-	/** The bind target of this texture. */
-	target: TextureTarget;
+/** Pixel sources for 2D textures. */
+export type Texture2DPixelSource =
+  ArrayBufferView
+  | ImageData
+  | HTMLImageElement
+  | HTMLCanvasElement
+  | HTMLVideoElement
+  | ImageBitmap;
 
-	/** The WebGL texture that this texture represents. */
-	readonly texture: WebGLTexture;
+/** A two-dimensional texture. */
+export class Texture2D extends Texture {
+  /**
+   * Creates a two-dimensional texture.
+   * @param gl - The rendering context of the texture.
+   * @param pixels - The pixel source for the texture.
+   */
+  constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource) {
+    super(gl, TextureTarget.TEXTURE_2D);
+    this.lod = 0;
+    this.internalFormat = TextureFormat.RGBA;
+    this.pixels = pixels;
+  }
 
-	/** Whether to generate a mipmap for this texture. */
-	generateMipmap: boolean;
+  /** The level of detail of this texture. */
+  lod: number;
 
-	/** Whether to flip the Y axis of this texture. */
-	flipY: boolean;
+  /** The color components in the texture. */
+  internalFormat: TextureFormat;
 
-	/** Whether to multiply the alpha channel into the other color channels in this texture. */
-	premultiplyAlpha: boolean;
+  /** The data type of the components in the texture. */
+  #type?: TextureDataType;
 
-	/** The unpack alignment of this texture. */
-	unpackAlignment: number;
+  /** The data type of the components in the texture. */
+  get type(): TextureDataType {
+    if (this.#type) { return this.#type; }
 
-	/** The minimum mip filter of this texture. */
-	minFilter: TextureFilter;
+    switch (this.internalFormat) {
+      case TextureFormat.RGB:
+      case TextureFormat.RGBA:
+      case TextureFormat.LUMINANCE_ALPHA:
+      case TextureFormat.LUMINANCE:
+      case TextureFormat.ALPHA:
+      case TextureFormat.R8:
+      case TextureFormat.R8UI:
+      case TextureFormat.RG8:
+      case TextureFormat.RG8UI:
+      case TextureFormat.RGB8:
+      case TextureFormat.SRGB8:
+      case TextureFormat.RGB565:
+      case TextureFormat.RGB8UI:
+      case TextureFormat.RGBA8:
+      case TextureFormat.SRGB8_ALPHA8:
+      case TextureFormat.RGB5_A1:
+      case TextureFormat.RGBA4:
+      case TextureFormat.RGBA8UI:
+        return TextureDataType.UNSIGNED_BYTE;
+      case TextureFormat.R16F:
+      case TextureFormat.R32F:
+      case TextureFormat.RG16F:
+      case TextureFormat.RG32F:
+      case TextureFormat.R11F_G11F_B10F:
+      case TextureFormat.RGB9_E5:
+      case TextureFormat.RGB16F:
+      case TextureFormat.RGB32F:
+      case TextureFormat.RGBA16F:
+      case TextureFormat.RGBA32F:
+        return TextureDataType.FLOAT;
+      case TextureFormat.RGB10_A2:
+        return TextureDataType.UNSIGNED_INT_2_10_10_10_REV;
+      default:
+        throw new Error("Unset data type without default for selected format.");
+    }
+  }
+  set type(value: TextureDataType) {
+    this.#type = value;
+  }
 
-	/** The maximum mip filter of this texture. */
-	magFilter: TextureFilter;
+  /** The format of the texel data. */
+  #format?: TextureFormat;
 
-	/** The wrapping behavior of this texture on the S axis. */
-	wrapS: TextureWrapMode;
+  /** The format of the texel data. */
+  get format(): TextureFormat {
+    if (this.#format) { return this.#format; }
 
-	/** The wrapping behavior of this texture on the T axis. */
-	wrapT: TextureWrapMode;
+    switch (this.internalFormat) {
+      case TextureFormat.RGB:
+      case TextureFormat.RGB8:
+      case TextureFormat.SRGB8:
+      case TextureFormat.RGB565:
+      case TextureFormat.R11F_G11F_B10F:
+      case TextureFormat.RGB9_E5:
+      case TextureFormat.RGB16F:
+      case TextureFormat.RGB32F:
+        return TextureFormat.RGB;
+      case TextureFormat.RGBA:
+      case TextureFormat.RGBA8:
+      case TextureFormat.SRGB8_ALPHA8:
+      case TextureFormat.RGB5_A1:
+      case TextureFormat.RGB10_A2:
+      case TextureFormat.RGBA4:
+      case TextureFormat.RGBA16F:
+      case TextureFormat.RGBA32F:
+        return TextureFormat.RGBA;
+      case TextureFormat.LUMINANCE_ALPHA:
+        return TextureFormat.LUMINANCE_ALPHA;
+      case TextureFormat.LUMINANCE:
+        return TextureFormat.LUMINANCE;
+      case TextureFormat.ALPHA:
+        return TextureFormat.ALPHA;
+      case TextureFormat.R8:
+      case TextureFormat.R16F:
+      case TextureFormat.R32F:
+        return TextureFormat.RED;
+      case TextureFormat.R8UI:
+        return TextureFormat.RED_INTEGER;
+      case TextureFormat.RG8:
+      case TextureFormat.RG16F:
+      case TextureFormat.RG32F:
+        return TextureFormat.RG;
+      case TextureFormat.RG8UI:
+        return TextureFormat.RG_INTEGER;
+      case TextureFormat.RGB8UI:
+        return TextureFormat.RGB_INTEGER;
+      case TextureFormat.RGBA8UI:
+        return TextureFormat.RGBA_INTEGER;
+      default:
+        return this.internalFormat;
+    }
+  }
 
-	/** The width, height, and depth of this texture. */
-	size: Vector;
+  /** The width of this texture. */
+  width?: number;
 
-	/** The coordinate offset of this texture if it is a sub-image. */
-	offset: Vector;
+  /** The height of this texture. */
+  height?: number;
 
-	/** The starting coordinates (bottom-left) of this texture if it is a copy of a sub-image. */
-	copyStart: Vector;
+  /** The pixel source for this texture. */
+  pixels: Texture2DPixelSource;
 
-	/** The format of the data supplied to this texture. */
-	format: TextureFormat;
+  /** The magnification filter for this texture. */
+  get magFilter(): TextureFilter {
+    this.bind();
+    return this.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
+  }
+  set magFilter(value: TextureFilter) {
+    this.bind();
+    this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
+  }
 
-	/** The format of the data in this texture. */
-	internalFormat: TextureFormat;
+  /** The minification filter for this texture. */
+  get minFilter(): TextureFilter {
+    this.bind();
+    return this.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
+  }
+  set minFilter(value: TextureFilter) {
+    this.bind();
+    this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+  }
 
-	/** The data type of the value in this texture. */
-	type: TextureDataType;
+  /** The wrapping function for the S coordinate. */
+  get wrapSFunction(): TextureWrapFunction {
+    this.bind();
+    return this.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
+  }
+  set wrapSFunction(value: TextureWrapFunction) {
+    this.bind();
+    this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
+  }
 
-	/** The mip level of this texture. */
-	level: number;
+  /** The wrapping function for the T coordinate. */
+  get wrapTFunction(): TextureWrapFunction {
+    this.bind();
+    return this.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
+  }
+  set wrapTFunction(value: TextureWrapFunction) {
+    this.bind();
+    this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
+  }
 
-	/** The length of the source of this texture when reading from the pixel unpack buffer. */
-	sourceLength?: number;
+  /**
+   * Updates the texture parameters of this texture.
+   * @param textureUnit - The texture unit of this texture in the current shader program.
+   */
+  update(textureUnit: number): void {
+    this.gl.activeTexture(TEXTURE0 + textureUnit);
+    this.bind();
 
-	/** The offset of the source of this texture when reading from the pixel unpack buffer. */
-	sourceOffset?: number;
-
-	/** The length override of the source of this texture when reading from the pixel unpack buffer. */
-	sourceLengthOverride?: number;
-
-	/** The update mode of this texture. */
-	updateMode: TextureMode;
-
-	/** Binds this texture to its target. */
-	bind(): void {
-		this.gl.bindTexture(this.target, this.texture);
-	}
-
-	/**
-	 * Updates texture parameters.
-	 * @param textureUnit - The texture unit of the texture in the current WebGL shader program.
-	 */
-	update(textureUnit?: number): void {
-		if (textureUnit) {
-			this.gl.activeTexture(WebGLConstant.TEXTURE0 + textureUnit);
-		}
-		this.bind();
-
-		this.gl.pixelStorei(WebGLConstant.UNPACK_FLIP_Y_WEBGL, this.flipY);
-		this.gl.pixelStorei(WebGLConstant.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
-		this.gl.pixelStorei(WebGLConstant.UNPACK_ALIGNMENT, this.unpackAlignment);
-		this.gl.texParameteri(this.target, WebGLConstant.TEXTURE_MIN_FILTER, this.minFilter);
-		this.gl.texParameteri(this.target, WebGLConstant.TEXTURE_MAG_FILTER, this.magFilter);
-		this.gl.texParameteri(this.target, WebGLConstant.TEXTURE_WRAP_S, this.wrapS);
-		this.gl.texParameteri(this.target, WebGLConstant.TEXTURE_WRAP_T, this.wrapT);
-
-		switch (this.updateMode) {
-			case TextureMode.Compressed:
-				if (this.sourceLength) {
-					this.gl.compressedTexImage2D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						0,
-						this.sourceLength,
-						this.sourceOffset ?? 0);
-				} else {
-					this.gl.compressedTexImage2D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						0,
-						this.data as ArrayBufferView,
-						this.sourceOffset,
-						this.sourceLengthOverride);
-				}
-				break;
-			case TextureMode.CompressedSub:
-				if (this.sourceLength) {
-					this.gl.compressedTexSubImage2D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.size.x,
-						this.size.y,
-						this.format,
-						this.sourceLength,
-						this.sourceOffset ?? 0);
-				} else {
-					this.gl.compressedTexSubImage2D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.size.x,
-						this.size.y,
-						this.format,
-						this.data as ArrayBufferView,
-						this.sourceOffset,
-						this.sourceLengthOverride);
-				}
-				break;
-			case TextureMode.Copy:
-				this.gl.copyTexImage2D(
-					this.target,
-					this.level,
-					this.internalFormat,
-					this.copyStart.x,
-					this.copyStart.y,
-					this.size.x,
-					this.size.y,
-					0);
-				break;
-			case TextureMode.CopySub:
-				this.gl.copyTexSubImage2D(
-					this.target,
-					this.level,
-					this.offset.x,
-					this.offset.y,
-					this.copyStart.x,
-					this.copyStart.y,
-					this.size.x,
-					this.size.y);
-				break;
-			case TextureMode.Texture:
-				if (this.size.x || this.size.y) {
-					this.gl.texImage2D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						0,
-						this.format,
-						this.type,
-						this.data as ArrayBufferView);
-				} else {
-					this.gl.texImage2D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.format,
-						this.type,
-						this.data as ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap);
-				}
-				break;
-			case TextureMode.Sub:
-				if (this.size.x || this.size.y) {
-					this.gl.texSubImage2D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.size.x,
-						this.size.y,
-						this.format,
-						this.type,
-						this.data as ArrayBufferView);
-				} else {
-					this.gl.texSubImage2D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.format,
-						this.type,
-						this.data as ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap);
-				}
-				break;
-			case TextureMode.Texture3D:
-				if (this.sourceOffset) {
-					this.gl.texImage3D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						0,
-						this.format,
-						this.type,
-						this.sourceOffset);
-				} else {
-					this.gl.texImage3D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						0,
-						this.format,
-						this.type,
-						this.data as HTMLCanvasElement | HTMLImageElement | HTMLVideoElement | ImageBitmap | ImageData);
-				}
-				break;
-			case TextureMode.CopySub3D:
-				this.gl.texSubImage3D(
-					this.target,
-					this.level,
-					this.offset.x,
-					this.offset.y,
-					this.offset.z,
-					this.size.x,
-					this.size.y,
-					this.size.z,
-					this.format,
-					this.type,
-					this.data as ImageBitmap | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement);
-				break;
-			case TextureMode.Compressed3D:
-				if (this.sourceLength) {
-					this.gl.compressedTexImage3D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						0,
-						this.sourceLength,
-						this.sourceOffset ?? 0);
-				} else {
-					this.gl.compressedTexImage3D(
-						this.target,
-						this.level,
-						this.internalFormat,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						0,
-						this.data as ArrayBufferView,
-						this.sourceOffset,
-						this.sourceLengthOverride);
-				}
-				break;
-			case TextureMode.CompressedSub3D:
-				if (this.sourceLength) {
-					this.gl.compressedTexSubImage3D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.offset.z,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						this.format,
-						this.sourceLength,
-						this.sourceOffset ?? 0);
-				} else {
-					this.gl.compressedTexSubImage3D(
-						this.target,
-						this.level,
-						this.offset.x,
-						this.offset.y,
-						this.offset.z,
-						this.size.x,
-						this.size.y,
-						this.size.z,
-						this.format,
-						this.data as ArrayBufferView,
-						this.sourceOffset,
-						this.sourceLengthOverride);
-				}
-				break;
-			default:
-				throw new Error("Unknown update mode.");
-		}
-
-		if (this.generateMipmap) {
-			this.gl.generateMipmap(this.target);
-		}
-	}
+    if (typeof this.width == "number" && typeof this.height == "number") {
+      this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);
+    } else {
+      this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.format, this.type, this.pixels as ImageData);
+    }
+  }
 }

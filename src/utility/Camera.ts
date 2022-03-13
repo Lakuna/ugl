@@ -1,123 +1,133 @@
-import { Event } from "../core/Event.js";
-import { CameraParameters } from "./CameraParameters.js";
 import { GameObject } from "../core/GameObject.js";
-import { Umbra } from "../core/Umbra.js";
-import { Component } from "../core/Component.js";
 import { Matrix } from "../math/Matrix.js";
-import { Transform } from "./Transform.js";
 import { Mesh } from "./Mesh.js";
+import { Component, Event } from "../core/Component.js";
+import { Umbra } from "../core/Umbra.js";
 
-/** A camera. */
-export class Camera extends GameObject {
-	/** Creates a camera. */
-	constructor({
-		parent,
-		near = 0.1,
-		far = 100,
-		fov = Math.PI / 4,
-		aspectRatioOverride,
-		left,
-		right,
-		bottom,
-		top,
-		zoom = 1
-	}: CameraParameters) {
-		super(parent);
+/** A viewpoint for a scene. */
+export abstract class Camera extends GameObject {
+  /**
+   * Creates a camera.
+   * @param parent - The parent object of the camera.
+   * @param near - The nearest that the camera can see.
+   * @param far - The farthest that the camera can see.
+   */
+  constructor(parent?: GameObject, near = 0.1, far = 1000) {
+    super(parent);
+    this.near = near;
+    this.far = far;
+  }
 
-		this.near = near;
-		this.far = far;
-		this.fov = fov;
-		if (aspectRatioOverride) {
-			this.aspectRatioOverride = aspectRatioOverride;
-		}
-		this.aspectRatio = aspectRatioOverride ?? 0;
-		if (left || right || top || bottom) {
-			this.left = left ?? 0;
-			this.right = right ?? 0;
-			this.bottom = bottom ?? 0;
-			this.top = top ?? 0;
-			this.zoom = zoom ?? 1;
-		}
-		this.transform = new Transform(this);
+  /** The nearest that this camera can see. */
+  near: number;
 
-		new Component(this).events.set(Event.Update, (umbra: Umbra): void => {
-			this.aspectRatio =
-				this.aspectRatioOverride
-				?? umbra.gl.canvas.clientWidth / umbra.gl.canvas.clientHeight;
-		});
-	}
+  /** The farthest that this camera can see. */
+  far: number;
 
-	/** The nearest that this camera can see. */
-	near: number;
+  /** The projection matrix of this camera. */
+  abstract get projectionMatrix(): Matrix;
 
-	/** The farthest that this camera can see. */
-	far: number;
+  /** The view matrix of this camera. */
+  get viewMatrix(): Matrix {
+    return this.transform.worldMatrix.invert();
+  }
 
-	/** The field of view of this camera in radians. */
-	fov?: number;
+  /** The view projection matrix of this camera. */
+  get viewProjectionMatrix(): Matrix {
+    return this.projectionMatrix.multiply(this.viewMatrix);
+  }
 
-	/** The aspect ratio override of the output of this camera. */
-	aspectRatioOverride?: number;
+  /**
+   * Calculates the world view projection matrix of a mesh when viewed by this camera.
+   * @param mesh - The mesh.
+   * @returns The world view projection matrix of the mesh.
+   */
+  worldViewProjectionMatrix(mesh: Mesh): Matrix {
+    return this.viewProjectionMatrix.multiply(mesh.worldMatrix);
+  }
+}
 
-	/** The aspect ratio of the output of this camera. */
-	aspectRatio: number;
+/** A viewpoint for a scene with perspective. */
+export class PerspectiveCamera extends Camera {
+  /**
+   * Creates a perspective camera.
+   * @param parent - The parent object of the camera.
+   * @param near - The nearest that the camera can see.
+   * @param far - The farthest that the camera can see.
+   * @param fov - The field of view of the camera in radians.
+   * @param aspectRatio - The aspect ratio of the camera. Updates automatically to the canvas' aspect ratio if not set.
+   */
+  constructor(parent?: GameObject, near = 0.1, far = 1000, fov = Math.PI / 4, aspectRatio?: number) {
+    super(parent, near, far);
+    this.fov = fov;
+    if (aspectRatio) {
+      this.aspectRatio = aspectRatio;
+    } else {
+      this.aspectRatio = 1;
 
-	/** The left boundary of the output of this camera. Makes this camera orthographic. */
-	left?: number;
+      // Create a component to automatically update the aspect ratio.
+      new Component(this).events.set(Event.Update, (umbra: Umbra): void => {
+        this.aspectRatio = umbra.gl.canvas.width / umbra.gl.canvas.height;
+      });
+    }
+  }
 
-	/** The right boundary of the output of this camera. Makes this camera orthographic. */
-	right?: number;
+  /** The field of view of this camera in radians. */
+  fov: number;
 
-	/** The bottom boundary of the output of this camera. Makes this camera orthographic. */
-	bottom?: number;
+  /** The aspect ratio of this camera. */
+  aspectRatio: number;
 
-	/** The top boundary of the output of this camera. Makes this camera orthographic. */
-	top?: number;
+  /** The projection matrix of this camera. */
+  get projectionMatrix(): Matrix {
+    return Matrix.fromPerspective(this.fov, this.aspectRatio, this.near, this.far);
+  }
+}
 
-	/** The zoom appplied to this camera if it is orthographic. */
-	zoom?: number;
+/** A viewpoint for a scene without perspective. */
+export class OrthographicCamera extends Camera {
+  /**
+   * Creates an orthographic camera.
+   * @param left - The left boundary of the viewport.
+   * @param right - The right boundary of the viewport.
+   * @param bottom - The bottom boundary of the viewport.
+   * @param top - The top boundary of the viewport.
+   * @param near - The near boundary of the viewport.
+   * @param far - The far boundary of the viewport.
+   * @param zoom - The zoom to apply to the camera.
+   * @param parent - The parent object of the camera.
+   */
+  constructor(left: number, right: number, bottom: number, top: number, near: number, far: number, zoom = 1, parent?: GameObject) {
+    super(parent, near, far);
+    this.left = left;
+    this.right = right;
+    this.bottom = bottom;
+    this.top = top;
+    this.zoom = zoom;
+  }
 
-	/** The transform of this camera. */
-	transform: Transform;
+  /** The left boundary of the viewport. */
+  left: number;
 
-	/** Whether this camera is orthographic. */
-	get orthographic(): boolean {
-		return !!(this.left || this.right || this.bottom || this.top);
-	}
+  /** The right boundary of the viewport. */
+  right: number;
 
-	/** The projection matrix of this camera. */
-	get projectionMatrix(): Matrix {
-		return this.orthographic
-			? new Matrix().orthographic(
-				(this.left ?? 0) / (this.zoom ?? 1),
-				(this.right ?? 0) / (this.zoom ?? 1),
-				(this.bottom ?? 0) / (this.zoom ?? 1),
-				(this.top ?? 0) / (this.zoom ?? 1),
-				this.near,
-				this.far)
-			: new Matrix().perspective(
-				this.fov ?? (Math.PI / 4),
-				this.aspectRatio,
-				this.near,
-				this.far);
-	}
+  /** The bottom boundary of the viewport. */
+  bottom: number;
 
-	/** The view matrix of this camera. */
-	get viewMatrix(): Matrix {
-		return this.transform.worldMatrix.invert();
-	}
+  /** The top boundary of the viewport. */
+  top: number;
 
-	/** The view projection matrix of the camera. */
-	get viewProjectionMatrix(): Matrix {
-		return this.projectionMatrix.multiply(this.viewMatrix);
-	}
+  /** The zoom to apply to this camera. */
+  zoom: number;
 
-	/**
-	 * Calculates the world view projection matrix of a mesh.
-	 * @param mesh - The mesh.
-	 * @returns The world view projection matrix of the mesh.
-	 */
-	worldViewProjectionMatrix(mesh: Mesh): Matrix {
-		return this.viewProjectionMatrix.multiply(mesh.worldMatrix);
-	}
+  /** The projection matrix of this camera. */
+  get projectionMatrix(): Matrix {
+    return Matrix.fromOrthographic(
+      this.left / this.zoom,
+      this.right / this.zoom,
+      this.bottom / this.zoom,
+      this.top / this.zoom,
+      this.near, this.far);
+  }
 }

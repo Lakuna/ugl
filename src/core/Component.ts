@@ -1,31 +1,32 @@
-import { Event } from "./Event.js";
 import { GameObject } from "./GameObject.js";
 import { Umbra } from "./Umbra.js";
 
-/** A script which attaches to a gameobject in an Umbra program. */
+export const enum Event {
+  Update,
+  FixedUpdate,
+  Load
+}
+
+/** A script which attaches to an object in an Umbra scene. */
 export class Component {
-	readonly #gameObject: GameObject;
+  /**
+   * Creates a component.
+   * @param gameObject - The object to attach the component to.
+   * @param priority - The order to trigger the component's events relative to other components. A lower value makes the event trigger earlier.
+   */
+  constructor(gameObject: GameObject = new GameObject(), priority = 0) {
+    this.gameObject = gameObject;
+    this.gameObject.components.push(this);
+    this.priority = priority;
+    this.events = new Map();
+  }
 
-	/**
-	 * Creates a component.
-	 * @param gameObject - The object to attach the component to.
-	 * @param priority - The order to trigger the component's events relative to other components (lower is earlier).
-	 */
-	constructor(gameObject: GameObject = new GameObject(), priority = 0) {
-		this.#gameObject = gameObject;
-		this.gameObject.components.push(this);
-		this.priority = priority;
-		this.events = new Map();
-	}
+  /** The object that this component is attached to. */
+  readonly gameObject: GameObject;
 
-	/** The order this component's events are triggered in relative to other components (lower is earlier). */
-	priority: number;
+  /** The order that this component's events are triggered relative to other components. A lower value makes the event trigger earlier. */
+  priority: number;
 
-	/** Events attached to this component. */
-	events: Map<Event, (umbra: Umbra) => void>
-
-	/** The gameobject that this component is attached to. */
-	get gameObject(): GameObject {
-		return this.#gameObject;
-	}
+  /** Events attached to this component. */
+  events: Map<Event, (umbra: Umbra) => void>
 }

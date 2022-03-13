@@ -1,71 +1,80 @@
 import { Component } from "./Component.js";
+import { Transform } from "../utility/Transform.js";
 
-/** A "thing" in an Umbra program. */
+/** Represents any "thing" in an Umbra instance. */
 export class GameObject {
-	#children: GameObject[];
-	#parent: GameObject | undefined;
+  /**
+   * Creates an object.
+   * @param parent - The parent object.
+   * @param enabled - Whether events should trigger for components attached to this object.
+   */
+  constructor(parent?: GameObject, enabled = true) {
+    if (parent) { this.parent = parent; }
+    this.enabled = enabled;
+    this.components = [];
+    this.#children = [];
 
-	/**
-	 * Creates a gameobject.
-	 * @param parent - The parent of the gameobject.
-	 * @param enabled - Whether the components on the gameobject should trigger.
-	 */
-	constructor(parent?: GameObject, enabled = true) {
-		if (parent) { this.parent = parent; }
-		this.enabled = enabled;
-		this.components = [];
-		this.#children = [];
-	}
+    // Create a transform component and attach it to this object.
+    this.transform = new Transform(this);
+  }
 
-	/** A list of components attached to this gameobject. */
-	components: Component[];
+  /** A list of components attached to this object. */
+  components: Component[];
 
-	/** Whether the components on this gameobject should trigger. */
-	enabled: boolean;
+  /** Whether events should trigger for components attached to this object. */
+  enabled: boolean;
 
-	/** A list of child gameobjects of this gameobject. */
-	get children(): ReadonlyArray<GameObject> {
-		return this.#children;
-	}
+  /** A list of children of this object. */
+  #children: GameObject[];
 
-	/** The parent gameobject of this gameobject. */
-	get parent(): GameObject | undefined {
-		return this.#parent;
-	}
+  /** The transform component of this object. */
+  transform: Transform;
 
-	set parent(value: GameObject | undefined) {
-		if (this.parent != value) {
-			if (this.parent) { this.parent.removeChild(this); }
-			this.#parent = value;
-			if (this.parent) { this.parent.addChild(this); }
-		}
-	}
+  /** A list of children of this object. */
+  get children(): ReadonlyArray<GameObject> {
+    return this.#children;
+  }
 
-	/**
-	 * Adds a child to this gameobject.
-	 * @param child - The child.
-	 */
-	addChild(child: GameObject): void {
-		child.parent = this;
-		this.#children.push(child);
-	}
+  /** The parent of this object. */
+  #parent: GameObject | undefined;
 
-	/**
-	 * Removes a child from this gameobject.
-	 * @param child - The child.
-	 */
-	removeChild(child: GameObject): void {
-		child.parent = undefined;
-		this.#children.splice(this.#children.indexOf(child));
-	}
+  /** The parent of this object. */
+  get parent(): GameObject | undefined {
+    return this.#parent;
+  }
+  set parent(value: GameObject | undefined) {
+    if (this.#parent != value) {
+      if (this.#parent) { this.#parent.removeChild(this); }
+      this.#parent = value;
+      if (value) { value.addChild(this); }
+    }
+  }
 
-	/**
-	 * Executes a callback on this gameobject and each of its children recursively until a callback returns true.
-	 * @param callback - The function to execute on each gameobject.
-	 */
-	traverse(callback: (gameObject: GameObject) => boolean): void {
-		if (callback(this)) { return; }
+  /**
+   * Adds a child to this object.
+   * @param child - The child.
+   */
+  addChild(child: GameObject): void {
+    child.parent = this;
+    this.#children.push(child);
+  }
 
-		this.children.forEach((child: GameObject): void => { child.traverse(callback); });
-	}
+  /**
+   * Removes a child from this object.
+   * @param child - The child.
+   */
+  removeChild(child: GameObject): void {
+    if (this.#children.indexOf(child) < 0) { throw new Error("Object is not a child of this object."); }
+    child.parent = undefined;
+    this.#children.splice(this.#children.indexOf(child));
+  }
+
+  /**
+   * Executes a function on this object and each of its children recursively, ending when an object returns true.
+   * @param f - The function to execute on the objects.
+   */
+  traverse(f: (gameObject: GameObject) => boolean): void {
+    if (f(this)) { return; }
+    for (const child of this.#children) { child.traverse(f); }
+  }
 }

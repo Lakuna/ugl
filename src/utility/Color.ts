@@ -26,7 +26,7 @@ export class Color extends Float32Array {
 
 	/** The red value of this color. */
 	get r(): number {
-		return this[0] ?? 0;
+		return this[0] as number;
 	}
 	set r(value: number) {
 		this[0] = value;
@@ -34,7 +34,7 @@ export class Color extends Float32Array {
 
 	/** The green value of this color. */
 	get g(): number {
-		return this[1] ?? 0;
+		return this[1] as number;
 	}
 	set g(value: number) {
 		this[1] = value;
@@ -42,7 +42,7 @@ export class Color extends Float32Array {
 
 	/** The blue value of this color. */
 	get b(): number {
-		return this[2] ?? 0;
+		return this[2] as number;
 	}
 	set b(value: number) {
 		this[2] = value;
@@ -50,55 +50,9 @@ export class Color extends Float32Array {
 
 	/** The alpha value of this color. */
 	get a(): number {
-		return this[3] ?? 0;
+		return this[3] as number;
 	}
 	set a(value: number) {
-		this[3] = value;
-	}
-}
-
-/** A color mask. */
-export class ColorMask extends Array<boolean> {
-	/**
-	 * Creates a color mask.
-	 * @param r - Whether to allow red values.
-	 * @param g - Whether to allow green values.
-	 * @param b - Whether to allow blue values.
-	 * @param a - Whether to allow alpha values.
-	 */
-	constructor(r: boolean, g: boolean, b: boolean, a: boolean) {
-		super(r, g, b, a);
-	}
-
-	/** Whether to allow red values. */
-	get r(): boolean {
-		return this[0] ?? false;
-	}
-	set r(value: boolean) {
-		this[0] = value;
-	}
-
-	/** Whether to allow green values. */
-	get g(): boolean {
-		return this[1] ?? false;
-	}
-	set g(value: boolean) {
-		this[1] = value;
-	}
-
-	/** Whether to allow blue values. */
-	get b(): boolean {
-		return this[2] ?? false;
-	}
-	set b(value: boolean) {
-		this[2] = value;
-	}
-
-	/** Whether to allow alpha values. */
-	get a(): boolean {
-		return this[3] ?? false;
-	}
-	set a(value: boolean) {
 		this[3] = value;
 	}
 }

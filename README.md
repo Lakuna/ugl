@@ -49,3 +49,7 @@ import * as Umbra from "https://unpkg.com/@lakuna/umbra.js";
 Full, up-to-date documentation is available on the [website](https://umbra.lakuna.pw).
 
 The source code can be found on the [GitHub repository](https://github.com/Lakuna/Umbra).
+
+## Tutorial
+
+A complete introductory guide to WebGL2 with Umbra is available on [my website](https://lakuna.pw/webgl)

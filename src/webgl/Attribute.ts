@@ -1,64 +1,140 @@
-import { AttributeType } from "./AttributeType.js";
-import { Buffer } from "./Buffer.js";
 import { Variable } from "./Variable.js";
 import { Program } from "./Program.js";
+import { AttributeType } from "./WebGLConstant.js";
+import { AttributeState } from "./AttributeState.js";
 
-/** Information about how to access the data in a buffer. */
-export class Attribute {
-	/**
-	 * Creates an attribute.
-	 * @param name - The name of the attribute in a WebGL program.
-	 * @param buffer - The buffer which supplies data to the attribute.
-	 * @param size - The number of elements to pull from the buffer on each pull.
-	 * @param type - The type of data stored in the buffer.
-	 * @param normalized - Whether to normalize the data after pulling it from the buffer.
-	 * @param stride - The number of elements to move forward on each pull from the buffer.
-	 * @param offset - The number of elements to skip when starting to pull data from the buffer.
-	 */
-	constructor(name: string, buffer: Buffer, size = 3, type: AttributeType = AttributeType.FLOAT,
-		normalized = false, stride = 0, offset = 0) {
-		this.name = name;
-		this.buffer = buffer;
-		this.size = size;
-		this.type = type;
-		this.normalized = normalized;
-		this.stride = stride;
-		this.offset = offset;
-		this.gl = buffer.gl;
-	}
+/** An input variable in a WebGL vertex shader. */
+export class Attribute extends Variable {
+  /**
+   * Creates an attribute. This should only be called by the `Program` constructor.
+   * @param program - The shader program that this attribute belongs to.
+   * @param index - The index of this attribute.
+   */
+  constructor(program: Program, index: number) {
+    super(program);
 
-	/** The name of this attribute in a WebGL program. */
-	readonly name: string;
+    this.#enabled = false;
+    this.enabled = true;
 
-	/** The buffer which supplies data to this attribute. */
-	readonly buffer: Buffer;
+    const activeInfo: WebGLActiveInfo | null = this.gl.getActiveAttrib(program.program, index);
+    if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
+    this.activeInfo = activeInfo;
 
-	/** The number of elements to pull from this buffer on each pull. */
-	size: number;
+    this.location = this.gl.getAttribLocation(program.program, this.activeInfo.name);
 
-	/** The type of data stored in this buffer. */
-	type: AttributeType;
+    switch (this.activeInfo.type as AttributeType) {
+      case AttributeType.FLOAT:
+      case AttributeType.FLOAT_VEC2:
+      case AttributeType.FLOAT_VEC3:
+      case AttributeType.FLOAT_VEC4:
+        this.setter = (value: AttributeState): void => {
+          value.buffer.bind();
+          this.enabled = true;
+          this.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
+        };
+        break;
+      case AttributeType.INT:
+			case AttributeType.INT_VEC2:
+			case AttributeType.INT_VEC3:
+			case AttributeType.INT_VEC4:
+			case AttributeType.UNSIGNED_INT:
+			case AttributeType.UNSIGNED_INT_VEC2:
+			case AttributeType.UNSIGNED_INT_VEC3:
+			case AttributeType.UNSIGNED_INT_VEC4:
+			case AttributeType.BOOL:
+			case AttributeType.BOOL_VEC2:
+			case AttributeType.BOOL_VEC3:
+			case AttributeType.BOOL_VEC4:
+        this.setter = (value: AttributeState): void => {
+          value.buffer.bind();
+          this.enabled = true;
+          this.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
+        };
+        break;
+      case AttributeType.FLOAT_MAT2:
+        // Matrix attributes are treated as multiple vectors rather than one matrix.
+        this.setter = (value: AttributeState): void => {
+          const dim = 2;
+          const stride = (dim * dim) * value.size;
+          for (let i = 0; i < dim; i++) {
+            const location: number = this.location + i;
+            this.gl.enableVertexAttribArray(location);
+            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
+          }
+        }
+        break;
+      case AttributeType.FLOAT_MAT3:
+        // Matrix attributes are treated as multiple vectors rather than one matrix.
+        this.setter = (value: AttributeState): void => {
+          const dim = 3;
+          const stride = (dim * dim) * value.size;
+          for (let i = 0; i < dim; i++) {
+            const location: number = this.location + i;
+            this.gl.enableVertexAttribArray(location);
+            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
+          }
+        }
+        break;
+      case AttributeType.FLOAT_MAT4:
+        // Matrix attributes are treated as multiple vectors rather than one matrix.
+        this.setter = (value: AttributeState): void => {
+          const dim = 4;
+          const stride = (dim * dim) * value.size;
+          for (let i = 0; i < dim; i++) {
+            const location: number = this.location + i;
+            this.gl.enableVertexAttribArray(location);
+            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
+          }
+        }
+        break;
+      default:
+        throw new Error("Unable to make attribute setter.");
+    }
+  }
 
-	/** Whether to normalize the data after pulling it from this buffer. */
-	normalized: boolean;
+  /** The active information of this attribute. */
+  readonly activeInfo: WebGLActiveInfo;
 
-	/** The number of elements to move forward on each pull from this buffer. */
-	stride: number;
+  /** The location of this attribute. */
+  readonly location: number;
 
-	/** The number of elements to skip when starting to pull data from this buffer. */
-	offset: number;
+  /** The setter method for this attribute. */
+  protected readonly setter: (value: AttributeState) => void;
 
-	/** The rendering context of this attribute. */
-	readonly gl: WebGL2RenderingContext;
+  /** Does nothing; attributes cannot be set to array values. */
+  protected readonly arraySetter?: () => void;
 
-	/**
-	 * Uses this attribute in a program.
-	 * @param program - The program which will utilize this attribute.
-	 */
-	use(program: Program): void {
-		const attribute: Variable | undefined = program.attributes.get(this.name);
-		if (attribute) {
-			attribute.value = this;
-		}
-	}
+  /** Enables getting data from a buffer for this attribute. */
+  enable(): void {
+    this.gl.enableVertexAttribArray(this.location);
+  }
+
+  /** Whether this attribute can get data from a buffer. */
+  #enabled: boolean;
+
+  /** Whether this attribute can get data from a buffer. */
+  get enabled(): boolean {
+    return this.#enabled;
+  }
+  set enabled(value: boolean) {
+    if (value) {
+      this.gl.enableVertexAttribArray(this.location);
+    } else {
+      this.gl.disableVertexAttribArray(this.location);
+    }
+    this.#enabled = value;
+  }
+
+  /** The value of this attribute. */
+  #value?: AttributeState;
+
+  /** The value of this attribute. */
+  get value(): AttributeState | undefined {
+    return this.#value;
+  }
+  set value(value: AttributeState | undefined) {
+    if (!value) { return; }
+    this.setter(value);
+    this.#value = value;
+  }
 }

@@ -1,44 +1,47 @@
-import { WebGLConstant } from "./WebGLConstant.js";
-import { RenderbufferMode } from "./RenderbufferMode.js";
-import { Vector } from "../math/Vector.js";
+import { RenderbufferFormat } from "./WebGLConstant.js";
+
+const RENDERBUFFER = 0x8D41;
 
 /** A buffer that can contain an image or be the source or target of a rendering operation. */
 export class Renderbuffer {
-	/**
-	 * Creates a renderbuffer.
-	 * @param gl - The rendering context of the renderbuffer.
-	 * @param format - The format of the renderbuffer.
-	 * @param size - The width and height of the renderbuffer.
-	 */
-	constructor(gl: WebGL2RenderingContext, format: RenderbufferMode, size: Vector) {
-		this.gl = gl;
-		this.format = format;
-		this.size = size;
+  /**
+   * Creates a renderbuffer.
+   * @param gl - The rendering context of the renderbuffer.
+   * @param format - The format of the renderbuffer.
+   * @param width - The width of the renderbuffer.
+   * @param height - The height of the renderbuffer.
+   */
+  constructor(gl: WebGL2RenderingContext, format: RenderbufferFormat, width: number, height: number) {
+    this.gl = gl;
+    this.format = format;
+    this.width = width;
+    this.height = height;
 
-		const renderbuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
-		if (renderbuffer) {
-			this.renderbuffer = renderbuffer;
-		} else {
-			throw new Error("Failed to create a WebGL renderbuffer.");
-		}
-		this.bind();
-		gl.renderbufferStorage(WebGLConstant.RENDERBUFFER, format, size.x, size.y);
-	}
+    const renderbuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
+    if (!renderbuffer) { throw new Error("Failed to create a renderbuffer."); }
+    this.renderbuffer = renderbuffer;
 
-	/** The rendering context of this renderbuffer. */
-	readonly gl: WebGL2RenderingContext;
+    this.bind();
+    gl.renderbufferStorage(RENDERBUFFER, format, width, height);
+  }
 
-	/** The WebGL renderbuffer that this renderbuffer represents. */
-	readonly renderbuffer: WebGLRenderbuffer;
+  /** The rendering context of this renderbuffer. */
+  readonly gl: WebGL2RenderingContext;
 
-	/** The format of this renderbuffer. */
-	readonly format: RenderbufferMode;
+  /** The WebGL API interface of this renderbuffer. */
+  readonly renderbuffer: WebGLRenderbuffer;
 
-	/** The width and height of this renderbuffer. */
-	readonly size: Vector;
+  /** The format of this renderbuffer. */
+  readonly format: RenderbufferFormat;
 
-	/** Binds this renderbuffer. */
-	bind(): void {
-		this.gl.bindRenderbuffer(WebGLConstant.RENDERBUFFER, this.renderbuffer);
-	}
+  /** The width of this renderbuffer. */
+  readonly width: number;
+
+  /** The height of this renderbuffer. */
+  readonly height: number;
+
+  /** Binds this renderbuffer. */
+  bind(): void {
+    this.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
+  }
 }

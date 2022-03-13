@@ -1,203 +1,83 @@
-import { FramebufferMode } from "./FramebufferMode.js";
-import { WebGLConstant } from "./WebGLConstant.js";
-import { FramebufferAttachmentPoint } from "./FramebufferAttachmentPoint.js";
-import { FramebufferTarget } from "./FramebufferTarget.js";
-import { RenderbufferMode } from "./RenderbufferMode.js";
-import { TextureDataType } from "./TextureDataType.js";
-import { TextureFilter } from "./TextureFilter.js";
-import { TextureFormat } from "./TextureFormat.js";
-import { TextureWrapMode } from "./TextureWrapMode.js";
-import { FramebufferData } from "./FramebufferData.js";
-import { FramebufferParameters } from "./FramebufferParameters.js";
-import { Renderbuffer } from "./Renderbuffer.js";
+import { FramebufferTarget, FramebufferAttachment } from "./WebGLConstant.js";
 import { Texture } from "./Texture.js";
-import { Vector } from "../math/Vector.js";
+import { Renderbuffer } from "./Renderbuffer.js";
+
+const RENDERBUFFER = 0x8D41;
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
 export class Framebuffer {
-	/**
-	 * Unbinds all framebuffers to draw to the canvas.
-	 * @param gl - The rendering context to operate on.
-	 */
-	static unbind(gl: WebGL2RenderingContext) {
-		gl.bindFramebuffer(WebGLConstant.FRAMEBUFFER, null);
-	}
+  /**
+   * Unbinds all framebuffers from the given rendering context.
+   * @param gl - The rendering context.
+   */
+  static unbind(gl: WebGL2RenderingContext): void {
+    gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
+  }
 
-	#size: Vector;
-	#data: FramebufferData[];
+  /**
+   * Creates a framebuffer.
+   * @param gl - The rendering context of the framebuffer.
+   */
+  constructor(gl: WebGL2RenderingContext, width: number, height: number, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
+    this.gl = gl;
+    this.target = target;
+    this.#attachments = new Map();
+    this.width = width;
+    this.height = height;
 
-	/** Creates a framebuffer. */
-	constructor({
-		gl,
-		target = FramebufferTarget.FRAMEBUFFER,
-		size = new Vector(gl.canvas.width, gl.canvas.height),
-		colorTextureCount = 1,
-		depth = false,
-		stencil = false,
-		depthTexture = false,
-		wrapS = TextureWrapMode.CLAMP_TO_EDGE,
-		wrapT = TextureWrapMode.CLAMP_TO_EDGE,
-		minFilter = TextureFilter.LINEAR,
-		magFilter = minFilter,
-		type = TextureDataType.UNSIGNED_BYTE,
-		format = TextureFormat.RGBA,
-		internalFormat = format,
-		unpackAlignment = 4,
-		premultiplyAlpha = false
-	}: FramebufferParameters) {
-		this.gl = gl;
-		this.#data = [];
-		this.#size = new Vector();
-		this.size = size;
-		this.depth = depth;
-		this.target = target;
+    const framebuffer: WebGLFramebuffer | null = gl.createFramebuffer();
+    if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
+    this.framebuffer = framebuffer;
+  }
 
-		const framebuffer: WebGLFramebuffer | null = gl.createFramebuffer();
-		if (framebuffer) {
-			this.framebuffer = framebuffer;
-		} else {
-			throw new Error("Failed to create a WebGL framebuffer.");
-		}
-		this.textures = [];
+  /** The rendering context of this framebuffer. */
+  readonly gl: WebGL2RenderingContext;
 
-		this.bind();
+  /** The WebGL API interface of this framebuffer. */
+  readonly framebuffer: WebGLFramebuffer;
 
-		const drawBuffers: number[] = [];
-		for (let i = 0; i < colorTextureCount; i++) {
-			const texture: Texture = new Texture({
-				gl,
-				generateMipmap: false,
-				flipY: false,
-				premultiplyAlpha,
-				unpackAlignment,
-				minFilter,
-				magFilter,
-				wrapS,
-				wrapT,
-				size,
-				format,
-				internalFormat,
-				type
-			});
-			this.textures.push(texture);
-			this.add(texture);
-			drawBuffers.push(WebGLConstant.COLOR_ATTACHMENT0 + i);
-		}
+  /** The target binding point of this framebuffer. */
+  target: FramebufferTarget
 
-		if (drawBuffers.length > 1) {
-			gl.drawBuffers(drawBuffers);
-		}
+  /** The width of this framebuffer. */
+  width: number;
 
-		if (depthTexture) {
-			this.depthTexture = new Texture({
-				gl,
-				minFilter: TextureFilter.NEAREST,
-				magFilter: TextureFilter.NEAREST,
-				size,
-				format: TextureFormat.DEPTH_COMPONENT,
-				internalFormat: TextureFormat.DEPTH_COMPONENT16,
-				type: TextureDataType.UNSIGNED_INT
-			});
+  /** The height of this framebuffer. */
+  height: number;
 
-			this.add(this.depthTexture, FramebufferAttachmentPoint.DEPTH_ATTACHMENT);
-		} else {
-			if (depth && !stencil) {
-				this.depthBuffer = new Renderbuffer(gl, RenderbufferMode.DEPTH_COMPONENT16, size);
-				this.add(this.depthBuffer, FramebufferAttachmentPoint.DEPTH_ATTACHMENT, FramebufferMode.Renderbuffer);
-			} else if (stencil && !depth) {
-				this.stencilBuffer = new Renderbuffer(gl, RenderbufferMode.STENCIL_INDEX8, size);
-				this.add(this.stencilBuffer, FramebufferAttachmentPoint.STENCIL_ATTACHMENT, FramebufferMode.Renderbuffer);
-			} else if (depth && stencil) {
-				this.depthStencilBuffer = new Renderbuffer(gl, RenderbufferMode.DEPTH_STENCIL, size);
-				this.add(this.depthStencilBuffer, FramebufferAttachmentPoint.DEPTH_STENCIL_ATTACHMENT, FramebufferMode.Renderbuffer);
-			}
-		}
+  /** Binds this framebuffer to its target. */
+  bind(): void {
+    this.gl.bindFramebuffer(this.target, this.framebuffer);
+  }
 
-		this.unbind();
-	}
+  /** A map of attachments on this framebuffer. */
+  #attachments: Map<FramebufferAttachment, Texture | Renderbuffer>
 
-	/** The rendering context of this framebuffer. */
-	readonly gl: WebGL2RenderingContext;
+  /** A map of attachments on this framebuffer. */
+  get attachments(): ReadonlyMap<FramebufferAttachment, Texture | Renderbuffer> {
+    return this.#attachments;
+  }
 
-	/** Whether this framebuffer has a depth buffer. */
-	readonly depth: boolean;
+  /**
+   * Attaches a texture to this framebuffer.
+   * @param texture - The texture to attach.
+   * @param attachmentPoint - The attachment point of the texture.
+   */
+  attach(texture: Texture, attachmentPoint: FramebufferAttachment, level?: number): void;
 
-	/** The WebGL framebuffer that this framebuffer represents. */
-	readonly framebuffer: WebGLFramebuffer;
+  attach(attachment: Texture | Renderbuffer, attachmentPoint: FramebufferAttachment, layer?: number): void {
+    this.bind();
 
-	/** The bind point of this framebuffer. */
-	target: FramebufferTarget;
+    if (attachment instanceof Renderbuffer) {
+      this.gl.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
+    } else if (typeof layer == "number") {
+      this.gl.framebufferTextureLayer(this.target, attachmentPoint, attachment.texture, 0, layer);
+    } else {
+      this.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target, attachment.texture, 0);
+    }
 
-	/** A list of textures attached to this framebuffer. */
-	readonly textures: Texture[];
+    this.#attachments.set(attachmentPoint, attachment);
 
-	/** The depth texture attached to this framebuffer. */
-	readonly depthTexture?: Texture;
-
-	/** The depth buffer attached to this framebuffer. */
-	readonly depthBuffer?: Renderbuffer;
-
-	/** The stencil buffer attached to this framebuffer. */
-	readonly stencilBuffer?: Renderbuffer;
-
-	/** The depth stencil buffer attached to this framebuffer. */
-	readonly depthStencilBuffer?: Renderbuffer;
-
-	/** A list of data attached to this framebuffer. */
-	get data(): ReadonlyArray<FramebufferData> {
-		return this.#data;
-	}
-
-	/** The width and height of this framebuffer. */
-	get size(): Vector {
-		return this.#size ?? new Vector(
-			this.textures?.[0]?.size?.x ?? (this.textures?.[0]?.data as HTMLImageElement)?.width ?? 0,
-			this.textures?.[0]?.size?.y ?? (this.textures?.[0]?.data as HTMLImageElement)?.height ?? 0);
-	}
-
-	set size(value: Vector) {
-		this.#size = value?.copy;
-	}
-
-	/** Binds this framebuffer to its target. */
-	bind(): void {
-		this.gl.bindFramebuffer(this.target, this.framebuffer);
-	}
-
-	/** Unbinds this framebuffer from its target. */
-	unbind(): void {
-		Framebuffer.unbind(this.gl);
-	}
-
-	/**
-	 * Adds an attachment to this framebuffer.
-	 * @param data - The data.
-	 * @param attachmentPoint - The attachment point of the data.
-	 * @param updateMode - The update mode of the data.
-	 * @param level - The mipmap level of the texture image to attach to the framebuffer.
-	 * @param layer - The layer of the texture image to attach to the framebuffer.
-	 */
-	add(data: FramebufferData, attachmentPoint: FramebufferAttachmentPoint = FramebufferAttachmentPoint.COLOR_ATTACHMENT0,
-		updateMode: FramebufferMode = FramebufferMode.Texture, level = 0, layer = 0): void {
-		data.bind();
-		this.bind();
-
-		switch (updateMode) {
-			case FramebufferMode.Renderbuffer:
-				this.gl.framebufferRenderbuffer(this.target, attachmentPoint, WebGLConstant.RENDERBUFFER, (data as Renderbuffer).renderbuffer);
-				break;
-			case FramebufferMode.Texture:
-				this.gl.framebufferTexture2D(this.target, attachmentPoint, (data as Texture).target, (data as Texture).texture, 0);
-				break;
-			case FramebufferMode.TextureLayer:
-				this.gl.framebufferTextureLayer(this.target, attachmentPoint, (data as Texture).texture, level, layer);
-				break;
-			default:
-				throw new Error("Invalid update mode.");
-		}
-
-		this.#data.push(data);
-
-		this.unbind();
-	}
+    Framebuffer.unbind(this.gl);
+  }
 }

@@ -1,77 +1,48 @@
-import { GameObject } from "../core/GameObject.js";
 import { Component } from "../core/Component.js";
 import { Matrix } from "../math/Matrix.js";
+import { GameObject } from "../core/GameObject.js";
 import { Vector } from "../math/Vector.js";
 
-/** A transform of a gameobject. */
+/** The position of an object. */
 export class Transform extends Component {
-	#parentObject?: GameObject;
-	#parent?: Transform;
+  /**
+   * Creates a transform.
+   * @param gameObject - The object to attach the transform to.
+   * @param priority - The order to trigger the component's events relative to other components.
+   */
+  constructor(gameObject?: GameObject, priority?: number) {
+    super(gameObject, priority);
 
-	/**
-	 * Creates a transform.
-	 * @param gameObject - The object to attach the transform to.
-	 * @param priority - The order to trigger the transform's events relative to other components (lower is earlier).
-	 */
-	constructor(gameObject?: GameObject, priority?: number) {
-		super(gameObject, priority);
+    this.translation = new Vector(0, 0, 0);
+    this.rotation = new Vector(0, 0, 0);
+    this.scale = new Vector(1, 1, 1);
+  }
 
-		this.translation = new Vector(0, 0, 0);
-		this.rotation = new Vector(0, 0, 0);
-		this.scale = new Vector(1, 1, 1);
-	}
+  /** The translation of this transform. */
+  translation: Vector;
 
-	/** The translation of this transform. */
-	translation: Vector;
+  /** The rotation of this transform. */
+  rotation: Vector;
 
-	/** The rotation of this transform. */
-	rotation: Vector;
+  /** The scale of this transform. */
+  scale: Vector;
 
-	/** The scale of this transform. */
-	scale: Vector;
+  /** The target for this transform to rotate towards. */
+  target: Vector | undefined;
 
-	/** The target for this transform to rotate towards. Overrides rotation. */
-	target?: Vector;
+  /** The transformation matrix of this transform relative to its parent. */
+  get matrix(): Matrix {
+    return (this.target
+      ? Matrix.fromLookAt(this.translation, this.target, new Vector(0, 1, 0))
+      : Matrix.fromTranslation(this.translation?.[0] ?? 0, this.translation?.[1] ?? 0,this.translation?.[2] ?? 0)
+        .rotate(this.rotation?.[0] ?? 0, this.rotation?.[1] ?? 0,this.rotation?.[2] ?? 0))
+      .scale(this.scale?.[0] ?? 0, this.scale?.[1] ?? 0,this.scale?.[2] ?? 0);
+  }
 
-	/** The transform of this transform's parent. */
-	get parent(): Transform | undefined {
-		const findParent = (): Component | undefined =>
-			this.gameObject.parent?.components.find((component: Component): boolean => component instanceof Transform);
-			
-		if (this.#parentObject == this.gameObject.parent) {
-			if (!this.#parent) {
-				const found: Component | undefined = findParent();
-				if (found) {
-					this.#parent = found as Transform;
-				}
-			}
-		} else {
-			if (this.gameObject.parent) {
-				this.#parentObject = this.gameObject.parent;
-			}
-			const found: Component | undefined = findParent();
-			if (found) {
-				this.#parent = found as Transform;
-			}
-		}
-		return this.#parent;
-	}
-
-	/** The transformation matrix of this transform relative to its parent. */
-	get matrix(): Matrix {
-		return (this.target
-			? new Matrix()
-				.lookAt(this.translation, this.target)
-			: new Matrix()
-				.translate(this.translation)
-				.rotate(this.rotation)
-			).scale(this.scale);
-	}
-
-	/** The transformation matrix of this transform relative to the origin. */
-	get worldMatrix(): Matrix {
-		return this.parent
-			? this.parent.worldMatrix.multiply(this.matrix)
-			: this.matrix;
-	}
+  /** The transformation matrix of this transform relative to the origin. */
+  get worldMatrix(): Matrix {
+    return (this.gameObject.parent?.transform
+      ? this.gameObject.parent.transform.worldMatrix.multiply(this.matrix)
+      : this.matrix);
+  }
 }
