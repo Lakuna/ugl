@@ -1,3 +1,4 @@
+// For internal use for making the canvas fullscreen.
 function recursiveFullscreen(element: HTMLElement): void {
   element.style.width = "100%";
   element.style.height = "100%";

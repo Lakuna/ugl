@@ -21,13 +21,24 @@ export class Umbra {
     this.time = 0;
     this.deltaTime = 0;
     this.paused = false;
-    this.#then = 0;
+    let then = 0;
 
-    // Start the update loop.
-    requestAnimationFrame(this.#update);
+    // Update loop.
+    const update: (now: number) => void = (now: number): void => {
+      if (!this.#stopLoop) { requestAnimationFrame(update); }
 
-    // Start the fixed update loop.
-    this.#fixedInterval = setInterval(this.#fixedUpdate, 1000 / ups);
+      this.time = now;
+      this.deltaTime = now - then;
+      then = now;
+
+      if (!this.paused) { this.trigger(Event.Update); }
+    };
+    requestAnimationFrame(update);
+
+    // Fixed update loop.
+    this.#fixedInterval = setInterval((): void => {
+      if (!this.paused) { this.trigger(Event.FixedUpdate); }
+    }, 1000 / ups);
   }
 
   /** The canvas. */
@@ -51,30 +62,8 @@ export class Umbra {
   /** Whether to not trigger update events. */
   paused: boolean;
 
-  /** The number corresponding to the `time` of the last frame. Used for calculating `deltaTime`. */
-  #then: number;
-
-  /**
-   * The body of the update loop.
-   * @param now - The number corresponding to the current `time`.
-   */
-  #update(now: number): void {
-    if (!this.#stopLoop) { requestAnimationFrame(this.#update); }
-
-    this.time = now;
-    this.deltaTime = now - this.#then;
-    this.#then = now;
-
-    if (!this.paused) { this.trigger(Event.Update); }
-  }
-
   /** The fixed update interval. */
   readonly #fixedInterval: number;
-
-  /** The body of the fixed update loop. */
-  #fixedUpdate(): void {
-    if (!this.paused) { this.trigger(Event.FixedUpdate); }
-  }
 
   /** The frames per second. */
   get fps(): number {

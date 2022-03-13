@@ -1,5 +1,21 @@
 import { Vector } from "./Vector.js";
 
+// For internal use for calculating determinants.
+function determinantSubsetMatrix(m: Matrix, row: number): Matrix {
+  const columns: number[][] = [];
+
+  for (let x = 1; x < m.width; x++) {
+    const column: number[] = [];
+    for (let y = 0; y < m.height; y++) {
+      if (y == row) { continue; }
+      column.push(m[x * m.height + y] as number);
+    }
+    columns.push(column);
+  }
+
+  return new Matrix(...columns);
+}
+
 /** A rectangular array of quantities in rows and columns that is treated as a single entity. */
 export class Matrix extends Float32Array implements Readonly<Float32Array> {
   /** Creates a 4x4 identity matrix. */
@@ -77,26 +93,6 @@ export class Matrix extends Float32Array implements Readonly<Float32Array> {
     return new Matrix(...columns);
   }
 
-  /**
-   * Removes the first column and the given row from this matrix. For use when calculating the determinant.
-   * @param row - The row to remove.
-   * @returns The resulting matrix.
-   */
-  #determinantSubsetMatrix(row: number): Matrix {
-    const columns: number[][] = [];
-
-    for (let x = 1; x < this.width; x++) {
-      const column: number[] = [];
-      for (let y = 0; y < this.height; y++) {
-        if (y == row) { continue; }
-        column.push(this[x * this.height + y] as number);
-      }
-      columns.push(column);
-    }
-
-    return new Matrix(...columns);
-  }
-
   /** The determinant of this matrix. */
   get determinant(): number {
     // End of recursion.
@@ -108,7 +104,7 @@ export class Matrix extends Float32Array implements Readonly<Float32Array> {
 
     let out = 0;
     for (let y = 0; y < this.height; y++) {
-      out += -(y % 2 || -1) * (this[y] as number) * this.#determinantSubsetMatrix(y).determinant;
+      out += -(y % 2 || -1) * (this[y] as number) * determinantSubsetMatrix(this, y).determinant;
     }
     return out;
   }
