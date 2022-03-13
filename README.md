@@ -52,4 +52,4 @@ The source code can be found on the [GitHub repository](https://github.com/Lakun
 
 ## Tutorial
 
-A complete introductory guide to WebGL2 with Umbra is available on [my website](https://lakuna.pw/webgl)
+A complete introductory guide to WebGL2 with Umbra is available on [my website](https://lakuna.pw/webgl).
