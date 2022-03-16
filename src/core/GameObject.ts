@@ -1,5 +1,4 @@
 import { Component } from "./Component.js";
-import { Transform } from "../utility/Transform.js";
 
 /** Represents any "thing" in an Umbra instance. */
 export class GameObject {
@@ -13,9 +12,6 @@ export class GameObject {
     this.enabled = enabled;
     this.components = [];
     this.#children = [];
-
-    // Create a transform component and attach it to this object.
-    this.transform = new Transform(this);
   }
 
   /** A list of components attached to this object. */
@@ -26,9 +22,6 @@ export class GameObject {
 
   /** A list of children of this object. */
   #children: GameObject[];
-
-  /** The transform component of this object. */
-  transform: Transform;
 
   /** A list of children of this object. */
   get children(): ReadonlyArray<GameObject> {

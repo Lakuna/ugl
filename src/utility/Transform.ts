@@ -39,10 +39,15 @@ export class Transform extends Component {
       .scale(this.scale?.[0] ?? 0, this.scale?.[1] ?? 0,this.scale?.[2] ?? 0);
   }
 
+  /** The transform component of the parent object of the object that this transform is attached to. */
+  get parent(): Transform | undefined {
+    return this.gameObject.parent?.components.find((component: Component): boolean => component instanceof Transform) as Transform;
+  }
+
   /** The transformation matrix of this transform relative to the origin. */
   get worldMatrix(): Matrix {
-    return (this.gameObject.parent?.transform
-      ? this.gameObject.parent.transform.worldMatrix.multiply(this.matrix)
+    return (this.parent
+      ? this.parent.worldMatrix.multiply(this.matrix)
       : this.matrix);
   }
 }

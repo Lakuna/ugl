@@ -3,6 +3,7 @@ import { Matrix } from "../math/Matrix.js";
 import { Mesh } from "./Mesh.js";
 import { Component, Event } from "../core/Component.js";
 import { Umbra } from "../core/Umbra.js";
+import { Transform } from "./Transform.js";
 
 /** A viewpoint for a scene. */
 export abstract class Camera extends GameObject {
@@ -16,6 +17,7 @@ export abstract class Camera extends GameObject {
     super(parent);
     this.near = near;
     this.far = far;
+    this.transform = new Transform(this);
   }
 
   /** The nearest that this camera can see. */
@@ -23,6 +25,9 @@ export abstract class Camera extends GameObject {
 
   /** The farthest that this camera can see. */
   far: number;
+
+  /** The transform component of this camera. */
+  transform: Transform;
 
   /** The projection matrix of this camera. */
   abstract get projectionMatrix(): Matrix;
