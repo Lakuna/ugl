@@ -17,7 +17,7 @@ function determinantSubsetMatrix(m: Matrix, row: number): Matrix {
 }
 
 /** A rectangular array of quantities in rows and columns that is treated as a single entity. */
-export class Matrix extends Float32Array implements Readonly<Float32Array> {
+export class Matrix extends Array<number> implements ReadonlyArray<number> {
   /** Creates a 4x4 identity matrix. */
   constructor();
 
@@ -34,31 +34,31 @@ export class Matrix extends Float32Array implements Readonly<Float32Array> {
   constructor(...values: number[]);
 
   constructor(...values: (number | number[])[]) {
-    const columns: number[][] = values.length ? (Array.isArray(values?.[0])
-      // constructor(...columns: number[][]);
-      ? (values as number[][])
+    super(...(values.length
+      ? ([] as number[]).concat(...values)
+      : [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+      ]
+    ));
 
-      // constructor(...values: number[]);
-      : (() => {
+    if (values.length) {
+      if (typeof values[0] == "number") {
         const dim: number = Math.sqrt(values.length);
         if (dim % 1) { throw new Error("Matrices initialized from an array must be square."); }
-        const out: number[][] = [];
-        for (let i = 0; i < values.length; i += dim) { out.push(values.slice(i, i + dim) as number[]); }
-        return out;
-      })())
-
-      // constructor();
-      : [
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1]
-      ];
-
-    super(([] as number[]).concat(...columns));
-    this.width = columns.length;
-    this.height = (columns[0] as number[]).length;
-    if (this.length != this.width * this.height) { throw new Error("Every column in a matrix must be the same length."); }
+        this.width = dim;
+        this.height = dim;
+      } else {
+        this.width = values.length;
+        this.height = (values[0] as number[]).length;
+        if (this.length != this.width * this.height) { throw new Error("Every column in a matrix must be the same length."); }
+      }
+    } else {
+      this.width = 4;
+      this.height = 4;
+    }
   }
 
   /** The number of columns in this matrix. */
