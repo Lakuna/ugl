@@ -1,7 +1,7 @@
 import { Matrix } from "./Matrix.js";
 
 /** A quantity with direction and magnitude. */
-export class Vector extends Float32Array implements Readonly<Float32Array> {
+export class Vector extends Array<number> implements ReadonlyArray<number> {
   /**
    * Creates a vector from a transformation matrix's translation.
    * @param m - The translation matrix.
@@ -51,7 +51,7 @@ export class Vector extends Float32Array implements Readonly<Float32Array> {
    * @param values - The values in the vector.
    */
   constructor(...values: number[]) {
-    super(values);
+    super(...values);
   }
 
   /** The magnitude (size) of this vector. */
