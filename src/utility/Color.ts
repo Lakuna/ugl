@@ -55,4 +55,31 @@ export class Color extends Float32Array {
 	set a(value: number) {
 		this[3] = value;
 	}
+
+	/** The luminance of this color. */
+	get luminance(): number {
+		const rgb: number[] = [];
+		for (let i = 0; i < 3; i++) {
+			rgb.push(this[i] as number > 0.03928
+				? (((this[i] as number) + 0.055) / 1.055) ** 2.4
+				: (this[i] as number) / 12.92
+			);
+		}
+
+		return 0.2126 * (rgb[0] as number) + 0.7152 * (rgb[1] as number) + 0.0722 * (rgb[2] as number);
+	}
+
+	/**
+	 * Calculates the contrast ratio between two colors.
+	 * @param c - The other color.
+	 * @returns The contrast ratio between the two colors.
+	 */
+	contrast(c: Color): number {
+		const l1: number = this.luminance;
+		const l2: number = c.luminance;
+
+		return l1 > l2
+			? (l1 + 0.05) / (l2 + 0.05)
+			: (l2 + 0.05) / (l1 + 0.05);
+	}
 }
