@@ -1,10 +1,4 @@
-import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction } from "./WebGLConstant.js";
-
-const TEXTURE0 = 0x84C0;
-const TEXTURE_MAG_FILTER = 0x2800;
-const TEXTURE_MIN_FILTER = 0x2801;
-const TEXTURE_WRAP_S = 0x2802;
-const TEXTURE_WRAP_T = 0x2803;
+import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T } from "./WebGLConstant.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
 export abstract class Texture {

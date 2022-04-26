@@ -1,8 +1,7 @@
 import { FramebufferTarget, FramebufferAttachment } from "./WebGLConstant.js";
 import { Texture } from "./Texture.js";
 import { Renderbuffer } from "./Renderbuffer.js";
-
-const RENDERBUFFER = 0x8D41;
+import { RENDERBUFFER } from "./WebGLConstant.js";
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
 export class Framebuffer {

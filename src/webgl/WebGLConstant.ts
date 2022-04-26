@@ -1,5 +1,5 @@
 /** Types of shaders. */
-export const enum ShaderType {
+export enum ShaderType {
   /** A fragment shader, which calculates a color for each pixel of a primitive. */
   FRAGMENT_SHADER = 0x8B30,
 
@@ -8,13 +8,13 @@ export const enum ShaderType {
 }
 
 /** Modes for capturing transform feedback varyings. */
-export const enum TransformFeedbackBufferMode {
+export enum TransformFeedbackBufferMode {
   INTERLEAVED_ATTRIBS = 0x8C8C,
   SEPARATE_ATTRIBS = 0x8C8D
 }
 
 /** Possible variable types for uniforms. */
-export const enum UniformType {
+export enum UniformType {
   /** A 32-bit signed floating-point value. */
   FLOAT = 0x1406,
 
@@ -114,7 +114,7 @@ export const enum UniformType {
 }
 
 /** Possible variable types for attributes. */
-export const enum AttributeType {
+export enum AttributeType {
   /** A 32-bit signed floating-point value. */
   FLOAT = 0x1406,
 
@@ -174,7 +174,7 @@ export const enum AttributeType {
 }
 
 /** Binding points for buffers. */
-export const enum BufferTarget {
+export enum BufferTarget {
   /** A buffer containing vertex attributes. */
   ARRAY_BUFFER = 0x8892,
 
@@ -201,7 +201,7 @@ export const enum BufferTarget {
 }
 
 /** Usage patterns of a buffer's data store for optimization purposes. */
-export const enum BufferUsage {
+export enum BufferUsage {
   /** The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands. */
   STATIC_DRAW = 0x88E4,
 
@@ -231,7 +231,7 @@ export const enum BufferUsage {
 }
 
 /** Types of data that can be stored as components in a buffer. */
-export const enum BufferDataType {
+export enum BufferDataType {
   /** An 8-bit signed integer. */
   BYTE = 0x1400,
 
@@ -252,7 +252,7 @@ export const enum BufferDataType {
 }
 
 /** Types of primitives that can be rasterized. */
-export const enum Primitive {
+export enum Primitive {
 	/** Draws a dot at each vertex. */
 	POINTS = 0x0000,
 
@@ -276,7 +276,7 @@ export const enum Primitive {
 }
 
 /** Binding points for textures. */
-export const enum TextureTarget {
+export enum TextureTarget {
   /** A two-dimensional texture. */
   TEXTURE_2D = 0x0DE1,
 
@@ -291,7 +291,7 @@ export const enum TextureTarget {
 }
 
 /** Formats for the color components in a texture. */
-export const enum TextureFormat {
+export enum TextureFormat {
   /** Reads the red, green, and blue components from the color buffer. */
   RGBA = 0x1908,
 
@@ -366,7 +366,7 @@ export const enum TextureFormat {
 }
 
 /** Data types for texel data. */
-export const enum TextureDataType {
+export enum TextureDataType {
   UNSIGNED_BYTE = 0x1401,
   UNSIGNED_SHORT_5_6_5 = 0x8363,
   UNSIGNED_SHORT_4_4_4_4 = 0x8033,
@@ -388,7 +388,7 @@ export const enum TextureDataType {
 }
 
 /** Magnification and minification filters for textures. */
-export const enum TextureFilter {
+export enum TextureFilter {
   NEAREST = 0x2600,
   LINEAR = 0x2601,
   NEAREST_MIPMAP_NEAREST = 0x2700,
@@ -398,14 +398,14 @@ export const enum TextureFilter {
 }
 
 /** Wrapping functions for textures. */
-export const enum TextureWrapFunction {
+export enum TextureWrapFunction {
   REPEAT = 0x2901,
   CLAMP_TO_EDGE = 0x812F,
   MIRRORED_REPEAT = 0x8370
 }
 
 /** Formats for a renderbuffer. */
-export const enum RenderbufferFormat {
+export enum RenderbufferFormat {
   RGBA4 = 0x8056,
   RGB565 = 0x8D62,
   RGB5_A1 = 0x8057,
@@ -453,7 +453,7 @@ export const enum RenderbufferFormat {
 }
 
 /** Binding points for framebuffers. */
-export const enum FramebufferTarget {
+export enum FramebufferTarget {
   /** A collection buffer data storage of color, alpha, depth, and stencil buffers used to render an image. */
   FRAMEBUFFER = 0x8D40,
 
@@ -465,7 +465,7 @@ export const enum FramebufferTarget {
 }
 
 /** Attachment points for framebuffer attachments. */
-export const enum FramebufferAttachment {
+export enum FramebufferAttachment {
   /** The first color buffer. */
   COLOR_ATTACHMENT0 = 0x8CE0,
 
@@ -523,3 +523,42 @@ export const enum FramebufferAttachment {
   /** The depth and stencil buffer. */
   DEPTH_STENCIL_ATTACHMENT = 0x821A
 }
+
+/** A renderbuffer. */
+export const RENDERBUFFER = 0x8D41;
+
+/** The deletion status of a shader or shader program. */
+export const DELETE_STATUS = 0x8B80;
+
+/** The linking status of a shader program. */
+export const LINK_STATUS = 0x8B82;
+
+/** The validation status of a shader program. */
+export const VALIDATE_STATUS = 0x8B83;
+
+/** The number of active attributes in a shader program. */
+export const ACTIVE_ATTRIBUTES = 0x8B89;
+
+/** The number of active uniforms in a shader program. */
+export const ACTIVE_UNIFORMS = 0x8B86;
+
+/** The number of active varyings that are used for transform feedback in a shader program. */
+export const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
+
+/** The compilation status of a shader. */
+export const COMPILE_STATUS = 0x8B81;
+
+/** The first texture unit. */
+export const TEXTURE0 = 0x84C0;
+
+/** The magnification filter for a texture. */
+export const TEXTURE_MAG_FILTER = 0x2800;
+
+/** The minification filter for a texture. */
+export const TEXTURE_MIN_FILTER = 0x2801;
+
+/** The wrapping mode for a texture on the S axis. */
+export const TEXTURE_WRAP_S = 0x2802;
+
+/** The wrapping mode for a texture on the T axis. */
+export const TEXTURE_WRAP_T = 0x2803;

@@ -3,13 +3,7 @@ import { ShaderType, TransformFeedbackBufferMode } from "./WebGLConstant.js";
 import { Uniform } from "./Uniform.js";
 import { Attribute } from "./Attribute.js";
 import { TransformFeedbackVarying } from "./TransformFeedbackVarying.js";
-
-const DELETE_STATUS = 0x8B80;
-const LINK_STATUS = 0x8B82;
-const VALIDATE_STATUS = 0x8B83;
-const ACTIVE_ATTRIBUTES = 0x8B89;
-const ACTIVE_UNIFORMS = 0x8B86;
-const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
+import { DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */
 export class Program {

@@ -1,7 +1,8 @@
 import { GameObject } from "./GameObject.js";
 import { Umbra } from "./Umbra.js";
 
-export const enum Event {
+/** Events that components can listen for. */
+export enum Event {
   Update,
   FixedUpdate,
   Load
@@ -27,6 +28,6 @@ export class Component {
   /** The order that this component's events are triggered relative to other components. A lower value makes the event trigger earlier. */
   priority: number;
 
-  /** Events attached to this component. */
+  /** A map of functions to the events that trigger them for this component. */
   events: Map<Event, (umbra: Umbra) => void>
 }

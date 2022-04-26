@@ -1,7 +1,5 @@
 import { ShaderType } from "./WebGLConstant.js";
-
-const COMPILE_STATUS = 0x8B81;
-const DELETE_STATUS = 0x8B80;
+import { COMPILE_STATUS, DELETE_STATUS } from "./WebGLConstant.js";
 
 /** A function which runs on the GPU. */
 export class Shader {
