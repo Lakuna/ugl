@@ -76,20 +76,6 @@ export interface Matrix extends ArrayLike<number> {
   multiplyScalar(scalar: number): this;
 
   /**
-   * Sets the contents of this matrix.
-   * @param columns - The new columns to put into in this matrix.
-   * @returns This matrix, with its contents replaced with the given columns.
-   */
-  set(...columns: number[][]): this;
-
-  /**
-   * Sets the contents of this matrix (must be made square).
-   * @param values - The new values to put into this matrix in column-major order.
-   * @returns This matrix, with its contents replaced with the given values.
-   */
-  set(...values: number[]): this;
-
-  /**
    * Creates a submatrix by removing the given rows and columns from this matrix.
    * @param rows - The row(s) to remove.
    * @param columns - The column(s) to remove.
