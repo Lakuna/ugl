@@ -1,7 +1,7 @@
+import { IMatrix } from "./IMatrix.js";
 import { Matrix } from "./Matrix.js";
-import { AnySizeMatrix } from "./AnySizeMatrix.js";
 
-export class Matrix2 extends Float32Array implements Matrix {
+export class Matrix2 extends Float32Array implements IMatrix {
   /** Creates a 2x2 identity matrix. */
   public constructor();
 
@@ -45,10 +45,12 @@ export class Matrix2 extends Float32Array implements Matrix {
    * @returns This matrix, with its contents set to its adjugate.
    */
   public adjoint(): this {
-    [this[0], this[1], this[2], this[3]]
-      = [this[3] as number, -(this[1] as number), -(this[2] as number), this[0] as number];
-
-    return this;
+    return this.setContents(
+      this[3] as number,
+      -(this[1] as number),
+      -(this[2] as number),
+      this[0] as number
+    );
   }
 
   /**
@@ -56,7 +58,10 @@ export class Matrix2 extends Float32Array implements Matrix {
    * @returns A clone of this matrix.
    */
   public clone(): Matrix2 {
-    return new Matrix2(...(this as ArrayLike<number> as [number, number, number, number]));
+    return new Matrix2(
+      this[0] as number, this[1] as number,
+      this[2] as number, this[3] as number
+    );
   }
 
   /**
@@ -92,7 +97,38 @@ export class Matrix2 extends Float32Array implements Matrix {
 
   /** The Frobenius norm of this matrix. */
   public get frob(): number {
-    return Math.hypot(this[0] as number, this[1] as number, this[2] as number, this[3] as number);
+    return Math.hypot(
+      this[0] as number, this[1] as number,
+      this[2] as number, this[3] as number
+    );
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given angle.
+   * @param angle - The angle in radians.
+   * @returns A transformation matrix that rotates a matrix by the given angle.
+   */
+  public static fromRotation(angle: number): Matrix2 {
+    const s: number = Math.sin(angle);
+    const c: number = Math.cos(angle);
+
+    return new Matrix2(
+      c, s,
+      -s, c
+    );
+  }
+
+  /**
+   * Creates a transformation matrix that scales a matrix by the given factors.
+   * @param x - The scaling factor on the horizontal axis.
+   * @param y - The scaling factor on the vertical axis.
+   * @returns A transformation matrix that scales a matrix by the given factors.
+   */
+  public static fromScaling(x: number, y: number): Matrix2 {
+    return new Matrix2(
+      x, 0,
+      0, y
+    );
   }
 
   /** The number of rows in this matrix. */
@@ -103,12 +139,10 @@ export class Matrix2 extends Float32Array implements Matrix {
    * @returns This matrix, with its contents set to the identity.
    */
   public identity(): this {
-    this[0] = 1;
-    this[1] = 0;
-    this[2] = 0;
-    this[3] = 1;
-
-    return this;
+    return this.setContents(
+      1, 0,
+      0, 1
+    );
   }
 
   /**
@@ -117,10 +151,12 @@ export class Matrix2 extends Float32Array implements Matrix {
    */
   public invert(): this {
     const d: number = 1 / this.determinant;
-    [this[0], this[1], this[2], this[3]]
-      = [(this[3] as number) * 3, -(this[1] as number) * d, -(this[2] as number) * d, (this[0] as number) * d];
-
-    return this;
+    return this.setContents(
+      (this[3] as number) * d,
+      -(this[1] as number) * d,
+      -(this[2] as number) * d,
+      (this[0] as number) * d
+    );
   }
 
   /**
@@ -153,12 +189,44 @@ export class Matrix2 extends Float32Array implements Matrix {
    * @returns This matrix, containing the product of the factors.
    */
   public multiplyScalar(scalar: number): this {
+    this[0] *= scalar;
+    this[1] *= scalar;
+    this[2] *= scalar;
+    this[3] *= scalar;
+
+    return this;
+  }
+
+  /**
+   * Rotates this matrix by the given angle.
+   * @param angle - The angle in radians.
+   * @returns This matrix, with its transformation rotated.
+   */
+  public rotate(angle: number): this {
+    const s: number = Math.sin(angle);
+    const c: number = Math.cos(angle);
+
     return this.setContents(
-      (this[0] as number) * scalar,
-      (this[1] as number) * scalar,
-      (this[2] as number) * scalar,
-      (this[3] as number) * scalar
+      (this[0] as number) * c + (this[2] as number) * s,
+      (this[1] as number) * c + (this[3] as number) * s,
+      (this[0] as number) * -s + (this[2] as number) * c,
+      (this[1] as number) * -s + (this[3] as number) * c
     );
+  }
+
+  /**
+   * Scales this matrix by the given factors.
+   * @param x - The scaling factor on the horizontal axis.
+   * @param y - The scaling factor on the vertical axis.
+   * @returns This matrix, with its transformation scaled.
+   */
+  public scale(x: number, y: number): this {
+    this[0] *= x;
+    this[1] *= x;
+    this[2] *= y;
+    this[3] *= y;
+
+    return this;
   }
 
   /**
@@ -184,7 +252,7 @@ export class Matrix2 extends Float32Array implements Matrix {
    * @param columns - The column(s) to remove.
    * @returns A submatrix of this matrix.
    */
-  public submatrix(rows: number | number[], columns: number | number[]): AnySizeMatrix {
+  public submatrix(rows: number | number[], columns: number | number[]): Matrix {
     const out: number[][] = [];
 
     if (typeof rows == "number") { rows = [rows]; }
@@ -200,7 +268,7 @@ export class Matrix2 extends Float32Array implements Matrix {
       out.push(column);
     }
 
-    return new AnySizeMatrix(...out);
+    return new Matrix(...out);
   }
 
   /**

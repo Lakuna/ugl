@@ -1,5 +1,5 @@
-import { Matrix } from "./Matrix.js";
+import { IMatrix } from "./IMatrix.js";
 
-export class Matrix4 extends Float32Array implements Matrix {
-  
+export class Matrix4 extends Float32Array implements IMatrix {
+
 }
