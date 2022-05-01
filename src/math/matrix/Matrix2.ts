@@ -150,12 +150,18 @@ export class Matrix2 extends Float32Array implements IMatrix {
    * @returns This matrix, with its contents inverted.
    */
   public invert(): this {
-    const d: number = 1 / this.determinant;
+    const a0: number = this[0] as number;
+    const a1: number = this[1] as number;
+    const a2: number = this[2] as number;
+    const a3: number = this[3] as number;
+
+    const det: number = 1 / (a0 * a3 - a2 * a1);
+
     return this.setContents(
-      (this[3] as number) * d,
-      -(this[1] as number) * d,
-      -(this[2] as number) * d,
-      (this[0] as number) * d
+      a3 * det,
+      -a1 * det,
+      -a2 * det,
+      a0 * det
     );
   }
 
@@ -175,11 +181,19 @@ export class Matrix2 extends Float32Array implements IMatrix {
    * @returns This matrix, containing the product of the factors.
    */
   public multiply(matrix: Matrix2): this {
+    const a0: number = this[0] as number;
+    const a1: number = this[1] as number;
+    const a2: number = this[2] as number;
+    const a3: number = this[3] as number;
+
+    const b0: number = matrix[0] as number;
+    const b1: number = matrix[1] as number;
+    const b2: number = matrix[2] as number;
+    const b3: number = matrix[3] as number;
+
     return this.setContents(
-      (this[0] as number) * (matrix[0] as number) + (this[2] as number) * (matrix[1] as number),
-      (this[1] as number) * (matrix[0] as number) + (this[3] as number) * (matrix[1] as number),
-      (this[0] as number) * (matrix[2] as number) + (this[2] as number) * (matrix[3] as number),
-      (this[1] as number) * (matrix[2] as number) + (this[3] as number) * (matrix[3] as number)
+      a0 * b0 + a2 * b1, a1 * b0 + a3 * b1,
+      a0 * b2 + a2 * b3, a1 * b2 + a3 * b3
     );
   }
 
@@ -203,14 +217,19 @@ export class Matrix2 extends Float32Array implements IMatrix {
    * @returns This matrix, with its transformation rotated.
    */
   public rotate(angle: number): this {
+    const a0: number = this[0] as number;
+    const a1: number = this[1] as number;
+    const a2: number = this[2] as number;
+    const a3: number = this[3] as number;
+
     const s: number = Math.sin(angle);
     const c: number = Math.cos(angle);
 
     return this.setContents(
-      (this[0] as number) * c + (this[2] as number) * s,
-      (this[1] as number) * c + (this[3] as number) * s,
-      (this[0] as number) * -s + (this[2] as number) * c,
-      (this[1] as number) * -s + (this[3] as number) * c
+      a0 * c + a2 * s,
+      a1 * c + a3 * s,
+      a0 * -s + a2 * c,
+      a1 * -s + a3 * c
     );
   }
 
