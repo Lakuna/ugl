@@ -1,5 +1,5 @@
 import { Matrix } from "./Matrix.js";
 
-export class Vector extends Matrix {
+export class Matrix4 extends Matrix {
 
 }
