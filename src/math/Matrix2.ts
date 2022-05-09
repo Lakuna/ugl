@@ -395,9 +395,9 @@ export class Matrix2 extends Matrix {
    */
   public static override subtract(a: Matrix2, b: Matrix2, out: Matrix2 = new Matrix2()): Matrix2 {
     out[0] = (a[0] as number) - (b[0] as number);
-    out[1] = (a[1] as number) - (b[0] as number);
-    out[2] = (a[2] as number) - (b[0] as number);
-    out[3] = (a[3] as number) - (b[0] as number);
+    out[1] = (a[1] as number) - (b[1] as number);
+    out[2] = (a[2] as number) - (b[2] as number);
+    out[3] = (a[3] as number) - (b[3] as number);
 
     return out;
   }
