@@ -147,7 +147,7 @@ export class Matrix extends Float32Array {
   public static copy(src: Matrix, dst: Matrix): Matrix {
     if (src.width != dst.width || src.height != dst.height) { throw new Error("Matrix size mismatch."); }
 
-    for (let i = 0; i < this.length; i++) {
+    for (let i = 0; i < src.length; i++) {
       dst[i] = src[i] as number;
     }
 
