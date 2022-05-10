@@ -1,4 +1,7 @@
 import { Matrix } from "./Matrix.js";
+import { Numbers1x3, Numbers1x4 } from "../types/Numbers.js";
+import { Vector3 } from "./Vector3.js";
+import { Quaternion } from "./Quaternion.js";
 
 /** A collection of numbers arranged in four columns and four rows. */
 export class Matrix4 extends Matrix {
@@ -286,6 +289,563 @@ export class Matrix4 extends Matrix {
   }
 
   /**
+   * Creates a transformation matrix that rotates a matrix by the given quaternion.
+   * @param q The quaternion.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromQuaternion(q: Numbers1x4, out: Matrix4 = new Matrix4()): Matrix4 {
+    const x: number = q[0];
+    const y: number = q[1];
+    const z: number = q[2];
+    const w: number = q[3];
+
+    const x2: number = x + x;
+    const y2: number = y + y;
+    const z2: number = z + z;
+
+    const xx: number = x * x2;
+    const yx: number = y * x2;
+    const yy: number = y * y2;
+    const zx: number = z * x2;
+    const zy: number = z * y2;
+    const zz: number = z * z2;
+    const wx: number = w * x2;
+    const wy: number = w * y2;
+    const wz: number = w * z2;
+
+    out[0] = 1 - yy - zz;
+    out[1] = yx + wz;
+    out[2] = zx - wy;
+    out[3] = 0;
+    out[4] = yx - wz;
+    out[5] = 1 - xx - zz;
+    out[6] = zy + wx;
+    out[7] = 0;
+    out[8] = zx + wy;
+    out[9] = zy - wx;
+    out[10] = 1 - xx - yy;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given angle around the given axis.
+   * @param r The angle in radians.
+   * @param v The axis.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromRotation(r: number, v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    let x: number = v[0];
+    let y: number = v[1];
+    let z: number = v[2];
+
+    const len: number = 1 / Math.hypot(x, y, z);
+
+    x *= len;
+    y *= len;
+    z *= len;
+
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+    const t: number = 1 - c;
+
+    out[0] = x * x * t + c;
+    out[1] = y * x * t + z * s;
+    out[2] = z * x * t - y * s;
+    out[3] = 0;
+    out[4] = x * y * t - z * s;
+    out[5] = y * y * t + c;
+    out[6] = z * y * t + x * s;
+    out[7] = 0;
+    out[8] = x * z * t + y * s;
+    out[9] = y * z * t - x * s;
+    out[10] = z * z * t + c;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given quaternion and translates by the given vector.
+   * @param q The quaternion.
+   * @param v The vector.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromRotationTranslation(q: Numbers1x4, v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const x: number = q[0];
+    const y: number = q[1];
+    const z: number = q[2];
+    const w: number = q[3];
+
+    const x2: number = x + x;
+    const y2: number = y + y;
+    const z2: number = z + z;
+
+    const xx: number = x * x2;
+    const xy: number = x * y2;
+    const xz: number = x * z2;
+    const yy: number = y * y2;
+    const yz: number = y * z2;
+    const zz: number = z * z2;
+    const wx: number = w * x2;
+    const wy: number = w * y2;
+    const wz: number = w * z2;
+
+    out[0] = 1 - (yy + zz);
+    out[1] = xy + wz;
+    out[2] = xz - wy;
+    out[3] = 0;
+    out[4] = xy - wz;
+    out[5] = 1 - (xx + zz);
+    out[6] = yz + wx;
+    out[7] = 0;
+    out[8] = xz + wy;
+    out[9] = yz - wx;
+    out[10] = 1 - (xx + yy);
+    out[11] = 0;
+    out[12] = v[0];
+    out[13] = v[1];
+    out[14] = v[2];
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given quaternion, translates by the given vector, and scales by the given vector.
+   * @param q The quaternion.
+   * @param v The translation vector.
+   * @param s The scaling vector.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromRotationTranslationScale(q: Numbers1x4, v: Numbers1x3, s: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const x: number = q[0];
+    const y: number = q[1];
+    const z: number = q[2];
+    const w: number = q[3];
+
+    const x2: number = x + x;
+    const y2: number = y + y;
+    const z2: number = z + z;
+
+    const xx: number = x * x2;
+    const xy: number = x * y2;
+    const xz: number = x * z2;
+    const yy: number = y * y2;
+    const yz: number = y * z2;
+    const zz: number = z * z2;
+    const wx: number = w * x2;
+    const wy: number = w * y2;
+    const wz: number = w * z2;
+
+    const sx: number = s[0];
+    const sy: number = s[1];
+    const sz: number = s[2];
+
+    out[0] = (1 - (yy + zz)) * sx;
+    out[1] = (xy + wz) * sx;
+    out[2] = (xz - wy) * sx;
+    out[3] = 0;
+    out[4] = (xy - wz) * sy;
+    out[5] = (1 - (xx + zz)) * sy;
+    out[6] = (yz + wx) * sy;
+    out[7] = 0;
+    out[8] = (xz + wy) * sz;
+    out[9] = (yz - wx) * sz;
+    out[10] = (1 - (xx + yy)) * sz;
+    out[11] = 0;
+    out[12] = v[0];
+    out[13] = v[1];
+    out[14] = v[2];
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given quaternion about the given origin, translates by the given vector, and scales by the given vector about the given origin.
+   * @param q The quaternion.
+   * @param v The translation vector.
+   * @param s The scaling vector.
+   * @param o The origin.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromRotationTranslationScaleOrigin(q: Numbers1x4, v: Numbers1x3, s: Numbers1x3, o: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const x: number = q[0];
+    const y: number = q[1];
+    const z: number = q[2];
+    const w: number = q[3];
+
+    const x2: number = x + x;
+    const y2: number = y + y;
+    const z2: number = z + z;
+
+    const xx: number = x * x2;
+    const xy: number = x * y2;
+    const xz: number = x * z2;
+    const yy: number = y * y2;
+    const yz: number = y * z2;
+    const zz: number = z * z2;
+    const wx: number = w * x2;
+    const wy: number = w * y2;
+    const wz: number = w * z2;
+
+    const sx: number = s[0];
+    const sy: number = s[1];
+    const sz: number = s[2];
+
+    const ox: number = o[0];
+    const oy: number = o[1];
+    const oz: number = o[2];
+
+    const out0: number = (1 - (yy + zz)) * sx;
+    const out1: number = (xy + wz) * sx;
+    const out2: number = (xz - wy) * sx;
+    const out4: number = (xy - wz) * sy;
+    const out5: number = (1 - (xx + zz)) * sy;
+    const out6: number = (yz + wx) * sy;
+    const out8: number = (xz + wy) * sz;
+    const out9: number = (yz - wx) * sz;
+    const out10: number = (1 - (xx + yy)) * sz;
+
+    out[0] = out0;
+    out[1] = out1;
+    out[2] = out2;
+    out[3] = 0;
+    out[4] = out4;
+    out[5] = out5;
+    out[6] = out6;
+    out[7] = 0;
+    out[8] = out8;
+    out[9] = out9;
+    out[10] = out10;
+    out[11] = 0;
+    out[12] = v[0] + ox - (out0 * ox + out4 * oy + out8 * oz);
+    out[13] = v[1] + oy - (out1 * ox + out5 * oy + out9 * oz);
+    out[14] = v[2] + oz - (out2 * ox + out6 * oy + out10 * oz);
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that scales a matrix by the given vector.
+   * @param v The vector.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromScaling(v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    out[0] = v[0];
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = v[1];
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = v[2];
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that translates a matrix by the given vector.
+   * @param v The vector.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromTranslation(v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = v[0];
+    out[13] = v[1];
+    out[14] = v[2];
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given angle around the horizontal axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromXRotation(r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = c;
+    out[6] = s;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = -s;
+    out[10] = c;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given angle around the vertical axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromYRotation(r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = c;
+    out[1] = 0;
+    out[2] = -s;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = s;
+    out[9] = 0;
+    out[10] = c;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Creates a transformation matrix that rotates a matrix by the given angle around the depth axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the transformation matrix in.
+   * @returns The transformation matrix.
+   */
+  public static fromZRotation(r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = c;
+    out[1] = s;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = -s;
+    out[5] = c;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Generates a frustum matrix with the given bounds.
+   * @param left The left bound of the frustum.
+   * @param right The right bound of the frustum.
+   * @param bottom The bottom bound of the frustum.
+   * @param top The top bound of the frustum.
+   * @param near The near bound of the frustum.
+   * @param far The far bound of the frustum.
+   * @param out The matrix that will store the frustum matrix.
+   * @returns The frustum matrix.
+   */
+  public static frustum(left: number, right: number, bottom: number, top: number, near: number, far: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const rl: number = 1 / (right - left);
+    const tb: number = 1 / (top - bottom);
+    const nf: number = 1 / (near - far);
+
+    out[0] = near * 2 * rl;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = near * 2 * tb;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = (right + left) * rl;
+    out[9] = (top + bottom) * tb;
+    out[10] = (far + near) * nf;
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = far * near * 2 * nf;
+    out[15] = 0;
+
+    return out;
+  }
+
+  /**
+   * Gets the rotation quaternion component of a transformation matrix.
+   * @param m The transformation matrix.
+   * @param out The quaternion to store the rotation quaternion in.
+   * @returns The rotation quaternion.
+   */
+  public static getRotation(m: Matrix4, out: Quaternion = new Quaternion()): Quaternion {
+    const scaling: Vector3 = Matrix4.getScaling(m);
+
+    const is1: number = 1 / (scaling[0] as number);
+    const is2: number = 1 / (scaling[1] as number);
+    const is3: number = 1 / (scaling[2] as number);
+
+    const sm00: number = (m[0] as number) * is1;
+    const sm01: number = (m[1] as number) * is2;
+    const sm02: number = (m[2] as number) * is3;
+    const sm10: number = (m[4] as number) * is1;
+    const sm11: number = (m[5] as number) * is2;
+    const sm12: number = (m[6] as number) * is3;
+    const sm20: number = (m[8] as number) * is1;
+    const sm21: number = (m[9] as number) * is2;
+    const sm22: number = (m[10] as number) * is3;
+
+    const trace: number = sm00 + sm11 + sm22;
+
+    if (trace > 0) {
+      const s: number = Math.sqrt(trace + 1) * 2;
+
+      out[0] = (sm12 - sm21) / s;
+      out[1] = (sm20 - sm02) / s;
+      out[2] = (sm01 - sm10) / s;
+      out[3] = s / 4;
+
+      return out;
+    }
+
+    if (sm00 > sm11 && sm00 > sm22) {
+      const s: number = Math.sqrt(1 + sm00 - sm11 - sm22) * 2;
+
+      out[0] = s / 4;
+      out[1] = (sm01 + sm10) / s;
+      out[2] = (sm20 + sm02) / s;
+      out[3] = (sm12 -  sm21) / s;
+
+      return out;
+    }
+
+    if (sm11 > sm22) {
+      const s: number = Math.sqrt(1 + sm11 - sm00 - sm22) * 2;
+
+      out[0] = (sm01 + sm10) / s;
+      out[1] = s / 4;
+      out[2] = (sm12 + sm21) / s;
+      out[3] = (sm20 - sm02) / s;
+
+      return out;
+    }
+
+    const s: number = Math.sqrt(1 + sm22 - sm00 - sm11) * 2;
+
+    out[0] = (sm20 + sm02) / s;
+    out[1] = (sm12 + sm21) / s;
+    out[2] = s / 4;
+    out[3] = (sm01 - sm10) / s;
+
+    return out;
+  }
+
+  /**
+   * The scaling vector component of this transformation matrix.
+   * @param out The vector to store the scaling vector in.
+   * @returns The scaling vector.
+   */
+  public getRotation(out: Quaternion = new Quaternion()): Quaternion {
+    return Matrix4.getRotation(this, out);
+  }
+
+  /**
+   * Gets the scaling vector component of a transformation matrix.
+   * @param m The transformation matrix.
+   * @param out The vector to store the scaling vector in.
+   * @returns The scaling vector.
+   */
+  public static getScaling(m: Matrix4, out: Vector3 = new Vector3()): Vector3 {
+    out[0] = Math.hypot(m[0] as number, m[1] as number, m[2] as number);
+    out[1] = Math.hypot(m[4] as number, m[5] as number, m[6] as number);
+    out[2] = Math.hypot(m[8] as number, m[9] as number, m[10] as number);
+
+    return out;
+  }
+
+  /**
+   * The scaling vector component of this transformation matrix.
+   * @param out The vector to store the scaling vector in.
+   * @returns The scaling vector.
+   */
+  public getScaling(out: Vector3 = new Vector3()): Vector3 {
+    return Matrix4.getScaling(this, out);
+  }
+
+  /**
+   * Gets the translation vector component of a transformation matrix.
+   * @param m The transformation matrix.
+   * @param out The vector to store the translation vector in.
+   * @returns The translation vector.
+   */
+  public static getTranslation(m: Matrix4, out: Vector3 = new Vector3()): Vector3 {
+    out[0] = m[12] as number;
+    out[1] = m[13] as number;
+    out[2] = m[14] as number;
+
+    return out;
+  }
+
+  /**
+   * The translation vector component of this transformation matrix.
+   * @param out The vector to store the translation vector in.
+   * @returns The translation vector.
+   */
+  public getTranslation(out: Vector3 = new Vector3()): Vector3 {
+    return Matrix4.getTranslation(this, out);
+  }
+
+  /**
    * Sets a matrix to the identity.
    * @param m The matrix.
    * @returns The matrix.
@@ -385,6 +945,77 @@ export class Matrix4 extends Matrix {
    */
   public override invert(out: Matrix4 = this): Matrix4 {
     return Matrix4.invert(this, out);
+  }
+
+  /**
+   * Generates a look-at matrix with the given eye position, focal point, and up axis.
+   * @param eye The position of the viewer.
+   * @param center The focal point.
+   * @param up The up axis.
+   * @param out The matrix to store the look-at matrix in.
+   * @returns The look-at matrix.
+   */
+  public static lookAt(eye: Numbers1x3, center: Numbers1x3, up: Numbers1x3 = [0, 1, 0], out: Matrix4 = new Matrix4()): Matrix4 {
+    const eyex: number = eye[0];
+    const eyey: number = eye[1];
+    const eyez: number = eye[2];
+
+    const centerx: number = center[0];
+    const centery: number = center[1];
+    const centerz: number = center[2];
+
+    const upx: number = up[0];
+    const upy: number = up[1];
+    const upz: number = up[2];
+
+    let z0: number = eyex - centerx;
+    let z1: number = eyey - centery;
+    let z2: number = eyez - centerz;
+
+    const lenz: number = 1 / Math.hypot(z0, z1, z2);
+
+    z0 *= lenz;
+    z1 *= lenz;
+    z2 *= lenz;
+
+    let x0: number = upy * z2 - upz * z1;
+    let x1: number = upz * z0 - upx * z2;
+    let x2: number = upx * z1 - upy * z0;
+
+    const lenx: number = 1 / Math.hypot(x0, x1, x2);
+
+    x0 *= lenx;
+    x1 *= lenx;
+    x2 *= lenx;
+
+    let y0: number = z1 * x2 - z2 * x1;
+    let y1: number = z2 * x0 - z0 * x2;
+    let y2: number = z0 * x1 - z1 * x0;
+
+    const leny: number = 1 / Math.hypot(y0, y1, y2);
+
+    y0 *= leny;
+    y1 *= leny;
+    y2 *= leny;
+
+    out[0] = x0;
+    out[1] = y0;
+    out[2] = z0;
+    out[3] = 0;
+    out[4] = x1;
+    out[5] = y1;
+    out[6] = z1;
+    out[7] = 0;
+    out[8] = x2;
+    out[9] = y2;
+    out[10] = z2;
+    out[11] = 0;
+    out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+    out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+    out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+    out[15] = 1;
+
+    return out;
   }
 
   /**
@@ -498,6 +1129,390 @@ export class Matrix4 extends Matrix {
   }
 
   /**
+   * Generates an orthogonal projection matrix with the given bounds.
+   * @param left The left bound of the frustum.
+   * @param right The right bound of the frustum.
+   * @param bottom The bottom bound of the frustum.
+   * @param top The top bound of the frustum.
+   * @param near The near bound of the frustum.
+   * @param far The far bound of the frustum.
+   * @param out The matrix that will store the orthogonal projection matrix.
+   * @returns The orthogonal projection matrix.
+   */
+  public static orthographic(left: number, right: number, bottom: number, top: number, near: number, far: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const lr: number = 1 / (left - right);
+    const bt: number = 1 / (bottom - top);
+    const nf: number = 1 / (near - far);
+
+    out[0] = -2 * lr;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = -2 * bt;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 2 * nf;
+    out[11] = 0;
+    out[12] = (left + right) * lr;
+    out[13] = (top + bottom) * bt;
+    out[14] = (far + near) * nf;
+    out[15] = 1;
+
+    return out;
+  }
+
+  /**
+   * Generates a perspective projection matrix with the given bounds.
+   * @param fovy The vertical field of view in radians.
+   * @param aspect The aspect ratio.
+   * @param near The near bound of the frustum.
+   * @param far The far bound of the frustum.
+   * @param out The matrix that will store the perspective projection matrix.
+   * @returns The perspective projection matrix.
+   */
+  public static perspective(fovy: number, aspect: number, near: number, far?: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const f: number = 1 / Math.tan(fovy / 2);
+
+    out[0] = f / aspect;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = f;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = -1;
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = -2 * near;
+    out[15] = 0;
+
+    if (far) {
+      const nf: number = 1 / (near - far);
+
+      out[10] = (far + near) * nf;
+      out[14] = 2 * far * near * nf;
+    }
+
+    return out;
+  }
+
+  /**
+   * Generates a perspective projection matrix with the given field of view.
+   * @param up The angle to the top of the frustum in radians.
+   * @param down The angle to the top of the frustum in radians.
+   * @param left The angle to the top of the frustum in radians.
+   * @param right The angle to the top of the frustum in radians.
+   * @param near The near bound of the frustum.
+   * @param far The far bound of the frustum.
+   * @param out The matrix that will store the perspective projection matrix.
+   * @returns The perspective projection matrix.
+   */
+  public static perspectiveFromFieldOfView(up: number, down: number, left: number, right: number, near: number, far: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const upTan: number = Math.tan(up);
+    const downTan: number = Math.tan(down);
+    const leftTan: number = Math.tan(left);
+    const rightTan: number = Math.tan(right);
+
+    const xScale: number = 2 / (leftTan + rightTan);
+    const yScale: number = 2 / (upTan + downTan);
+
+    out[0] = xScale;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = yScale;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = -((leftTan - rightTan) * xScale / 2);
+    out[9] = (upTan - downTan) * yScale / 2;
+    out[10] = far / (near - far);
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = (far * near) / (near - far);
+    out[15] = 0;
+
+    return out;
+  }
+
+  /**
+   * Rotates a matrix by the given angle around the given axis.
+   * @param m The matrix.
+   * @param r The angle in radians.
+   * @param v The axis.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public static rotate(m: Matrix4, r: number, v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const a00: number = m[0] as number;
+    const a01: number = m[1] as number;
+    const a02: number = m[2] as number;
+    const a03: number = m[3] as number;
+    const a10: number = m[4] as number;
+    const a11: number = m[5] as number;
+    const a12: number = m[6] as number;
+    const a13: number = m[7] as number;
+    const a20: number = m[8] as number;
+    const a21: number = m[9] as number;
+    const a22: number = m[10] as number;
+    const a23: number = m[11] as number;
+
+    let x: number = v[0];
+    let y: number = v[1];
+    let z: number = v[2];
+
+    const len: number = 1 / Math.hypot(x, y, z);
+
+    x *= len;
+    y *= len;
+    z *= len;
+
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+    const t: number = 1 - c;
+
+    const b00: number = x * x * t + c;
+    const b01: number = y * x * t + z * s;
+    const b02: number = z * x * t - y * s;
+    const b10: number = x * y * t - z * s;
+    const b11: number = y * y * t + c;
+    const b12: number = z * y * t + x * s;
+    const b20: number = x * z * t + y * s;
+    const b21: number = y * z * t - x * s;
+    const b22: number = z * z * t + c;
+
+    out[0] = a00 * b00 + a10 * b01 + a20 * b02;
+    out[1] = a01 * b00 + a11 * b01 + a21 * b02;
+    out[2] = a02 * b00 + a12 * b01 + a22 * b02;
+    out[3] = a03 * b00 + a13 * b01 + a23 * b02;
+    out[4] = a00 * b10 + a10 * b11 + a20 * b12;
+    out[5] = a01 * b10 + a11 * b11 + a21 * b12;
+    out[6] = a02 * b10 + a12 * b11 + a22 * b12;
+    out[7] = a03 * b10 + a13 * b11 + a23 * b12;
+    out[8] = a00 * b20 + a10 * b21 + a20 * b22;
+    out[9] = a01 * b20 + a11 * b21 + a21 * b22;
+    out[10] = a02 * b20 + a12 * b21 + a22 * b22;
+    out[11] = a03 * b20 + a13 * b21 + a23 * b22;
+    out[12] = m[12] as number;
+    out[13] = m[13] as number;
+    out[14] = m[14] as number;
+    out[15] = m[15] as number;
+
+    return out;
+  }
+
+  /**
+   * Rotates this matrix by the given angle about the given axis.
+   * @param r The angle in radians.
+   * @param v The axis.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public rotate(r: number, v: Numbers1x3, out: Matrix4 = this): Matrix4 {
+    return Matrix4.rotate(this, r, v, out);
+  }
+
+  /**
+   * Rotates a matrix by the given angle around the horizontal axis.
+   * @param m The matrix.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public static rotateX(m: Matrix4, r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const a10: number = m[4] as number;
+    const a11: number = m[5] as number;
+    const a12: number = m[6] as number;
+    const a13: number = m[7] as number;
+    const a20: number = m[8] as number;
+    const a21: number = m[9] as number;
+    const a22: number = m[10] as number;
+    const a23: number = m[11] as number;
+
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = m[0] as number;
+    out[1] = m[1] as number;
+    out[2] = m[2] as number;
+    out[3] = m[3] as number;
+    out[4] = a10 * c + a20 * s;
+    out[5] = a11 * c + a21 * s;
+    out[6] = a12 * c + a22 * s;
+    out[7] = a13 * c + a23 * s;
+    out[8] = a20 * c - a10 * s;
+    out[9] = a21 * c - a11 * s;
+    out[10] = a22 * c - a12 * s;
+    out[11] = a23 * c - a13 * s;
+    out[12] = m[12] as number;
+    out[13] = m[13] as number;
+    out[14] = m[14] as number;
+    out[15] = m[15] as number;
+
+    return out;
+  }
+
+  /**
+   * Rotates this matrix by the given angle about the horizontal axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public rotateX(r: number, out: Matrix4 = this): Matrix4 {
+    return Matrix4.rotateX(this, r, out);
+  }
+
+  /**
+   * Rotates a matrix by the given angle around the vertical axis.
+   * @param m The matrix.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public static rotateY(m: Matrix4, r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const a00: number = m[0] as number;
+    const a01: number = m[1] as number;
+    const a02: number = m[2] as number;
+    const a03: number = m[3] as number;
+    const a20: number = m[8] as number;
+    const a21: number = m[9] as number;
+    const a22: number = m[10] as number;
+    const a23: number = m[11] as number;
+
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = a00 * c - a20 * s;
+    out[1] = a01 * c - a21 * s;
+    out[2] = a02 * c - a22 * s;
+    out[3] = a03 * c - a23 * s;
+    out[4] = m[4] as number;
+    out[5] = m[5] as number;
+    out[6] = m[6] as number;
+    out[7] = m[7] as number;
+    out[8] = a00 * s + a20 * c;
+    out[9] = a01 * s + a21 * c;
+    out[10] = a02 * s + a22 * c;
+    out[11] = a03 * s + a23 * c;
+    out[12] = m[12] as number;
+    out[13] = m[13] as number;
+    out[14] = m[14] as number;
+    out[15] = m[15] as number;
+
+    return out;
+  }
+
+  /**
+   * Rotates this matrix by the given angle about the vertical axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public rotateY(r: number, out: Matrix4 = this): Matrix4 {
+    return Matrix4.rotateY(this, r, out);
+  }
+
+  /**
+   * Rotates a matrix by the given angle around the depth axis.
+   * @param m The matrix.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public static rotateZ(m: Matrix4, r: number, out: Matrix4 = new Matrix4()): Matrix4 {
+    const a00: number = m[0] as number;
+    const a01: number = m[1] as number;
+    const a02: number = m[2] as number;
+    const a03: number = m[3] as number;
+    const a10: number = m[4] as number;
+    const a11: number = m[5] as number;
+    const a12: number = m[6] as number;
+    const a13: number = m[7] as number;
+
+    const s: number = Math.sin(r);
+    const c: number = Math.cos(r);
+
+    out[0] = a00 * c + a10 * s;
+    out[1] = a01 * c + a11 * s;
+    out[2] = a02 * c + a12 * s;
+    out[3] = a03 * c + a13 * s;
+    out[4] = a10 * c - a00 * s;
+    out[5] = a11 * c - a01 * s;
+    out[6] = a12 * c - a02 * s;
+    out[7] = a13 * c - a03 * s;
+    out[8] = m[8] as number;
+    out[9] = m[9] as number;
+    out[10] = m[10] as number;
+    out[11] = m[11] as number;
+    out[12] = m[12] as number;
+    out[13] = m[13] as number;
+    out[14] = m[14] as number;
+    out[15] = m[15] as number;
+
+    return out;
+  }
+
+  /**
+   * Rotates this matrix by the given angle about the depth axis.
+   * @param r The angle in radians.
+   * @param out The matrix to store the rotated matrix in.
+   * @returns The rotated matrix.
+   */
+  public rotateZ(r: number, out: Matrix4 = this): Matrix4 {
+    return Matrix4.rotateZ(this, r, out);
+  }
+
+  /**
+   * Scales a matrix by the given vector.
+   * @param m The matrix.
+   * @param v The vector.
+   * @param out The matrix to store the scaled matrix in.
+   * @returns The scaled matrix.
+   */
+  public static scale(m: Matrix4, v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const x: number = v[0];
+    const y: number = v[1];
+    const z: number = v[2];
+
+    out[0] = (m[0] as number) * x;
+    out[1] = (m[1] as number) * x;
+    out[2] = (m[2] as number) * x;
+    out[3] = (m[3] as number) * x;
+    out[4] = (m[4] as number) * y;
+    out[5] = (m[5] as number) * y;
+    out[6] = (m[6] as number) * y;
+    out[7] = (m[7] as number) * y;
+    out[8] = (m[8] as number) * z;
+    out[9] = (m[9] as number) * z;
+    out[10] = (m[10] as number) * z;
+    out[11] = (m[11] as number) * z;
+    out[12] = m[12] as number;
+    out[13] = m[13] as number;
+    out[14] = m[14] as number;
+    out[15] = m[15] as number;
+
+    return out;
+  }
+
+  /**
+   * Scales this matrix by the given vector.
+   * @param v The vector.
+   * @param out The matrix to store the scaled matrix in.
+   * @returns The scaled matrix.
+   */
+  public scale(v: Numbers1x3, out: Matrix4 = this): Matrix4 {
+    return Matrix4.scale(this, v, out);
+  }
+
+  /**
    * Subtracts one matrix from another.
    * @param a The first matrix.
    * @param b The second matrix.
@@ -532,6 +1547,118 @@ export class Matrix4 extends Matrix {
    */
   public override subtract(m: Matrix4, out: Matrix4 = this): Matrix4 {
     return Matrix4.subtract(this, m, out);
+  }
+
+  /**
+   * Generates a matrix that makes a transformation matrix point towards a point.
+   * @param eye The position of the viewer.
+   * @param target The focal point.
+   * @param up The up axis.
+   * @param out The matrix to store the look-at matrix in.
+   * @returns The matrix.
+   */
+  public static targetTo(eye: Numbers1x3, target: Numbers1x3, up: Numbers1x3 = [0, 1, 0], out: Matrix4 = new Matrix4()): Matrix4 {
+    const eyex: number = eye[0];
+    const eyey: number = eye[1];
+    const eyez: number = eye[2];
+
+    const upx: number = up[0];
+    const upy: number = up[1];
+    const upz: number = up[2];
+
+    let z0: number = eyex - target[0];
+    let z1: number = eyey - target[1];
+    let z2: number = eyez - target[2];
+
+    const lenz: number = 1 / (z0 * z0 + z1 * z1 + z2 * z2);
+
+    z0 *= lenz;
+    z1 *= lenz;
+    z2 *= lenz;
+
+    let x0: number = upy * z2 - upz * z1;
+    let x1: number = upz * z0 - upx * z2;
+    let x2: number = upx * z1 - upy * z0;
+
+    const lenx: number = 1 / (x0 * x0 + x1 * x1 + x2 * x2);
+
+    x0 *= lenx;
+    x1 *= lenx;
+    x2 *= lenx;
+
+    out[0] = x0;
+    out[1] = x1;
+    out[2] = x2;
+    out[3] = 0;
+    out[4] = z1 * x2 - z2 * x1;
+    out[5] = z2 * x0 - z0 * x2;
+    out[6] = z0 * x1 - z1 * x0;
+    out[7] = 0;
+    out[8] = z0;
+    out[9] = z1;
+    out[10] = z2;
+    out[11] = 0;
+    out[12] = eyex;
+    out[13] = eyey;
+    out[14] = eyez;
+    out[15] = 1;
+    
+    return out;
+  }
+
+  /**
+   * Translates a matrix by the given vector.
+   * @param m The matrix.
+   * @param v The vector.
+   * @param out The matrix to store the translated matrix in.
+   * @returns The translated matrix.
+   */
+  public static translate(m: Matrix4, v: Numbers1x3, out: Matrix4 = new Matrix4()): Matrix4 {
+    const a00: number = m[0] as number;
+    const a01: number = m[1] as number;
+    const a02: number = m[2] as number;
+    const a03: number = m[3] as number;
+    const a10: number = m[4] as number;
+    const a11: number = m[5] as number;
+    const a12: number = m[6] as number;
+    const a13: number = m[7] as number;
+    const a20: number = m[8] as number;
+    const a21: number = m[9] as number;
+    const a22: number = m[10] as number;
+    const a23: number = m[11] as number;
+
+    const x: number = v[0];
+    const y: number = v[1];
+    const z: number = v[2];
+
+    out[0] = a00;
+    out[1] = a01;
+    out[2] = a02;
+    out[3] = a03;
+    out[4] = a10;
+    out[5] = a11;
+    out[6] = a12;
+    out[7] = a13;
+    out[8] = a20;
+    out[9] = a21;
+    out[10] = a22;
+    out[11] = a23;
+    out[12] = a00 * x + a10 * y + a20 * z + (m[12] as number);
+    out[13] = a01 * x + a11 * y + a21 * z + (m[13] as number);
+    out[14] = a02 * x + a12 * y + a22 * z + (m[14] as number);
+    out[15] = a03 * x + a13 * y + a23 * z + (m[15] as number);
+
+    return out;
+  }
+
+  /**
+   * Translates this matrix by the given vector.
+   * @param v The vector.
+   * @param out The matrix to store the translated matrix in.
+   * @returns The translated matrix.
+   */
+  public translate(v: Numbers1x3, out: Matrix4 = this): Matrix4 {
+    return Matrix4.translate(this, v, out);
   }
 
   /**

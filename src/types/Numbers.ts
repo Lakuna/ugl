@@ -1,6 +1,7 @@
 import { Vector2 } from "../math/Vector2.js";
 import { Vector3 } from "../math/Vector3.js";
 import { Vector4 } from "../math/Vector4.js";
+import { Quaternion } from "../math/Quaternion.js";
 import { Matrix2 } from "../math/Matrix2.js";
 import { Matrix3 } from "../math/Matrix3.js";
 import { Matrix4 } from "../math/Matrix4.js";
@@ -12,7 +13,7 @@ export type Numbers1x2 = Vector2 | [number, number];
 export type Numbers1x3 = Vector3 | [number, number, number];
 
 /** Numbers arranged in one column and four rows. */
-export type Numbers1x4 = Vector4 | [number, number, number, number];
+export type Numbers1x4 = Vector4 | Quaternion | [number, number, number, number];
 
 /** Numbers arranged in two columns and two rows. */
 export type Numbers2x2 = Matrix2 | [

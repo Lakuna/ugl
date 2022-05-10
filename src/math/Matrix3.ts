@@ -248,21 +248,40 @@ export class Matrix3 extends Matrix {
   }
 
   /**
-   * Creates a transformation matrix that translates a matrix by the given vector.
-   * @param v The vector.
+   * Creates a transformation matrix that rotates a matrix by the given quaternion.
+   * @param q The quaternion.
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromTranslation(v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
-    out[0] = 1;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-    out[4] = 1;
-    out[5] = 0;
-    out[6] = v[0];
-    out[7] = v[1];
-    out[8] = 1;
+  public static fromQuaternion(q: Numbers1x4, out: Matrix3 = new Matrix3()): Matrix3 {
+    const x: number = q[0];
+    const y: number = q[1];
+    const z: number = q[2];
+    const w: number = q[3];
+
+    const x2: number = x + x;
+    const y2: number = y + y;
+    const z2: number = z + z;
+
+    const xx: number = x * x2;
+    const yx: number = y * x2;
+    const yy: number = y * y2;
+    const zx: number = z * x2;
+    const zy: number = z * y2;
+    const zz: number = z * z2;
+    const wx: number = w * x2;
+    const wy: number = w * y2;
+    const wz: number = w * z2;
+
+    out[0] = 1 - yy - zz;
+    out[1] = yx + wz;
+    out[2] = zx - wy;
+    out[3] = yx - wz;
+    out[4] = 1 - xx - zz;
+    out[5] = zy + wx;
+    out[6] = zx + wy;
+    out[7] = zy - wx;
+    out[8] = 1 - xx - yy;
 
     return out;
   }
@@ -311,40 +330,21 @@ export class Matrix3 extends Matrix {
   }
 
   /**
-   * Creates a transformation matrix that rotates a matrix by the given quaternion.
-   * @param q The quaternion.
+   * Creates a transformation matrix that translates a matrix by the given vector.
+   * @param v The vector.
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromQuaternion(q: Numbers1x4, out: Matrix3 = new Matrix3()): Matrix3 {
-    const x: number = q[0];
-    const y: number = q[1];
-    const z: number = q[2];
-    const w: number = q[3];
-
-    const x2: number = x + x;
-    const y2: number = y + y;
-    const z2: number = z + z;
-
-    const xx: number = x * x2;
-    const yx: number = y * x2;
-    const yy: number = y * y2;
-    const zx: number = z * x2;
-    const zy: number = z * y2;
-    const zz: number = z * z2;
-    const wx: number = w * x2;
-    const wy: number = w * y2;
-    const wz: number = w * z2;
-
-    out[0] = 1 - yy - zz;
-    out[3] = yx - wz;
-    out[6] = zx + wy;
-    out[1] = yx + wz;
-    out[4] = 1 - xx - zz;
-    out[7] = zy - wx;
-    out[2] = zx - wy;
-    out[5] = zy + wx;
-    out[8] = 1 - xx - yy;
+  public static fromTranslation(v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 1;
+    out[5] = 0;
+    out[6] = v[0];
+    out[7] = v[1];
+    out[8] = 1;
 
     return out;
   }
@@ -572,7 +572,7 @@ export class Matrix3 extends Matrix {
     out[6] = -1;
     out[7] = 1;
     out[8] = 1;
-    
+
     return out;
   }
 
