@@ -1,8 +1,8 @@
-import { Matrix } from "./Matrix.js";
+import { SquareMatrix } from "./SquareMatrix.js";
 import { Numbers1x2, Numbers1x4, Numbers4x4 } from "../types/Numbers.js";
 
 /** A collection of numbers arranged in three columns and three rows. */
-export class Matrix3 extends Matrix {
+export class Matrix3 extends SquareMatrix {
   /** Creates a 3x3 identity matrix. */
   public constructor();
 
@@ -127,8 +127,8 @@ export class Matrix3 extends Matrix {
    * @param src The source matrix.
    * @returns This matrix.
    */
-  public override copy(src: Matrix3): this {
-    return Matrix3.copy(src, this) as this;
+  public override copy(src: Matrix3): Matrix3 {
+    return Matrix3.copy(src, this);
   }
 
   /**
@@ -138,15 +138,15 @@ export class Matrix3 extends Matrix {
    * @returns The cofactor.
    */
   public static override cofactor(m: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
-    out[0] = m.minor([0], [0]);
-    out[1] = -m.minor([0], [1]);
-    out[2] = m.minor([0], [2]);
-    out[3] = -m.minor([1], [0]);
-    out[4] = m.minor([1], [1]);
-    out[5] = -m.minor([1], [2]);
-    out[6] = m.minor([2], [0]);
-    out[7] = -m.minor([2], [1]);
-    out[8] = m.minor([2], [2]);
+    out[0] = m.minor(0, 0);
+    out[1] = -m.minor(0, 1);
+    out[2] = m.minor(0, 2);
+    out[3] = -m.minor(1, 0);
+    out[4] = m.minor(1, 1);
+    out[5] = -m.minor(1, 2);
+    out[6] = m.minor(2, 0);
+    out[7] = -m.minor(2, 1);
+    out[8] = m.minor(2, 2);
 
     return out;
   }
@@ -372,8 +372,8 @@ export class Matrix3 extends Matrix {
    * Sets this matrix to the identity.
    * @returns This matrix.
    */
-  public override identity(): this {
-    return Matrix3.identity(this) as this;
+  public override identity(): Matrix3 {
+    return Matrix3.identity(this);
   }
 
   /**

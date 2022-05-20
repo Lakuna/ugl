@@ -16,12 +16,6 @@ export class Matrix extends Float32Array {
    */
   public constructor(...cols: ArrayLike<number>[]);
 
-  /**
-   * Creates a square matrix from the given values.
-   * @param vals The values in the matrix in column-wise order.
-   */
-  public constructor(...vals: number[]);
-
   public constructor(...data: (ArrayLike<number> | number)[]) {
     let width: number;
     let height: number;
@@ -33,16 +27,8 @@ export class Matrix extends Float32Array {
 
         break;
       case "number":
-        if (data.length == 2) {
-          width = data[0];
-          height = data[1] as number;
-
-          break;
-        }
-
-        width = Math.sqrt(data.length);
-        if (width % 1) { throw new Error("Values cannot make a square matrix."); }
-        height = width;
+        width = data[0];
+        height = data[1] as number;
 
         break;
       case "object":
@@ -112,25 +98,6 @@ export class Matrix extends Float32Array {
   }
 
   /**
-   * Calculates the adjugate of a matrix.
-   * @param m The matrix.
-   * @param out The matrix to store the adjugate in.
-   * @returns The adjugate.
-   */
-  public static adjoint(m: Matrix, out: Matrix = new Matrix(m.height, m.width)): Matrix {
-    return Matrix.transpose(Matrix.cofactor(m), out);
-  }
-
-  /**
-   * Calculates the adjugate of this matrix.
-   * @param out The matrix to store the adjugate in.
-   * @returns The adjugate.
-   */
-  public adjoint(out: Matrix = this): Matrix {
-    return Matrix.adjoint(this, out);
-  }
-
-  /**
    * Creates a new matrix with the same values as this one.
    * @returns The new matrix.
    */
@@ -159,58 +126,8 @@ export class Matrix extends Float32Array {
    * @param src The source matrix.
    * @returns This matrix.
    */
-  public copy(src: Matrix): this {
-    return Matrix.copy(src, this) as this;
-  }
-
-  /**
-   * Calculates the cofactor of a matrix.
-   * @param m The matrix.
-   * @param out The matrix to store the cofactor in.
-   * @returns The cofactor.
-   */
-  public static cofactor(m: Matrix, out: Matrix = new Matrix(m.width, m.height)): Matrix {
-    if (m.width != out.width || m.height != out.height) { throw new Error("Matrix size mismatch."); }
-
-    for (let i = 0; i < m.width; i++) {
-      for (let j = 0; j < m.height; j++) {
-        out[i * m.height + j] = ((i + j) % 2 ? -1 : 1) * m.minor([i], [j]);
-      }
-    }
-
-    return out;
-  }
-
-  /**
-   * Calculates the cofactor of this matrix.
-   * @param out The matrix to store the cofactor in.
-   * @returns The cofactor.
-   */
-  public cofactor(out: Matrix = this): Matrix {
-    return Matrix.cofactor(this, out);
-  }
-
-  /**
-   * Calculates the determinant of a matrix.
-   * @param m The matrix.
-   * @returns The determinant.
-   */
-  public static determinant(m: Matrix): number {
-    if (m.length == 1) { return m[0] as number; }
-
-    if (m.width != m.height) { throw new Error("Matrix is not square."); }
-
-    let out = 0;
-    for (let i = 0; i < m.height; i++) {
-      out += (i % 2 ? 1 : -1) * (m[i] as number) * m.minor([0], [i]);
-    }
-
-    return out;
-  }
-
-  /** The determinant of this matrix. */
-  public get determinant(): number {
-    return Matrix.determinant(this);
+  public copy(src: Matrix): Matrix {
+    return Matrix.copy(src, this);
   }
 
   /**
@@ -254,117 +171,6 @@ export class Matrix extends Float32Array {
 
   /** The number of rows in this matrix. */
   public readonly height: number;
-
-  /**
-   * Sets a matrix to the identity.
-   * @param m The matrix.
-   * @returns The matrix.
-   */
-  public static identity(m: Matrix): Matrix {
-    if (m.width != m.height) { throw new Error("Matrix is not square."); }
-
-    for (let i = 0; i < m.width; i++) {
-      for (let j = 0; j < m.height; j++) {
-        m[i * m.height + j] = i == j ? 1 : 0;
-      }
-    }
-
-    return m;
-  }
-
-  /**
-   * Sets this matrix to the identity.
-   * @returns This matrix.
-   */
-  public identity(): this {
-    return Matrix.identity(this) as this;
-  }
-
-  /**
-   * Inverts a matrix.
-   * @param m The matrix.
-   * @param out The matrix to store the inverted matrix in.
-   * @returns The inverted matrix.
-   */
-  public static invert(m: Matrix, out: Matrix = new Matrix(m.width, m.height)): Matrix {
-    if (m.width != m.height) { throw new Error("Matrix is not square."); }
-
-    const dim: number = m.width;
-
-    const clone: Matrix = m.clone();
-    out.identity();
-
-    for (let i = 0; i < dim; i++) {
-      let diagonal: number = clone[i * dim + i] as number;
-
-      if (!diagonal) {
-        for (let ii: number = i + 1; ii < dim; ii++) {
-          if (clone[ii * dim + i]) {
-            for (let j = 0; j < dim; j++) {
-              for (const matrix of [clone, out]) {
-                [matrix[i * dim + j], matrix[ii * dim + j]] = [matrix[ii * dim + j] as number, matrix[i * dim + j] as number];
-              }
-            }
-
-            break;
-          }
-        }
-
-        diagonal = clone[i * dim + i] as number;
-        if (!diagonal) { throw new Error("Matrix is not invertible."); }
-      }
-
-      for (let j = 0; j < dim; j++) {
-        for (const matrix of [clone, out]) {
-          matrix[i * dim + j] /= diagonal;
-        }
-      }
-
-      for (let ii = 0; ii < dim; ii++) {
-        if (ii == i) { continue; }
-
-        const temp: number = clone[ii * dim + i] as number;
-
-        for (let j = 0; j < dim; j++) {
-          for (const matrix of [clone, out]) {
-            matrix[ii * dim + j] -= temp * (matrix[i * dim + j] as number);
-          }
-        }
-      }
-    }
-
-    return out;
-  }
-
-  /**
-   * Inverts this matrix.
-   * @param out The matrix to store the inverted matrix in.
-   * @returns The inverted matrix.
-   */
-  public invert(out: Matrix = this): Matrix {
-    return Matrix.invert(this, out);
-  }
-
-  /**
-   * Calculates the minor of a matrix which results from removing the given rows and columns.
-   * @param m The matrix.
-   * @param rows The rows to remove.
-   * @param cols The columns to remove.
-   * @returns The minor.
-   */
-  public static minor(m: Matrix, rows: number[], cols: number[]): number {
-    return Matrix.determinant(Matrix.submatrix(m, rows, cols));
-  }
-
-  /**
-   * Calculates the minor of this matrix which results from removing the given rows and columns.
-   * @param rows The rows to remove.
-   * @param cols The columns to remove.
-   * @returns The minor.
-   */
-  public minor(rows: number[], cols: number[]): number {
-    return Matrix.minor(this, rows, cols);
-  }
 
   /**
    * Multiplies two matrices.
@@ -432,42 +238,6 @@ export class Matrix extends Float32Array {
   }
 
   /**
-   * Creates a submatrix by removing the given rows and columns from a matrix.
-   * @param m The matrix.
-   * @param rows The rows to remove.
-   * @param cols The columns to remove.
-   * @param out The matrix to store the submatrix in.
-   * @returns The submatrix.
-   */
-  public static submatrix(m: Matrix, rows: number[], cols: number[], out: Matrix = new Matrix(m.width - cols.length, m.height - rows.length)): Matrix {
-    if (out.width != (m.width - cols.length) || out.height != (m.height - rows.length)) { throw new Error("Matrix size mismatch."); }
-
-    let k = 0;
-    for (let i = 0; i < m.width; i++) {
-      if (i in cols) { continue; }
-
-      for (let j = 0; j < m.height; j++) {
-        if (j in rows) { continue; }
-
-        out[k++] = m[i * m.height + j] as number;
-      }
-    }
-
-    return out;
-  }
-
-  /**
-   * Creates a submatrix by removing the given rows and columns from this matrix.
-   * @param rows The rows to remove.
-   * @param cols The columns to remove.
-   * @param out The matrix to store the submatrix in.
-   * @returns The submatrix.
-   */
-  public submatrix(rows: number[], cols: number[], out: Matrix = new Matrix(this.width - cols.length, this.height - rows.length)): Matrix {
-    return Matrix.submatrix(this, rows, cols, out);
-  }
-
-  /**
    * Subtracts one matrix from another.
    * @param a The first matrix.
    * @param b The second matrix.
@@ -500,7 +270,7 @@ export class Matrix extends Float32Array {
    * @returns The transposed matrix.
    */
   public static transpose(m: Matrix, out: Matrix = new Matrix(m.height, m.width)): Matrix {
-    if (m.width != out.width || m.height != out.height) { throw new Error("Matrix size mismatch."); }
+    if (m.width != out.height || m.height != out.width) { throw new Error("Matrix size mismatch."); }
 
     for (let i = 0; i < m.width; i++) {
       for (let j = 0; j < m.height; j++) {

@@ -1,8 +1,8 @@
-import { Matrix } from "./Matrix.js";
+import { SquareMatrix } from "./SquareMatrix.js";
 import { Numbers1x2 } from "../types/Numbers.js";
 
 /** A collection of numbers arranged in two columns and two rows. */
-export class Matrix2 extends Matrix {
+export class Matrix2 extends SquareMatrix {
   /** Creates a 2x2 identity matrix. */
   public constructor();
 
@@ -97,8 +97,8 @@ export class Matrix2 extends Matrix {
    * @param src The source matrix.
    * @returns This matrix.
    */
-  public override copy(src: Matrix2): this {
-    return Matrix2.copy(src, this) as this;
+  public override copy(src: Matrix2): Matrix2 {
+    return Matrix2.copy(src, this);
   }
 
   /**
@@ -226,8 +226,8 @@ export class Matrix2 extends Matrix {
    * Sets this matrix to the identity.
    * @returns This matrix.
    */
-  public override identity(): this {
-    return Matrix2.identity(this) as this;
+  public override identity(): Matrix2 {
+    return Matrix2.identity(this);
   }
 
   /**

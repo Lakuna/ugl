@@ -1,10 +1,10 @@
-import { Matrix } from "./Matrix.js";
+import { SquareMatrix } from "./SquareMatrix.js";
 import { Numbers1x3, Numbers1x4 } from "../types/Numbers.js";
 import { Vector3 } from "./Vector3.js";
 import { Quaternion } from "./Quaternion.js";
 
 /** A collection of numbers arranged in four columns and four rows. */
-export class Matrix4 extends Matrix {
+export class Matrix4 extends SquareMatrix {
   /** Creates a 4x4 identity matrix. */
   public constructor();
 
@@ -164,8 +164,8 @@ export class Matrix4 extends Matrix {
    * @param src The source matrix.
    * @returns This matrix.
    */
-  public override copy(src: Matrix4): this {
-    return Matrix4.copy(src, this) as this;
+  public override copy(src: Matrix4): Matrix4 {
+    return Matrix4.copy(src, this);
   }
 
   /**
@@ -175,22 +175,22 @@ export class Matrix4 extends Matrix {
    * @returns The cofactor.
    */
   public static override cofactor(m: Matrix4, out: Matrix4 = new Matrix4()): Matrix4 {
-    out[0] = m.minor([0], [0]);
-    out[1] = -m.minor([0], [1]);
-    out[2] = m.minor([0], [2]);
-    out[3] = -m.minor([0], [3]);
-    out[4] = m.minor([1], [0]);
-    out[5] = -m.minor([1], [1]);
-    out[6] = m.minor([1], [2]);
-    out[7] = -m.minor([1], [3]);
-    out[8] = m.minor([2], [0]);
-    out[9] = -m.minor([2], [1]);
-    out[10] = m.minor([2], [2]);
-    out[11] = -m.minor([2], [3]);
-    out[12] = m.minor([3], [0]);
-    out[13] = -m.minor([3], [1]);
-    out[14] = m.minor([3], [2]);
-    out[15] = -m.minor([3], [3]);
+    out[0] = m.minor(0, 0);
+    out[1] = -m.minor(0, 1);
+    out[2] = m.minor(0, 2);
+    out[3] = -m.minor(0, 3);
+    out[4] = m.minor(1, 0);
+    out[5] = -m.minor(1, 1);
+    out[6] = m.minor(1, 2);
+    out[7] = -m.minor(1, 3);
+    out[8] = m.minor(2, 0);
+    out[9] = -m.minor(2, 1);
+    out[10] = m.minor(2, 2);
+    out[11] = -m.minor(2, 3);
+    out[12] = m.minor(3, 0);
+    out[13] = -m.minor(3, 1);
+    out[14] = m.minor(3, 2);
+    out[15] = -m.minor(3, 3);
 
     return out;
   }
@@ -875,8 +875,8 @@ export class Matrix4 extends Matrix {
    * Sets this matrix to the identity.
    * @returns This matrix.
    */
-  public override identity(): this {
-    return Matrix4.identity(this) as this;
+  public override identity(): Matrix4 {
+    return Matrix4.identity(this);
   }
 
   /**
@@ -1602,7 +1602,7 @@ export class Matrix4 extends Matrix {
     out[13] = eyey;
     out[14] = eyez;
     out[15] = 1;
-    
+
     return out;
   }
 
