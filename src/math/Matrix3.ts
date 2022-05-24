@@ -3,9 +3,6 @@ import { Numbers1x2, Numbers1x4, Numbers4x4 } from "../types/Numbers.js";
 
 /** A collection of numbers arranged in three columns and three rows. */
 export class Matrix3 extends SquareMatrix {
-  /** Creates a 3x3 identity matrix. */
-  public constructor();
-
   /**
    * Creates a 3x3 matrix with the given values.
    * @param c1r1 The value in the first column and first row.
@@ -18,8 +15,6 @@ export class Matrix3 extends SquareMatrix {
    * @param c3r2 The value in the third column and second row.
    * @param c3r3 The value in the third column and third row.
    */
-  public constructor(c1r1: number, c1r2: number, c1r3: number, c2r1: number, c2r2: number, c2r3: number, c3r1: number, c3r2: number, c3r3: number);
-
   public constructor(c1r1 = 1, c1r2 = 0, c1r3 = 0, c2r1 = 0, c2r2 = 1, c2r3 = 0, c3r1 = 0, c3r2 = 0, c3r3 = 1) {
     super(c1r1, c1r2, c1r3, c2r1, c2r2, c2r3, c3r1, c3r2, c3r3);
   }
@@ -31,7 +26,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public static override add(a: Matrix3, b: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static add3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     out[0] = (a[0] as number) + (b[0] as number);
     out[1] = (a[1] as number) + (b[1] as number);
     out[2] = (a[2] as number) + (b[2] as number);
@@ -48,11 +43,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Adds another matrix to this one.
    * @param m The matrix.
-   * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public override add(m: Matrix3, out: Matrix3 = this): Matrix3 {
-    return Matrix3.add(this, m, out);
+  public override add(m: Matrix3): this {
+    return Matrix3.add3(this, m, this);
   }
 
   /**
@@ -61,7 +55,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the adjugate in.
    * @returns The adjugate.
    */
-  public static override adjoint(m: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static adjoint3<T extends Matrix3>(m: Matrix3, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -87,11 +81,10 @@ export class Matrix3 extends SquareMatrix {
 
   /**
    * Calculates the adjugate of this matrix.
-   * @param out The matrix to store the adjugate in.
    * @returns The adjugate.
    */
-  public override adjoint(out: Matrix3 = this): Matrix3 {
-    return Matrix3.adjoint(this, out);
+  public override adjoint(): this {
+    return Matrix3.adjoint3(this, this);
   }
 
   /**
@@ -103,41 +96,12 @@ export class Matrix3 extends SquareMatrix {
   }
 
   /**
-   * Copies the values in a matrix to another.
-   * @param src The source matrix.
-   * @param dst The destination matrix.
-   * @returns The destination matrix.
-   */
-  public static override copy(src: Matrix3, dst: Matrix3): Matrix3 {
-    dst[0] = src[0] as number;
-    dst[1] = src[1] as number;
-    dst[2] = src[2] as number;
-    dst[3] = src[3] as number;
-    dst[4] = src[4] as number;
-    dst[5] = src[5] as number;
-    dst[6] = src[6] as number;
-    dst[7] = src[7] as number;
-    dst[8] = src[8] as number;
-
-    return dst;
-  }
-
-  /**
-   * Copies the values in another matrix to this one.
-   * @param src The source matrix.
-   * @returns This matrix.
-   */
-  public override copy(src: Matrix3): Matrix3 {
-    return Matrix3.copy(src, this);
-  }
-
-  /**
    * Calculates the cofactor of a matrix.
    * @param m The matrix.
    * @param out The matrix to store the cofactor in.
    * @returns The cofactor.
    */
-  public static override cofactor(m: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static cofactor3<T extends Matrix3>(m: Matrix3, out: T): T {
     out[0] = m.minor(0, 0);
     out[1] = -m.minor(0, 1);
     out[2] = m.minor(0, 2);
@@ -153,11 +117,10 @@ export class Matrix3 extends SquareMatrix {
 
   /**
    * Calculates the cofactor of this matrix.
-   * @param out The matrix to store the cofactor in.
    * @returns The cofactor.
    */
-  public override cofactor(out: Matrix3 = this): Matrix3 {
-    return Matrix3.cofactor(this, out);
+  public override cofactor(): this {
+    return Matrix3.cofactor3(this, this);
   }
 
   /**
@@ -165,7 +128,7 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The determinant.
    */
-  public static override determinant(m: Matrix3): number {
+  public static determinant3(m: Matrix3): number {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -183,7 +146,7 @@ export class Matrix3 extends SquareMatrix {
 
   /** The determinant of this matrix. */
   public override get determinant(): number {
-    return Matrix3.determinant(this);
+    return Matrix3.determinant3(this);
   }
 
   /**
@@ -192,7 +155,7 @@ export class Matrix3 extends SquareMatrix {
    * @param b The second matrix.
    * @returns Whether the matrices are equivalent.
    */
-  public static override equals(a: Matrix3, b: Matrix3): boolean {
+  public static equals3(a: Matrix3, b: Matrix3): boolean {
     return a[0] == b[0]
       && a[1] == b[1]
       && a[2] == b[2]
@@ -210,7 +173,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns Whether the matrices are equivalent.
    */
   public override equals(m: Matrix3): boolean {
-    return Matrix3.equals(this, m);
+    return Matrix3.equals3(this, m);
   }
 
   /**
@@ -218,13 +181,13 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The Frobenius norm.
    */
-  public static override frob(m: Matrix3): number {
+  public static frob3(m: Matrix3): number {
     return Math.hypot(m[0] as number, m[1] as number, m[2] as number, m[3] as number, m[4] as number, m[5] as number, m[6] as number, m[7] as number, m[8] as number);
   }
 
   /** The Frobenius norm of this matrix. */
   public override get frob(): number {
-    return Matrix3.frob(this);
+    return Matrix3.frob3(this);
   }
 
   /**
@@ -233,7 +196,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the 3x3 matrix in.
    * @returns The 3x3 matrix.
    */
-  public static fromMatrix4(m: Numbers4x4, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static fromMatrix4<T extends Matrix3>(m: Numbers4x4, out: T): T {
     out[0] = m[0];
     out[1] = m[1];
     out[2] = m[2];
@@ -253,7 +216,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromQuaternion(q: Numbers1x4, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static fromQuaternion<T extends Matrix3>(q: Numbers1x4, out: T): T {
     const x: number = q[0];
     const y: number = q[1];
     const z: number = q[2];
@@ -292,7 +255,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromRotation(r: number, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static fromRotation<T extends Matrix3>(r: number, out: T): T {
     const s: number = Math.sin(r);
     const c: number = Math.cos(r);
 
@@ -315,7 +278,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromScaling(v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static fromScaling<T extends Matrix3>(v: Numbers1x2, out: T): T {
     out[0] = v[0];
     out[1] = 0;
     out[2] = 0;
@@ -335,7 +298,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromTranslation(v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static fromTranslation<T extends Matrix3>(v: Numbers1x2, out: T): T {
     out[0] = 1;
     out[1] = 0;
     out[2] = 0;
@@ -354,7 +317,7 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The matrix.
    */
-  public static override identity(m: Matrix3): Matrix3 {
+  public static identity3<T extends Matrix3>(m: T): T {
     m[0] = 1;
     m[1] = 0;
     m[2] = 0;
@@ -372,8 +335,8 @@ export class Matrix3 extends SquareMatrix {
    * Sets this matrix to the identity.
    * @returns This matrix.
    */
-  public override identity(): Matrix3 {
-    return Matrix3.identity(this);
+  public override identity(): this {
+    return Matrix3.identity3(this);
   }
 
   /**
@@ -382,7 +345,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the inverted matrix in.
    * @returns The inverted matrix.
    */
-  public static override invert(m: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static invert3<T extends Matrix3>(m: Matrix3, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -414,11 +377,10 @@ export class Matrix3 extends SquareMatrix {
 
   /**
    * Inverts this matrix.
-   * @param out The matrix to store the inverted matrix in.
    * @returns The inverted matrix.
    */
-  public override invert(out: Matrix3 = this): Matrix3 {
-    return Matrix3.invert(this, out);
+  public override invert(): this {
+    return Matrix3.invert3(this, this);
   }
 
   /**
@@ -428,7 +390,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static override multiply(a: Matrix3, b: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static multiply3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     const a00: number = a[0] as number;
     const a01: number = a[1] as number;
     const a02: number = a[2] as number;
@@ -465,11 +427,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Multiplies this matrix by another.
    * @param m The other matrix.
-   * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public override multiply(m: Matrix3, out: Matrix3 = this): Matrix3 {
-    return Matrix3.multiply(this, m, out);
+  public override multiply(m: Matrix3): this {
+    return Matrix3.multiply3(this, m, this);
   }
 
   /**
@@ -479,7 +440,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static override multiplyScalar(m: Matrix3, s: number, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static multiplyScalar3<T extends Matrix3>(m: Matrix3, s: number, out: T): T {
     out[0] = (m[0] as number) * s;
     out[1] = (m[1] as number) * s;
     out[2] = (m[2] as number) * s;
@@ -496,11 +457,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Multiplies this matrix by a scalar.
    * @param s The scalar.
-   * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public override multiplyScalar(s: number, out: Matrix3 = this): Matrix3 {
-    return Matrix3.multiplyScalar(this, s, out);
+  public override multiplyScalar(s: number): this {
+    return Matrix3.multiplyScalar3(this, s, this);
   }
 
   /**
@@ -509,7 +469,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the 3x3 matrix in.
    * @returns The 3x3 matrix.
    */
-  public static normalFromMatrix4(m: Numbers4x4, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static normalFromMatrix4<T extends Matrix3>(m: Numbers4x4, out: T): T {
     const a00: number = m[0];
     const a01: number = m[1];
     const a02: number = m[2];
@@ -562,7 +522,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix that will store the projection matrix.
    * @returns The projection matrix.
    */
-  public static projection(width: number, height: number, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static projection<T extends Matrix3>(width: number, height: number, out: T): T {
     out[0] = 2 / width;
     out[1] = 0;
     out[2] = 0;
@@ -583,7 +543,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the rotated matrix in.
    * @returns The rotated matrix.
    */
-  public static rotate(m: Matrix3, r: number, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static rotate<T extends Matrix3>(m: Matrix3, r: number, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -613,11 +573,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Rotates this matrix by the given angle.
    * @param r The angle in radians.
-   * @param out The matrix to store the rotated matrix in.
    * @returns The rotated matrix.
    */
-  public rotate(r: number, out: Matrix3 = this): Matrix3 {
-    return Matrix3.rotate(this, r, out);
+  public rotate(r: number): this {
+    return Matrix3.rotate(this, r, this);
   }
 
   /**
@@ -627,7 +586,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the scaled matrix in.
    * @returns The scaled matrix.
    */
-  public static scale(m: Matrix3, v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static scale<T extends Matrix3>(m: Matrix3, v: Numbers1x2, out: T): T {
     const x: number = v[0];
     const y: number = v[1];
 
@@ -647,11 +606,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Scales this matrix by the given vector.
    * @param v The vector.
-   * @param out The matrix to store the scaled matrix in.
    * @returns The scaled matrix.
    */
-  public scale(v: Numbers1x2, out: Matrix3 = this): Matrix3 {
-    return Matrix3.scale(this, v, out);
+  public scale(v: Numbers1x2): this {
+    return Matrix3.scale(this, v, this);
   }
 
   /**
@@ -661,7 +619,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public static override subtract(a: Matrix3, b: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static subtract3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     out[0] = (a[0] as number) - (b[0] as number);
     out[1] = (a[1] as number) - (b[1] as number);
     out[2] = (a[2] as number) - (b[2] as number);
@@ -677,11 +635,10 @@ export class Matrix3 extends SquareMatrix {
 
   /**
    * Subtracts another matrix from this one.
-   * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public override subtract(m: Matrix3, out: Matrix3 = this): Matrix3 {
-    return Matrix3.subtract(this, m, out);
+  public override subtract(m: Matrix3): this {
+    return Matrix3.subtract3(this, m, this);
   }
 
   /**
@@ -691,7 +648,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the translated matrix in.
    * @returns The translated matrix.
    */
-  public static translate(m: Matrix3, v: Numbers1x2, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static translate<T extends Matrix3>(m: Matrix3, v: Numbers1x2, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -721,11 +678,10 @@ export class Matrix3 extends SquareMatrix {
   /**
    * Translates this matrix by the given vector.
    * @param v The vector.
-   * @param out The matrix to store the translated matrix in.
    * @returns The translated matrix.
    */
-  public translate(v: Numbers1x2, out: Matrix3 = this): Matrix3 {
-    return Matrix3.translate(this, v, out);
+  public translate(v: Numbers1x2): this {
+    return Matrix3.translate(this, v, this);
   }
 
   /**
@@ -734,7 +690,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public static override transpose(m: Matrix3, out: Matrix3 = new Matrix3()): Matrix3 {
+  public static transpose3<T extends Matrix3>(m: Matrix3, out: T): T {
     out[0] = m[0] as number;
     out[1] = m[3] as number;
     out[2] = m[6] as number;
@@ -750,10 +706,9 @@ export class Matrix3 extends SquareMatrix {
 
   /**
    * Transposes this matrix.
-   * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public override transpose(out: Matrix3 = this): Matrix3 {
-    return Matrix3.transpose(this, out);
+  public override transpose(): this {
+    return Matrix3.transpose3(this, this);
   }
 }

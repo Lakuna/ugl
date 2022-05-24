@@ -1,72 +1,23 @@
 /** A collection of numbers arranged in columns and rows. */
 export class Matrix extends Float32Array {
-  /** Creates a 4x4 identity matrix. */
-  public constructor();
-
   /**
-   * Creates an empty matrix with the given width and height.
-   * @param width The number of columns in the matrix.
-   * @param height The number of rows in the matrix.
-   */
-  public constructor(width: number, height: number);
-
-  /**
-   * Creates a matrix from the given columns.
+   * Creates a matrix.
    * @param cols The columns in the matrix.
    */
-  public constructor(...cols: ArrayLike<number>[]);
-
-  public constructor(...data: (ArrayLike<number> | number)[]) {
-    let width: number;
-    let height: number;
-
-    switch (typeof data[0]) {
-      case "undefined":
-        width = 4;
-        height = 4;
-
-        break;
-      case "number":
-        width = data[0];
-        height = data[1] as number;
-
-        break;
-      case "object":
-        width = data.length;
-        height = data[0].length;
-
-        break;
-    }
+  public constructor(...cols: ArrayLike<number>[]) {
+    const width: number = cols.length;
+    const height: number = cols[0]?.length ?? 0;
 
     super(width * height);
+
     this.width = width;
     this.height = height;
 
-    switch (typeof data[0]) {
-      case "undefined":
-        this[0] = 1;
-        this[5] = 1;
-        this[10] = 1;
-        this[15] = 1;
-
-        break;
-      case "number":
-        if (data.length == 2) { break; }
-
-        for (let i = 0; i < data.length; i++) {
-          this[i] = data[i] as number;
-        }
-
-        break;
-      case "object":
-        for (let i = 0; i < width; i++) {
-          for (let j = 0; j < height; j++) {
-            if (!(data[i] as ArrayLike<number>)[j]) { throw new Error("Row lengths differ."); }
-            this[i * height + j] = (data[i] as ArrayLike<number>)[j] as number;
-          }
-        }
-
-        break;
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        if (typeof (cols[i] as ArrayLike<number>)[j] != "number") { throw new Error("Column heights differ."); }
+        this[i * height + j] = (cols[i] as ArrayLike<number>)[j] as number;
+      }
     }
   }
 
@@ -77,7 +28,7 @@ export class Matrix extends Float32Array {
    * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public static add(a: Matrix, b: Matrix, out: Matrix = new Matrix(a.width, a.height)): Matrix {
+  public static add<T extends Matrix>(a: Matrix, b: Matrix, out: T): T {
     if (a.width != b.width || a.width != out.width || a.height != b.height || a.height != out.height) { throw new Error("Matrix size mismatch."); }
 
     for (let i = 0; i < a.width * a.height; i++) {
@@ -90,11 +41,10 @@ export class Matrix extends Float32Array {
   /**
    * Adds another matrix to this one.
    * @param m The matrix.
-   * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public add(m: Matrix, out: Matrix = this): Matrix {
-    return Matrix.add(this, m, out);
+  public add(m: Matrix): this {
+    return Matrix.add(this, m, this);
   }
 
   /**
@@ -102,32 +52,12 @@ export class Matrix extends Float32Array {
    * @returns The new matrix.
    */
   public clone(): Matrix {
-    return new Matrix(this.width, this.height).copy(this);
-  }
-
-  /**
-   * Copies the values in a matrix to another.
-   * @param src The source matrix.
-   * @param dst The destination matrix.
-   * @returns The destination matrix.
-   */
-  public static copy(src: Matrix, dst: Matrix): Matrix {
-    if (src.width != dst.width || src.height != dst.height) { throw new Error("Matrix size mismatch."); }
-
-    for (let i = 0; i < src.length; i++) {
-      dst[i] = src[i] as number;
-    }
-
-    return dst;
-  }
-
-  /**
-   * Copies the values in another matrix to this one.
-   * @param src The source matrix.
-   * @returns This matrix.
-   */
-  public copy(src: Matrix): Matrix {
-    return Matrix.copy(src, this);
+    return new Matrix(...(this.reduce((previousValue: number[][], currentValue: number, index: number): number[][] => {
+      const chunkIndex: number = Math.floor(index / this.height);
+      previousValue[chunkIndex] ??= [];
+      (previousValue[chunkIndex] as number[]).push(currentValue);
+      return previousValue;
+    }, [] as number[][])));
   }
 
   /**
@@ -169,6 +99,16 @@ export class Matrix extends Float32Array {
     return Matrix.frob(this);
   }
 
+  /**
+   * Creates an empty matrix with the given dimensions.
+   * @param width The number of columns in the matrix.
+   * @param height The number of rows in the matrix.
+   * @returns The matrix.
+   */
+  public static fromDimensions(width: number, height: number): Matrix {
+    return new Matrix(...(new Array(width).fill(new Array(height).fill(0))));
+  }
+
   /** The number of rows in this matrix. */
   public readonly height: number;
 
@@ -179,7 +119,7 @@ export class Matrix extends Float32Array {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiply(a: Matrix, b: Matrix, out: Matrix = new Matrix(b.width, a.height)): Matrix {
+  public static multiply<T extends Matrix>(a: Matrix, b: Matrix, out: T): T {
     if (a.height != out.height || a.width != b.height || b.width != out.width) { throw new Error("Matrix size mismatch."); }
 
     const n: number = a.height;
@@ -203,11 +143,10 @@ export class Matrix extends Float32Array {
   /**
    * Multiplies this matrix by another.
    * @param m The other matrix.
-   * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public multiply(m: Matrix, out: Matrix = new Matrix(m.width, this.height)): Matrix {
-    return Matrix.multiply(this, m, out);
+  public multiply(m: Matrix): Matrix {
+    return Matrix.multiply(this, m, Matrix.fromDimensions(m.width, this.height));
   }
 
   /**
@@ -217,7 +156,7 @@ export class Matrix extends Float32Array {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiplyScalar(m: Matrix, s: number, out: Matrix = new Matrix(m.width, m.height)): Matrix {
+  public static multiplyScalar<T extends Matrix>(m: Matrix, s: number, out: T): T {
     if (m.width != out.width || m.height != out.height) { throw new Error("Matrix size mismatch."); }
 
     for (let i = 0; i < m.length; i++) {
@@ -230,11 +169,10 @@ export class Matrix extends Float32Array {
   /**
    * Multiplies this matrix by a scalar.
    * @param s The scalar.
-   * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public multiplyScalar(s: number, out: Matrix = this): Matrix {
-    return Matrix.multiplyScalar(this, s, out);
+  public multiplyScalar(s: number): this {
+    return Matrix.multiplyScalar(this, s, this);
   }
 
   /**
@@ -244,7 +182,7 @@ export class Matrix extends Float32Array {
    * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public static subtract(a: Matrix, b: Matrix, out: Matrix = new Matrix(a.width, a.height)): Matrix {
+  public static subtract<T extends Matrix>(a: Matrix, b: Matrix, out: T): T {
     if (a.width != b.width || a.width != out.width || a.height != b.height || a.height != out.height) { throw new Error("Matrix size mismatch."); }
 
     for (let i = 0; i < a.width * a.height; i++) {
@@ -256,11 +194,10 @@ export class Matrix extends Float32Array {
 
   /**
    * Subtracts another matrix from this one.
-   * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public subtract(m: Matrix, out: Matrix = this): Matrix {
-    return Matrix.subtract(this, m, out);
+  public subtract(m: Matrix): this {
+    return Matrix.subtract(this, m, this);
   }
 
   /**
@@ -269,7 +206,7 @@ export class Matrix extends Float32Array {
    * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public static transpose(m: Matrix, out: Matrix = new Matrix(m.height, m.width)): Matrix {
+  public static transpose<T extends Matrix>(m: Matrix, out: T): T {
     if (m.width != out.height || m.height != out.width) { throw new Error("Matrix size mismatch."); }
 
     for (let i = 0; i < m.width; i++) {
@@ -283,11 +220,10 @@ export class Matrix extends Float32Array {
 
   /**
    * Transposes this matrix.
-   * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public transpose(out: Matrix = new Matrix(this.height, this.width)): Matrix {
-    return Matrix.transpose(this, out);
+  public transpose(): Matrix {
+    return Matrix.transpose(this, Matrix.fromDimensions(this.height, this.width));
   }
 
   /** The number of columns in this matrix. */
