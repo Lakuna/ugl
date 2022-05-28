@@ -6,16 +6,16 @@ export class SquareMatrix extends Matrix {
    * Creates a square matrix from the given values.
    * @param vals The values in the matrix in column-wise order.
    */
-  public constructor(...vals: number[]) {
+  public constructor(...vals: Array<number>) {
     let dim: number = Math.sqrt(vals.length);
     if (dim % 1) { throw new Error("Values cannot form a square matrix."); }
 
-    super(...(vals.reduce((previousValue: number[][], currentValue: number, index: number): number[][] => {
+    super(...(vals.reduce((previousValue: Array<Array<number>>, currentValue: number, index: number): Array<Array<number>> => {
       const chunkIndex: number = Math.floor(index / dim);
       previousValue[chunkIndex] ??= [];
-      (previousValue[chunkIndex] as number[]).push(currentValue);
+      (previousValue[chunkIndex] as Array<number>).push(currentValue);
       return previousValue;
-    }, [] as number[][])));
+    }, [] as Array<Array<number>>)));
   }
 
   /**

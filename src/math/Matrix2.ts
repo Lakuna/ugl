@@ -1,5 +1,5 @@
 import { SquareMatrix } from "./SquareMatrix.js";
-import { Numbers1x2 } from "../types/Numbers.js";
+import { Vector2 } from "./Vector2.js";
 
 /** A collection of numbers arranged in two columns and two rows. */
 export class Matrix2 extends SquareMatrix {
@@ -167,11 +167,11 @@ export class Matrix2 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromScaling<T extends Matrix2>(v: Numbers1x2, out: T): T {
-    out[0] = v[0];
+  public static fromScaling<T extends Matrix2>(v: Vector2, out: T): T {
+    out[0] = v[0] as number;
     out[1] = 0;
     out[2] = 0;
-    out[3] = v[1];
+    out[3] = v[1] as number;
 
     return out;
   }
@@ -328,9 +328,9 @@ export class Matrix2 extends SquareMatrix {
    * @param out The matrix to store the scaled matrix in.
    * @returns The scaled matrix.
    */
-  public static scale<T extends Matrix2>(m: Matrix2, v: Numbers1x2, out: T): T {
-    const x: number = v[0];
-    const y: number = v[1];
+  public static scale<T extends Matrix2>(m: Matrix2, v: Vector2, out: T): T {
+    const x: number = v[0] as number;
+    const y: number = v[1] as number;
 
     out[0] = (m[0] as number) * x;
     out[1] = (m[1] as number) * x;
@@ -345,7 +345,7 @@ export class Matrix2 extends SquareMatrix {
    * @param v The vector.
    * @returns The scaled matrix.
    */
-  public scale(v: Numbers1x2): this {
+  public scale(v: Vector2): this {
     return Matrix2.scale(this, v, this);
   }
 

@@ -4,7 +4,7 @@ export class Matrix extends Float32Array {
    * Creates a matrix.
    * @param cols The columns in the matrix.
    */
-  public constructor(...cols: ArrayLike<number>[]) {
+  public constructor(...cols: Array<ArrayLike<number>>) {
     const width: number = cols.length;
     const height: number = cols[0]?.length ?? 0;
 
@@ -16,6 +16,7 @@ export class Matrix extends Float32Array {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         if (typeof (cols[i] as ArrayLike<number>)[j] != "number") { throw new Error("Column heights differ."); }
+
         this[i * height + j] = (cols[i] as ArrayLike<number>)[j] as number;
       }
     }
@@ -31,7 +32,7 @@ export class Matrix extends Float32Array {
   public static add<T extends Matrix>(a: Matrix, b: Matrix, out: T): T {
     if (a.width != b.width || a.width != out.width || a.height != b.height || a.height != out.height) { throw new Error("Matrix size mismatch."); }
 
-    for (let i = 0; i < a.width * a.height; i++) {
+    for (let i = 0; i < a.length; i++) {
       out[i] = (a[i] as number) + (b[i] as number);
     }
 
@@ -52,12 +53,12 @@ export class Matrix extends Float32Array {
    * @returns The new matrix.
    */
   public clone(): Matrix {
-    return new Matrix(...(this.reduce((previousValue: number[][], currentValue: number, index: number): number[][] => {
+    return new Matrix(...(this.reduce((previousValue: Array<Array<number>>, currentValue: number, index: number): Array<Array<number>> => {
       const chunkIndex: number = Math.floor(index / this.height);
       previousValue[chunkIndex] ??= [];
-      (previousValue[chunkIndex] as number[]).push(currentValue);
+      (previousValue[chunkIndex] as Array<number>).push(currentValue);
       return previousValue;
-    }, [] as number[][])));
+    }, [] as Array<Array<number>>)));
   }
 
   /**

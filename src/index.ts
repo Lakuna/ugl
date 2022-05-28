@@ -11,7 +11,6 @@ export * from "./math/Vector.js";
 export * from "./math/Vector2.js";
 export * from "./math/Vector3.js";
 export * from "./math/Vector4.js";
-export * from "./types/TypedArray.js";
 export * from "./utility/Camera.js";
 export * from "./utility/clearContext.js";
 export * from "./utility/Color.js";

@@ -1,12 +1,12 @@
 import { Matrix } from "./Matrix.js";
 
-/** A collection of numbers arranged a column. */
+/** A collection of numbers arranged one column. */
 export class Vector extends Matrix {
   /**
    * Creates a vector.
    * @param vals The values in the vector.
    */
-  public constructor(...vals: number[]) {
+  public constructor(...vals: Array<number>) {
     super(vals);
   }
 

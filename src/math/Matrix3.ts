@@ -1,5 +1,7 @@
 import { SquareMatrix } from "./SquareMatrix.js";
-import { Numbers1x2, Numbers1x4, Numbers4x4 } from "../types/Numbers.js";
+import { Matrix4 } from "./Matrix4.js";
+import { Quaternion } from "./Quaternion.js";
+import { Vector2 } from "./Vector2.js";
 
 /** A collection of numbers arranged in three columns and three rows. */
 export class Matrix3 extends SquareMatrix {
@@ -196,16 +198,16 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the 3x3 matrix in.
    * @returns The 3x3 matrix.
    */
-  public static fromMatrix4<T extends Matrix3>(m: Numbers4x4, out: T): T {
-    out[0] = m[0];
-    out[1] = m[1];
-    out[2] = m[2];
-    out[3] = m[4];
-    out[4] = m[5];
-    out[5] = m[6];
-    out[6] = m[8];
-    out[7] = m[9];
-    out[8] = m[10];
+  public static fromMatrix4<T extends Matrix3>(m: Matrix4, out: T): T {
+    out[0] = m[0] as number;
+    out[1] = m[1] as number;
+    out[2] = m[2] as number;
+    out[3] = m[4] as number;
+    out[4] = m[5] as number;
+    out[5] = m[6] as number;
+    out[6] = m[8] as number;
+    out[7] = m[9] as number;
+    out[8] = m[10] as number;
 
     return out;
   }
@@ -216,11 +218,11 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromQuaternion<T extends Matrix3>(q: Numbers1x4, out: T): T {
-    const x: number = q[0];
-    const y: number = q[1];
-    const z: number = q[2];
-    const w: number = q[3];
+  public static fromQuaternion<T extends Matrix3>(q: Quaternion, out: T): T {
+    const x: number = q[0] as number;
+    const y: number = q[1] as number;
+    const z: number = q[2] as number;
+    const w: number = q[3] as number;
 
     const x2: number = x + x;
     const y2: number = y + y;
@@ -278,12 +280,12 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromScaling<T extends Matrix3>(v: Numbers1x2, out: T): T {
-    out[0] = v[0];
+  public static fromScaling<T extends Matrix3>(v: Vector2, out: T): T {
+    out[0] = v[0] as number;
     out[1] = 0;
     out[2] = 0;
     out[3] = 0;
-    out[4] = v[1];
+    out[4] = v[1] as number;
     out[5] = 0;
     out[6] = 0;
     out[7] = 0;
@@ -298,15 +300,15 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transformation matrix in.
    * @returns The transformation matrix.
    */
-  public static fromTranslation<T extends Matrix3>(v: Numbers1x2, out: T): T {
+  public static fromTranslation<T extends Matrix3>(v: Vector2, out: T): T {
     out[0] = 1;
     out[1] = 0;
     out[2] = 0;
     out[3] = 0;
     out[4] = 1;
     out[5] = 0;
-    out[6] = v[0];
-    out[7] = v[1];
+    out[6] = v[0] as number;
+    out[7] = v[1] as number;
     out[8] = 1;
 
     return out;
@@ -469,23 +471,23 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the 3x3 matrix in.
    * @returns The 3x3 matrix.
    */
-  public static normalFromMatrix4<T extends Matrix3>(m: Numbers4x4, out: T): T {
-    const a00: number = m[0];
-    const a01: number = m[1];
-    const a02: number = m[2];
-    const a03: number = m[3];
-    const a10: number = m[4];
-    const a11: number = m[5];
-    const a12: number = m[6];
-    const a13: number = m[7];
-    const a20: number = m[8];
-    const a21: number = m[9];
-    const a22: number = m[10];
-    const a23: number = m[11];
-    const a30: number = m[12];
-    const a31: number = m[13];
-    const a32: number = m[14];
-    const a33: number = m[15];
+  public static normalFromMatrix4<T extends Matrix3>(m: Matrix4, out: T): T {
+    const a00: number = m[0] as number;
+    const a01: number = m[1] as number;
+    const a02: number = m[2] as number;
+    const a03: number = m[3] as number;
+    const a10: number = m[4] as number;
+    const a11: number = m[5] as number;
+    const a12: number = m[6] as number;
+    const a13: number = m[7] as number;
+    const a20: number = m[8] as number;
+    const a21: number = m[9] as number;
+    const a22: number = m[10] as number;
+    const a23: number = m[11] as number;
+    const a30: number = m[12] as number;
+    const a31: number = m[13] as number;
+    const a32: number = m[14] as number;
+    const a33: number = m[15] as number;
 
     const b00: number = a00 * a11 - a01 * a10;
     const b01: number = a00 * a12 - a02 * a10;
@@ -586,9 +588,9 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the scaled matrix in.
    * @returns The scaled matrix.
    */
-  public static scale<T extends Matrix3>(m: Matrix3, v: Numbers1x2, out: T): T {
-    const x: number = v[0];
-    const y: number = v[1];
+  public static scale<T extends Matrix3>(m: Matrix3, v: Vector2, out: T): T {
+    const x: number = v[0] as number;
+    const y: number = v[1] as number;
 
     out[0] = (m[0] as number) * x;
     out[1] = (m[1] as number) * x;
@@ -608,7 +610,7 @@ export class Matrix3 extends SquareMatrix {
    * @param v The vector.
    * @returns The scaled matrix.
    */
-  public scale(v: Numbers1x2): this {
+  public scale(v: Vector2): this {
     return Matrix3.scale(this, v, this);
   }
 
@@ -648,7 +650,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the translated matrix in.
    * @returns The translated matrix.
    */
-  public static translate<T extends Matrix3>(m: Matrix3, v: Numbers1x2, out: T): T {
+  public static translate<T extends Matrix3>(m: Matrix3, v: Vector2, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -659,8 +661,8 @@ export class Matrix3 extends SquareMatrix {
     const a21: number = m[7] as number;
     const a22: number = m[8] as number;
 
-    const x: number = v[0];
-    const y: number = v[1];
+    const x: number = v[0] as number;
+    const y: number = v[1] as number;
 
     out[0] = a00;
     out[1] = a01;
@@ -680,7 +682,7 @@ export class Matrix3 extends SquareMatrix {
    * @param v The vector.
    * @returns The translated matrix.
    */
-  public translate(v: Numbers1x2): this {
+  public translate(v: Vector2): this {
     return Matrix3.translate(this, v, this);
   }
 
