@@ -64,13 +64,14 @@ export class Matrix extends Float32Array {
    * Determines whether two matrices are equivalent.
    * @param a The first matrix.
    * @param b The second matrix.
+   * @param epsilon The maximum allowed difference between the matrices to count as equivalent.
    * @returns Whether the matrices are equivalent.
    */
-  public static equals(a: Matrix, b: Matrix): boolean {
+  public static equals(a: Matrix, b: Matrix, epsilon = 0.000001): boolean {
     if (a.width != b.width || a.height != b.height) { return false; }
 
     for (let i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) { return false; }
+      if (Math.abs((a[i] as number) - (b[i] as number)) > epsilon) { return false; }
     }
 
     return true;

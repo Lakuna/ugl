@@ -35,7 +35,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public static add4<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
+  public static addFast<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
     out[0] = (a[0] as number) + (b[0] as number);
     out[1] = (a[1] as number) + (b[1] as number);
     out[2] = (a[2] as number) + (b[2] as number);
@@ -62,7 +62,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The sum.
    */
   public override add(m: Matrix4): this {
-    return Matrix4.add4(this, m, this);
+    return Matrix4.addFast(this, m, this);
   }
 
   /**
@@ -71,7 +71,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the adjugate in.
    * @returns The adjugate.
    */
-  public static adjoint4<T extends Matrix4>(m: Matrix4, out: T): T {
+  public static adjointFast<T extends Matrix4>(m: Matrix4, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -114,7 +114,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The adjugate.
    */
   public override adjoint(): this {
-    return Matrix4.adjoint4(this, this);
+    return Matrix4.adjointFast(this, this);
   }
 
   /**
@@ -131,7 +131,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the cofactor in.
    * @returns The cofactor.
    */
-  public static cofactor4<T extends Matrix4>(m: Matrix4, out: T): T {
+  public static cofactorFast<T extends Matrix4>(m: Matrix4, out: T): T {
     out[0] = m.minor(0, 0);
     out[1] = -m.minor(0, 1);
     out[2] = m.minor(0, 2);
@@ -157,7 +157,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The cofactor.
    */
   public override cofactor(): this {
-    return Matrix4.cofactor4(this, this);
+    return Matrix4.cofactorFast(this, this);
   }
 
   /**
@@ -165,7 +165,7 @@ export class Matrix4 extends SquareMatrix {
    * @param m The matrix.
    * @returns The determinant.
    */
-  public static determinant4(m: Matrix4): number {
+  public static determinantFast(m: Matrix4): number {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -193,7 +193,7 @@ export class Matrix4 extends SquareMatrix {
 
   /** The determinant of this matrix. */
   public override get determinant(): number {
-    return Matrix4.determinant4(this);
+    return Matrix4.determinantFast(this);
   }
 
   /**
@@ -202,7 +202,7 @@ export class Matrix4 extends SquareMatrix {
    * @param b The second matrix.
    * @returns Whether the matrices are equivalent.
    */
-  public static equals4(a: Matrix4, b: Matrix4): boolean {
+  public static equalsFast(a: Matrix4, b: Matrix4): boolean {
     return a[0] == b[0]
       && a[1] == b[1]
       && a[2] == b[2]
@@ -227,7 +227,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns Whether the matrices are equivalent.
    */
   public override equals(m: Matrix4): boolean {
-    return Matrix4.equals4(this, m);
+    return Matrix4.equalsFast(this, m);
   }
 
   /**
@@ -235,13 +235,13 @@ export class Matrix4 extends SquareMatrix {
    * @param m The matrix.
    * @returns The Frobenius norm.
    */
-  public static frob4(m: Matrix4): number {
+  public static frobFast(m: Matrix4): number {
     return Math.hypot(m[0] as number, m[1] as number, m[2] as number, m[3] as number, m[4] as number, m[5] as number, m[6] as number, m[7] as number, m[8] as number, m[9] as number, m[10] as number, m[11] as number, m[12] as number, m[13] as number, m[14] as number, m[15] as number);
   }
 
   /** The Frobenius norm of this matrix. */
   public override get frob(): number {
-    return Matrix4.frob4(this);
+    return Matrix4.frobFast(this);
   }
 
   /**
@@ -779,7 +779,7 @@ export class Matrix4 extends SquareMatrix {
    * @param m The matrix.
    * @returns The matrix.
    */
-  public static identity4<T extends Matrix4>(m: T): T {
+  public static identityFast<T extends Matrix4>(m: T): T {
     m[0] = 1;
     m[1] = 0;
     m[2] = 0;
@@ -805,7 +805,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns This matrix.
    */
   public override identity(): this {
-    return Matrix4.identity4(this);
+    return Matrix4.identityFast(this);
   }
 
   /**
@@ -814,7 +814,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the inverted matrix in.
    * @returns The inverted matrix.
    */
-  public static invert4<T extends Matrix4>(m: Matrix4, out: T): T {
+  public static invertFast<T extends Matrix4>(m: Matrix4, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -872,7 +872,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The inverted matrix.
    */
   public override invert(): this {
-    return Matrix4.invert4(this, this);
+    return Matrix4.invertFast(this, this);
   }
 
   /**
@@ -953,7 +953,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiply4<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
+  public static multiplyFast<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
     const a00: number = a[0] as number;
     const a01: number = a[1] as number;
     const a02: number = a[2] as number;
@@ -1014,7 +1014,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The product.
    */
   public override multiply(m: Matrix4): this {
-    return Matrix4.multiply4(this, m, this);
+    return Matrix4.multiplyFast(this, m, this);
   }
 
   /**
@@ -1024,7 +1024,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiplyScalar4<T extends Matrix4>(m: Matrix4, s: number, out: T): T {
+  public static multiplyScalarFast<T extends Matrix4>(m: Matrix4, s: number, out: T): T {
     out[0] = (m[0] as number) * s;
     out[1] = (m[1] as number) * s;
     out[2] = (m[2] as number) * s;
@@ -1051,7 +1051,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The product.
    */
   public override multiplyScalar(s: number): this {
-    return Matrix4.multiplyScalar4(this, s, this);
+    return Matrix4.multiplyScalarFast(this, s, this);
   }
 
   /**
@@ -1456,7 +1456,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public static subtract4<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
+  public static subtractFast<T extends Matrix4>(a: Matrix4, b: Matrix4, out: T): T {
     out[0] = (a[0] as number) - (b[0] as number);
     out[1] = (a[1] as number) - (b[1] as number);
     out[2] = (a[2] as number) - (b[2] as number);
@@ -1482,7 +1482,7 @@ export class Matrix4 extends SquareMatrix {
    * @returns The difference.
    */
   public override subtract(m: Matrix4): this {
-    return Matrix4.subtract4(this, m, this);
+    return Matrix4.subtractFast(this, m, this);
   }
 
   /**
@@ -1610,7 +1610,7 @@ export class Matrix4 extends SquareMatrix {
    * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public static transpose4<T extends Matrix4>(m: Matrix4, out: T): T {
+  public static transposeFast<T extends Matrix4>(m: Matrix4, out: T): T {
     out[0] = m[0] as number;
     out[1] = m[4] as number;
     out[2] = m[8] as number;
@@ -1636,6 +1636,6 @@ export class Matrix4 extends SquareMatrix {
    * @returns The transposed matrix.
    */
   public override transpose(): this {
-    return Matrix4.transpose4(this, this);
+    return Matrix4.transposeFast(this, this);
   }
 }

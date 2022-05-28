@@ -26,7 +26,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the sum in.
    * @returns The sum.
    */
-  public static add3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
+  public static addFast<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     out[0] = (a[0] as number) + (b[0] as number);
     out[1] = (a[1] as number) + (b[1] as number);
     out[2] = (a[2] as number) + (b[2] as number);
@@ -46,7 +46,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The sum.
    */
   public override add(m: Matrix3): this {
-    return Matrix3.add3(this, m, this);
+    return Matrix3.addFast(this, m, this);
   }
 
   /**
@@ -55,7 +55,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the adjugate in.
    * @returns The adjugate.
    */
-  public static adjoint3<T extends Matrix3>(m: Matrix3, out: T): T {
+  public static adjointFast<T extends Matrix3>(m: Matrix3, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -84,7 +84,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The adjugate.
    */
   public override adjoint(): this {
-    return Matrix3.adjoint3(this, this);
+    return Matrix3.adjointFast(this, this);
   }
 
   /**
@@ -101,7 +101,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the cofactor in.
    * @returns The cofactor.
    */
-  public static cofactor3<T extends Matrix3>(m: Matrix3, out: T): T {
+  public static cofactorFast<T extends Matrix3>(m: Matrix3, out: T): T {
     out[0] = m.minor(0, 0);
     out[1] = -m.minor(0, 1);
     out[2] = m.minor(0, 2);
@@ -120,7 +120,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The cofactor.
    */
   public override cofactor(): this {
-    return Matrix3.cofactor3(this, this);
+    return Matrix3.cofactorFast(this, this);
   }
 
   /**
@@ -128,7 +128,7 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The determinant.
    */
-  public static determinant3(m: Matrix3): number {
+  public static determinantFast(m: Matrix3): number {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -146,7 +146,7 @@ export class Matrix3 extends SquareMatrix {
 
   /** The determinant of this matrix. */
   public override get determinant(): number {
-    return Matrix3.determinant3(this);
+    return Matrix3.determinantFast(this);
   }
 
   /**
@@ -155,7 +155,7 @@ export class Matrix3 extends SquareMatrix {
    * @param b The second matrix.
    * @returns Whether the matrices are equivalent.
    */
-  public static equals3(a: Matrix3, b: Matrix3): boolean {
+  public static equalsFast(a: Matrix3, b: Matrix3): boolean {
     return a[0] == b[0]
       && a[1] == b[1]
       && a[2] == b[2]
@@ -173,7 +173,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns Whether the matrices are equivalent.
    */
   public override equals(m: Matrix3): boolean {
-    return Matrix3.equals3(this, m);
+    return Matrix3.equalsFast(this, m);
   }
 
   /**
@@ -181,13 +181,13 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The Frobenius norm.
    */
-  public static frob3(m: Matrix3): number {
+  public static frobFast(m: Matrix3): number {
     return Math.hypot(m[0] as number, m[1] as number, m[2] as number, m[3] as number, m[4] as number, m[5] as number, m[6] as number, m[7] as number, m[8] as number);
   }
 
   /** The Frobenius norm of this matrix. */
   public override get frob(): number {
-    return Matrix3.frob3(this);
+    return Matrix3.frobFast(this);
   }
 
   /**
@@ -317,7 +317,7 @@ export class Matrix3 extends SquareMatrix {
    * @param m The matrix.
    * @returns The matrix.
    */
-  public static identity3<T extends Matrix3>(m: T): T {
+  public static identityFast<T extends Matrix3>(m: T): T {
     m[0] = 1;
     m[1] = 0;
     m[2] = 0;
@@ -336,7 +336,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns This matrix.
    */
   public override identity(): this {
-    return Matrix3.identity3(this);
+    return Matrix3.identityFast(this);
   }
 
   /**
@@ -345,7 +345,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the inverted matrix in.
    * @returns The inverted matrix.
    */
-  public static invert3<T extends Matrix3>(m: Matrix3, out: T): T {
+  public static invertFast<T extends Matrix3>(m: Matrix3, out: T): T {
     const a00: number = m[0] as number;
     const a01: number = m[1] as number;
     const a02: number = m[2] as number;
@@ -380,7 +380,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The inverted matrix.
    */
   public override invert(): this {
-    return Matrix3.invert3(this, this);
+    return Matrix3.invertFast(this, this);
   }
 
   /**
@@ -390,7 +390,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiply3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
+  public static multiplyFast<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     const a00: number = a[0] as number;
     const a01: number = a[1] as number;
     const a02: number = a[2] as number;
@@ -430,7 +430,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The product.
    */
   public override multiply(m: Matrix3): this {
-    return Matrix3.multiply3(this, m, this);
+    return Matrix3.multiplyFast(this, m, this);
   }
 
   /**
@@ -440,7 +440,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the product in.
    * @returns The product.
    */
-  public static multiplyScalar3<T extends Matrix3>(m: Matrix3, s: number, out: T): T {
+  public static multiplyScalarFast<T extends Matrix3>(m: Matrix3, s: number, out: T): T {
     out[0] = (m[0] as number) * s;
     out[1] = (m[1] as number) * s;
     out[2] = (m[2] as number) * s;
@@ -460,7 +460,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The product.
    */
   public override multiplyScalar(s: number): this {
-    return Matrix3.multiplyScalar3(this, s, this);
+    return Matrix3.multiplyScalarFast(this, s, this);
   }
 
   /**
@@ -619,7 +619,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the difference in.
    * @returns The difference.
    */
-  public static subtract3<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
+  public static subtractFast<T extends Matrix3>(a: Matrix3, b: Matrix3, out: T): T {
     out[0] = (a[0] as number) - (b[0] as number);
     out[1] = (a[1] as number) - (b[1] as number);
     out[2] = (a[2] as number) - (b[2] as number);
@@ -638,7 +638,7 @@ export class Matrix3 extends SquareMatrix {
    * @returns The difference.
    */
   public override subtract(m: Matrix3): this {
-    return Matrix3.subtract3(this, m, this);
+    return Matrix3.subtractFast(this, m, this);
   }
 
   /**
@@ -690,7 +690,7 @@ export class Matrix3 extends SquareMatrix {
    * @param out The matrix to store the transposed matrix in.
    * @returns The transposed matrix.
    */
-  public static transpose3<T extends Matrix3>(m: Matrix3, out: T): T {
+  public static transposeFast<T extends Matrix3>(m: Matrix3, out: T): T {
     out[0] = m[0] as number;
     out[1] = m[3] as number;
     out[2] = m[6] as number;
@@ -709,6 +709,6 @@ export class Matrix3 extends SquareMatrix {
    * @returns The transposed matrix.
    */
   public override transpose(): this {
-    return Matrix3.transpose3(this, this);
+    return Matrix3.transposeFast(this, this);
   }
 }
