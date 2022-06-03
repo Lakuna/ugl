@@ -7,7 +7,7 @@ export class Geometry {
    * @param normals - The normal values of the vertices of the shape.
    * @param indices - The indices of the shape.
    */
-  constructor(positions: Float32Array, texcoords?: Float32Array, normals?: Float32Array, indices?: Uint8Array) {
+  public constructor(positions: Float32Array, texcoords?: Float32Array, normals?: Float32Array, indices?: Uint8Array) {
     this.positions = positions;
     if (texcoords) { this.texcoords = texcoords; }
     if (normals) { this.normals = normals; }
@@ -15,14 +15,14 @@ export class Geometry {
   }
 
   /** The clip space coordinates of the vertices of this shape. */
-  readonly positions: Float32Array;
+  public readonly positions: Float32Array;
 
   /** The texture space coordinates of the vertices of this shape for the texture applied to this shape. */
-  readonly texcoords?: Float32Array;
+  public readonly texcoords?: Float32Array;
 
   /** The normal values of the vertices of this shape. */
-  readonly normals?: Float32Array;
+  public readonly normals?: Float32Array;
 
   /** The indices of this shape. */
-  readonly indices?: Uint8Array;
+  public readonly indices?: Uint8Array;
 }

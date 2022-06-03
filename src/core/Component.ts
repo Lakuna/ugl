@@ -15,7 +15,7 @@ export class Component {
    * @param gameObject - The object to attach the component to.
    * @param priority - The order to trigger the component's events relative to other components. A lower value makes the event trigger earlier.
    */
-  constructor(gameObject: GameObject = new GameObject(), priority = 0) {
+  public constructor(gameObject: GameObject, priority = 0) {
     this.gameObject = gameObject;
     this.gameObject.components.push(this);
     this.priority = priority;
@@ -23,11 +23,11 @@ export class Component {
   }
 
   /** The object that this component is attached to. */
-  readonly gameObject: GameObject;
+  public readonly gameObject: GameObject;
 
   /** The order that this component's events are triggered relative to other components. A lower value makes the event trigger earlier. */
-  priority: number;
+  public priority: number;
 
   /** A map of functions to the events that trigger them for this component. */
-  events: Map<Event, (umbra: Umbra) => void>
+  public events: Map<Event, (umbra: Umbra) => void>
 }

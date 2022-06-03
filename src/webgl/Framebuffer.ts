@@ -9,7 +9,7 @@ export class Framebuffer {
    * Unbinds all framebuffers from the given rendering context.
    * @param gl - The rendering context.
    */
-  static unbind(gl: WebGL2RenderingContext): void {
+  public static unbind(gl: WebGL2RenderingContext): void {
     gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
   }
 
@@ -17,10 +17,10 @@ export class Framebuffer {
    * Creates a framebuffer.
    * @param gl - The rendering context of the framebuffer.
    */
-  constructor(gl: WebGL2RenderingContext, width: number, height: number, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
+  public constructor(gl: WebGL2RenderingContext, width: number, height: number, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
     this.gl = gl;
     this.target = target;
-    this.#attachments = new Map();
+    this.attachmentsPrivate = new Map();
     this.width = width;
     this.height = height;
 
@@ -30,31 +30,31 @@ export class Framebuffer {
   }
 
   /** The rendering context of this framebuffer. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The WebGL API interface of this framebuffer. */
-  readonly framebuffer: WebGLFramebuffer;
+  public readonly framebuffer: WebGLFramebuffer;
 
   /** The target binding point of this framebuffer. */
-  target: FramebufferTarget
+  public target: FramebufferTarget
 
   /** The width of this framebuffer. */
-  width: number;
+  public width: number;
 
   /** The height of this framebuffer. */
-  height: number;
+  public height: number;
 
   /** Binds this framebuffer to its target. */
-  bind(): void {
+  public bind(): void {
     this.gl.bindFramebuffer(this.target, this.framebuffer);
   }
 
   /** A map of attachments on this framebuffer. */
-  #attachments: Map<FramebufferAttachment, Texture | Renderbuffer>
+  private attachmentsPrivate: Map<FramebufferAttachment, Texture | Renderbuffer>
 
   /** A map of attachments on this framebuffer. */
-  get attachments(): ReadonlyMap<FramebufferAttachment, Texture | Renderbuffer> {
-    return this.#attachments;
+  public get attachments(): ReadonlyMap<FramebufferAttachment, Texture | Renderbuffer> {
+    return this.attachmentsPrivate;
   }
 
   /**
@@ -62,9 +62,9 @@ export class Framebuffer {
    * @param texture - The texture to attach.
    * @param attachmentPoint - The attachment point of the texture.
    */
-  attach(texture: Texture, attachmentPoint: FramebufferAttachment, level?: number): void;
+  public attach(texture: Texture, attachmentPoint: FramebufferAttachment, level?: number): void;
 
-  attach(attachment: Texture | Renderbuffer, attachmentPoint: FramebufferAttachment, layer?: number): void {
+  public attach(attachment: Texture | Renderbuffer, attachmentPoint: FramebufferAttachment, layer?: number): void {
     this.bind();
 
     if (attachment instanceof Renderbuffer) {
@@ -75,7 +75,7 @@ export class Framebuffer {
       this.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target, attachment.texture, 0);
     }
 
-    this.#attachments.set(attachmentPoint, attachment);
+    this.attachmentsPrivate.set(attachmentPoint, attachment);
 
     Framebuffer.unbind(this.gl);
   }

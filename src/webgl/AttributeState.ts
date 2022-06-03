@@ -14,7 +14,7 @@ export class AttributeState {
    * @param stride - The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `255`.
    * @param offset - The offset in bytes of the first component in the buffer.
    */
-  constructor(name: string, buffer: Buffer, size: 1 | 2 | 3 | 4 = 3, normalized = false, stride = 0, offset = 0) {
+  public constructor(name: string, buffer: Buffer, size: 1 | 2 | 3 | 4 = 3, normalized = false, stride = 0, offset = 0) {
     this.name = name;
     this.buffer = buffer;
     this.size = size;
@@ -26,28 +26,28 @@ export class AttributeState {
   }
 
   /** The rendering context of this buffer. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The name of this attribute in a shader program. */
-  readonly name: string;
+  public readonly name: string;
 
   /** The buffer which supplies data to the attribute. */
-  readonly buffer: Buffer;
+  public readonly buffer: Buffer;
 
   /** The number of components per vertex attribute. */
-  size: 1 | 2 | 3 | 4;
+  public size: 1 | 2 | 3 | 4;
 
   /** Whether to normalize data after getting it from this buffer. */
-  normalized: boolean;
+  public normalized: boolean;
 
   /** The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `255`. */
-  stride: number;
+  public stride: number;
 
   /** The offset in bytes of the first component in the buffer. */
-  offset: number;
+  public offset: number;
 
   /** The type of each component in this buffer. */
-  get type(): BufferDataType {
+  public get type(): BufferDataType {
     return this.buffer.type;
   }
 
@@ -55,7 +55,7 @@ export class AttributeState {
    * Uses this attribute in a program.
    * @param program - The program to use this attribute in.
    */
-  use(program: Program): void {
+  public use(program: Program): void {
     const attribute: Attribute | undefined = program.attributes.get(this.name);
     if (!attribute) { throw new Error("Attribute not found."); }
     attribute.value = this;

@@ -10,10 +10,10 @@ export class Attribute extends Variable {
    * @param program - The shader program that this attribute belongs to.
    * @param index - The index of this attribute.
    */
-  constructor(program: Program, index: number) {
+  public constructor(program: Program, index: number) {
     super(program);
 
-    this.#enabled = false;
+    this.enabledPrivate = false;
     this.enabled = true;
 
     const activeInfo: WebGLActiveInfo | null = this.gl.getActiveAttrib(program.program, index);
@@ -93,10 +93,10 @@ export class Attribute extends Variable {
   }
 
   /** The active information of this attribute. */
-  readonly activeInfo: WebGLActiveInfo;
+  public readonly activeInfo: WebGLActiveInfo;
 
   /** The location of this attribute. */
-  readonly location: number;
+  public readonly location: number;
 
   /** The setter method for this attribute. */
   protected readonly setter: (value: AttributeState) => void;
@@ -105,36 +105,39 @@ export class Attribute extends Variable {
   protected readonly arraySetter?: () => void;
 
   /** Enables getting data from a buffer for this attribute. */
-  enable(): void {
+  public enable(): void {
     this.gl.enableVertexAttribArray(this.location);
   }
 
   /** Whether this attribute can get data from a buffer. */
-  #enabled: boolean;
+  private enabledPrivate: boolean;
 
   /** Whether this attribute can get data from a buffer. */
-  get enabled(): boolean {
-    return this.#enabled;
+  public get enabled(): boolean {
+    return this.enabledPrivate;
   }
-  set enabled(value: boolean) {
+
+  public set enabled(value: boolean) {
     if (value) {
       this.gl.enableVertexAttribArray(this.location);
     } else {
       this.gl.disableVertexAttribArray(this.location);
     }
-    this.#enabled = value;
+
+    this.enabledPrivate = value;
   }
 
   /** The value of this attribute. */
-  #value?: AttributeState;
+  private valuePrivate?: AttributeState;
 
   /** The value of this attribute. */
-  get value(): AttributeState | undefined {
-    return this.#value;
+  public get value(): AttributeState | undefined {
+    return this.valuePrivate;
   }
-  set value(value: AttributeState | undefined) {
+
+  public set value(value: AttributeState | undefined) {
     if (!value) { return; }
     this.setter(value);
-    this.#value = value;
+    this.valuePrivate = value;
   }
 }

@@ -7,7 +7,7 @@ export abstract class Texture {
    * @param gl - The rendering context of the texture.
    * @param target - The target binding point of the texture.
    */
-  constructor(gl: WebGL2RenderingContext, target: TextureTarget) {
+  public constructor(gl: WebGL2RenderingContext, target: TextureTarget) {
     this.gl = gl;
     this.target = target;
 
@@ -17,16 +17,16 @@ export abstract class Texture {
   }
 
   /** The rendering context of this texture. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The target binding point of this texture. */
-  target: TextureTarget;
+  public target: TextureTarget;
 
   /** The WebGL API interface of this texture. */
-  readonly texture: WebGLTexture;
+  public readonly texture: WebGLTexture;
 
   /** Binds this texture to its target. */
-  bind(): void {
+  public bind(): void {
     this.gl.bindTexture(this.target, this.texture);
   }
 
@@ -34,10 +34,10 @@ export abstract class Texture {
    * Updates the texture parameters of this texture.
    * @param textureUnit - The texture unit of this texture in the current shader program.
    */
-  abstract update(textureUnit: number): void;
+  public abstract update(textureUnit: number): void;
 
   /** Generates a mipmap for this texture. */
-  generateMipmap(): void {
+  public generateMipmap(): void {
     this.gl.generateMipmap(this.target);
   }
 }
@@ -58,7 +58,7 @@ export class Texture2D extends Texture {
    * @param gl - The rendering context of the texture.
    * @param pixels - The pixel source for the texture.
    */
-  constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource) {
+  public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource) {
     super(gl, TextureTarget.TEXTURE_2D);
     this.lod = 0;
     this.internalFormat = TextureFormat.RGBA;
@@ -66,17 +66,17 @@ export class Texture2D extends Texture {
   }
 
   /** The level of detail of this texture. */
-  lod: number;
+  public lod: number;
 
   /** The color components in the texture. */
-  internalFormat: TextureFormat;
+  public internalFormat: TextureFormat;
 
   /** The data type of the components in the texture. */
-  #type?: TextureDataType;
+  private typePrivate?: TextureDataType;
 
   /** The data type of the components in the texture. */
-  get type(): TextureDataType {
-    if (this.#type) { return this.#type; }
+  public get type(): TextureDataType {
+    if (this.typePrivate) { return this.typePrivate; }
 
     switch (this.internalFormat) {
       case TextureFormat.RGB:
@@ -115,16 +115,17 @@ export class Texture2D extends Texture {
         throw new Error("Unset data type without default for selected format.");
     }
   }
-  set type(value: TextureDataType) {
-    this.#type = value;
+
+  public set type(value: TextureDataType) {
+    this.typePrivate = value;
   }
 
   /** The format of the texel data. */
-  #format?: TextureFormat;
+  private formatPrivate?: TextureFormat;
 
   /** The format of the texel data. */
-  get format(): TextureFormat {
-    if (this.#format) { return this.#format; }
+  public get format(): TextureFormat {
+    if (this.formatPrivate) { return this.formatPrivate; }
 
     switch (this.internalFormat) {
       case TextureFormat.RGB:
@@ -173,50 +174,54 @@ export class Texture2D extends Texture {
   }
 
   /** The width of this texture. */
-  width?: number;
+  public width?: number;
 
   /** The height of this texture. */
-  height?: number;
+  public height?: number;
 
   /** The pixel source for this texture. */
-  pixels: Texture2DPixelSource;
+  public pixels: Texture2DPixelSource;
 
   /** The magnification filter for this texture. */
-  get magFilter(): TextureFilter {
+  public get magFilter(): TextureFilter {
     this.bind();
     return this.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
   }
-  set magFilter(value: TextureFilter) {
+
+  public set magFilter(value: TextureFilter) {
     this.bind();
     this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
   }
 
   /** The minification filter for this texture. */
-  get minFilter(): TextureFilter {
+  public get minFilter(): TextureFilter {
     this.bind();
     return this.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
   }
-  set minFilter(value: TextureFilter) {
+
+  public set minFilter(value: TextureFilter) {
     this.bind();
     this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
   }
 
   /** The wrapping function for the S coordinate. */
-  get wrapSFunction(): TextureWrapFunction {
+  public get wrapSFunction(): TextureWrapFunction {
     this.bind();
     return this.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
   }
-  set wrapSFunction(value: TextureWrapFunction) {
+
+  public set wrapSFunction(value: TextureWrapFunction) {
     this.bind();
     this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
   }
 
   /** The wrapping function for the T coordinate. */
-  get wrapTFunction(): TextureWrapFunction {
+  public get wrapTFunction(): TextureWrapFunction {
     this.bind();
     return this.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
   }
-  set wrapTFunction(value: TextureWrapFunction) {
+
+  public set wrapTFunction(value: TextureWrapFunction) {
     this.bind();
     this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
   }
@@ -225,7 +230,7 @@ export class Texture2D extends Texture {
    * Updates the texture parameters of this texture.
    * @param textureUnit - The texture unit of this texture in the current shader program.
    */
-  update(textureUnit: number): void {
+  public update(textureUnit: number): void {
     this.gl.activeTexture(TEXTURE0 + textureUnit);
     this.bind();
 

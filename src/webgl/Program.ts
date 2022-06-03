@@ -14,7 +14,7 @@ export class Program {
    * @param fragmentShaderSource - The source code of the fragment shader.
    * @returns A shader program.
    */
-  static fromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string): Program {
+  public static fromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string): Program {
     return new Program(new Shader(gl, ShaderType.VERTEX_SHADER, vertexShaderSource), new Shader(gl, ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
   }
 
@@ -25,7 +25,7 @@ export class Program {
    * @param transformFeedbackVaryingNames - The names of the varyings which should be tracked for transform feedback.
    * @param transformFeedbackBufferMode - The mode to use when capturing transform feedback varyings.
    */
-  constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
+  public constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames: Array<string> = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
     if (vertexShader.gl != fragmentShader.gl) { throw new Error("Shaders have different rendering contexts."); }
     if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new Error("Invalid vertex shader."); }
     if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new Error("Invalid fragment shader."); }
@@ -82,62 +82,62 @@ export class Program {
   }
 
   /** The vertex shader of this shader program. */
-  readonly vertexShader: Shader;
+  public readonly vertexShader: Shader;
 
   /** The fragment shader of this shader program. */
-  readonly fragmentShader: Shader;
+  public readonly fragmentShader: Shader;
 
   /** The mode this program uses when capturing transform feedback varyings. */
-  readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
+  public readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
 
   /** The rendering context of this shader program. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The WebGL API interface of this shader program. */
-  readonly program: WebGLProgram;
+  public readonly program: WebGLProgram;
 
   /** A map of uniform names to uniforms. */
-  readonly uniforms: ReadonlyMap<string, Uniform>;
+  public readonly uniforms: ReadonlyMap<string, Uniform>;
 
   /** A map of attribute names to attributes. */
-  readonly attributes: ReadonlyMap<string, Attribute>;
+  public readonly attributes: ReadonlyMap<string, Attribute>;
 
   /** A map of transform feedback varying names to varyings. */
-  readonly transformFeedbackVaryings: ReadonlyMap<string, TransformFeedbackVarying>;
+  public readonly transformFeedbackVaryings: ReadonlyMap<string, TransformFeedbackVarying>;
 
   /** Whether this program is allowed to draw transparent objects. Used for optimization only. */
-  allowTransparent: boolean;
+  public allowTransparent: boolean;
 
   /** Whether this program is allowed to draw with depth. Used for optimization only. */
-  allowDepth: boolean;
+  public allowDepth: boolean;
 
   /** Whether this program is flagged for deletion. */
-  get deleteStatus(): boolean {
+  public get deleteStatus(): boolean {
     return this.gl.getProgramParameter(this.program, DELETE_STATUS);
   }
 
   /** Whether the last link operation was successful. */
-  get linkStatus(): boolean {
+  public get linkStatus(): boolean {
     return this.gl.getProgramParameter(this.program, LINK_STATUS);
   }
 
   /** Whether the last validation operation was successful. */
-  get validateStatus(): boolean {
+  public get validateStatus(): boolean {
     return this.gl.getProgramParameter(this.program, VALIDATE_STATUS);
   }
 
   /** The information log for this shader program. */
-  get infoLog(): string {
+  public get infoLog(): string {
     return this.gl.getProgramInfoLog(this.program) ?? "";
   }
 
   /** Deletes this shader program. */
-  delete(): void {
+  public delete(): void {
     this.gl.deleteProgram(this.program);
   }
 
   /** Sets this as the active shader program. */
-  use(): void {
+  public use(): void {
     this.gl.useProgram(this.program);
   }
 }

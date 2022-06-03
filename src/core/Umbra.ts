@@ -1,4 +1,3 @@
-import { makeFullscreenCanvas } from "../utility/makeFullscreenCanvas.js";
 import { GameObject } from "./GameObject.js";
 import { Component, Event } from "./Component.js";
 
@@ -9,7 +8,7 @@ export class Umbra {
    * @param canvas - The canvas to render to.
    * @param ups - The updates per second of the fixed update loop.
    */
-  constructor(canvas: HTMLCanvasElement = makeFullscreenCanvas(), ups = 30) {
+  public constructor(canvas: HTMLCanvasElement, ups = 30) {
     this.canvas = canvas;
     this.ups = ups;
 
@@ -17,7 +16,7 @@ export class Umbra {
     if (!gl) { throw new Error("WebGL2 is not supported by your browser."); }
     this.gl = gl;
 
-    this.#stopLoop = false;
+    this.stopLoop = false;
     this.time = 0;
     this.deltaTime = 0;
     this.paused = false;
@@ -25,7 +24,7 @@ export class Umbra {
 
     // Update loop.
     const update: (now: number) => void = (now: number): void => {
-      if (!this.#stopLoop) { requestAnimationFrame(update); }
+      if (!this.stopLoop) { requestAnimationFrame(update); }
 
       this.time = now;
       this.deltaTime = now - then;
@@ -36,49 +35,50 @@ export class Umbra {
     requestAnimationFrame(update);
 
     // Fixed update loop.
-    this.#fixedInterval = setInterval((): void => {
+    this.fixedInterval = setInterval((): void => {
       if (!this.paused) { this.trigger(Event.FixedUpdate); }
     }, 1000 / ups);
   }
 
   /** The canvas. */
-  readonly canvas: HTMLCanvasElement;
+  public readonly canvas: HTMLCanvasElement;
 
   /** The number of updates per second of the fixed update loop. */
-  readonly ups: number;
+  public readonly ups: number;
 
   /** The rendering context. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** Whether the update loop is set to be stopped. */
-  #stopLoop: boolean;
+  private stopLoop: boolean;
 
   /** The time in milliseconds that the update loop has been active. */
-  time: number;
+  public time: number;
 
   /** The time in milliseconds between the current frame and the last one. */
-  deltaTime: number;
+  public deltaTime: number;
 
   /** Whether to not trigger update events. */
-  paused: boolean;
+  public paused: boolean;
 
   /** The fixed update interval. */
-  readonly #fixedInterval: number;
+  private readonly fixedInterval: number;
 
   /** The frames per second. */
-  get fps(): number {
+  public get fps(): number {
     return 1000 / this.deltaTime;
   }
 
   /** The top-level object of the current scene. */
-  #scene: GameObject | undefined;
+  private scenePrivate: GameObject | undefined;
 
   /** The top-level object of the current scene. */
-  get scene(): GameObject | undefined {
-    return this.#scene;
+  public get scene(): GameObject | undefined {
+    return this.scenePrivate;
   }
-  set scene(value: GameObject | undefined) {
-    this.#scene = value;
+
+  public set scene(value: GameObject | undefined) {
+    this.scenePrivate = value;
     if (value) { this.trigger(Event.Load); }
   }
 
@@ -86,11 +86,11 @@ export class Umbra {
    * Triggers an event on every component on every object in the current scene.
    * @param event - The event to trigger.
    */
-  trigger(event: Event): void {
-    if (!this.#scene) { return; }
+  public trigger(event: Event): void {
+    if (!this.scenePrivate) { return; }
 
     // Gets all components in the scene recursively.
-    function getComponents(gameObject: GameObject, output: Component[] = []): Component[] {
+    function getComponents(gameObject: GameObject, output: Array<Component> = []): Component[] {
       if (!gameObject?.enabled) { return output; }
 
       for (const component of gameObject.components.filter((component: Component): boolean => component.events.has(event))) {
@@ -104,14 +104,14 @@ export class Umbra {
       return output;
     }
 
-    for (const component of getComponents(this.#scene).sort((a: Component, b: Component): number => a.priority > b.priority ? 1 : -1)) {
+    for (const component of getComponents(this.scenePrivate).sort((a: Component, b: Component): number => a.priority > b.priority ? 1 : -1)) {
       (component.events.get(event) as (umbra: Umbra) => void)(this);
     }
   }
 
   /** Permanently stops the update loops on this Umbra instance. */
-  destroy(): void {
-    clearInterval(this.#fixedInterval);
-    this.#stopLoop = true;
+  public destroy(): void {
+    clearInterval(this.fixedInterval);
+    this.stopLoop = true;
   }
 }

@@ -7,32 +7,32 @@ export abstract class Variable {
    * Creates a variable.
    * @param program - The shader program that this variable belongs to.
    */
-  constructor(program: Program) {
+  public constructor(program: Program) {
     this.program = program;
     this.gl = program.gl;
   }
 
   /** The shader program that this variable belongs to. */
-  readonly program: Program;
+  public readonly program: Program;
 
   /** The rendering context of this variable. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The active information of this variable. */
-  abstract readonly activeInfo: WebGLActiveInfo;
+  public abstract readonly activeInfo: WebGLActiveInfo;
 
   /** The name of this variable. */
-  get name(): string {
+  public get name(): string {
     return this.activeInfo.name;
   }
 
   /** The type of this variable. */
-  get type(): UniformType | AttributeType {
+  public get type(): UniformType | AttributeType {
     return this.activeInfo.type;
   }
 
   /** The size of this variable in memory in bytes. */
-  get size(): number {
+  public get size(): number {
     return this.activeInfo.size;
   }
 }

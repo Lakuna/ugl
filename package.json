@@ -44,5 +44,8 @@
 		"eslint": "^8.10.0",
 		"typedoc": "^0.22.13",
 		"typescript": "^4.6.2"
+	},
+	"dependencies": {
+		"gl-matrix": "^3.4.3"
 	}
 }

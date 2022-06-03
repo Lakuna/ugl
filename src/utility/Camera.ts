@@ -1,9 +1,8 @@
 import { GameObject } from "../core/GameObject.js";
-import { Matrix } from "../math/Matrix.js";
 import { Mesh } from "./Mesh.js";
 import { Component, Event } from "../core/Component.js";
 import { Umbra } from "../core/Umbra.js";
-import { Transform } from "./Transform.js";
+import { mat4 } from "gl-matrix";
 
 /** A viewpoint for a scene. */
 export abstract class Camera extends GameObject {
@@ -13,33 +12,30 @@ export abstract class Camera extends GameObject {
    * @param near - The nearest that the camera can see.
    * @param far - The farthest that the camera can see.
    */
-  constructor(parent?: GameObject, near = 0.1, far = 1000) {
+  public constructor(parent?: GameObject, near = 0.1, far = 1000) {
     super(parent);
     this.near = near;
     this.far = far;
-    this.transform = new Transform(this);
   }
 
   /** The nearest that this camera can see. */
-  near: number;
+  public near: number;
 
   /** The farthest that this camera can see. */
-  far: number;
-
-  /** The transform component of this camera. */
-  transform: Transform;
+  public far: number;
 
   /** The projection matrix of this camera. */
-  abstract get projectionMatrix(): Matrix;
+  public abstract get projectionMatrix(): mat4;
 
   /** The view matrix of this camera. */
-  get viewMatrix(): Matrix {
-    return this.transform.worldMatrix.invert();
+  public get viewMatrix(): mat4 {
+    return mat4.invert(mat4.create(), this.worldMatrix);
   }
 
   /** The view projection matrix of this camera. */
-  get viewProjectionMatrix(): Matrix {
-    return this.projectionMatrix.multiply(this.viewMatrix);
+  public get viewProjectionMatrix(): mat4 {
+    const projectionMatrix: mat4 = this.projectionMatrix;
+    return mat4.multiply(projectionMatrix, projectionMatrix, this.viewMatrix);
   }
 
   /**
@@ -47,8 +43,9 @@ export abstract class Camera extends GameObject {
    * @param mesh - The mesh.
    * @returns The world view projection matrix of the mesh.
    */
-  worldViewProjectionMatrix(mesh: Mesh): Matrix {
-    return this.viewProjectionMatrix.multiply(mesh.worldMatrix);
+  public worldViewProjectionMatrix(mesh: Mesh): mat4 {
+    const viewProjectionMatrix: mat4 = this.viewProjectionMatrix;
+    return mat4.multiply(viewProjectionMatrix, viewProjectionMatrix, mesh.gameObject.worldMatrix);
   }
 }
 
@@ -62,7 +59,7 @@ export class PerspectiveCamera extends Camera {
    * @param fov - The field of view of the camera in radians.
    * @param aspectRatio - The aspect ratio of the camera. Updates automatically to the canvas' aspect ratio if not set.
    */
-  constructor(parent?: GameObject, near = 0.1, far = 1000, fov = Math.PI / 4, aspectRatio?: number) {
+  public constructor(parent?: GameObject, near = 0.1, far = 1000, fov = Math.PI / 4, aspectRatio?: number) {
     super(parent, near, far);
     this.fov = fov;
     if (aspectRatio) {
@@ -78,14 +75,14 @@ export class PerspectiveCamera extends Camera {
   }
 
   /** The field of view of this camera in radians. */
-  fov: number;
+  public fov: number;
 
   /** The aspect ratio of this camera. */
-  aspectRatio: number;
+  public aspectRatio: number;
 
   /** The projection matrix of this camera. */
-  get projectionMatrix(): Matrix {
-    return Matrix.fromPerspective(this.fov, this.aspectRatio, this.near, this.far);
+  public get projectionMatrix(): mat4 {
+    return mat4.perspective(mat4.create(), this.fov, this.aspectRatio, this.near, this.far);
   }
 }
 
@@ -99,40 +96,30 @@ export class OrthographicCamera extends Camera {
    * @param top - The top boundary of the viewport.
    * @param near - The near boundary of the viewport.
    * @param far - The far boundary of the viewport.
-   * @param zoom - The zoom to apply to the camera.
    * @param parent - The parent object of the camera.
    */
-  constructor(left: number, right: number, bottom: number, top: number, near: number, far: number, zoom = 1, parent?: GameObject) {
+  public constructor(left: number, right: number, bottom: number, top: number, near: number, far: number, parent?: GameObject) {
     super(parent, near, far);
     this.left = left;
     this.right = right;
     this.bottom = bottom;
     this.top = top;
-    this.zoom = zoom;
   }
 
   /** The left boundary of the viewport. */
-  left: number;
+  public left: number;
 
   /** The right boundary of the viewport. */
-  right: number;
+  public right: number;
 
   /** The bottom boundary of the viewport. */
-  bottom: number;
+  public bottom: number;
 
   /** The top boundary of the viewport. */
-  top: number;
-
-  /** The zoom to apply to this camera. */
-  zoom: number;
+  public top: number;
 
   /** The projection matrix of this camera. */
-  get projectionMatrix(): Matrix {
-    return Matrix.fromOrthographic(
-      this.left / this.zoom,
-      this.right / this.zoom,
-      this.bottom / this.zoom,
-      this.top / this.zoom,
-      this.near, this.far);
+  public get projectionMatrix(): mat4 {
+    return mat4.ortho(mat4.create(), this.left, this.right, this.bottom, this.top, this.near, this.far);
   }
 }

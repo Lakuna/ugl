@@ -4,7 +4,7 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 	 * Creates a color from a hexadecimal value.
 	 * @param hex - The color as a hexadecimal number.
 	 */
-	constructor(hex: number);
+	public constructor(hex: number);
 
 	/**
 	 * Creates a color from RGBA values.
@@ -13,9 +13,9 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 	 * @param b - The amount of blue in the color, from `0` to `1`.
 	 * @param a - The opacity of the color, from `0` to `1`.
 	 */
-	constructor(r: number, g: number, b: number, a?: number);
+	public constructor(r: number, g: number, b: number, a?: number);
 
-	constructor(r = 0xFFFFFF, g?: number, b?: number, a?: number) {
+	public constructor(r = 0xFFFFFF, g?: number, b?: number, a?: number) {
 		super(...(g ? [r, g, b as number, a as number] : [
 			((r >> 16) & 0xFF) / 0xFF,
 			((r >> 8) & 0xFF) / 0xFF,
@@ -25,8 +25,8 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 	}
 
 	/** The luminance of this color. */
-	get luminance(): number {
-		const rgb: number[] = [];
+	public get luminance(): number {
+		const rgb: Array<number> = [];
 		for (let i = 0; i < 3; i++) {
 			rgb.push(this[i] as number > 0.03928
 				? (((this[i] as number) + 0.055) / 1.055) ** 2.4
@@ -42,7 +42,7 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 	 * @param c - The other color.
 	 * @returns The contrast ratio between the two colors.
 	 */
-	contrast(c: Color): number {
+	public contrast(c: Color): number {
 		const l1: number = this.luminance;
 		const l2: number = c.luminance;
 

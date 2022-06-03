@@ -1,22 +1,20 @@
-import { Transform } from "./Transform.js";
 import { GameObject } from "../core/GameObject.js";
 import { VAO } from "../webgl/VAO.js";
-import { Matrix } from "../math/Matrix.js";
 import { Camera } from "./Camera.js";
 import { Component } from "../core/Component.js";
-import { Vector } from "../math/Vector.js";
+import { mat4, vec3 } from "gl-matrix";
 
 /** A drawable mesh. */
-export class Mesh extends Transform {
+export class Mesh extends Component {
   /**
    * Generates a list of all visible meshes in the order that they should be drawn.
    * @param scene - The scene to render.
    * @param camera - The camera to use when calculating the world view projection matrices of the meshes.
    * @returns A list of all visible meshes in the order that they should be drawn.
    */
-  static getRenderList(scene: GameObject, camera?: Camera): Mesh[] {
+  public static getRenderList(scene: GameObject, camera?: Camera): Mesh[] {
     // Get a list of all game objects with visible mesh components in the scene.
-    const renderList: Mesh[] = [];
+    const renderList: Array<Mesh> = [];
     scene.traverse((gameObject: GameObject): boolean => {
       const mesh: Mesh = gameObject.components.find((component: Component): boolean => component instanceof Mesh) as Mesh;
       if (mesh?.visible) { renderList.push(mesh); }
@@ -24,9 +22,9 @@ export class Mesh extends Transform {
     });
 
     // Create lists for each render group.
-    const opaqueRenderGroup: Mesh[] = [];
-    const transparentRenderGroup: Mesh[] = [];
-    const interfaceRenderGroup: Mesh[] = [];
+    const opaqueRenderGroup: Array<Mesh> = [];
+    const transparentRenderGroup: Array<Mesh> = [];
+    const interfaceRenderGroup: Array<Mesh> = [];
 
     // Create a depth map for sorting within render groups.
     const depthMap: Map<Mesh, number> = new Map();
@@ -39,8 +37,9 @@ export class Mesh extends Transform {
         interfaceRenderGroup.push(mesh);
       }
 
+      const meshWorldTranslation: vec3 = mat4.getTranslation(vec3.create(), mesh.gameObject.worldMatrix);
       depthMap.set(mesh, (mesh.renderOrder != 0 || !mesh.vao.program.allowDepth || !camera) ? 0
-        : Vector.fromMatrixTranslation(mesh.worldMatrix).transform(camera.viewProjectionMatrix)[2] as number);
+        : vec3.transformMat4(meshWorldTranslation, meshWorldTranslation, camera.viewProjectionMatrix)[2]);
     }
 
     // Sort within each render group.
@@ -65,7 +64,7 @@ export class Mesh extends Transform {
    * @param visible - Whether the mesh should be drawn.
    * @param renderOrder - The order that the mesh should be drawn in relative to other meshes. A lower number makes the mesh render earlier.
    */
-  constructor(vao: VAO, gameObject?: GameObject, priority?: number, visible = true, renderOrder = 0) {
+  public constructor(vao: VAO, gameObject: GameObject, priority?: number, visible = true, renderOrder = 0) {
     super(gameObject, priority);
     this.vao = vao;
     this.visible = visible;
@@ -73,17 +72,19 @@ export class Mesh extends Transform {
   }
 
   /** The vertex array object which contains the vertex data of this mesh. */
-  readonly vao: VAO;
+  public readonly vao: VAO;
 
   /** Whether this mesh should be drawn. */
-  visible: boolean;
+  public visible: boolean;
 
   /** The order that this mesh should be drawn in relative to other meshes. A lower number makes this mesh render earlier. */
-  renderOrder: number;
+  public renderOrder: number;
 
   /** The inverse transpose of this mesh's world matrix. */
-  get worldInverseTransposeMatrix(): Matrix {
-    return this.worldMatrix.invert().transpose();
+  public get worldInverseTransposeMatrix(): mat4 {
+    const worldMatrix: mat4 = this.gameObject.worldMatrix;
+    mat4.invert(worldMatrix, worldMatrix);
+    return mat4.transpose(worldMatrix, worldMatrix);
   }
 
   /**
@@ -91,7 +92,7 @@ export class Mesh extends Transform {
    * @param camera - The camera to view this mesh from.
    * @returns The world view projection matrix of this mesh.
    */
-  worldViewProjectionMatrix(camera: Camera): Matrix {
+  public worldViewProjectionMatrix(camera: Camera): mat4 {
     return camera.worldViewProjectionMatrix(this);
   }
 }

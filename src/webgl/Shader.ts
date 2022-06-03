@@ -8,7 +8,7 @@ export class Shader {
    * @param type - The type of the shader.
    * @param source - The source code of the shader.
    */
-  constructor(gl: WebGL2RenderingContext, type: ShaderType, source: string) {
+  public constructor(gl: WebGL2RenderingContext, type: ShaderType, source: string) {
     this.gl = gl;
     this.type = type;
     this.source = source;
@@ -28,34 +28,34 @@ export class Shader {
   }
 
   /** The rendering context of this shader. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The type of this shader. */
-  readonly type: ShaderType;
+  public readonly type: ShaderType;
 
   /** The source code of this shader. */
-  readonly source: string;
+  public readonly source: string;
 
   /** The WebGL API interface of this shader. */
-  readonly shader: WebGLShader;
+  public readonly shader: WebGLShader;
 
   /** Whether this shader is flagged for deletion. */
-  get deleteStatus(): boolean {
+  public get deleteStatus(): boolean {
     return this.gl.getShaderParameter(this.shader, DELETE_STATUS);
   }
 
   /** Whether the last shader compilation was successful. */
-  get compileStatus(): boolean {
+  public get compileStatus(): boolean {
     return this.gl.getShaderParameter(this.shader, COMPILE_STATUS);
   }
 
   /** The information log for this shader. */
-  get infoLog(): string {
+  public get infoLog(): string {
     return this.gl.getShaderInfoLog(this.shader) ?? "";
   }
 
   /** Deletes this shader. */
-  delete(): void {
+  public delete(): void {
     this.gl.deleteShader(this.shader);
   }
 }

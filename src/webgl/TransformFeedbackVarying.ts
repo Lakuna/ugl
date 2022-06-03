@@ -8,7 +8,7 @@ export class TransformFeedbackVarying extends Variable {
    * @param program - The shader program that this transform feedback varying belongs to.
    * @param index - The index of this transform feedback varying.
    */
-  constructor(program: Program, index: number) {
+  public constructor(program: Program, index: number) {
     super(program);
 
     const activeInfo: WebGLActiveInfo | null = this.gl.getTransformFeedbackVarying(program.program, index);
@@ -17,7 +17,7 @@ export class TransformFeedbackVarying extends Variable {
   }
 
   /** The active information of this attribute. */
-  readonly activeInfo: WebGLActiveInfo;
+  public readonly activeInfo: WebGLActiveInfo;
 
   /** Does nothing; transform feedback varyings cannot be set. */
   protected readonly setter?: () => void;

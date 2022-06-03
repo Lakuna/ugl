@@ -1,4 +1,5 @@
 import { Component } from "./Component.js";
+import { mat4 } from "gl-matrix";
 
 /** Represents any "thing" in an Umbra instance. */
 export class GameObject {
@@ -7,38 +8,48 @@ export class GameObject {
    * @param parent - The parent object.
    * @param enabled - Whether events should trigger for components attached to this object.
    */
-  constructor(parent?: GameObject, enabled = true) {
+  public constructor(parent?: GameObject, enabled = true) {
     if (parent) { this.parent = parent; }
     this.enabled = enabled;
     this.components = [];
-    this.#children = [];
+    this.childrenPrivate = [];
+    this.matrix = mat4.create();
   }
 
   /** A list of components attached to this object. */
-  components: Component[];
+  public components: Array<Component>;
 
   /** Whether events should trigger for components attached to this object. */
-  enabled: boolean;
+  public enabled: boolean;
+
+  /** The transformation matrix of this object. */
+  public matrix: mat4;
+
+  /** The world matrix of this object. */
+  public get worldMatrix(): mat4 {
+    return this.parent ? mat4.multiply(mat4.create(), this.matrix, this.parent.matrix) : this.matrix;
+  }
 
   /** A list of children of this object. */
-  #children: GameObject[];
+  private childrenPrivate: Array<GameObject>;
 
   /** A list of children of this object. */
-  get children(): ReadonlyArray<GameObject> {
-    return this.#children;
+  public get children(): ReadonlyArray<GameObject> {
+    return this.childrenPrivate;
   }
 
   /** The parent of this object. */
-  #parent: GameObject | undefined;
+  private parentPrivate: GameObject | undefined;
 
   /** The parent of this object. */
-  get parent(): GameObject | undefined {
-    return this.#parent;
+  public get parent(): GameObject | undefined {
+    return this.parentPrivate;
   }
-  set parent(value: GameObject | undefined) {
-    if (this.#parent != value) {
-      if (this.#parent) { this.#parent.removeChild(this); }
-      this.#parent = value;
+
+  public set parent(value: GameObject | undefined) {
+    if (this.parentPrivate != value) {
+      if (this.parentPrivate) { this.parentPrivate.removeChild(this); }
+      this.parentPrivate = value;
       if (value) { value.addChild(this); }
     }
   }
@@ -47,27 +58,27 @@ export class GameObject {
    * Adds a child to this object.
    * @param child - The child.
    */
-  addChild(child: GameObject): void {
+  public addChild(child: GameObject): void {
     child.parent = this;
-    this.#children.push(child);
+    this.childrenPrivate.push(child);
   }
 
   /**
    * Removes a child from this object.
    * @param child - The child.
    */
-  removeChild(child: GameObject): void {
-    if (this.#children.indexOf(child) < 0) { throw new Error("Object is not a child of this object."); }
+  public removeChild(child: GameObject): void {
+    if (this.childrenPrivate.indexOf(child) < 0) { throw new Error("Object is not a child of this object."); }
     child.parent = undefined;
-    this.#children.splice(this.#children.indexOf(child));
+    this.childrenPrivate.splice(this.childrenPrivate.indexOf(child));
   }
 
   /**
    * Executes a function on this object and each of its children recursively, ending when an object returns true.
    * @param f - The function to execute on the objects.
    */
-  traverse(f: (gameObject: GameObject) => boolean): void {
+  public traverse(f: (gameObject: GameObject) => boolean): void {
     if (f(this)) { return; }
-    for (const child of this.#children) { child.traverse(f); }
+    for (const child of this.childrenPrivate) { child.traverse(f); }
   }
 }

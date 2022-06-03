@@ -10,7 +10,7 @@ export class Renderbuffer {
    * @param width - The width of the renderbuffer.
    * @param height - The height of the renderbuffer.
    */
-  constructor(gl: WebGL2RenderingContext, format: RenderbufferFormat, width: number, height: number) {
+  public constructor(gl: WebGL2RenderingContext, format: RenderbufferFormat, width: number, height: number) {
     this.gl = gl;
     this.format = format;
     this.width = width;
@@ -25,22 +25,22 @@ export class Renderbuffer {
   }
 
   /** The rendering context of this renderbuffer. */
-  readonly gl: WebGL2RenderingContext;
+  public readonly gl: WebGL2RenderingContext;
 
   /** The WebGL API interface of this renderbuffer. */
-  readonly renderbuffer: WebGLRenderbuffer;
+  public readonly renderbuffer: WebGLRenderbuffer;
 
   /** The format of this renderbuffer. */
-  readonly format: RenderbufferFormat;
+  public readonly format: RenderbufferFormat;
 
   /** The width of this renderbuffer. */
-  readonly width: number;
+  public readonly width: number;
 
   /** The height of this renderbuffer. */
-  readonly height: number;
+  public readonly height: number;
 
   /** Binds this renderbuffer. */
-  bind(): void {
+  public bind(): void {
     this.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
   }
 }
