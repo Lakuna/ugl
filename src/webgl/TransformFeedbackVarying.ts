@@ -5,8 +5,8 @@ import { Program } from "./Program.js";
 export class TransformFeedbackVarying extends Variable {
   /**
    * Creates a transform feedback varying. This should only be called by the `Program` constructor.
-   * @param program - The shader program that this transform feedback varying belongs to.
-   * @param index - The index of this transform feedback varying.
+   * @param program The shader program that this transform feedback varying belongs to.
+   * @param index The index of this transform feedback varying.
    */
   public constructor(program: Program, index: number) {
     super(program);

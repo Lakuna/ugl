@@ -2,16 +2,16 @@
 export class Color extends Array<number> implements ReadonlyArray<number> {
 	/**
 	 * Creates a color from a hexadecimal value.
-	 * @param hex - The color as a hexadecimal number.
+	 * @param hex The color as a hexadecimal number.
 	 */
 	public constructor(hex: number);
 
 	/**
 	 * Creates a color from RGBA values.
-	 * @param r - The amount of red in the color, from `0` to `1`.
-	 * @param g - The amount of green in the color, from `0` to `1`.
-	 * @param b - The amount of blue in the color, from `0` to `1`.
-	 * @param a - The opacity of the color, from `0` to `1`.
+	 * @param r The amount of red in the color, from `0` to `1`.
+	 * @param g The amount of green in the color, from `0` to `1`.
+	 * @param b The amount of blue in the color, from `0` to `1`.
+	 * @param a The opacity of the color, from `0` to `1`.
 	 */
 	public constructor(r: number, g: number, b: number, a?: number);
 
@@ -39,7 +39,7 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 
 	/**
 	 * Calculates the contrast ratio between two colors.
-	 * @param c - The other color.
+	 * @param c The other color.
 	 * @returns The contrast ratio between the two colors.
 	 */
 	public contrast(c: Color): number {

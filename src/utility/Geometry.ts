@@ -2,10 +2,10 @@
 export class Geometry {
   /**
    * Creates a shape.
-   * @param positions - The clip space coordinates of the vertices of the shape.
-   * @param texcoords - The texture space coordinates of the vertices of the shape for the texture applied to the shape.
-   * @param normals - The normal values of the vertices of the shape.
-   * @param indices - The indices of the shape.
+   * @param positions The clip space coordinates of the vertices of the shape.
+   * @param texcoords The texture space coordinates of the vertices of the shape for the texture applied to the shape.
+   * @param normals The normal values of the vertices of the shape.
+   * @param indices The indices of the shape.
    */
   public constructor(positions: Float32Array, texcoords?: Float32Array, normals?: Float32Array, indices?: Uint8Array) {
     this.positions = positions;

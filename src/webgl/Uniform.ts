@@ -7,9 +7,9 @@ import { Texture } from "./Texture.js";
 export class Uniform extends Variable {
   /**
    * Creates a uniform. This should only be called by the `Program` constructor.
-   * @param program - The shader program that this uniform belongs to.
-   * @param index - The index of this uniform.
-   * @param textureUnit - The texture unit to use if this uniform is a sampler.
+   * @param program The shader program that this uniform belongs to.
+   * @param index The index of this uniform.
+   * @param textureUnit The texture unit to use if this uniform is a sampler.
    */
   public constructor(program: Program, index: number, textureUnit: number) {
     super(program);

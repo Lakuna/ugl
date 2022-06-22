@@ -6,10 +6,10 @@ const STENCIL_BUFFER_BIT = 0x00000400;
 
 /**
  * Clears the specified buffers to the specified values.
- * @param gl - The rendering context to clear.
- * @param color - The color to clear the color buffer to, if any.
- * @param depth - The value to clear the depth buffer to, if any.
- * @param stencil - The value to clear the stencil buffer to, if any.
+ * @param gl The rendering context to clear.
+ * @param color The color to clear the color buffer to, if any.
+ * @param depth The value to clear the depth buffer to, if any.
+ * @param stencil The value to clear the stencil buffer to, if any.
  */
 export function clearContext(gl: WebGL2RenderingContext, color: Color | undefined, depth: number | undefined, stencil: number | undefined): void {
   let colorBit = 0;

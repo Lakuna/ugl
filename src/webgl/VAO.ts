@@ -9,11 +9,11 @@ import { Framebuffer } from "./Framebuffer.js";
 export class VAO {
   /**
    * Creates a vertex array object from a shape.
-   * @param program - The program that the VAO is used with.
-   * @param geometry - The shape to create the VAO from.
-   * @param positionAttributeName - The name of the attribute that position data will be supplied to.
-   * @param texcoordAttributeName - The name of the attribute that texture coordinate data will be supplied to.
-   * @param normalAttributeName - The name of the attribute that normal data will be supplied to.
+   * @param program The program that the VAO is used with.
+   * @param geometry The shape to create the VAO from.
+   * @param positionAttributeName The name of the attribute that position data will be supplied to.
+   * @param texcoordAttributeName The name of the attribute that texture coordinate data will be supplied to.
+   * @param normalAttributeName The name of the attribute that normal data will be supplied to.
    */
   public static fromGeometry(program: Program, geometry: Geometry, positionAttributeName: string, texcoordAttributeName?: string, normalAttributeName?: string): VAO {
     const attributes: Array<AttributeState> = [];
@@ -29,9 +29,9 @@ export class VAO {
 
   /**
    * Creates a vertex array object.
-   * @param program - The program that the VAO is used with.
-   * @param attributes - The attributes associated with the VAO.
-   * @param indices - The indices to supply to the element array buffer of this VAO if the data should be indexed.
+   * @param program The program that the VAO is used with.
+   * @param attributes The attributes associated with the VAO.
+   * @param indices The indices to supply to the element array buffer of this VAO if the data should be indexed.
    */
   public constructor(program: Program, attributes: Array<AttributeState> = [], indices?: Uint8Array) {
     this.program = program;
@@ -88,7 +88,7 @@ export class VAO {
 
   /**
    * Adds an attribute to this VAO.
-   * @param attribute - The attribute to add.
+   * @param attribute The attribute to add.
    */
   public addAttribute(attribute: AttributeState): void {
     this.bind();
@@ -98,10 +98,10 @@ export class VAO {
 
   /**
    * Draws the vertex data stored in this VAO.
-   * @param primitive - The type of primitive to draw.
-   * @param offset - The number of elements to skip when drawing arrays.
-   * @param framebuffer - The framebuffer to draw to, if any. Draws to the canvas if not set.
-   * @param updateViewport - Whether to automatically update the viewport.
+   * @param primitive The type of primitive to draw.
+   * @param offset The number of elements to skip when drawing arrays.
+   * @param framebuffer The framebuffer to draw to, if any. Draws to the canvas if not set.
+   * @param updateViewport Whether to automatically update the viewport.
    */
   public draw(primitive: Primitive = Primitive.TRIANGLES, offset = 0, framebuffer: Framebuffer, updateViewport = true): void {
     this.program.use();

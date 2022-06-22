@@ -5,7 +5,7 @@ import { UniformType, AttributeType } from "./WebGLConstant.js";
 export abstract class Variable {
   /**
    * Creates a variable.
-   * @param program - The shader program that this variable belongs to.
+   * @param program The shader program that this variable belongs to.
    */
   public constructor(program: Program) {
     this.program = program;

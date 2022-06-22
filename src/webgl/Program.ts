@@ -9,9 +9,9 @@ import { DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_
 export class Program {
   /**
    * Creates a shader program from source code.
-   * @param gl - The rendering context of the shader program.
-   * @param vertexShaderSource - The source code of the vertex shader.
-   * @param fragmentShaderSource - The source code of the fragment shader.
+   * @param gl The rendering context of the shader program.
+   * @param vertexShaderSource The source code of the vertex shader.
+   * @param fragmentShaderSource The source code of the fragment shader.
    * @returns A shader program.
    */
   public static fromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string): Program {
@@ -20,10 +20,10 @@ export class Program {
 
   /**
    * Creates a shader program.
-   * @param vertexShader - The vertex shader.
-   * @param fragmentShader - The fragment shader.
-   * @param transformFeedbackVaryingNames - The names of the varyings which should be tracked for transform feedback.
-   * @param transformFeedbackBufferMode - The mode to use when capturing transform feedback varyings.
+   * @param vertexShader The vertex shader.
+   * @param fragmentShader The fragment shader.
+   * @param transformFeedbackVaryingNames The names of the varyings which should be tracked for transform feedback.
+   * @param transformFeedbackBufferMode The mode to use when capturing transform feedback varyings.
    */
   public constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames: Array<string> = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
     if (vertexShader.gl != fragmentShader.gl) { throw new Error("Shaders have different rendering contexts."); }

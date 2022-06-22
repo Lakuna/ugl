@@ -5,10 +5,10 @@ import { BufferTarget, BufferUsage, BufferDataType } from "./WebGLConstant.js";
 export class Buffer {
   /**
    * Creates a buffer.
-   * @param gl - The rendering context of the buffer.
-   * @param data - The data to store in the buffer.
-   * @param target - The binding point to bind the buffer to.
-   * @param usage - The usage pattern of the buffer's data store.
+   * @param gl The rendering context of the buffer.
+   * @param data The data to store in the buffer.
+   * @param target The binding point to bind the buffer to.
+   * @param usage The usage pattern of the buffer's data store.
    */
   public constructor(gl: WebGL2RenderingContext, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
     if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array)) { throw new Error("The element array buffer must contain 8-bit unsigned integers."); }

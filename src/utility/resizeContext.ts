@@ -1,6 +1,6 @@
 /**
  * Resizes a canvas' drawing buffer to match its physical size.
- * @param gl - The rendering context to resize.
+ * @param gl The rendering context to resize.
  * @returns Whether the drawing buffer was resized.
  */
 export function resizeContext(gl: WebGL2RenderingContext): boolean {

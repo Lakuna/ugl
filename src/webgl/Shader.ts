@@ -5,8 +5,8 @@ import { COMPILE_STATUS, DELETE_STATUS } from "./WebGLConstant.js";
 export class Shader {
   /**
    * Creates a shader from source code.
-   * @param type - The type of the shader.
-   * @param source - The source code of the shader.
+   * @param type The type of the shader.
+   * @param source The source code of the shader.
    */
   public constructor(gl: WebGL2RenderingContext, type: ShaderType, source: string) {
     this.gl = gl;

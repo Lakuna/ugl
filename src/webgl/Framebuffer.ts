@@ -7,7 +7,7 @@ import { RENDERBUFFER } from "./WebGLConstant.js";
 export class Framebuffer {
   /**
    * Unbinds all framebuffers from the given rendering context.
-   * @param gl - The rendering context.
+   * @param gl The rendering context.
    */
   public static unbind(gl: WebGL2RenderingContext): void {
     gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
@@ -15,7 +15,7 @@ export class Framebuffer {
 
   /**
    * Creates a framebuffer.
-   * @param gl - The rendering context of the framebuffer.
+   * @param gl The rendering context of the framebuffer.
    */
   public constructor(gl: WebGL2RenderingContext, width: number, height: number, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
     this.gl = gl;
@@ -59,8 +59,8 @@ export class Framebuffer {
 
   /**
    * Attaches a texture to this framebuffer.
-   * @param texture - The texture to attach.
-   * @param attachmentPoint - The attachment point of the texture.
+   * @param texture The texture to attach.
+   * @param attachmentPoint The attachment point of the texture.
    */
   public attach(texture: Texture, attachmentPoint: FramebufferAttachment, level?: number): void;
 

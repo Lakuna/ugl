@@ -4,8 +4,8 @@ import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWr
 export abstract class Texture {
   /**
    * Creates a texture.
-   * @param gl - The rendering context of the texture.
-   * @param target - The target binding point of the texture.
+   * @param gl The rendering context of the texture.
+   * @param target The target binding point of the texture.
    */
   public constructor(gl: WebGL2RenderingContext, target: TextureTarget) {
     this.gl = gl;
@@ -55,8 +55,8 @@ export type Texture2DPixelSource =
 export class Texture2D extends Texture {
   /**
    * Creates a two-dimensional texture.
-   * @param gl - The rendering context of the texture.
-   * @param pixels - The pixel source for the texture.
+   * @param gl The rendering context of the texture.
+   * @param pixels The pixel source for the texture.
    */
   public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource) {
     super(gl, TextureTarget.TEXTURE_2D);
@@ -228,7 +228,7 @@ export class Texture2D extends Texture {
 
   /**
    * Updates the texture parameters of this texture.
-   * @param textureUnit - The texture unit of this texture in the current shader program.
+   * @param textureUnit The texture unit of this texture in the current shader program.
    */
   public update(textureUnit: number): void {
     this.gl.activeTexture(TEXTURE0 + textureUnit);

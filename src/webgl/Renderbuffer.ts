@@ -5,10 +5,10 @@ import { RENDERBUFFER } from "./WebGLConstant.js";
 export class Renderbuffer {
   /**
    * Creates a renderbuffer.
-   * @param gl - The rendering context of the renderbuffer.
-   * @param format - The format of the renderbuffer.
-   * @param width - The width of the renderbuffer.
-   * @param height - The height of the renderbuffer.
+   * @param gl The rendering context of the renderbuffer.
+   * @param format The format of the renderbuffer.
+   * @param width The width of the renderbuffer.
+   * @param height The height of the renderbuffer.
    */
   public constructor(gl: WebGL2RenderingContext, format: RenderbufferFormat, width: number, height: number) {
     this.gl = gl;

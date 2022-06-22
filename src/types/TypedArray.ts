@@ -1,3 +1,4 @@
+/** Array-like objects that provide a mechanism for reading and writing raw binary data in memory buffers. */
 export type TypedArray =
   Int8Array
   | Uint8Array

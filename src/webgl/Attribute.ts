@@ -7,8 +7,8 @@ import { AttributeState } from "./AttributeState.js";
 export class Attribute extends Variable {
   /**
    * Creates an attribute. This should only be called by the `Program` constructor.
-   * @param program - The shader program that this attribute belongs to.
-   * @param index - The index of this attribute.
+   * @param program The shader program that this attribute belongs to.
+   * @param index The index of this attribute.
    */
   public constructor(program: Program, index: number) {
     super(program);
