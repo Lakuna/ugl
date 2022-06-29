@@ -2,31 +2,10 @@ import { Program } from "./Program.js";
 import { AttributeState } from "./AttributeState.js";
 import { Buffer } from "./Buffer.js";
 import { BufferTarget, Primitive } from "./WebGLConstant.js";
-import { Geometry } from "../utility/Geometry.js"
 import { Framebuffer } from "./Framebuffer.js";
 
 /** A collection of attribute state; a vertex attribute array. */
 export class VAO {
-  /**
-   * Creates a vertex array object from a shape.
-   * @param program The program that the VAO is used with.
-   * @param geometry The shape to create the VAO from.
-   * @param positionAttributeName The name of the attribute that position data will be supplied to.
-   * @param texcoordAttributeName The name of the attribute that texture coordinate data will be supplied to.
-   * @param normalAttributeName The name of the attribute that normal data will be supplied to.
-   */
-  public static fromGeometry(program: Program, geometry: Geometry, positionAttributeName: string, texcoordAttributeName?: string, normalAttributeName?: string): VAO {
-    const attributes: Array<AttributeState> = [];
-    attributes.push(new AttributeState(positionAttributeName, new Buffer(program.gl, geometry.positions)));
-    if (texcoordAttributeName && geometry.texcoords?.length) {
-      attributes.push(new AttributeState(texcoordAttributeName, new Buffer(program.gl, geometry.texcoords)));
-    }
-    if (normalAttributeName && geometry.normals?.length) {
-      attributes.push(new AttributeState(normalAttributeName, new Buffer(program.gl, geometry.normals)));
-    }
-    return new VAO(program, attributes, geometry.indices);
-  }
-
   /**
    * Creates a vertex array object.
    * @param program The program that the VAO is used with.

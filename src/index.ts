@@ -1,7 +1,6 @@
 export * from "./types/TypedArray.js";
 export * from "./utility/clearContext.js";
 export * from "./utility/Color.js";
-export * from "./utility/Geometry.js";
 export * from "./utility/makeFullscreenCanvas.js";
 export * from "./utility/resizeContext.js";
 export * from "./webgl/Attribute.js";
