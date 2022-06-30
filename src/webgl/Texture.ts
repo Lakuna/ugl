@@ -38,6 +38,7 @@ export abstract class Texture {
 
   /** Generates a mipmap for this texture. */
   public generateMipmap(): void {
+    this.bind();
     this.gl.generateMipmap(this.target);
   }
 }

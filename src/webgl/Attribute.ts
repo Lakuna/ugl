@@ -34,17 +34,17 @@ export class Attribute extends Variable {
         };
         break;
       case AttributeType.INT:
-			case AttributeType.INT_VEC2:
-			case AttributeType.INT_VEC3:
-			case AttributeType.INT_VEC4:
-			case AttributeType.UNSIGNED_INT:
-			case AttributeType.UNSIGNED_INT_VEC2:
-			case AttributeType.UNSIGNED_INT_VEC3:
-			case AttributeType.UNSIGNED_INT_VEC4:
-			case AttributeType.BOOL:
-			case AttributeType.BOOL_VEC2:
-			case AttributeType.BOOL_VEC3:
-			case AttributeType.BOOL_VEC4:
+      case AttributeType.INT_VEC2:
+      case AttributeType.INT_VEC3:
+      case AttributeType.INT_VEC4:
+      case AttributeType.UNSIGNED_INT:
+      case AttributeType.UNSIGNED_INT_VEC2:
+      case AttributeType.UNSIGNED_INT_VEC3:
+      case AttributeType.UNSIGNED_INT_VEC4:
+      case AttributeType.BOOL:
+      case AttributeType.BOOL_VEC2:
+      case AttributeType.BOOL_VEC3:
+      case AttributeType.BOOL_VEC4:
         this.setter = (value: AttributeState): void => {
           value.buffer.bind();
           this.enabled = true;

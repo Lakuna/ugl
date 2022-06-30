@@ -26,16 +26,16 @@ export class Uniform extends Variable {
 
     switch (this.activeInfo.type as UniformType) {
       case UniformType.SAMPLER_2D:
-			case UniformType.SAMPLER_3D:
-			case UniformType.SAMPLER_CUBE:
-			case UniformType.SAMPLER_2D_SHADOW:
-			case UniformType.SAMPLER_2D_ARRAY:
-			case UniformType.SAMPLER_2D_ARRAY_SHADOW:
-			case UniformType.SAMPLER_CUBE_SHADOW:
-			case UniformType.INT_SAMPLER_2D:
-			case UniformType.INT_SAMPLER_3D:
-			case UniformType.INT_SAMPLER_CUBE:
-			case UniformType.INT_SAMPLER_2D_ARRAY:
+      case UniformType.SAMPLER_3D:
+      case UniformType.SAMPLER_CUBE:
+      case UniformType.SAMPLER_2D_SHADOW:
+      case UniformType.SAMPLER_2D_ARRAY:
+      case UniformType.SAMPLER_2D_ARRAY_SHADOW:
+      case UniformType.SAMPLER_CUBE_SHADOW:
+      case UniformType.INT_SAMPLER_2D:
+      case UniformType.INT_SAMPLER_3D:
+      case UniformType.INT_SAMPLER_CUBE:
+      case UniformType.INT_SAMPLER_2D_ARRAY:
         this.textureUnit = textureUnit;
     }
 
@@ -54,16 +54,16 @@ export class Uniform extends Variable {
         this.arraySetter = (value: Array<number>): void => this.gl.uniform4fv(location, value);
         break;
       case UniformType.SAMPLER_2D:
-			case UniformType.SAMPLER_3D:
-			case UniformType.SAMPLER_CUBE:
-			case UniformType.SAMPLER_2D_SHADOW:
-			case UniformType.SAMPLER_2D_ARRAY:
-			case UniformType.SAMPLER_2D_ARRAY_SHADOW:
-			case UniformType.SAMPLER_CUBE_SHADOW:
-			case UniformType.INT_SAMPLER_2D:
-			case UniformType.INT_SAMPLER_3D:
-			case UniformType.INT_SAMPLER_CUBE:
-			case UniformType.INT_SAMPLER_2D_ARRAY:
+      case UniformType.SAMPLER_3D:
+      case UniformType.SAMPLER_CUBE:
+      case UniformType.SAMPLER_2D_SHADOW:
+      case UniformType.SAMPLER_2D_ARRAY:
+      case UniformType.SAMPLER_2D_ARRAY_SHADOW:
+      case UniformType.SAMPLER_CUBE_SHADOW:
+      case UniformType.INT_SAMPLER_2D:
+      case UniformType.INT_SAMPLER_3D:
+      case UniformType.INT_SAMPLER_CUBE:
+      case UniformType.INT_SAMPLER_2D_ARRAY:
         this.setter = (value: Texture): void => {
           this.gl.uniform1i(location, this.textureUnit as number);
           value.update(this.textureUnit as number);
