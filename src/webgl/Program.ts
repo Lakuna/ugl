@@ -1,6 +1,6 @@
 import { Shader } from "./Shader.js";
 import { ShaderType, TransformFeedbackBufferMode } from "./WebGLConstant.js";
-import { Uniform } from "./Uniform.js";
+import { Uniform, SamplerUniform } from "./Uniform.js";
 import { Attribute } from "./Attribute.js";
 import { TransformFeedbackVarying } from "./TransformFeedbackVarying.js";
 import { DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
@@ -55,16 +55,16 @@ export class Program {
     let nextTextureUnit = 0;
     const numUniforms: number = this.gl.getProgramParameter(program, ACTIVE_UNIFORMS);
     for (let i = 0; i < numUniforms; i++) {
-      const uniform: Uniform = new Uniform(this, i, nextTextureUnit);
+      const uniform: Uniform = Uniform.create(this, i, nextTextureUnit);
       uniforms.set(uniform.name, uniform);
-      if (typeof uniform.textureUnit == "number") { nextTextureUnit++; }
+      if (typeof (uniform as SamplerUniform).textureUnit == "number") { nextTextureUnit++; } // Increment texture unit if it gets used.
     }
     this.uniforms = uniforms;
 
     const attributes: Map<string, Attribute> = new Map();
     const numAttributes: number = this.gl.getProgramParameter(program, ACTIVE_ATTRIBUTES);
     for (let i = 0; i < numAttributes; i++) {
-      const attribute: Attribute = new Attribute(this, i);
+      const attribute: Attribute = Attribute.create(this, i);
       attributes.set(attribute.name, attribute);
     }
     this.attributes = attributes;

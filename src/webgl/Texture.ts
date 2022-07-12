@@ -31,6 +31,15 @@ export abstract class Texture {
   }
 
   /**
+   * Assigns this texture to a texture unit.
+   * @param textureUnit The texture unit.
+   */
+  public assign(textureUnit: number): void {
+    this.bind();
+    this.gl.activeTexture(TEXTURE0 + textureUnit);
+  }
+
+  /**
    * Updates the texture parameters of this texture.
    * @param textureUnit - The texture unit of this texture in the current shader program.
    */
@@ -232,8 +241,7 @@ export class Texture2D extends Texture {
    * @param textureUnit The texture unit of this texture in the current shader program.
    */
   public update(textureUnit: number): void {
-    this.gl.activeTexture(TEXTURE0 + textureUnit);
-    this.bind();
+    this.assign(textureUnit);
 
     if (typeof this.width == "number" && typeof this.height == "number") {
       this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);

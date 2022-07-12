@@ -4,9 +4,48 @@ import { AttributeType } from "./WebGLConstant.js";
 import { AttributeState } from "./AttributeState.js";
 
 /** An input variable in a WebGL vertex shader. */
-export class Attribute extends Variable {
+export abstract class Attribute extends Variable {
   /**
-   * Creates an attribute. This should only be called by the `Program` constructor.
+   * Creates an attribute for the given variable type.
+   * @param program The shader program that this attribute belongs to.
+   * @param index The index of this attribute.
+   */
+  public static create(program: Program, index: number): Attribute {
+    const activeInfo: WebGLActiveInfo | null = program.gl.getActiveAttrib(program.program, index);
+    if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
+
+    switch (activeInfo.type as AttributeType) {
+      case AttributeType.FLOAT:
+      case AttributeType.FLOAT_VEC2:
+      case AttributeType.FLOAT_VEC3:
+      case AttributeType.FLOAT_VEC4:
+        return new FloatAttribute(program, index);
+      case AttributeType.INT:
+      case AttributeType.INT_VEC2:
+      case AttributeType.INT_VEC3:
+      case AttributeType.INT_VEC4:
+      case AttributeType.UNSIGNED_INT:
+      case AttributeType.UNSIGNED_INT_VEC2:
+      case AttributeType.UNSIGNED_INT_VEC3:
+      case AttributeType.UNSIGNED_INT_VEC4:
+      case AttributeType.BOOL:
+      case AttributeType.BOOL_VEC2:
+      case AttributeType.BOOL_VEC3:
+      case AttributeType.BOOL_VEC4:
+        return new IntegerAttribute(program, index);
+      case AttributeType.FLOAT_MAT2:
+        return new MatrixAttribute(program, index, 2);
+      case AttributeType.FLOAT_MAT3:
+        return new MatrixAttribute(program, index, 3);
+      case AttributeType.FLOAT_MAT4:
+        return new MatrixAttribute(program, index, 4);
+      default:
+        throw new Error("Unable to make attribute setter.");
+    }
+  }
+
+  /**
+   * Creates an attribute.
    * @param program The shader program that this attribute belongs to.
    * @param index The index of this attribute.
    */
@@ -21,75 +60,6 @@ export class Attribute extends Variable {
     this.activeInfo = activeInfo;
 
     this.location = this.gl.getAttribLocation(program.program, this.activeInfo.name);
-
-    switch (this.activeInfo.type as AttributeType) {
-      case AttributeType.FLOAT:
-      case AttributeType.FLOAT_VEC2:
-      case AttributeType.FLOAT_VEC3:
-      case AttributeType.FLOAT_VEC4:
-        this.setter = (value: AttributeState): void => {
-          value.buffer.bind();
-          this.enabled = true;
-          this.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
-        };
-        break;
-      case AttributeType.INT:
-      case AttributeType.INT_VEC2:
-      case AttributeType.INT_VEC3:
-      case AttributeType.INT_VEC4:
-      case AttributeType.UNSIGNED_INT:
-      case AttributeType.UNSIGNED_INT_VEC2:
-      case AttributeType.UNSIGNED_INT_VEC3:
-      case AttributeType.UNSIGNED_INT_VEC4:
-      case AttributeType.BOOL:
-      case AttributeType.BOOL_VEC2:
-      case AttributeType.BOOL_VEC3:
-      case AttributeType.BOOL_VEC4:
-        this.setter = (value: AttributeState): void => {
-          value.buffer.bind();
-          this.enabled = true;
-          this.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
-        };
-        break;
-      case AttributeType.FLOAT_MAT2:
-        // Matrix attributes are treated as multiple vectors rather than one matrix.
-        this.setter = (value: AttributeState): void => {
-          const dim = 2;
-          const stride = (dim * dim) * value.size;
-          for (let i = 0; i < dim; i++) {
-            const location: number = this.location + i;
-            this.gl.enableVertexAttribArray(location);
-            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
-          }
-        }
-        break;
-      case AttributeType.FLOAT_MAT3:
-        // Matrix attributes are treated as multiple vectors rather than one matrix.
-        this.setter = (value: AttributeState): void => {
-          const dim = 3;
-          const stride = (dim * dim) * value.size;
-          for (let i = 0; i < dim; i++) {
-            const location: number = this.location + i;
-            this.gl.enableVertexAttribArray(location);
-            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
-          }
-        }
-        break;
-      case AttributeType.FLOAT_MAT4:
-        // Matrix attributes are treated as multiple vectors rather than one matrix.
-        this.setter = (value: AttributeState): void => {
-          const dim = 4;
-          const stride = (dim * dim) * value.size;
-          for (let i = 0; i < dim; i++) {
-            const location: number = this.location + i;
-            this.gl.enableVertexAttribArray(location);
-            this.gl.vertexAttribPointer(location, value.size / dim, value.type, value.normalized, stride, value.offset + (stride / dim) * i);
-          }
-        }
-        break;
-      default:
-        throw new Error("Unable to make attribute setter.");
-    }
   }
 
   /** The active information of this attribute. */
@@ -98,16 +68,11 @@ export class Attribute extends Variable {
   /** The location of this attribute. */
   public readonly location: number;
 
-  /** The setter method for this attribute. */
-  protected readonly setter: (value: AttributeState) => void;
-
-  /** Does nothing; attributes cannot be set to array values. */
-  protected readonly arraySetter?: () => void;
-
-  /** Enables getting data from a buffer for this attribute. */
-  public enable(): void {
-    this.gl.enableVertexAttribArray(this.location);
-  }
+  /**
+   * The setter method for this attribute.
+   * @param value The value to pass to the attribute.
+   */
+  public abstract setter(value: AttributeState): void;
 
   /** Whether this attribute can get data from a buffer. */
   private enabledPrivate: boolean;
@@ -139,5 +104,78 @@ export class Attribute extends Variable {
     if (!value) { return; }
     this.setter(value);
     this.valuePrivate = value;
+  }
+}
+
+/** A float input variable in a WebGL vertex shader. */
+export class FloatAttribute extends Attribute {
+  /**
+   * Creates a float attribute.
+   * @param program The shader program that this attribute belongs to.
+   * @param index The index of this attribute.
+   */
+  public constructor(program: Program, index: number) {
+    super(program, index);
+  }
+
+  /**
+   * The setter method for this attribute.
+   * @param value The value to pass to the attribute.
+   */
+  public setter(value: AttributeState): void {
+    value.buffer.bind();
+    this.enabled = true;
+    this.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
+  }
+}
+
+/** An integer, unsigned integer, or boolean input variable in a WebGL vertex shader. */
+export class IntegerAttribute extends Attribute {
+  /**
+   * Creates an integer, unsigned integer, or boolean attribute.
+   * @param program The shader program that this attribute belongs to.
+   * @param index The index of this attribute.
+   */
+  public constructor(program: Program, index: number) {
+    super(program, index);
+  }
+
+  /**
+   * The setter method for this attribute.
+   * @param value The value to pass to the attribute.
+   */
+  public setter(value: AttributeState): void {
+    value.buffer.bind();
+    this.enabled = true;
+    this.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
+  }
+}
+
+/** A matrix input variable in a WebGL vertex shader. */
+export class MatrixAttribute extends Attribute {
+  /**
+   * Creates a matrix attribute.
+   * @param program The shader program that this attribute belongs to.
+   * @param index The index of this attribute.
+   */
+  public constructor(program: Program, index: number, dim: number) {
+    super(program, index);
+    this.dim = dim;
+  }
+
+  /** The side length of values passed to this attribute. */
+  public readonly dim: number;
+
+  /**
+   * The setter method for this attribute.
+   * @param value The value to pass to the attribute.
+   */
+  public setter(value: AttributeState): void {
+    const stride: number = (this.dim * this.dim) * value.size;
+    for (let i = 0; i < this.dim; i++) {
+      const location: number = this.location + i;
+      this.enabled = true;
+      this.gl.vertexAttribPointer(location, value.size / this.dim, value.type, value.normalized, stride, value.offset + (stride / this.dim) * i);
+    }
   }
 }
