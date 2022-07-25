@@ -4,18 +4,18 @@
  * @returns Whether the drawing buffer was resized.
  */
 export function resizeContext(gl: WebGL2RenderingContext): boolean {
-  // Physical size.
-  const displayWidth: number = gl.canvas.clientWidth;
-  const displayHeight: number = gl.canvas.clientHeight;
+	// Physical size.
+	const displayWidth: number = gl.canvas.clientWidth;
+	const displayHeight: number = gl.canvas.clientHeight;
 
-  if (gl.canvas.width != displayWidth || gl.canvas.height != displayHeight) {
-    gl.canvas.width = displayWidth;
-    gl.canvas.height = displayHeight;
+	if (gl.canvas.width != displayWidth || gl.canvas.height != displayHeight) {
+		gl.canvas.width = displayWidth;
+		gl.canvas.height = displayHeight;
 
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    return true;
-  }
+		return true;
+	}
 
-  return false;
+	return false;
 }
