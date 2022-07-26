@@ -1,10 +1,10 @@
-import { Variable } from "./Variable.js";
-import { Program } from "./Program.js";
+import Variable from "./Variable.js";
+import Program from "./Program.js";
 import { UniformType } from "./WebGLConstant.js";
-import { Texture } from "./Texture.js";
+import Texture from "./Texture.js";
 
 /** A global variable in a WebGL shader program. */
-export abstract class Uniform extends Variable {
+abstract class Uniform extends Variable {
 	/**
 	 * Creates a uniform for the given variable type.
 	 * @param program The shader program that this uniform belongs to.
@@ -131,6 +131,8 @@ export abstract class Uniform extends Variable {
 		this.valuePrivate = value;
 	}
 }
+
+export default Uniform;
 
 /** A global variable that can hold one value in a WebGL shader program. */
 export abstract class SingleValuedUniform extends Uniform {

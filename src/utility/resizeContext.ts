@@ -3,7 +3,7 @@
  * @param gl The rendering context to resize.
  * @returns Whether the drawing buffer was resized.
  */
-export function resizeContext(gl: WebGL2RenderingContext): boolean {
+function resizeContext(gl: WebGL2RenderingContext): boolean {
 	// Physical size.
 	const displayWidth: number = gl.canvas.clientWidth;
 	const displayHeight: number = gl.canvas.clientHeight;
@@ -19,3 +19,5 @@ export function resizeContext(gl: WebGL2RenderingContext): boolean {
 
 	return false;
 }
+
+export default resizeContext;

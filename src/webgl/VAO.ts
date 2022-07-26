@@ -1,11 +1,11 @@
-import { Program } from "./Program.js";
-import { AttributeState } from "./AttributeState.js";
-import { Buffer } from "./Buffer.js";
+import Program from "./Program.js";
+import AttributeState from "./AttributeState.js";
+import Buffer from "./Buffer.js";
 import { BufferTarget, Primitive } from "./WebGLConstant.js";
-import { Framebuffer } from "./Framebuffer.js";
+import Framebuffer from "./Framebuffer.js";
 
 /** A collection of attribute state; a vertex attribute array. */
-export class VAO {
+class VAO {
 	/**
 	 * Creates a vertex array object.
 	 * @param program The program that the VAO is used with.
@@ -106,3 +106,5 @@ export class VAO {
 		}
 	}
 }
+
+export default VAO;

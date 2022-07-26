@@ -562,3 +562,6 @@ export const TEXTURE_WRAP_S = 0x2802;
 
 /** The wrapping mode for a texture on the T axis. */
 export const TEXTURE_WRAP_T = 0x2803;
+
+/** The number of texels to unpack at a time in each row of a texture. */
+export const UNPACK_ALIGNMENT = 0x0CF5;

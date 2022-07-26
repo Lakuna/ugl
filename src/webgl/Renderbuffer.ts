@@ -1,8 +1,7 @@
-import { RenderbufferFormat } from "./WebGLConstant.js";
-import { RENDERBUFFER } from "./WebGLConstant.js";
+import { RenderbufferFormat, RENDERBUFFER } from "./WebGLConstant.js";
 
 /** A buffer that can contain an image or be the source or target of a rendering operation. */
-export class Renderbuffer {
+class Renderbuffer {
 	/**
 	 * Creates a renderbuffer.
 	 * @param gl The rendering context of the renderbuffer.
@@ -44,3 +43,5 @@ export class Renderbuffer {
 		this.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
 	}
 }
+
+export default Renderbuffer;

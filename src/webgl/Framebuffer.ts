@@ -1,10 +1,9 @@
-import { FramebufferTarget, FramebufferAttachment } from "./WebGLConstant.js";
-import { Texture } from "./Texture.js";
-import { Renderbuffer } from "./Renderbuffer.js";
-import { RENDERBUFFER } from "./WebGLConstant.js";
+import { FramebufferTarget, FramebufferAttachment, RENDERBUFFER } from "./WebGLConstant.js";
+import Texture from "./Texture.js";
+import Renderbuffer from "./Renderbuffer.js";
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
-export class Framebuffer {
+class Framebuffer {
 	/**
 	 * Unbinds all framebuffers from the given rendering context.
 	 * @param gl The rendering context.
@@ -80,3 +79,5 @@ export class Framebuffer {
 		Framebuffer.unbind(this.gl);
 	}
 }
+
+export default Framebuffer;

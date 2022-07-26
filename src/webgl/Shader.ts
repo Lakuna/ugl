@@ -1,8 +1,7 @@
-import { ShaderType } from "./WebGLConstant.js";
-import { COMPILE_STATUS, DELETE_STATUS } from "./WebGLConstant.js";
+import { ShaderType, COMPILE_STATUS, DELETE_STATUS } from "./WebGLConstant.js";
 
 /** A function which runs on the GPU. */
-export class Shader {
+class Shader {
 	/**
 	 * Creates a shader from source code.
 	 * @param type The type of the shader.
@@ -59,3 +58,5 @@ export class Shader {
 		this.gl.deleteShader(this.shader);
 	}
 }
+
+export default Shader;

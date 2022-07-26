@@ -1,12 +1,11 @@
-import { Shader } from "./Shader.js";
-import { ShaderType, TransformFeedbackBufferMode } from "./WebGLConstant.js";
-import { Uniform, SamplerUniform } from "./Uniform.js";
-import { Attribute } from "./Attribute.js";
-import { TransformFeedbackVarying } from "./TransformFeedbackVarying.js";
-import { DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
+import Shader from "./Shader.js";
+import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
+import { default as Uniform, SamplerUniform } from "./Uniform.js";
+import Attribute from "./Attribute.js";
+import TransformFeedbackVarying from "./TransformFeedbackVarying.js";
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */
-export class Program {
+class Program {
 	/**
 	 * Creates a shader program from source code.
 	 * @param gl The rendering context of the shader program.
@@ -141,3 +140,5 @@ export class Program {
 		this.gl.useProgram(this.program);
 	}
 }
+
+export default Program;

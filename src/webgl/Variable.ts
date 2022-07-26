@@ -1,8 +1,8 @@
-import { Program } from "./Program.js";
+import Program from "./Program.js";
 import { UniformType, AttributeType } from "./WebGLConstant.js";
 
 /** A variable in a WebGL shader program. */
-export abstract class Variable {
+abstract class Variable {
 	/**
 	 * Creates a variable.
 	 * @param program The shader program that this variable belongs to.
@@ -36,3 +36,5 @@ export abstract class Variable {
 		return this.activeInfo.size;
 	}
 }
+
+export default Variable;

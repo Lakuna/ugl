@@ -1,5 +1,5 @@
 /** Array-like objects that provide a mechanism for reading and writing raw binary data in memory buffers. */
-export type TypedArray =
+type TypedArray =
 	Int8Array
 	| Uint8Array
 	| Uint8ClampedArray
@@ -11,3 +11,5 @@ export type TypedArray =
 	| Float64Array
 	| BigInt64Array
 	| BigUint64Array;
+
+export default TypedArray;

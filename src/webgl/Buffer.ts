@@ -1,8 +1,8 @@
-import { TypedArray } from "../types/TypedArray.js";
+import TypedArray from "../types/TypedArray.js";
 import { BufferTarget, BufferUsage, BufferDataType } from "./WebGLConstant.js";
 
 /** A data stucture that supplies per-vertex data to the GPU. */
-export class Buffer {
+class Buffer {
 	/**
 	 * Creates a buffer.
 	 * @param gl The rendering context of the buffer.
@@ -78,3 +78,5 @@ export class Buffer {
 		this.gl.bindBuffer(this.target, this.buffer);
 	}
 }
+
+export default Buffer;

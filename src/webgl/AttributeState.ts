@@ -1,10 +1,10 @@
-import { Buffer } from "./Buffer.js";
+import Buffer from "./Buffer.js";
 import { BufferDataType } from "./WebGLConstant.js";
-import { Program } from "./Program.js";
-import { Attribute } from "./Attribute.js";
+import Program from "./Program.js";
+import Attribute from "./Attribute.js";
 
 /** Information about how to access data in a buffer. */
-export class AttributeState {
+class AttributeState {
 	/**
 	 * Creates an attribute.
 	 * @param name The name of the attribute in the WebGL program.
@@ -61,3 +61,5 @@ export class AttributeState {
 		attribute.value = this;
 	}
 }
+
+export default AttributeState;

@@ -1,8 +1,8 @@
-import { Variable } from "./Variable.js";
-import { Program } from "./Program.js";
+import Variable from "./Variable.js";
+import Program from "./Program.js";
 
 /** An input variable in a WebGL fragment shader used for transform feedback. */
-export class TransformFeedbackVarying extends Variable {
+class TransformFeedbackVarying extends Variable {
 	/**
 	 * Creates a transform feedback varying. This should only be called by the `Program` constructor.
 	 * @param program The shader program that this transform feedback varying belongs to.
@@ -25,3 +25,5 @@ export class TransformFeedbackVarying extends Variable {
 	/** Does nothing; transform feedback varyings cannot be set. */
 	protected readonly arraySetter?: () => void;
 }
+
+export default TransformFeedbackVarying;

@@ -1,4 +1,4 @@
-import { Color } from "./Color.js";
+import Color from "./Color.js";
 
 const COLOR_BUFFER_BIT = 0x00004000;
 const DEPTH_BUFFER_BIT = 0x00000100;
@@ -11,7 +11,7 @@ const STENCIL_BUFFER_BIT = 0x00000400;
  * @param depth The value to clear the depth buffer to, if any.
  * @param stencil The value to clear the stencil buffer to, if any.
  */
-export function clearContext(gl: WebGL2RenderingContext, color: Color | undefined, depth: number | undefined, stencil: number | undefined): void {
+function clearContext(gl: WebGL2RenderingContext, color: Color | undefined, depth: number | undefined, stencil: number | undefined): void {
 	let colorBit = 0;
 	if (color) {
 		gl.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
@@ -32,3 +32,5 @@ export function clearContext(gl: WebGL2RenderingContext, color: Color | undefine
 
 	gl.clear(colorBit | depthBit | stencilBit);
 }
+
+export default clearContext;

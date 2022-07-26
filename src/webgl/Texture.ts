@@ -1,7 +1,7 @@
-import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T } from "./WebGLConstant.js";
+import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, UNPACK_ALIGNMENT } from "./WebGLConstant.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
-export abstract class Texture {
+abstract class Texture {
 	/**
 	 * Creates a texture.
 	 * @param gl The rendering context of the texture.
@@ -51,6 +51,8 @@ export abstract class Texture {
 		this.gl.generateMipmap(this.target);
 	}
 }
+
+export default Texture;
 
 /** Pixel sources for 2D textures. */
 export type Texture2DPixelSource =
@@ -241,6 +243,13 @@ export class Texture2D extends Texture {
 		this.bind();
 
 		if (typeof this.width == "number" && typeof this.height == "number") {
+			for (const alignment of [8, 4, 2, 1]) {
+				if (this.width % alignment == 0) {
+					this.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+					break;
+				}
+			}
+
 			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);
 		} else {
 			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.format, this.type, this.pixels as ImageData);

@@ -1,5 +1,5 @@
 /** A color. */
-export class Color extends Array<number> implements ReadonlyArray<number> {
+class Color extends Array<number> implements ReadonlyArray<number> {
 	/**
 	 * Creates a color from a hexadecimal value.
 	 * @param hex The color as a hexadecimal number.
@@ -51,3 +51,5 @@ export class Color extends Array<number> implements ReadonlyArray<number> {
 			: (l2 + 0.05) / (l1 + 0.05);
 	}
 }
+
+export default Color;

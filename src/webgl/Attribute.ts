@@ -1,10 +1,10 @@
-import { Variable } from "./Variable.js";
-import { Program } from "./Program.js";
+import Variable from "./Variable.js";
+import Program from "./Program.js";
 import { AttributeType } from "./WebGLConstant.js";
-import { AttributeState } from "./AttributeState.js";
+import AttributeState from "./AttributeState.js";
 
 /** An input variable in a WebGL vertex shader. */
-export abstract class Attribute extends Variable {
+abstract class Attribute extends Variable {
 	/**
 	 * Creates an attribute for the given variable type.
 	 * @param program The shader program that this attribute belongs to.
@@ -106,6 +106,8 @@ export abstract class Attribute extends Variable {
 		this.valuePrivate = value;
 	}
 }
+
+export default Attribute;
 
 /** A float input variable in a WebGL vertex shader. */
 export class FloatAttribute extends Attribute {
