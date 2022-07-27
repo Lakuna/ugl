@@ -1,8 +1,5 @@
 import Color from "./Color.js";
-
-const COLOR_BUFFER_BIT = 0x00004000;
-const DEPTH_BUFFER_BIT = 0x00000100;
-const STENCIL_BUFFER_BIT = 0x00000400;
+import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT, DEPTH_TEST, STENCIL_TEST } from "../webgl/WebGLConstant.js";
 
 /**
  * Clears the specified buffers to the specified values.
@@ -20,12 +17,14 @@ function clearContext(gl: WebGL2RenderingContext, color: Color | undefined, dept
 
 	let depthBit = 0;
 	if (typeof depth == "number") {
+		gl.enable(DEPTH_TEST);
 		gl.clearDepth(depth);
 		depthBit = DEPTH_BUFFER_BIT;
 	}
 
 	let stencilBit = 0;
 	if (typeof stencil == "number") {
+		gl.enable(STENCIL_TEST);
 		gl.clearStencil(stencil);
 		stencilBit = STENCIL_BUFFER_BIT
 	}

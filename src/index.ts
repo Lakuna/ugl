@@ -2,7 +2,10 @@ export { type default as TypedArray } from "./types/TypedArray.js";
 export { default as clearContext } from "./utility/clearContext.js";
 export { default as Color } from "./utility/Color.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
-export { default as resizeContext } from "./utility/resizeContext.js";
+export {
+	default as resizeContext,
+	resizeCanvasDisplay
+} from "./utility/resizeContext.js";
 export {
 	default as Attribute,
 	FloatAttribute,

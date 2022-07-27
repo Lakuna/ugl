@@ -565,3 +565,21 @@ export const TEXTURE_WRAP_T = 0x2803;
 
 /** The number of texels to unpack at a time in each row of a texture. */
 export const UNPACK_ALIGNMENT = 0x0CF5;
+
+/** The bit mask for the color buffer. */
+export const COLOR_BUFFER_BIT = 0x00004000;
+
+/** The bit mask for the depth buffer. */
+export const DEPTH_BUFFER_BIT = 0x00000100;
+
+/** The bit mask for the stencil buffer. */
+export const STENCIL_BUFFER_BIT = 0x00000400;
+
+/** The depth test. */
+export const DEPTH_TEST = 0x0B71;
+
+/** The stencil test. */
+export const STENCIL_TEST = 0x0B90
+
+/** The scissor test. */
+export const SCISSOR_TEST = 0x0C11;
