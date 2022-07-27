@@ -21,6 +21,7 @@ export { default as Shader } from "./webgl/Shader.js";
 export {
 	default as Texture,
 	type Texture2DPixelSource,
+	type Texture2DParameters,
 	Texture2D
 } from "./webgl/Texture.js";
 export { default as TransformFeedbackVarying } from "./webgl/TransformFeedbackVarying.js";

@@ -1,4 +1,5 @@
 import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, UNPACK_ALIGNMENT } from "./WebGLConstant.js";
+import TypedArray from "../types/TypedArray.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
 abstract class Texture {
@@ -20,7 +21,7 @@ abstract class Texture {
 	public readonly gl: WebGL2RenderingContext;
 
 	/** The target binding point of this texture. */
-	public target: TextureTarget;
+	public readonly target: TextureTarget;
 
 	/** The WebGL API interface of this texture. */
 	public readonly texture: WebGLTexture;
@@ -39,11 +40,8 @@ abstract class Texture {
 		this.gl.activeTexture(TEXTURE0 + textureUnit);
 	}
 
-	/**
-	 * Updates the texture parameters of this texture.
-	 * @param textureUnit - The texture unit of this texture in the current shader program.
-	 */
-	public abstract update(textureUnit: number): void;
+	/** Updates the texels of this texture. */
+	public abstract update(): void;
 
 	/** Generates a mipmap for this texture. */
 	public generateMipmap(): void {
@@ -56,110 +54,105 @@ export default Texture;
 
 /** Pixel sources for 2D textures. */
 export type Texture2DPixelSource =
-	ArrayBufferView
+	TypedArray
 	| ImageData
 	| HTMLImageElement
 	| HTMLCanvasElement
 	| HTMLVideoElement
 	| ImageBitmap;
 
+/** Parameters for 2D textures. */
+export interface Texture2DParameters {
+	/** The rendering context of the texture. */
+	gl: WebGL2RenderingContext;
+
+	/** The target of the texture. */
+	target: TextureTarget;
+
+	/** The level of detail of the texture. */
+	lod: number;
+
+	/** The format of the color components in the texture. */
+	internalFormat: TextureFormat;
+
+	/** The width of the texture. */
+	width?: number;
+
+	/** The height of the texture. */
+	height?: number;
+
+	/** The format of the texel data of the texture. */
+	format?: TextureFormat;
+
+	/** The data type of the components in this texture. */
+	type?: TextureDataType;
+
+	/** The pixel source for the texture. */
+	pixels: Texture2DPixelSource;
+
+	/** The magnification filter for the texture. */
+	magFilter?: TextureFilter;
+
+	/** The minification filter for the texture. */
+	minFilter?: TextureFilter;
+
+	/** The wrapping function of the texture in the S direction. */
+	wrapSFunction?: TextureWrapFunction;
+
+	/** The wrapping function of the texture in the T direction. */
+	wrapTFunction?: TextureWrapFunction;
+}
+
 /** A two-dimensional texture. */
 export class Texture2D extends Texture {
 	/**
 	 * Creates a two-dimensional texture.
-	 * @param gl The rendering context of the texture.
-	 * @param pixels The pixel source for the texture.
-	 * @param size The width and height of the pixel source.
-	 * @param internalFormat The internal format of the texture.
-	 * @param lod The level of detail of the texture.
+	 * @param parameters The parameters of the texture.
 	 */
-	public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource, size?: [number, number], internalFormat: TextureFormat = TextureFormat.RGBA, lod = 0) {
-		super(gl, TextureTarget.TEXTURE_2D);
-		this.pixelsPrivate = pixels;
-		this.sizePrivate = size;
-		this.internalFormatPrivate = internalFormat;
-		this.lodPrivate = lod;
+	public constructor({
+		gl,
+		target = TextureTarget.TEXTURE_2D,
+		lod = 0,
+		internalFormat = TextureFormat.RGBA,
+		width,
+		height,
+		format,
+		type,
+		pixels,
+		magFilter,
+		minFilter,
+		wrapSFunction,
+		wrapTFunction
+	}: Texture2DParameters) {
+		super(gl, target);
+		this.lod = lod;
+		this.internalFormat = internalFormat;
+		this.width = width;
+		this.height = height;
+		this.format = format;
+		this.type = type;
+		this.pixels = pixels;
+		if (magFilter) { this.magFilter = magFilter; }
+		if (minFilter) { this.minFilter = minFilter; }
+		if (wrapSFunction) { this.wrapSFunction = wrapSFunction; }
+		if (wrapTFunction) { this.wrapTFunction = wrapTFunction; }
 		this.update();
 	}
 
 	/** The level of detail of this texture. */
-	private lodPrivate: number;
+	public lod: number;
 
-	/** The level of detail of this texture. */
-	public get lod(): number {
-		return this.lodPrivate;
-	}
+	/** The format of the color components in this texture. */
+	public internalFormat: TextureFormat;
 
-	public set lod(value: number) {
-		this.lodPrivate = value;
-		this.update();
-	}
+	/** The width of this texture. */
+	public width: number | undefined;
 
-	/** The color components in the texture. */
-	private internalFormatPrivate: TextureFormat;
-
-	/** The color components in the texture. */
-	public get internalFormat(): TextureFormat {
-		return this.internalFormatPrivate;
-	}
-
-	public set internalFormat(value: TextureFormat) {
-		this.internalFormatPrivate = value;
-		this.update();
-	}
-
-	/** The data type of the components in the texture. */
-	private typePrivate?: TextureDataType;
-
-	/** The data type of the components in the texture. */
-	public get type(): TextureDataType {
-		if (this.typePrivate) { return this.typePrivate; }
-
-		switch (this.internalFormat) {
-			case TextureFormat.RGB:
-			case TextureFormat.RGBA:
-			case TextureFormat.LUMINANCE_ALPHA:
-			case TextureFormat.LUMINANCE:
-			case TextureFormat.ALPHA:
-			case TextureFormat.R8:
-			case TextureFormat.R8UI:
-			case TextureFormat.RG8:
-			case TextureFormat.RG8UI:
-			case TextureFormat.RGB8:
-			case TextureFormat.SRGB8:
-			case TextureFormat.RGB565:
-			case TextureFormat.RGB8UI:
-			case TextureFormat.RGBA8:
-			case TextureFormat.SRGB8_ALPHA8:
-			case TextureFormat.RGB5_A1:
-			case TextureFormat.RGBA4:
-			case TextureFormat.RGBA8UI:
-				return TextureDataType.UNSIGNED_BYTE;
-			case TextureFormat.R16F:
-			case TextureFormat.R32F:
-			case TextureFormat.RG16F:
-			case TextureFormat.RG32F:
-			case TextureFormat.R11F_G11F_B10F:
-			case TextureFormat.RGB9_E5:
-			case TextureFormat.RGB16F:
-			case TextureFormat.RGB32F:
-			case TextureFormat.RGBA16F:
-			case TextureFormat.RGBA32F:
-				return TextureDataType.FLOAT;
-			case TextureFormat.RGB10_A2:
-				return TextureDataType.UNSIGNED_INT_2_10_10_10_REV;
-			default:
-				throw new Error("Unset data type without default for selected format.");
-		}
-	}
-
-	public set type(value: TextureDataType) {
-		this.typePrivate = value;
-		this.update();
-	}
+	/** The height of this texture. */
+	public height: number | undefined;
 
 	/** The format of the texel data. */
-	private formatPrivate?: TextureFormat;
+	private formatPrivate: TextureFormat | undefined;
 
 	/** The format of the texel data. */
 	public get format(): TextureFormat {
@@ -211,37 +204,61 @@ export class Texture2D extends Texture {
 		}
 	}
 
-	public set format(value: TextureFormat) {
+	public set format(value: TextureFormat | undefined) {
 		this.formatPrivate = value;
-		this.update();
 	}
 
-	/** The width and height of this texture. */
-	private sizePrivate: [number, number] | undefined;
+	/** The data type of the components in this texture. */
+	private typePrivate: TextureDataType | undefined;
 
-	/** The width and height of this texture. */
-	public get size(): [number, number] | undefined {
-		return this.sizePrivate;
+	/** The data type of the components in this texture. */
+	public get type(): TextureDataType {
+		if (this.typePrivate) { return this.typePrivate; }
+
+		switch (this.internalFormat) {
+			case TextureFormat.RGB:
+			case TextureFormat.RGBA:
+			case TextureFormat.LUMINANCE_ALPHA:
+			case TextureFormat.LUMINANCE:
+			case TextureFormat.ALPHA:
+			case TextureFormat.R8:
+			case TextureFormat.R8UI:
+			case TextureFormat.RG8:
+			case TextureFormat.RG8UI:
+			case TextureFormat.RGB8:
+			case TextureFormat.SRGB8:
+			case TextureFormat.RGB565:
+			case TextureFormat.RGB8UI:
+			case TextureFormat.RGBA8:
+			case TextureFormat.SRGB8_ALPHA8:
+			case TextureFormat.RGB5_A1:
+			case TextureFormat.RGBA4:
+			case TextureFormat.RGBA8UI:
+				return TextureDataType.UNSIGNED_BYTE;
+			case TextureFormat.R16F:
+			case TextureFormat.R32F:
+			case TextureFormat.RG16F:
+			case TextureFormat.RG32F:
+			case TextureFormat.R11F_G11F_B10F:
+			case TextureFormat.RGB9_E5:
+			case TextureFormat.RGB16F:
+			case TextureFormat.RGB32F:
+			case TextureFormat.RGBA16F:
+			case TextureFormat.RGBA32F:
+				return TextureDataType.FLOAT;
+			case TextureFormat.RGB10_A2:
+				return TextureDataType.UNSIGNED_INT_2_10_10_10_REV;
+			default:
+				throw new Error("Unset data type without default for selected format.");
+		}
+	}
+
+	public set type(value: TextureDataType | undefined) {
+		this.typePrivate = value;
 	}
 
 	/** The pixel source for this texture. */
-	private pixelsPrivate: Texture2DPixelSource;
-
-	/** The pixel source for this texture. */
-	public get pixels(): Texture2DPixelSource {
-		return this.pixelsPrivate;
-	}
-
-	/**
-	 * Sets the pixels source for this texture.
-	 * @param pixels The new pixel source for this texture.
-	 * @param size The new width and height for this texture.
-	 */
-	public setPixels(pixels: Texture2DPixelSource, size?: [number, number]): void {
-		this.pixelsPrivate = pixels;
-		this.sizePrivate = size;
-		this.update();
-	}
+	public pixels: Texture2DPixelSource;
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureFilter {
@@ -252,7 +269,6 @@ export class Texture2D extends Texture {
 	public set magFilter(value: TextureFilter) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
-		this.update();
 	}
 
 	/** The minification filter for this texture. */
@@ -264,10 +280,9 @@ export class Texture2D extends Texture {
 	public set minFilter(value: TextureFilter) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
-		this.update();
 	}
 
-	/** The wrapping function for the S coordinate. */
+	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
 		this.bind();
 		return this.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
@@ -276,10 +291,9 @@ export class Texture2D extends Texture {
 	public set wrapSFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
-		this.update();
 	}
 
-	/** The wrapping function for the T coordinate. */
+	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
 		this.bind();
 		return this.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
@@ -288,24 +302,23 @@ export class Texture2D extends Texture {
 	public set wrapTFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
-		this.update();
 	}
 
 	/** Updates the texels of this texture. */
 	public update(): void {
 		this.bind();
 
-		if (this.size) {
-			if (this.size[1] > 1) { // Unpack alignment doesn't apply to the last row.
+		if (this.width && this.height) {
+			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
-					if (this.size[0] % alignment == 0) {
+					if (this.width % alignment == 0) {
 						this.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.size[0], this.size[1], 0, this.format, this.type, this.pixels as ArrayBufferView);
+			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);
 		} else {
 			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.format, this.type, this.pixels as ImageData);
 		}
