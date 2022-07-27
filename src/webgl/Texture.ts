@@ -252,6 +252,7 @@ export class Texture2D extends Texture {
 	public set magFilter(value: TextureFilter) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
+		this.update();
 	}
 
 	/** The minification filter for this texture. */
@@ -263,6 +264,7 @@ export class Texture2D extends Texture {
 	public set minFilter(value: TextureFilter) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+		this.update();
 	}
 
 	/** The wrapping function for the S coordinate. */
@@ -274,6 +276,7 @@ export class Texture2D extends Texture {
 	public set wrapSFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
+		this.update();
 	}
 
 	/** The wrapping function for the T coordinate. */
@@ -285,6 +288,7 @@ export class Texture2D extends Texture {
 	public set wrapTFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
+		this.update();
 	}
 
 	/** Updates the texels of this texture. */
