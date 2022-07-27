@@ -243,16 +243,22 @@ export class Texture2D extends Texture {
 		this.bind();
 
 		if (typeof this.width == "number" && typeof this.height == "number") {
-			for (const alignment of [8, 4, 2, 1]) {
-				if (this.width % alignment == 0) {
-					this.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
-					break;
+			if (this.height > 1) {
+				for (const alignment of [8, 4, 2, 1]) {
+					if (this.width % alignment == 0) {
+						this.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						break;
+					}
 				}
 			}
 
 			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);
 		} else {
 			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.format, this.type, this.pixels as ImageData);
+		}
+
+		if (this.minFilter != TextureFilter.LINEAR && this.minFilter != TextureFilter.NEAREST) {
+			this.generateMipmap();
 		}
 	}
 }
