@@ -69,12 +69,18 @@ export class Texture2D extends Texture {
 	 * Creates a two-dimensional texture.
 	 * @param gl The rendering context of the texture.
 	 * @param pixels The pixel source for the texture.
+	 * @param width The width of the pixel source.
+	 * @param height The height of the pixel source.
+	 * @param internalFormat The internal format of the texture.
 	 */
-	public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource) {
+	public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource, width?: number, height?: number, internalFormat: TextureFormat = TextureFormat.RGBA) {
 		super(gl, TextureTarget.TEXTURE_2D);
 		this.lod = 0;
-		this.internalFormat = TextureFormat.RGBA;
-		this.pixels = pixels;
+		this.pixelsPrivate = pixels;
+		this.widthPrivate = width;
+		this.heightPrivate = height;
+		this.internalFormat = internalFormat;
+		this.update();
 	}
 
 	/** The level of detail of this texture. */
@@ -186,13 +192,56 @@ export class Texture2D extends Texture {
 	}
 
 	/** The width of this texture. */
-	public width?: number;
+	private widthPrivate: number | undefined;
+
+	/** The width of this texture. */
+	public get width(): number | undefined {
+		return this.widthPrivate;
+	}
+
+	public set width(value: number | undefined) {
+		this.widthPrivate = value;
+		this.update();
+	}
 
 	/** The height of this texture. */
-	public height?: number;
+	private heightPrivate: number | undefined;
+
+	/** The height of this texture. */
+	public get height(): number | undefined {
+		return this.heightPrivate;
+	}
+
+	public set height(value: number | undefined) {
+		this.heightPrivate = value;
+		this.update();
+	}
 
 	/** The pixel source for this texture. */
-	public pixels: Texture2DPixelSource;
+	private pixelsPrivate: Texture2DPixelSource;
+
+	/** The pixel source for this texture. */
+	public get pixels(): Texture2DPixelSource {
+		return this.pixelsPrivate;
+	}
+
+	public set pixels(value: Texture2DPixelSource) {
+		this.pixelsPrivate = value;
+		this.update();
+	}
+
+	/**
+	 * Updates the pixel source, width, and height of this texture to the given values.
+	 * @param pixels The new pixel source.
+	 * @param width The new width.
+	 * @param height The new height.
+	 */
+	public updatePixels(pixels: Texture2DPixelSource, width: number | undefined, height: number | undefined): void {
+		this.pixelsPrivate = pixels;
+		this.widthPrivate = width;
+		this.heightPrivate = height;
+		this.update();
+	}
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureFilter {
