@@ -72,22 +72,43 @@ export class Texture2D extends Texture {
 	 * @param width The width of the pixel source.
 	 * @param height The height of the pixel source.
 	 * @param internalFormat The internal format of the texture.
+	 * @param lod The level of detail of the texture.
 	 */
-	public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource, width?: number, height?: number, internalFormat: TextureFormat = TextureFormat.RGBA) {
+	public constructor(gl: WebGL2RenderingContext, pixels: Texture2DPixelSource, width?: number, height?: number, internalFormat: TextureFormat = TextureFormat.RGBA, lod = 0) {
 		super(gl, TextureTarget.TEXTURE_2D);
-		this.lod = 0;
 		this.pixelsPrivate = pixels;
 		this.widthPrivate = width;
 		this.heightPrivate = height;
-		this.internalFormat = internalFormat;
+		this.internalFormatPrivate = internalFormat;
+		this.lodPrivate = lod;
 		this.update();
 	}
 
 	/** The level of detail of this texture. */
-	public lod: number;
+	private lodPrivate: number;
+
+	/** The level of detail of this texture. */
+	public get lod(): number {
+		return this.lodPrivate;
+	}
+
+	public set lod(value: number) {
+		this.lodPrivate = value;
+		this.update();
+	}
 
 	/** The color components in the texture. */
-	public internalFormat: TextureFormat;
+	private internalFormatPrivate: TextureFormat;
+
+	/** The color components in the texture. */
+	public get internalFormat(): TextureFormat {
+		return this.internalFormatPrivate;
+	}
+
+	public set internalFormat(value: TextureFormat) {
+		this.internalFormatPrivate = value;
+		this.update();
+	}
 
 	/** The data type of the components in the texture. */
 	private typePrivate?: TextureDataType;
@@ -136,6 +157,7 @@ export class Texture2D extends Texture {
 
 	public set type(value: TextureDataType) {
 		this.typePrivate = value;
+		this.update();
 	}
 
 	/** The format of the texel data. */
@@ -191,6 +213,11 @@ export class Texture2D extends Texture {
 		}
 	}
 
+	public set format(value: TextureFormat) {
+		this.formatPrivate = value;
+		this.update();
+	}
+
 	/** The width of this texture. */
 	private widthPrivate: number | undefined;
 
@@ -227,19 +254,6 @@ export class Texture2D extends Texture {
 
 	public set pixels(value: Texture2DPixelSource) {
 		this.pixelsPrivate = value;
-		this.update();
-	}
-
-	/**
-	 * Updates the pixel source, width, and height of this texture to the given values.
-	 * @param pixels The new pixel source.
-	 * @param width The new width.
-	 * @param height The new height.
-	 */
-	public updatePixels(pixels: Texture2DPixelSource, width: number | undefined, height: number | undefined): void {
-		this.pixelsPrivate = pixels;
-		this.widthPrivate = width;
-		this.heightPrivate = height;
 		this.update();
 	}
 
@@ -287,7 +301,7 @@ export class Texture2D extends Texture {
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
 	}
 
-	/** Updates the texture parameters of this texture. */
+	/** Updates the texels of this texture. */
 	public update(): void {
 		this.bind();
 
