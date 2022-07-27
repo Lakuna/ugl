@@ -1,4 +1,4 @@
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/@lakuna/umbra.js?style=for-the-badge)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/@lakuna/umbra.js?style=for-the-badge)](https://bundlephobia.com/package/@lakuna/umbra.js)
 
 # Umbra
 
