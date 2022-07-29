@@ -2,7 +2,8 @@ import Program from "./Program.js";
 import AttributeState from "./AttributeState.js";
 import Buffer from "./Buffer.js";
 import { BufferTarget, Primitive } from "./WebGLConstant.js";
-import Framebuffer from "./Framebuffer.js";
+import Texture from "./Texture.js";
+import Uniform from "./Uniform.js";
 
 /** A collection of attribute state; a vertex attribute array. */
 class VAO {
@@ -76,22 +77,19 @@ class VAO {
 	}
 
 	/**
-	 * Draws the vertex data stored in this VAO.
-	 * @param primitive The type of primitive to draw.
-	 * @param offset The number of elements to skip when drawing arrays.
-	 * @param framebuffer The framebuffer to draw to, if any. Draws to the canvas if not set.
-	 * @param updateViewport Whether to automatically update the viewport.
+	 * Rasterizes the vertex data stored in this VAO.
+	 * @param uniforms A map of uniform variable names to their values to use when rasterizing.
+	 * @param primitive The type of primitive to rasterize.
+	 * @param offset The number of elements to skip when rasterizing arrays.
 	 */
-	public draw(primitive: Primitive = Primitive.TRIANGLES, offset = 0, framebuffer: Framebuffer, updateViewport = true): void {
+	public draw(uniforms: Map<string, number | Array<number> | Texture | Array<Texture>>, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
+
 		this.bind();
 
-		if (framebuffer) {
-			framebuffer.bind();
-			if (updateViewport) { this.gl.viewport(0, 0, framebuffer.width, framebuffer.height); }
-		} else {
-			Framebuffer.unbind(this.gl);
-			if (updateViewport) { this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height); }
+		for (const [name, value] of uniforms.entries()) {
+			const uniform: Uniform | undefined = this.program.uniforms.get(name);
+			if (uniform) { uniform.value = value; }
 		}
 
 		if (this.elementArrayBuffer) {

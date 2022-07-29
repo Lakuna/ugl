@@ -3,8 +3,9 @@ export { default as clearContext } from "./utility/clearContext.js";
 export { default as Color } from "./utility/Color.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
 export {
-	default as resizeContext,
-	resizeCanvasDisplay
+	default as resizeCanvasBuffer,
+	resizeViewport,
+	resizeScissor
 } from "./utility/resizeContext.js";
 export {
 	default as Attribute,
