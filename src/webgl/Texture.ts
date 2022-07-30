@@ -1,5 +1,5 @@
 import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, UNPACK_ALIGNMENT } from "./WebGLConstant.js";
-import TypedArray from "../types/TypedArray.js";
+import type TypedArray from "../types/TypedArray.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
 abstract class Texture {

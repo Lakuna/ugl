@@ -1,4 +1,4 @@
 dist
-docs/*
+docs
 node_modules
 **/*.tsbuildinfo

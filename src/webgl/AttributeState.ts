@@ -1,7 +1,7 @@
-import Buffer from "./Buffer.js";
-import { BufferDataType } from "./WebGLConstant.js";
-import Program from "./Program.js";
-import Attribute from "./Attribute.js";
+import type Buffer from "./Buffer.js";
+import type { BufferDataType } from "./WebGLConstant.js";
+import type Program from "./Program.js";
+import type Attribute from "./Attribute.js";
 
 /** Information about how to access data in a buffer. */
 class AttributeState {

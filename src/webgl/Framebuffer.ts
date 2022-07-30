@@ -1,5 +1,5 @@
 import { FramebufferTarget, FramebufferAttachment, RENDERBUFFER } from "./WebGLConstant.js";
-import Texture from "./Texture.js";
+import type Texture from "./Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
 
 /** A data structure that organizes the memory resources that are needed to render an image. */

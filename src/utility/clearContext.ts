@@ -1,4 +1,4 @@
-import Color from "./Color.js";
+import type Color from "./Color.js";
 import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT, DEPTH_TEST, STENCIL_TEST } from "../webgl/WebGLConstant.js";
 
 /**

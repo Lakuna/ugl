@@ -1,7 +1,7 @@
 import Variable from "./Variable.js";
-import Program from "./Program.js";
+import type Program from "./Program.js";
 import { UniformType } from "./WebGLConstant.js";
-import Texture from "./Texture.js";
+import type Texture from "./Texture.js";
 
 /** A global variable in a WebGL shader program. */
 abstract class Uniform extends Variable {
