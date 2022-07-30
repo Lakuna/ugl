@@ -4,6 +4,7 @@ function recursiveFullscreen(element: HTMLElement): void {
 	element.style.height = "100%";
 	element.style.margin = "0px";
 	element.style.padding = "0px";
+	element.style.display = "block";
 
 	if (element.parentElement) {
 		recursiveFullscreen(element.parentElement);
