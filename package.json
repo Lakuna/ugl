@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/umbra.js",
-	"version": "10.0.0",
+	"version": "10.0.2",
 	"description": "A lightweight visual application framework for WebGL.",
 	"keywords": [
 		"front-end",
