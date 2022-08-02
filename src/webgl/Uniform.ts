@@ -3,6 +3,8 @@ import type Program from "./Program.js";
 import { UniformType } from "./WebGLConstant.js";
 import type Texture from "./Texture.js";
 
+export type UniformValue = number | Array<number> | Texture | Array<Texture>;
+
 /** A global variable in a WebGL shader program. */
 abstract class Uniform extends Variable {
 	/**
@@ -114,14 +116,14 @@ abstract class Uniform extends Variable {
 	public abstract arraySetter(value: Array<number> | Array<Texture>): void;
 
 	/** The value of this uniform. */
-	protected valuePrivate: number | Array<number> | Texture | Array<Texture>;
+	protected valuePrivate: UniformValue;
 
 	/** The value of this uniform. */
-	public get value(): number | Array<number> | Texture | Array<Texture> {
+	public get value(): UniformValue {
 		return this.valuePrivate;
 	}
 
-	public set value(value: number | Array<number> | Texture | Array<Texture>) {
+	public set value(value: UniformValue) {
 		if (Array.isArray(value)) {
 			this.arraySetter(value);
 		} else {
@@ -140,7 +142,7 @@ export abstract class SingleValuedUniform extends Uniform {
 	public abstract setter(value: number | Texture): void;
 
 	/** The value of this uniform. */
-	public override set value(value: number | Array<number> | Texture | Array<Texture>) {
+	public override set value(value: UniformValue) {
 		if (Array.isArray(value)) {
 			this.arraySetter(value);
 		} else {

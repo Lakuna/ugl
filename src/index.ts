@@ -3,9 +3,10 @@ export { default as clearContext } from "./utility/clearContext.js";
 export { default as Color } from "./utility/Color.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
 export {
-	default as resizeCanvasBuffer,
+	resizeCanvasBuffer,
 	resizeViewport,
-	resizeScissor
+	resizeScissor,
+	default as resizeContext
 } from "./utility/resizeContext.js";
 export {
 	default as Attribute,
@@ -27,6 +28,7 @@ export {
 } from "./webgl/Texture.js";
 export { default as TransformFeedbackVarying } from "./webgl/TransformFeedbackVarying.js";
 export {
+	type UniformValue,
 	default as Uniform,
 	SingleValuedUniform,
 	SamplerUniform,
@@ -55,7 +57,11 @@ export {
 	FloatMatrix4x3Uniform,
 	FloatMatrix4x4Uniform
 } from "./webgl/Uniform.js";
-export { default as VAO } from "./webgl/VAO.js";
+export {
+	default as VAO,
+	type UniformSourceObject,
+	type UniformSource
+} from "./webgl/VAO.js";
 export { default as Variable } from "./webgl/Variable.js";
 export {
 	ShaderType,

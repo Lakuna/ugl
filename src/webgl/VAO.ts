@@ -2,8 +2,7 @@ import type Program from "./Program.js";
 import type AttributeState from "./AttributeState.js";
 import Buffer from "./Buffer.js";
 import { BufferTarget, Primitive } from "./WebGLConstant.js";
-import type Texture from "./Texture.js";
-import type Uniform from "./Uniform.js";
+import type { default as Uniform, UniformValue } from "./Uniform.js";
 
 /** A collection of attribute state; a vertex attribute array. */
 class VAO {
@@ -82,15 +81,22 @@ class VAO {
 	 * @param primitive The type of primitive to rasterize.
 	 * @param offset The number of elements to skip when rasterizing arrays.
 	 */
-	public draw(uniforms?: Map<string, number | Array<number> | Texture | Array<Texture>>, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
+	public draw(uniforms?: UniformSource, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
 
 		this.bind();
 
 		if (uniforms) {
-			for (const [name, value] of uniforms.entries()) {
-				const uniform: Uniform | undefined = this.program.uniforms.get(name);
-				if (uniform) { uniform.value = value; }
+			if (uniforms instanceof Map) {
+				for (const [key, value] of uniforms.entries()) {
+					const uniform: Uniform | undefined = this.program.uniforms.get(key);
+					if (uniform) { uniform.value = value; }
+				}
+			} else {
+				for (const key in uniforms) {
+					const uniform: Uniform | undefined = this.program.uniforms.get(key);
+					if (uniform) { uniform.value = (uniforms[key] as UniformValue); }
+				}
 			}
 		}
 
@@ -108,3 +114,12 @@ class VAO {
 }
 
 export default VAO;
+
+/** An object with property names and values corresponding to uniform names and values. */
+export interface UniformSourceObject {
+	/** The property which holds the value for the uniform with the same name. */
+	[key: string]: UniformValue;
+}
+
+/** A source for uniform values. */
+export type UniformSource = Map<string, UniformValue> | UniformSourceObject;
