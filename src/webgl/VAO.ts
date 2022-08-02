@@ -82,14 +82,16 @@ class VAO {
 	 * @param primitive The type of primitive to rasterize.
 	 * @param offset The number of elements to skip when rasterizing arrays.
 	 */
-	public draw(uniforms: Map<string, number | Array<number> | Texture | Array<Texture>>, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
+	public draw(uniforms?: Map<string, number | Array<number> | Texture | Array<Texture>>, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
 
 		this.bind();
 
-		for (const [name, value] of uniforms.entries()) {
-			const uniform: Uniform | undefined = this.program.uniforms.get(name);
-			if (uniform) { uniform.value = value; }
+		if (uniforms) {
+			for (const [name, value] of uniforms.entries()) {
+				const uniform: Uniform | undefined = this.program.uniforms.get(name);
+				if (uniform) { uniform.value = value; }
+			}
 		}
 
 		if (this.elementArrayBuffer) {
