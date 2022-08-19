@@ -8,7 +8,7 @@ import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT, DEPTH_TEST, STE
  * @param depth The value to clear the depth buffer to, if any.
  * @param stencil The value to clear the stencil buffer to, if any.
  */
-function clearContext(gl: WebGL2RenderingContext, color: Color | undefined, depth: number | undefined, stencil: number | undefined): void {
+function clearContext(gl: WebGL2RenderingContext, color?: Color | undefined, depth?: number | undefined, stencil?: number | undefined): void {
 	let colorBit = 0;
 	if (color) {
 		gl.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
