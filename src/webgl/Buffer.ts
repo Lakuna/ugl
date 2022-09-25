@@ -11,7 +11,7 @@ class Buffer {
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
 	public constructor(gl: WebGL2RenderingContext, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
-		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array)) { throw new Error("The element array buffer must contain 8-bit unsigned integers."); }
+		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint16Array)) { throw new Error("The element array buffer must contain unsigned integers."); }
 
 		this.gl = gl;
 		this.dataPrivate = data;
