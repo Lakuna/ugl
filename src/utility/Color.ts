@@ -16,12 +16,15 @@ class Color extends Array<number> implements ReadonlyArray<number> {
 	public constructor(r: number, g: number, b: number, a?: number);
 
 	public constructor(r = 0xFFFFFF, g?: number, b?: number, a?: number) {
-		super(...(g ? [r, g, b as number, a as number] : [
-			((r >> 16) & 0xFF) / 0xFF,
-			((r >> 8) & 0xFF) / 0xFF,
-			(r & 0xFF) / 0xFF,
-			0xFF / 0xFF
-		]));
+		super(...(typeof g == "number"
+			? [r, g, b as number, a as number]
+			: [
+				((r >> 16) & 0xFF) / 0xFF,
+				((r >> 8) & 0xFF) / 0xFF,
+				(r & 0xFF) / 0xFF,
+				0xFF / 0xFF
+			]
+		));
 	}
 
 	/** The luminance of this color. */
