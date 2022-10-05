@@ -2,7 +2,7 @@ import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWr
 import type TypedArray from "../types/TypedArray.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
-abstract class Texture {
+export default abstract class Texture {
 	/**
 	 * Creates a texture.
 	 * @param gl The rendering context of the texture.
@@ -49,8 +49,6 @@ abstract class Texture {
 		this.gl.generateMipmap(this.target);
 	}
 }
-
-export default Texture;
 
 /** Pixel sources for 2D textures. */
 export type Texture2DPixelSource =

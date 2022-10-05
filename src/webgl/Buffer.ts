@@ -1,8 +1,18 @@
+import type { UintTypedArray } from "../types/TypedArray.js";
 import type TypedArray from "../types/TypedArray.js";
 import { BufferTarget, BufferUsage, BufferDataType } from "./WebGLConstant.js";
 
 /** A data stucture that supplies per-vertex data to the GPU. */
-class Buffer {
+export default class Buffer {
+	/**
+	 * Creates an element array buffer.
+	 * @param gl The rendering context of the buffer.
+	 * @param data The data to store in the buffer.
+	 * @param target The binding point to bind the buffer to.
+	 * @param usage The usage pattern of the buffer's data store.
+	 */
+	public constructor(gl: WebGL2RenderingContext, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
+
 	/**
 	 * Creates a buffer.
 	 * @param gl The rendering context of the buffer.
@@ -10,8 +20,12 @@ class Buffer {
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
+	public constructor(gl: WebGL2RenderingContext, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
+
 	public constructor(gl: WebGL2RenderingContext, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
-		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint16Array)) { throw new Error("The element array buffer must contain unsigned integers."); }
+		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint8ClampedArray || data instanceof Uint16Array || data instanceof Uint32Array)) {
+			throw new Error("The element array buffer must contain unsigned integers.");
+		}
 
 		this.gl = gl;
 		this.dataPrivate = data;
@@ -78,5 +92,3 @@ class Buffer {
 		this.gl.bindBuffer(this.target, this.buffer);
 	}
 }
-
-export default Buffer;

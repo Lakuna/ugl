@@ -5,7 +5,7 @@ import Attribute from "./Attribute.js";
 import TransformFeedbackVarying from "./TransformFeedbackVarying.js";
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */
-class Program {
+export default class Program {
 	/**
 	 * Creates a shader program from source code.
 	 * @param gl The rendering context of the shader program.
@@ -140,5 +140,3 @@ class Program {
 		this.gl.useProgram(this.program);
 	}
 }
-
-export default Program;

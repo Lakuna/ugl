@@ -74,7 +74,7 @@ export function resizeScissor(gl: WebGL2RenderingContext, x?: number, y?: number
  * @param gl The rendering context of the canvas, viewport, and scissor box.
  * @returns Whether the drawing buffer was resized.
  */
-function resizeContext(gl: WebGL2RenderingContext): boolean;
+export default function resizeContext(gl: WebGL2RenderingContext): boolean;
 
 /**
  * Resizes a context's canvas' drawing buffer to match its physical size, the context's viewport and scissor box to match the given size, and enables the scissor test.
@@ -85,9 +85,9 @@ function resizeContext(gl: WebGL2RenderingContext): boolean;
  * @param height The vertical size of the viewport and scissor box.
  * @returns Whether the drawing buffer was resized.
  */
-function resizeContext(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number): boolean;
+export default function resizeContext(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number): boolean;
 
-function resizeContext(gl: WebGL2RenderingContext, x?: number, y?: number, width?: number, height?: number): boolean {
+export default function resizeContext(gl: WebGL2RenderingContext, x?: number, y?: number, width?: number, height?: number): boolean {
 	const out: boolean = resizeCanvasBuffer(gl.canvas);
 
 	if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
@@ -100,5 +100,3 @@ function resizeContext(gl: WebGL2RenderingContext, x?: number, y?: number, width
 
 	return out;
 }
-
-export default resizeContext;

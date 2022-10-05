@@ -6,7 +6,7 @@ import type Texture from "./Texture.js";
 export type UniformValue = number | Array<number> | Texture | Array<Texture>;
 
 /** A global variable in a WebGL shader program. */
-abstract class Uniform extends Variable {
+export default abstract class Uniform extends Variable {
 	/**
 	 * Creates a uniform for the given variable type.
 	 * @param program The shader program that this uniform belongs to.
@@ -133,8 +133,6 @@ abstract class Uniform extends Variable {
 		this.valuePrivate = value;
 	}
 }
-
-export default Uniform;
 
 /** A global variable that can hold one value in a WebGL shader program. */
 export abstract class SingleValuedUniform extends Uniform {

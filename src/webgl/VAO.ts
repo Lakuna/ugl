@@ -3,16 +3,17 @@ import type AttributeState from "./AttributeState.js";
 import Buffer from "./Buffer.js";
 import { BufferTarget, Primitive } from "./WebGLConstant.js";
 import type { default as Uniform, UniformValue } from "./Uniform.js";
+import type { UintTypedArray } from "../index.js";
 
 /** A collection of attribute state; a vertex attribute array. */
-class VAO {
+export default class VAO {
 	/**
 	 * Creates a vertex array object.
 	 * @param program The program that the VAO is used with.
 	 * @param attributes The attributes associated with the VAO.
 	 * @param indices The indices to supply to the element array buffer of this VAO if the data should be indexed.
 	 */
-	public constructor(program: Program, attributes: Array<AttributeState> = [], indices?: Uint8Array) {
+	public constructor(program: Program, attributes: Array<AttributeState> = [], indices?: UintTypedArray) {
 		this.program = program;
 		this.gl = program.gl;
 
@@ -47,11 +48,11 @@ class VAO {
 	private elementArrayBuffer: Buffer | undefined;
 
 	/** The indices in the element array buffer of this VAO if the data is indexed. */
-	public get indices(): Uint8Array | undefined {
-		return this.elementArrayBuffer?.data as Uint8Array;
+	public get indices(): UintTypedArray | undefined {
+		return this.elementArrayBuffer?.data as UintTypedArray;
 	}
 
-	public set indices(value: Uint8Array | undefined) {
+	public set indices(value: UintTypedArray | undefined) {
 		this.bind();
 		if (value) {
 			this.elementArrayBuffer = new Buffer(this.gl, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
@@ -112,8 +113,6 @@ class VAO {
 		}
 	}
 }
-
-export default VAO;
 
 /** An object with property names and values corresponding to uniform names and values. */
 export interface UniformSourceObject {

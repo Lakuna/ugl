@@ -15,7 +15,7 @@ function recursiveFullscreen(element: HTMLElement): void {
  * Creates a fullscreen canvas. Automatically destroys all other content in the DOM.
  * @returns A fullscreen canvas.
  */
-function makeFullscreenCanvas(): HTMLCanvasElement {
+export default function makeFullscreenCanvas(): HTMLCanvasElement {
 	if (typeof document == "undefined") {
 		throw new Error("Cannot create a canvas in a headless environment.");
 	}
@@ -30,5 +30,3 @@ function makeFullscreenCanvas(): HTMLCanvasElement {
 
 	return canvas;
 }
-
-export default makeFullscreenCanvas;

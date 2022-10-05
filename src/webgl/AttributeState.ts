@@ -4,7 +4,7 @@ import type Program from "./Program.js";
 import type Attribute from "./Attribute.js";
 
 /** Information about how to access data in a buffer. */
-class AttributeState {
+export default class AttributeState {
 	/**
 	 * Creates an attribute.
 	 * @param name The name of the attribute in the WebGL program.
@@ -61,5 +61,3 @@ class AttributeState {
 		attribute.value = this;
 	}
 }
-
-export default AttributeState;

@@ -3,7 +3,7 @@ import type Texture from "./Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
-class Framebuffer {
+export default class Framebuffer {
 	/**
 	 * Unbinds all framebuffers from the given rendering context.
 	 * @param gl The rendering context.
@@ -79,5 +79,3 @@ class Framebuffer {
 		Framebuffer.unbind(this.gl);
 	}
 }
-
-export default Framebuffer;
