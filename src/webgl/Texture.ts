@@ -65,13 +65,13 @@ export interface Texture2DParameters {
 	gl: WebGL2RenderingContext;
 
 	/** The target of the texture. */
-	target: TextureTarget;
+	target?: TextureTarget;
 
 	/** The level of detail of the texture. */
-	lod: number;
+	lod?: number;
 
 	/** The format of the color components in the texture. */
-	internalFormat: TextureFormat;
+	internalFormat?: TextureFormat;
 
 	/** The width of the texture. */
 	width?: number;
