@@ -1,6 +1,9 @@
-import { FramebufferTarget, FramebufferAttachment, RENDERBUFFER } from "./WebGLConstant.js";
+import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./WebGLConstant.js";
 import type Texture from "./Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
+
+/** An attachment for a framebuffer. */
+export type FramebufferAttachment = Texture | Renderbuffer;
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
 export default class Framebuffer {
@@ -16,12 +19,10 @@ export default class Framebuffer {
 	 * Creates a framebuffer.
 	 * @param gl The rendering context of the framebuffer.
 	 */
-	public constructor(gl: WebGL2RenderingContext, width: number, height: number, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
+	public constructor(gl: WebGL2RenderingContext, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
 		this.gl = gl;
 		this.target = target;
 		this.attachmentsPrivate = new Map();
-		this.width = width;
-		this.height = height;
 
 		const framebuffer: WebGLFramebuffer | null = gl.createFramebuffer();
 		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
@@ -35,13 +36,7 @@ export default class Framebuffer {
 	public readonly framebuffer: WebGLFramebuffer;
 
 	/** The target binding point of this framebuffer. */
-	public target: FramebufferTarget
-
-	/** The width of this framebuffer. */
-	public width: number;
-
-	/** The height of this framebuffer. */
-	public height: number;
+	public target: FramebufferTarget;
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
@@ -49,10 +44,10 @@ export default class Framebuffer {
 	}
 
 	/** A map of attachments on this framebuffer. */
-	private attachmentsPrivate: Map<FramebufferAttachment, Texture | Renderbuffer>
+	private attachmentsPrivate: Map<FramebufferAttachmentPoint, FramebufferAttachment>;
 
 	/** A map of attachments on this framebuffer. */
-	public get attachments(): ReadonlyMap<FramebufferAttachment, Texture | Renderbuffer> {
+	public get attachments(): ReadonlyMap<FramebufferAttachmentPoint, FramebufferAttachment> {
 		return this.attachmentsPrivate;
 	}
 
@@ -61,7 +56,7 @@ export default class Framebuffer {
 	 * @param attachment The texture to attach.
 	 * @param attachmentPoint The attachment point of the texture.
 	 */
-	public attach(attachment: Texture, attachmentPoint: FramebufferAttachment): void;
+	public attach(attachment: Texture, attachmentPoint: FramebufferAttachmentPoint): void;
 
 	/**
 	 * Attaches a single layer of a texture to this framebuffer.
@@ -69,16 +64,16 @@ export default class Framebuffer {
 	 * @param attachmentPoint The attachment point of the texture.
 	 * @param layer The layer of the texture to attach.
 	 */
-	public attach(attachment: Texture, attachmentPoint: FramebufferAttachment, layer: number): void;
+	public attach(attachment: Texture, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
 
 	/**
 	 * Attaches a renderbuffer to this framebuffer.
 	 * @param attachment The renderbuffer to attach.
 	 * @param attachmentPoint The attachment point of the renderbuffer.
 	 */
-	public attach(attachment: Renderbuffer, attachmentPoint: FramebufferAttachment): void;
+	public attach(attachment: Renderbuffer, attachmentPoint: FramebufferAttachmentPoint): void;
 
-	public attach(attachment: Texture | Renderbuffer, attachmentPoint: FramebufferAttachment, layer?: number): void {
+	public attach(attachment: FramebufferAttachment, attachmentPoint: FramebufferAttachmentPoint, layer?: number): void {
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {

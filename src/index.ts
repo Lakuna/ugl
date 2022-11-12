@@ -22,7 +22,10 @@ export {
 } from "./webgl/Attribute.js";
 export { default as AttributeState } from "./webgl/AttributeState.js";
 export { default as Buffer } from "./webgl/Buffer.js";
-export { default as Framebuffer } from "./webgl/Framebuffer.js";
+export {
+	default as Framebuffer,
+	type FramebufferAttachment
+} from "./webgl/Framebuffer.js";
 export { default as Program } from "./webgl/Program.js";
 export { default as Renderbuffer } from "./webgl/Renderbuffer.js";
 export { default as Shader } from "./webgl/Shader.js";
@@ -85,5 +88,5 @@ export {
 	TextureWrapFunction,
 	RenderbufferFormat,
 	FramebufferTarget,
-	FramebufferAttachment
+	FramebufferAttachmentPoint
 } from "./webgl/WebGLConstant.js";

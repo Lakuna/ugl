@@ -465,7 +465,7 @@ export enum FramebufferTarget {
 }
 
 /** Attachment points for framebuffer attachments. */
-export enum FramebufferAttachment {
+export enum FramebufferAttachmentPoint {
 	/** The first color buffer. */
 	COLOR_ATTACHMENT0 = 0x8CE0,
 
