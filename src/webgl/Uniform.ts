@@ -172,14 +172,16 @@ export class SamplerUniform extends SingleValuedUniform {
 	public arraySetter(value: MeasuredIterable<Texture>): void {
 		const textureUnits: Int32Array = new Int32Array(value.length);
 		for (let i = 0; i < value.length; i++) { textureUnits[i] = (this.textureUnit) + i; }
-		this.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
 		for (let i = 0; i < value.length; i++) {
+			(value[i] as Texture).updateIfNeeded();
 			(value[i] as Texture).assign(textureUnits[i] as number);
 		}
+		this.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
 	public setter(value: Texture): void {
+		value.updateIfNeeded();
 		value.assign(this.textureUnit);
 		this.gl.uniform1i(this.location, this.textureUnit);
 	}
