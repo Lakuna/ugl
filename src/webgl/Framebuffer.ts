@@ -58,10 +58,25 @@ export default class Framebuffer {
 
 	/**
 	 * Attaches a texture to this framebuffer.
-	 * @param texture The texture to attach.
+	 * @param attachment The texture to attach.
 	 * @param attachmentPoint The attachment point of the texture.
 	 */
-	public attach(texture: Texture, attachmentPoint: FramebufferAttachment, level?: number): void;
+	public attach(attachment: Texture, attachmentPoint: FramebufferAttachment): void;
+
+	/**
+	 * Attaches a single layer of a texture to this framebuffer.
+	 * @param attachment The texture to attach.
+	 * @param attachmentPoint The attachment point of the texture.
+	 * @param layer The layer of the texture to attach.
+	 */
+	public attach(attachment: Texture, attachmentPoint: FramebufferAttachment, layer: number): void;
+
+	/**
+	 * Attaches a renderbuffer to this framebuffer.
+	 * @param attachment The renderbuffer to attach.
+	 * @param attachmentPoint The attachment point of the renderbuffer.
+	 */
+	public attach(attachment: Renderbuffer, attachmentPoint: FramebufferAttachment): void;
 
 	public attach(attachment: Texture | Renderbuffer, attachmentPoint: FramebufferAttachment, layer?: number): void {
 		this.bind();

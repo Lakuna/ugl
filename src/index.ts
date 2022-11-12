@@ -4,6 +4,7 @@ export {
 	type FloatTypedArray,
 	type default as TypedArray
 } from "./types/TypedArray.js";
+export { type default as MeasuredIterable } from "./types/MeasuredIterable.js";
 export { default as clearContext } from "./utility/clearContext.js";
 export { default as Color } from "./utility/Color.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";

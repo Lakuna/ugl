@@ -2,8 +2,9 @@ import Variable from "./Variable.js";
 import type Program from "./Program.js";
 import { UniformType } from "./WebGLConstant.js";
 import type Texture from "./Texture.js";
+import type MeasuredIterable from "../types/MeasuredIterable.js";
 
-export type UniformValue = number | Array<number> | Texture | Array<Texture>;
+export type UniformValue = number | Texture;
 
 /** A global variable in a WebGL shader program. */
 export default abstract class Uniform extends Variable {
@@ -113,18 +114,18 @@ export default abstract class Uniform extends Variable {
 	public sourceLength?: number;
 
 	/** The setter method for this uniform if the value is an array. */
-	public abstract arraySetter(value: Array<number> | Array<Texture>): void;
+	public abstract arraySetter(value: MeasuredIterable<UniformValue>): void;
 
 	/** The value of this uniform. */
-	protected valuePrivate: UniformValue;
+	protected valuePrivate: UniformValue | MeasuredIterable<UniformValue>;
 
 	/** The value of this uniform. */
-	public get value(): UniformValue {
+	public get value(): UniformValue | MeasuredIterable<UniformValue> {
 		return this.valuePrivate;
 	}
 
-	public set value(value: UniformValue) {
-		if (Array.isArray(value)) {
+	public set value(value: UniformValue | MeasuredIterable<UniformValue>) {
+		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
 			throw new Error("Cannot pass a scalar value to this uniform.");
@@ -137,11 +138,11 @@ export default abstract class Uniform extends Variable {
 /** A global variable that can hold one value in a WebGL shader program. */
 export abstract class SingleValuedUniform extends Uniform {
 	/** The setter method for this uniform. */
-	public abstract setter(value: number | Texture): void;
+	public abstract setter(value: UniformValue): void;
 
 	/** The value of this uniform. */
-	public override set value(value: UniformValue) {
-		if (Array.isArray(value)) {
+	public override set value(value: UniformValue | MeasuredIterable<UniformValue>) {
+		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
 			this.setter(value);
@@ -168,12 +169,12 @@ export class SamplerUniform extends SingleValuedUniform {
 	public readonly textureUnit: number;
 
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<Texture>): void {
+	public arraySetter(value: MeasuredIterable<Texture>): void {
 		const textureUnits: Int32Array = new Int32Array(value.length);
 		for (let i = 0; i < value.length; i++) { textureUnits[i] = (this.textureUnit) + i; }
 		this.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
-		for (const [i, texture] of value.entries()) {
-			texture.assign(textureUnits[i] as number);
+		for (let i = 0; i < value.length; i++) {
+			(value[i] as Texture).assign(textureUnits[i] as number);
 		}
 	}
 
@@ -184,12 +185,12 @@ export class SamplerUniform extends SingleValuedUniform {
 	}
 
 	/** The value of this uniform. */
-	public override get value(): Texture | Array<Texture> {
-		return this.valuePrivate as Texture | Array<Texture>;
+	public override get value(): Texture | MeasuredIterable<Texture> {
+		return this.valuePrivate as Texture | MeasuredIterable<Texture>;
 	}
 
-	public override set value(value: Texture | Array<Texture>) {
-		if (Array.isArray(value)) {
+	public override set value(value: Texture | MeasuredIterable<Texture>) {
+		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
 			this.setter(value);
@@ -202,12 +203,12 @@ export class SamplerUniform extends SingleValuedUniform {
 /** A scalar global variable in a WebGL shader program. */
 export abstract class ScalarUniform extends SingleValuedUniform {
 	/** The value of this uniform. */
-	public override get value(): number | Array<number> {
-		return this.valuePrivate as number | Array<number>;
+	public override get value(): number | MeasuredIterable<number> {
+		return this.valuePrivate as number | MeasuredIterable<number>;
 	}
 
-	public override set value(value: number | Array<number>) {
-		if (Array.isArray(value)) {
+	public override set value(value: number | MeasuredIterable<number>) {
+		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
 			this.setter(value);
@@ -220,7 +221,7 @@ export abstract class ScalarUniform extends SingleValuedUniform {
 /** A float global variable in a WebGL shader program. */
 export class FloatUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform1fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
@@ -233,7 +234,7 @@ export class FloatUniform extends ScalarUniform {
 /** An integer or boolean global variable in a WebGL shader program. */
 export class IntegerUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform1iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
@@ -246,7 +247,7 @@ export class IntegerUniform extends ScalarUniform {
 /** An unsigned integer global variable in a WebGL shader program. */
 export class UnsignedIntegerUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform1uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
@@ -259,11 +260,11 @@ export class UnsignedIntegerUniform extends ScalarUniform {
 /** A global variable that can only hold multiple values in a WebGL shader program. */
 export abstract class MultipleValuedUniform extends Uniform {
 	/** The value of this uniform. */
-	public override get value(): Array<number> {
-		return this.valuePrivate as Array<number>;
+	public override get value(): MeasuredIterable<number> {
+		return this.valuePrivate as MeasuredIterable<number>;
 	}
 
-	public override set value(value: Array<number>) {
+	public override set value(value: MeasuredIterable<number>) {
 		this.arraySetter(value);
 		this.valuePrivate = value;
 	}
@@ -272,7 +273,7 @@ export abstract class MultipleValuedUniform extends Uniform {
 /** A float 2D vector global variable in a WebGL shader program. */
 export class FloatVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform2fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -280,7 +281,7 @@ export class FloatVector2Uniform extends MultipleValuedUniform {
 /** A float 3D vector global variable in a WebGL shader program. */
 export class FloatVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform3fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -288,7 +289,7 @@ export class FloatVector3Uniform extends MultipleValuedUniform {
 /** A float 4D vector global variable in a WebGL shader program. */
 export class FloatVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform4fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -296,7 +297,7 @@ export class FloatVector4Uniform extends MultipleValuedUniform {
 /** An integer or boolean 2D vector global variable in a WebGL shader program. */
 export class IntegerVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform2iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -304,7 +305,7 @@ export class IntegerVector2Uniform extends MultipleValuedUniform {
 /** An integer or boolean 3D vector global variable in a WebGL shader program. */
 export class IntegerVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform3iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -312,7 +313,7 @@ export class IntegerVector3Uniform extends MultipleValuedUniform {
 /** An integer or boolean 4D vector global variable in a WebGL shader program. */
 export class IntegerVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform4iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -320,7 +321,7 @@ export class IntegerVector4Uniform extends MultipleValuedUniform {
 /** An unsigned integer 2D vector global variable in a WebGL shader program. */
 export class UnsignedIntegerVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform2uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -328,7 +329,7 @@ export class UnsignedIntegerVector2Uniform extends MultipleValuedUniform {
 /** An unsigned integer 3D vector global variable in a WebGL shader program. */
 export class UnsignedIntegerVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform3uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -336,7 +337,7 @@ export class UnsignedIntegerVector3Uniform extends MultipleValuedUniform {
 /** An unsigned integer 4D vector global variable in a WebGL shader program. */
 export class UnsignedIntegerVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniform4uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -360,7 +361,7 @@ export abstract class MatrixUniform extends MultipleValuedUniform {
 /** A float 2x2 matrix global variable in a WebGL shader program. */
 export class FloatMatrix2x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -368,7 +369,7 @@ export class FloatMatrix2x2Uniform extends MatrixUniform {
 /** A float 2x3 matrix global variable in a WebGL shader program. */
 export class FloatMatrix2x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix2x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -376,7 +377,7 @@ export class FloatMatrix2x3Uniform extends MatrixUniform {
 /** A float 2x4 matrix global variable in a WebGL shader program. */
 export class FloatMatrix2x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix2x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -384,7 +385,7 @@ export class FloatMatrix2x4Uniform extends MatrixUniform {
 /** A float 3x2 matrix global variable in a WebGL shader program. */
 export class FloatMatrix3x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix3x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -392,7 +393,7 @@ export class FloatMatrix3x2Uniform extends MatrixUniform {
 /** A float 3x3 matrix global variable in a WebGL shader program. */
 export class FloatMatrix3x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -400,7 +401,7 @@ export class FloatMatrix3x3Uniform extends MatrixUniform {
 /** A float 3x4 matrix global variable in a WebGL shader program. */
 export class FloatMatrix3x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix3x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -408,7 +409,7 @@ export class FloatMatrix3x4Uniform extends MatrixUniform {
 /** A float 4x2 matrix global variable in a WebGL shader program. */
 export class FloatMatrix4x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix4x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -416,7 +417,7 @@ export class FloatMatrix4x2Uniform extends MatrixUniform {
 /** A float 2x4 matrix global variable in a WebGL shader program. */
 export class FloatMatrix4x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix4x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
@@ -424,7 +425,7 @@ export class FloatMatrix4x3Uniform extends MatrixUniform {
 /** A float 4x4 matrix global variable in a WebGL shader program. */
 export class FloatMatrix4x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: Array<number>): void {
+	public arraySetter(value: MeasuredIterable<number>): void {
 		this.gl.uniformMatrix4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
