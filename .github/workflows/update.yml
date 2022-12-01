@@ -46,9 +46,9 @@ jobs:
     permissions: write-all
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           registry-url: https://npm.pkg.github.com
           scope: "@lakuna"
