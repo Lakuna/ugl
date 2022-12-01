@@ -4,24 +4,8 @@ on:
     types:
       - created
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-      - name: Install dependencies
-        run: npm i
-      - name: Lint
-        run: npm run lint
-      - name: Build
-        run: npm run build
-  publish-npm:
-    name: Publish to npm
-    needs: build
+  update:
+    name: Update
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -33,46 +17,15 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Install dependencies
         run: npm i
+      - name: Lint
+        run: npm run lint
       - name: Build
         run: npm run build
       - name: Publish
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  publish-gpr:
-    name: Publish to GitHub Packages
-    needs: build
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          registry-url: https://npm.pkg.github.com
-          scope: "@lakuna"
-      - name: Install dependencies
-        run: npm i
-      - name: Build
-        run: npm run build
-      - name: Publish
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  publish-docs:
-    name: Publish documentation
-    needs: publish-npm
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-      - name: Install dependencies
-        run: npm i
-      - name: Build
+      - name: Build documentation
         run: npm run doc
       - name: Create CNAME
         run: echo ugl.lakuna.pw > docs/CNAME
