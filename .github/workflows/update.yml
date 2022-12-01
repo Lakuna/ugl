@@ -63,6 +63,15 @@ jobs:
   publish-docs:
     name: Publish documentation
     needs: publish-npm
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+      - name: Install dependencies
+        run: npm i
       - name: Build
         run: npm run doc
       - name: Create CNAME
