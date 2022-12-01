@@ -1,42 +1,69 @@
 name: Update
-
 on:
   release:
     types:
       - created
-
 jobs:
-  update:
-    name: Update
+  build:
+    name: Build
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Set up Node.js for npm
+      - name: Set up Node.js
         uses: actions/setup-node@v3
-        with:
-          registry-url: https://registry.npmjs.org
       - name: Install dependencies
         run: npm i
       - name: Lint
         run: npm run lint
       - name: Build
         run: npm run build
-      - name: Publish to npm
+  publish-npm:
+    name: Publish to npm
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: npm i
+      - name: Build
+        run: npm run build
+      - name: Publish
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Set up Node.js for GitHub Packages
+  publish-gpr:
+    name: Publish to GitHub Packages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           registry-url: https://npm.pkg.github.com
           scope: "@lakuna"
-      - name: Publish to GitHub Packages
+      - name: Install dependencies
+        run: npm i
+      - name: Build
+        run: npm run build
+      - name: Publish
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build documentation
+  publish-docs:
+    name: Publish documentation
+    needs: publish-npm
+      - name: Build
         run: npm run doc
       - name: Create CNAME
         run: echo ugl.lakuna.pw > docs/CNAME
