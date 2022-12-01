@@ -11,36 +11,35 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js for NPM
-        uses: actions/setup-node@v2
-        with:
-          registry-url: https://registry.npmjs.org
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js for npm
+        uses: actions/setup-node@v3
       - name: Install dependencies
         run: npm i
       - name: Lint
         run: npm run lint
       - name: Build
         run: npm run build
-      - name: Publish to NPM
+      - name: Publish to npm
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Setup Node.js for GPR
-        uses: actions/setup-node@v2
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v3
         with:
           registry-url: https://npm.pkg.github.com
-      - name: Publish to GPR
+          scope: "@lakuna"
+      - name: Publish to GitHub Packages
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build documentation
         run: npm run doc
       - name: Create CNAME
-        run: echo umbra.lakuna.pw > docs/CNAME
+        run: echo ugl.lakuna.pw > docs/CNAME
       - name: Publish documentation
-        uses: s0/git-publish-subdir-action@v2.5.0
+        uses: s0/git-publish-subdir-action@v2.6.0
         env:
           REPO: self
           BRANCH: gh-pages

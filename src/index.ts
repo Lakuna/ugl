@@ -35,7 +35,6 @@ export {
 	type Texture2DParameters,
 	Texture2D
 } from "./webgl/Texture.js";
-export { default as TransformFeedbackVarying } from "./webgl/TransformFeedbackVarying.js";
 export {
 	type UniformValue,
 	default as Uniform,
@@ -72,6 +71,7 @@ export {
 	type UniformSource
 } from "./webgl/VAO.js";
 export { default as Variable } from "./webgl/Variable.js";
+export { default as Varying } from "./webgl/Varying.js";
 export {
 	ShaderType,
 	TransformFeedbackBufferMode,

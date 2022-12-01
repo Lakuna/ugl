@@ -108,5 +108,19 @@
 		// "skipDefaultLibCheck": false, // Deprecated
 		"skipLibCheck": false,
 		"assumeChangesOnlyAffectDirectDependencies": false
+	},
+	"watchOptions": {
+		"watchFile": "useFsEvents",
+		"watchDirectory": "useFsEvents",
+		"fallbackPolling": "dynamicpriority",
+		"synchronousWatchDirectory": false,
+		"excludeDirectories": [],
+		"excludeFiles": []
+	},
+	"typeAcquisition": {
+		"enable": true,
+		"include": [],
+		"exclude": [],
+		"disableFilenameBasedTypeAcquisition": false
 	}
 }

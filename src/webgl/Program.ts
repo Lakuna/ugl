@@ -2,7 +2,7 @@ import Shader from "./Shader.js";
 import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
 import { default as Uniform, SamplerUniform } from "./Uniform.js";
 import Attribute from "./Attribute.js";
-import TransformFeedbackVarying from "./TransformFeedbackVarying.js";
+import Varying from "./Varying.js";
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */
 export default class Program {
@@ -68,10 +68,10 @@ export default class Program {
 		}
 		this.attributes = attributes;
 
-		const transformFeedbackVaryings: Map<string, TransformFeedbackVarying> = new Map();
+		const transformFeedbackVaryings: Map<string, Varying> = new Map();
 		const numTransformFeedbackVaryings: number = this.gl.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
 		for (let i = 0; i < numTransformFeedbackVaryings; i++) {
-			const transformFeedbackVarying: TransformFeedbackVarying = new TransformFeedbackVarying(this, i);
+			const transformFeedbackVarying: Varying = new Varying(this, i);
 			transformFeedbackVaryings.set(transformFeedbackVarying.name, transformFeedbackVarying);
 		}
 		this.transformFeedbackVaryings = transformFeedbackVaryings;
@@ -102,7 +102,7 @@ export default class Program {
 	public readonly attributes: ReadonlyMap<string, Attribute>;
 
 	/** A map of transform feedback varying names to varyings. */
-	public readonly transformFeedbackVaryings: ReadonlyMap<string, TransformFeedbackVarying>;
+	public readonly transformFeedbackVaryings: ReadonlyMap<string, Varying>;
 
 	/** Whether this program is allowed to draw transparent objects. Used for optimization only. */
 	public allowTransparent: boolean;

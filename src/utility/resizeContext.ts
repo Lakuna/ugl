@@ -88,6 +88,10 @@ export default function resizeContext(gl: WebGL2RenderingContext): boolean;
 export default function resizeContext(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number): boolean;
 
 export default function resizeContext(gl: WebGL2RenderingContext, x?: number, y?: number, width?: number, height?: number): boolean {
+	if (gl.canvas instanceof OffscreenCanvas) {
+		throw new Error("Cannot resize an offscreen context.");
+	}
+
 	const out: boolean = resizeCanvasBuffer(gl.canvas);
 
 	if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
