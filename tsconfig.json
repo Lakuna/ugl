@@ -59,7 +59,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		// "sourceRoot": "",
-		"stripInternal": false,
+		"stripInternal": true,
 		"allowJs": false,
 		"checkJs": false,
 		"maxNodeModuleJsDepth": 0,
