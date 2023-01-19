@@ -1,4 +1,4 @@
-[![npm bundle size](https://img.shields.io/bundlephobia/minzip/uugl?style=for-the-badge)](https://bundlephobia.com/package/uugl)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/@lakuna/ugl?style=for-the-badge)](https://bundlephobia.com/package/@lakuna/ugl)
 
 # μGL
 
