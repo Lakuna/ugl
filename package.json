@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "12.0.7",
+	"version": "13.0.0",
 	"description": "A lightweight visual application framework for WebGL.",
 	"keywords": [
 		"front-end",
@@ -29,24 +29,7 @@
 	"main": "./dist/index.js",
 	"browser": "./dist/index.js",
 	"exports": {
-		".": "./dist/index.js",
-		"./clear-context": "./dist/utility/clearContext.js",
-		"./color": "./dist/utility/Color.js",
-		"./make-fullscreen-canvas": "./dist/utility/makeFullscreenCanvas.js",
-		"./resize-context": "./dist/utility/resizeContext.js",
-		"./attribute": "./dist/webgl/Attribute.js",
-		"./attribute-state": "./dist/webgl/AttributeState.js",
-		"./buffer": "./dist/webgl/Buffer.js",
-		"./framebuffer": "./dist/webgl/Framebuffer.js",
-		"./program": "./dist/webgl/Program.js",
-		"./renderbuffer": "./dist/webgl/Renderbuffer.js",
-		"./shader": "./dist/webgl/Shader.js",
-		"./texture": "./dist/webgl/Texture.js",
-		"./uniform": "./dist/webgl/Uniform.js",
-		"./vao": "./dist/webgl/VAO.js",
-		"./variable": "./dist/webgl/Variable.js",
-		"./varying": "./dist/webgl/Varying.js",
-		"./constant": "./dist/webgl/WebGLConstant.js"
+		".": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
 	"repository": {
@@ -61,10 +44,10 @@
 	"type": "module",
 	"sideEffects": false,
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.45.0",
-		"@typescript-eslint/parser": "^5.45.0",
-		"eslint": "^8.28.0",
-		"typedoc": "^0.23.21",
-		"typescript": "^4.9.3"
+		"@typescript-eslint/eslint-plugin": "^5.51.0",
+		"@typescript-eslint/parser": "^5.51.0",
+		"eslint": "^8.33.0",
+		"typedoc": "^0.23.24",
+		"typescript": "^5.0.0-beta"
 	}
 }

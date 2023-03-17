@@ -1,5 +1,5 @@
 import Variable from "./Variable.js";
-import type Program from "./Program.js";
+import type Program from "../Program.js";
 
 /** An input variable in a WebGL fragment shader used for transform feedback. */
 export default class Varying extends Variable {

@@ -1,9 +1,9 @@
-import type Program from "./Program.js";
+import type Program from "../Program.js";
 import type AttributeState from "./AttributeState.js";
-import Buffer from "./Buffer.js";
-import { BufferTarget, Primitive } from "./WebGLConstant.js";
+import Buffer from "../Buffer.js";
+import { BufferTarget, Primitive } from "../WebGLConstant.js";
 import type { default as Uniform, UniformValue } from "./Uniform.js";
-import type { UintTypedArray } from "../index.js";
+import type { UintTypedArray } from "../../index.js";
 
 /** A collection of attribute state; a vertex attribute array. */
 export default class VAO {

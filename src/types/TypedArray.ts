@@ -19,9 +19,7 @@ export type FloatTypedArray =
 	| Float64Array;
 
 /** Array-like objects that provide a mechanism for reading and writing raw binary data in memory buffers. */
-type TypedArray =
+export type TypedArray =
 	UintTypedArray
 	| IntTypedArray
 	| FloatTypedArray;
-
-export default TypedArray;

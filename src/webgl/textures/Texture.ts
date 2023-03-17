@@ -1,20 +1,82 @@
-import { TextureTarget, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE0, TEXTURE_MIN_FILTER, TEXTURE_MAG_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, UNPACK_ALIGNMENT } from "./WebGLConstant.js";
-import type TypedArray from "../types/TypedArray.js";
+import { TextureTarget, TEXTURE0, TextureFormat, TextureDataType, TextureFilter, TextureWrapFunction, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T } from "../WebGLConstant.js";
+
+/** Parameters for textures. */
+export interface TextureParameters {
+	/** The rendering context of the texture. */
+	gl: WebGL2RenderingContext;
+
+	/** The target of the texture. */
+	target: TextureTarget | undefined;
+
+	/** The level of detail of the texture. */
+	lod: number | undefined;
+
+	/** The format of the color components in the texture. */
+	internalFormat: TextureFormat | undefined;
+
+	/** The width of the texture. */
+	width: number | undefined;
+
+	/** The height of the texture. */
+	height: number | undefined;
+
+	/** The format of the texel data of the texture. */
+	format: TextureFormat | undefined;
+
+	/** The data type of the components in this texture. */
+	type: TextureDataType | undefined;
+
+	/** The magnification filter for the texture. */
+	magFilter: TextureFilter | undefined;
+
+	/** The minification filter for the texture. */
+	minFilter: TextureFilter | undefined;
+
+	/** The wrapping function of the texture in the S direction. */
+	wrapSFunction: TextureWrapFunction | undefined;
+
+	/** The wrapping function of the texture in the T direction. */
+	wrapTFunction: TextureWrapFunction | undefined;
+}
 
 /** An array of data that can be randomly accessed in a shader program. */
 export default abstract class Texture {
 	/**
 	 * Creates a texture.
-	 * @param gl The rendering context of the texture.
-	 * @param target The target binding point of the texture.
+	 * @param parameters The parameters of the texture.
 	 */
-	public constructor(gl: WebGL2RenderingContext, target: TextureTarget) {
+	public constructor({
+		gl,
+		target = TextureTarget.TEXTURE_2D,
+		lod = 0,
+		internalFormat = TextureFormat.RGBA,
+		width,
+		height,
+		format,
+		type,
+		magFilter,
+		minFilter,
+		wrapSFunction,
+		wrapTFunction
+	}: TextureParameters) {
 		this.gl = gl;
 		this.target = target;
 
 		const texture: WebGLTexture | null = gl.createTexture();
 		if (!texture) { throw new Error("Failed to create a texture."); }
 		this.texture = texture;
+
+		this.lodPrivate = lod;
+		this.internalFormatPrivate = internalFormat;
+		this.widthPrivate = width;
+		this.heightPrivate = height;
+		if (format) { this.format = format; }
+		if (type) { this.type = type; }
+		if (magFilter) { this.magFilter = magFilter; }
+		if (minFilter) { this.minFilter = minFilter; }
+		if (wrapSFunction) { this.wrapSFunction = wrapSFunction; }
+		if (wrapTFunction) { this.wrapTFunction = wrapTFunction; }
+		this.update();
 
 		this.needsUpdate = true;
 	}
@@ -27,131 +89,6 @@ export default abstract class Texture {
 
 	/** The WebGL API interface of this texture. */
 	public readonly texture: WebGLTexture;
-
-	/** Binds this texture to its target. */
-	public bind(): void {
-		this.gl.bindTexture(this.target, this.texture);
-	}
-
-	/**
-	 * Assigns this texture to a texture unit.
-	 * @param textureUnit The texture unit.
-	 */
-	public assign(textureUnit: number): void {
-		this.bind();
-		this.gl.activeTexture(TEXTURE0 + textureUnit);
-	}
-
-	/** Updates the texels of this texture. */
-	public update(): void {
-		this.updateInternal();
-		this.needsUpdate = false;
-	}
-
-	/** Updates the texels of this texture. */
-	protected abstract updateInternal(): void;
-
-	/** Generates a mipmap for this texture. */
-	public generateMipmap(): void {
-		this.bind();
-		this.gl.generateMipmap(this.target);
-	}
-
-	/** Whether this texture needs to be updated. */
-	protected needsUpdate: boolean;
-
-	/** Updates this texture if necessary. */
-	public updateIfNeeded(): void {
-		if (this.needsUpdate) { this.update(); }
-	}
-}
-
-/** Pixel sources for 2D textures. */
-export type Texture2DPixelSource =
-	TypedArray
-	| ImageData
-	| HTMLImageElement
-	| HTMLCanvasElement
-	| HTMLVideoElement
-	| ImageBitmap;
-
-/** Parameters for 2D textures. */
-export interface Texture2DParameters {
-	/** The rendering context of the texture. */
-	gl: WebGL2RenderingContext;
-
-	/** The target of the texture. */
-	target?: TextureTarget;
-
-	/** The level of detail of the texture. */
-	lod?: number;
-
-	/** The format of the color components in the texture. */
-	internalFormat?: TextureFormat;
-
-	/** The width of the texture. */
-	width?: number;
-
-	/** The height of the texture. */
-	height?: number;
-
-	/** The format of the texel data of the texture. */
-	format?: TextureFormat;
-
-	/** The data type of the components in this texture. */
-	type?: TextureDataType;
-
-	/** The pixel source for the texture. */
-	pixels: Texture2DPixelSource;
-
-	/** The magnification filter for the texture. */
-	magFilter?: TextureFilter;
-
-	/** The minification filter for the texture. */
-	minFilter?: TextureFilter;
-
-	/** The wrapping function of the texture in the S direction. */
-	wrapSFunction?: TextureWrapFunction;
-
-	/** The wrapping function of the texture in the T direction. */
-	wrapTFunction?: TextureWrapFunction;
-}
-
-/** A two-dimensional texture. */
-export class Texture2D extends Texture {
-	/**
-	 * Creates a two-dimensional texture.
-	 * @param parameters The parameters of the texture.
-	 */
-	public constructor({
-		gl,
-		target = TextureTarget.TEXTURE_2D,
-		lod = 0,
-		internalFormat = TextureFormat.RGBA,
-		width,
-		height,
-		format,
-		type,
-		pixels,
-		magFilter,
-		minFilter,
-		wrapSFunction,
-		wrapTFunction
-	}: Texture2DParameters) {
-		super(gl, target);
-		this.lodPrivate = lod;
-		this.internalFormatPrivate = internalFormat;
-		this.widthPrivate = width;
-		this.heightPrivate = height;
-		if (format) { this.format = format; }
-		if (type) { this.type = type; }
-		this.pixelsPrivate = pixels;
-		if (magFilter) { this.magFilter = magFilter; }
-		if (minFilter) { this.minFilter = minFilter; }
-		if (wrapSFunction) { this.wrapSFunction = wrapSFunction; }
-		if (wrapTFunction) { this.wrapTFunction = wrapTFunction; }
-		this.update();
-	}
 
 	/** The level of detail of this texture. */
 	private lodPrivate: number;
@@ -180,7 +117,7 @@ export class Texture2D extends Texture {
 	}
 
 	/** The width of this texture. */
-	private widthPrivate: number | undefined;
+	protected widthPrivate: number | undefined;
 
 	/** The width of this texture. */
 	public get width(): number | undefined {
@@ -193,7 +130,7 @@ export class Texture2D extends Texture {
 	}
 
 	/** The height of this texture. */
-	private heightPrivate: number | undefined;
+	protected heightPrivate: number | undefined;
 
 	/** The height of this texture. */
 	public get height(): number | undefined {
@@ -313,19 +250,6 @@ export class Texture2D extends Texture {
 		this.needsUpdate = true;
 	}
 
-	/** The pixel source for this texture. */
-	private pixelsPrivate: Texture2DPixelSource;
-
-	/** The pixel source for this texture. */
-	public get pixels(): Texture2DPixelSource {
-		return this.pixelsPrivate;
-	}
-
-	public set pixels(value: Texture2DPixelSource) {
-		this.pixelsPrivate = value;
-		this.needsUpdate = true;
-	}
-
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureFilter {
 		this.bind();
@@ -374,27 +298,40 @@ export class Texture2D extends Texture {
 		this.needsUpdate = true;
 	}
 
-	/** Updates the texels of this texture. */
-	protected updateInternal(): void {
+	/** Binds this texture to its target. */
+	public bind(): void {
+		this.gl.bindTexture(this.target, this.texture);
+	}
+
+	/**
+	 * Assigns this texture to a texture unit.
+	 * @param textureUnit The texture unit.
+	 */
+	public assign(textureUnit: number): void {
 		this.bind();
+		this.gl.activeTexture(TEXTURE0 + textureUnit);
+	}
 
-		if (this.width && this.height) {
-			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
-				for (const alignment of [8, 4, 2, 1]) {
-					if (this.width % alignment == 0) {
-						this.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
-						break;
-					}
-				}
-			}
+	/** Updates the texels of this texture. */
+	public update(): void {
+		this.updateInternal();
+		this.needsUpdate = false;
+	}
 
-			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.pixels as ArrayBufferView);
-		} else {
-			this.gl.texImage2D(this.target, this.lod, this.internalFormat, this.format, this.type, this.pixels as ImageData);
-		}
+	/** Updates the texels of this texture. */
+	protected abstract updateInternal(): void;
 
-		if (this.minFilter != TextureFilter.LINEAR && this.minFilter != TextureFilter.NEAREST) {
-			this.generateMipmap();
-		}
+	/** Generates a mipmap for this texture. */
+	public generateMipmap(): void {
+		this.bind();
+		this.gl.generateMipmap(this.target);
+	}
+
+	/** Whether this texture needs to be updated. */
+	protected needsUpdate: boolean;
+
+	/** Updates this texture if necessary. */
+	public updateIfNeeded(): void {
+		if (this.needsUpdate) { this.update(); }
 	}
 }

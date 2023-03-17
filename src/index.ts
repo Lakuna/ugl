@@ -2,7 +2,7 @@ export {
 	type UintTypedArray,
 	type IntTypedArray,
 	type FloatTypedArray,
-	type default as TypedArray
+	type TypedArray
 } from "./types/TypedArray.js";
 export { type default as MeasuredIterable } from "./types/MeasuredIterable.js";
 export { default as clearContext } from "./utility/clearContext.js";
@@ -19,8 +19,8 @@ export {
 	FloatAttribute,
 	IntegerAttribute,
 	MatrixAttribute
-} from "./webgl/Attribute.js";
-export { default as AttributeState } from "./webgl/AttributeState.js";
+} from "./webgl/variables/Attribute.js";
+export { default as AttributeState } from "./webgl/variables/AttributeState.js";
 export { default as Buffer } from "./webgl/Buffer.js";
 export {
 	default as Framebuffer,
@@ -30,11 +30,15 @@ export { default as Program } from "./webgl/Program.js";
 export { default as Renderbuffer } from "./webgl/Renderbuffer.js";
 export { default as Shader } from "./webgl/Shader.js";
 export {
-	default as Texture,
-	type Texture2DPixelSource,
-	type Texture2DParameters,
-	Texture2D
-} from "./webgl/Texture.js";
+	type SingleSourceTextureParameters,
+	default as SingleSourceTexture
+} from "./webgl/textures/SingleSourceTexture.js";
+export {
+	type TextureSource,
+	type TextureParameters,
+	default as Texture
+} from "./webgl/textures/Texture.js";
+export { default as Texture2D } from "./webgl/textures/Texture2D.js";
 export {
 	type UniformValue,
 	default as Uniform,
@@ -64,14 +68,14 @@ export {
 	FloatMatrix4x2Uniform,
 	FloatMatrix4x3Uniform,
 	FloatMatrix4x4Uniform
-} from "./webgl/Uniform.js";
+} from "./webgl/variables/Uniform.js";
 export {
 	default as VAO,
 	type UniformSourceObject,
 	type UniformSource
-} from "./webgl/VAO.js";
-export { default as Variable } from "./webgl/Variable.js";
-export { default as Varying } from "./webgl/Varying.js";
+} from "./webgl/variables/VAO.js";
+export { default as Variable } from "./webgl/variables/Variable.js";
+export { default as Varying } from "./webgl/variables/Varying.js";
 export {
 	ShaderType,
 	TransformFeedbackBufferMode,

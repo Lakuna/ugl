@@ -1,5 +1,5 @@
 import type { UintTypedArray } from "../types/TypedArray.js";
-import type TypedArray from "../types/TypedArray.js";
+import type { TypedArray } from "../types/TypedArray.js";
 import { BufferTarget, BufferUsage, BufferDataType } from "./WebGLConstant.js";
 
 /** A data stucture that supplies per-vertex data to the GPU. */
