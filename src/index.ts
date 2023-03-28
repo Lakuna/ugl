@@ -32,13 +32,13 @@ export { default as Shader } from "./webgl/Shader.js";
 export {
 	type SingleSourceTextureParameters,
 	default as SingleSourceTexture
-} from "./webgl/textures/SingleSourceTexture.js";
+} from "./webgl/textures_old/SingleSourceTexture.js";
 export {
 	type TextureSource,
 	type TextureParameters,
 	default as Texture
-} from "./webgl/textures/Texture.js";
-export { default as Texture2D } from "./webgl/textures/Texture2D.js";
+} from "./webgl/textures_old/Texture.js";
+export { default as Texture2D } from "./webgl/textures_old/Texture2D.js";
 export {
 	type UniformValue,
 	default as Uniform,

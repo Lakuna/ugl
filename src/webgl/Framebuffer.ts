@@ -1,5 +1,5 @@
 import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./WebGLConstant.js";
-import type Texture from "./textures/Texture.js";
+import type Texture from "./textures_old/Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
 
 /** An attachment for a framebuffer. */

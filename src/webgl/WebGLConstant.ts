@@ -287,6 +287,18 @@ export enum TextureTarget {
 	TEXTURE_3D = 0x806F,
 
 	/** A two-dimensional array texture. */
+	TEXTURE_2D_ARRAY = 0x8C1A
+}
+
+/** Binding points for texture faces. */
+export enum TextureFaceTarget {
+	/** A two-dimensional texture. */
+	TEXTURE_2D = 0x0DE1,
+
+	/** A three-dimensional texture. */
+	TEXTURE_3D = 0x806F,
+
+	/** A two-dimensional array texture. */
 	TEXTURE_2D_ARRAY = 0x8C1A,
 
 	/** The positive X-axis face for a cube-mapped texture. */
@@ -306,7 +318,6 @@ export enum TextureTarget {
 
 	/** The negative Z-axis face for a cube-mapped texture. */
 	TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A
-
 }
 
 /** Formats for the color components in a texture. */
