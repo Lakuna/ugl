@@ -1,6 +1,7 @@
 import type { TypedArray } from "../../../index.js";
 import { TextureFormat, type TextureFaceTarget, TextureDataType } from "../../WebGLConstant.js";
 
+/** Pixel data sources for textures. */
 export type TextureSource =
 	TypedArray
 	| ImageData
@@ -10,30 +11,30 @@ export type TextureSource =
 	| ImageBitmap;
 
 /** A face of a texture. */
-export default abstract class TextureFace {
+export default abstract class TextureFace<FaceType extends TextureFaceLevel> {
 	/**
 	 * Creates a texture face.
 	 * @param levels A map of the levels of the texture face to their level of detail.
 	 */
-	public constructor(levels: Map<number, TextureFaceLevel>) {
+	public constructor(levels: Map<number, FaceType>) {
 		this.levels = levels;
 	}
 
 	/** The source data of each level of this texture face. */
-	public levels: Map<number, TextureFaceLevel>;
+	public levels: Map<number, FaceType>;
 
 	/** Whether this texture face is texture complete. */
 	public get isTextureComplete(): boolean {
-		const baseLevel: TextureFaceLevel | undefined = this.levels.get(0);
+		const baseLevel: FaceType | undefined = this.levels.get(0);
 		if (!baseLevel) {
 			return false;
 		}
 
-		const dims: Array<number> = [...baseLevel.dims];
+		const dims: Array<number | undefined> = [...baseLevel.dims];
 
 		let lod = 1;
-		while (dims.some((dim: number) => dim > 1)) {
-			const level: TextureFaceLevel | undefined = this.levels.get(lod);
+		while (dims.some((dim: number | undefined) => (dim ?? 0) > 1)) {
+			const level: FaceType | undefined = this.levels.get(lod);
 			if (!level) {
 				return false;
 			}
@@ -54,12 +55,12 @@ export default abstract class TextureFace {
 
 	/**
 	 * Updates this texture face.
-	 * @param texture The WebGL texture.
+	 * @param gl The rendering context of this texture face.
 	 * @param target The target of this this texture face.
 	 */
-	public update(texture: WebGLTexture, target: TextureFaceTarget): void {
+	public update(gl: WebGL2RenderingContext, target: TextureFaceTarget): void {
 		for (const [lod, level] of this.levels) {
-			level.update(texture, target, lod);
+			level.update(gl, target, lod);
 		}
 	}
 
@@ -75,16 +76,18 @@ export default abstract class TextureFace {
 export abstract class TextureFaceLevel {
 	/**
 	 * Creates a level of a texture face.
+	 * @param internalFormat The format of the color components in the texture.
+	 * @param source The pixel source of the texture.
 	 * @param dims The dimensions of the texture face level.
 	 */
 	public constructor(
 		internalFormat: TextureFormat,
-		dims: ReadonlyArray<number>,
-		source: TextureSource
+		source: TextureSource,
+		dims: ReadonlyArray<number | undefined>
 	) {
 		this.internalFormatPrivate = internalFormat;
-		this.dimsPrivate = dims;
 		this.sourcePrivate = source;
+		this.dimsPrivate = dims;
 
 		this.needsUpdate = true;
 	}
@@ -102,19 +105,6 @@ export abstract class TextureFaceLevel {
 		this.needsUpdate = true;
 	}
 
-	/** The dimensions of this texture face level. */
-	private dimsPrivate: ReadonlyArray<number>;
-
-	/** The dimensions of this texture face level. */
-	public get dims(): ReadonlyArray<number> {
-		return this.dimsPrivate;
-	}
-
-	public set dims(value: ReadonlyArray<number>) {
-		this.dimsPrivate = value;
-		this.needsUpdate = true;
-	}
-
 	/** The source data of this texture face level. */
 	private sourcePrivate: TextureSource;
 
@@ -125,6 +115,19 @@ export abstract class TextureFaceLevel {
 
 	public set source(value: TextureSource) {
 		this.sourcePrivate = value;
+		this.needsUpdate = true;
+	}
+
+	/** The dimensions of this texture face level. */
+	private dimsPrivate: ReadonlyArray<number | undefined>;
+
+	/** The dimensions of this texture face level. */
+	public get dims(): ReadonlyArray<number | undefined> {
+		return this.dimsPrivate;
+	}
+
+	public set dims(value: ReadonlyArray<number | undefined>) {
+		this.dimsPrivate = value;
 		this.needsUpdate = true;
 	}
 
@@ -241,27 +244,27 @@ export abstract class TextureFaceLevel {
 
 	/**
 	 * Updates this texture face level.
-	 * @param texture The WebGL texture.
+	 * @param gl The rendering context of this texture face level.
 	 * @param target The target of this texture face level.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	public update(texture: WebGLTexture, target: TextureFaceTarget, lod: number): void {
+	public update(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void {
 		if (!this.needsUpdate) {
 			return;
 		}
 
-		this.updateInternal(texture, target, lod);
+		this.updateInternal(gl, target, lod);
 
 		this.needsUpdate = false;
 	}
 
 	/**
 	 * Updates this texture face level.
-	 * @param texture The WebGL texture.
+	 * @param gl The rendering context of this texture face level.
 	 * @param target The target of this texture face level.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected abstract updateInternal(texture: WebGLTexture, target: TextureFaceTarget, lod: number): void;
+	protected abstract updateInternal(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void;
 
 	/** Sets this texture face level as outdated. */
 	public setNeedsUpdate(): void {

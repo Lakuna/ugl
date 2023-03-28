@@ -1,8 +1,8 @@
 import { TextureFilter, TextureWrapFunction, type TextureTarget, TEXTURE0, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, TextureFaceTarget } from "../../WebGLConstant.js";
-import TextureFace from "./TextureFace.js";
+import TextureFace, { TextureFaceLevel } from "./TextureFace.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
-export default class Texture {
+export default class Texture<FaceType extends TextureFaceLevel> {
 	/**
 	 * Creates a texture.
 	 * @param gl The WebGL2 rendering context of the texture.
@@ -16,7 +16,7 @@ export default class Texture {
 	public constructor(
 		gl: WebGL2RenderingContext,
 		target: TextureTarget,
-		faces: Map<TextureFaceTarget, TextureFace> = new Map(),
+		faces: Map<TextureFaceTarget, TextureFace<FaceType>> = new Map(),
 		magFilter: TextureFilter = TextureFilter.NEAREST,
 		minFilter: TextureFilter = TextureFilter.NEAREST,
 		wrapSFunction: TextureWrapFunction = TextureWrapFunction.REPEAT,
@@ -47,7 +47,7 @@ export default class Texture {
 	public texture: WebGLTexture;
 
 	/** The faces of this texture. */
-	public faces: Map<TextureFaceTarget, TextureFace>;
+	public faces: Map<TextureFaceTarget, TextureFace<FaceType>>;
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureFilter {
@@ -119,12 +119,14 @@ export default class Texture {
 
 	/** Updates the texels of this texture. */
 	public update(): void {
+		this.bind();
+
 		for (const [target, face] of this.faces) {
-			face.update(this.texture, target);
+			face.update(this.gl, target);
 		}
 
 		for (const face of this.faces.values()) {
-			if (!face.isTextureComplete) {
+			if (!face.isTextureComplete && this.minFilter != TextureFilter.LINEAR && this.minFilter != TextureFilter.NEAREST) {
 				this.generateMipmap();
 				break;
 			}
