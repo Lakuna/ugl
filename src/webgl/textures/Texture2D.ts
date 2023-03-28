@@ -80,12 +80,12 @@ export class Texture2DFaceLevel extends TextureFaceLevel {
 	}
 
 	/** The width of this texture face level. */
-	public get width(): number {
-		return this.dims[0] as number;
+	public get width(): number | undefined {
+		return this.dims[0];
 	}
 
-	public set width(value: number) {
-		this.dims = [value, this.dims[1] as number];
+	public set width(value: number | undefined) {
+		this.dims = [value, this.dims[1]];
 	}
 
 	/** The height of this texture face level. */

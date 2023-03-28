@@ -170,17 +170,24 @@ export class TextureFace<FaceType extends TextureFaceLevel> {
 			return false;
 		}
 
-		const dims: Array<number | undefined> = [...baseLevel.dims];
+		const dims: Array<number> = [];
+		for (const dim of baseLevel.dims) {
+			if (typeof dim == "undefined") {
+				return false;
+			}
+
+			dims.push(dim);
+		}
 
 		let lod = 1;
-		while (dims.some((dim: number | undefined) => (dim ?? 0) > 1)) {
+		while (dims.some((dim: number) => dim > 1)) {
 			const level: FaceType | undefined = this.levels.get(lod);
 			if (!level) {
 				return false;
 			}
 
 			for (let i = 0; i < dims.length; i++) {
-				if (Math.floor((dims[i] as number) / 2) == (level.dims[i] as number)) {
+				if (typeof level.dims[i] == "number" && Math.floor((dims[i] as number) / 2) == level.dims[i]) {
 					dims[i] = level.dims[i] as number;
 				} else {
 					return false;
@@ -223,7 +230,7 @@ export abstract class TextureFaceLevel {
 	public constructor(
 		source: TextureSource,
 		internalFormat: TextureFormat = TextureFormat.RGBA,
-		dims: ReadonlyArray<number | undefined>
+		dims: Array<number | undefined>
 	) {
 		this.sourcePrivate = source;
 		this.internalFormatPrivate = internalFormat;
