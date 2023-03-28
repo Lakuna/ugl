@@ -151,7 +151,7 @@ export type TextureSource =
 	| ImageBitmap;
 
 /** A face of a texture. */
-export abstract class TextureFace<FaceType extends TextureFaceLevel> {
+export class TextureFace<FaceType extends TextureFaceLevel> {
 	/**
 	 * Creates a texture face.
 	 * @param levels A map of the levels of the texture face to their level of detail.
@@ -216,32 +216,19 @@ export abstract class TextureFace<FaceType extends TextureFaceLevel> {
 export abstract class TextureFaceLevel {
 	/**
 	 * Creates a level of a texture face.
-	 * @param internalFormat The format of the color components in the texture.
 	 * @param source The pixel source of the texture.
+	 * @param internalFormat The format of the color components in the texture.
 	 * @param dims The dimensions of the texture face level.
 	 */
 	public constructor(
-		internalFormat: TextureFormat,
 		source: TextureSource,
+		internalFormat: TextureFormat = TextureFormat.RGBA,
 		dims: ReadonlyArray<number | undefined>
 	) {
-		this.internalFormatPrivate = internalFormat;
 		this.sourcePrivate = source;
+		this.internalFormatPrivate = internalFormat;
 		this.dimsPrivate = dims;
 
-		this.needsUpdate = true;
-	}
-
-	/** The format of the color components in this texture. */
-	private internalFormatPrivate: TextureFormat;
-
-	/** The format of the color components in this texture. */
-	public get internalFormat(): TextureFormat {
-		return this.internalFormatPrivate;
-	}
-
-	public set internalFormat(value: TextureFormat) {
-		this.internalFormatPrivate = value;
 		this.needsUpdate = true;
 	}
 
@@ -255,6 +242,19 @@ export abstract class TextureFaceLevel {
 
 	public set source(value: TextureSource) {
 		this.sourcePrivate = value;
+		this.needsUpdate = true;
+	}
+
+	/** The format of the color components in this texture. */
+	private internalFormatPrivate: TextureFormat;
+
+	/** The format of the color components in this texture. */
+	public get internalFormat(): TextureFormat {
+		return this.internalFormatPrivate;
+	}
+
+	public set internalFormat(value: TextureFormat) {
+		this.internalFormatPrivate = value;
 		this.needsUpdate = true;
 	}
 

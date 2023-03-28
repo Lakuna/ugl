@@ -1,4 +1,4 @@
-import { TextureWrapFunction, TextureFilter, type TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
+import { TextureWrapFunction, TextureFilter, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
 
 /** A cubemap texture. */
@@ -20,7 +20,6 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 	 */
 	public constructor(
 		gl: WebGL2RenderingContext,
-		target: TextureTarget,
 		nxFace: TextureFace<CubemapFaceLevel>,
 		pxFace: TextureFace<CubemapFaceLevel>,
 		nyFace: TextureFace<CubemapFaceLevel>,
@@ -34,7 +33,7 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 	) {
 		super(
 			gl,
-			target,
+			TextureTarget.TEXTURE_CUBE_MAP,
 			new Map([
 				[TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nxFace],
 				[TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_X, pxFace],
@@ -109,16 +108,16 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 export class CubemapFaceLevel extends TextureFaceLevel {
 	/**
 	 * Creates a level of a texture face.
-	 * @param internalFormat The format of the color components in the texture.
 	 * @param source The pixel source of the texture.
+	 * @param internalFormat The format of the color components in the texture.
 	 * @param dim The width and height of the texture face level.
 	 */
 	public constructor(
-		internalFormat: TextureFormat,
 		source: TextureSource,
+		internalFormat: TextureFormat = TextureFormat.RGBA,
 		dim?: number,
 	) {
-		super(internalFormat, source, [dim]);
+		super(source, internalFormat, [dim]);
 	}
 
 	/** The width and height of this texture face level. */

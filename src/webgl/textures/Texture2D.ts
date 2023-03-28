@@ -1,8 +1,25 @@
-import { TextureFilter, TextureWrapFunction, type TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
+import { TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
 
 /** A 2D texture. */
 export default class Texture2D extends Texture<Texture2DFaceLevel> {
+	/**
+	 * Creates a basic 2D texture from a pixel source.
+	 * @param gl The rendering context of the texture.
+	 * @param source The pixel source.
+	 * @returns A basic 2D texture.
+	 */
+	public static fromSource(gl: WebGL2RenderingContext, source: TextureSource): Texture2D {
+		return new Texture2D(
+			gl,
+			new TextureFace(
+				new Map([
+					[0, new Texture2DFaceLevel(source)]
+				])
+			)
+		);
+	}
+
 	/**
 	 * Creates a 2D texture.
 	 * @param gl The WebGL2 rendering context of the texture.
@@ -15,7 +32,6 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	 */
 	public constructor(
 		gl: WebGL2RenderingContext,
-		target: TextureTarget,
 		face: TextureFace<Texture2DFaceLevel>,
 		magFilter: TextureFilter = TextureFilter.NEAREST,
 		minFilter: TextureFilter = TextureFilter.NEAREST,
@@ -24,7 +40,7 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	) {
 		super(
 			gl,
-			target,
+			TextureTarget.TEXTURE_2D,
 			new Map([
 				[TextureFaceTarget.TEXTURE_2D, face]
 			]),
@@ -49,18 +65,18 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 export class Texture2DFaceLevel extends TextureFaceLevel {
 	/**
 	 * Creates a level of a texture face.
-	 * @param internalFormat The format of the color components in the texture.
 	 * @param source The pixel source of the texture.
+	 * @param internalFormat The format of the color components in the texture.
 	 * @param width The width of the texture face level.
 	 * @param height The height of the texture face level.
 	 */
 	public constructor(
-		internalFormat: TextureFormat,
 		source: TextureSource,
+		internalFormat: TextureFormat = TextureFormat.RGBA,
 		width?: number,
 		height?: number
 	) {
-		super(internalFormat, source, [width, height]);
+		super(source, internalFormat, [width, height]);
 	}
 
 	/** The width of this texture face level. */
