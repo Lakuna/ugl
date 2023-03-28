@@ -1,7 +1,7 @@
 import Shader from "./Shader.js";
 import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
 import { default as Uniform, SamplerUniform } from "./variables/Uniform.js";
-import Attribute from "./variables/Attribute.js";
+import Attribute from "./variables/attributes/Attribute.js";
 import Varying from "./variables/Varying.js";
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */

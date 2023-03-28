@@ -1,9 +1,10 @@
 import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./WebGLConstant.js";
-import type Texture from "./textures_old/Texture.js";
+import type Texture from "./textures/Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
+import type { TextureFaceLevel } from "./textures/Texture.js";
 
 /** An attachment for a framebuffer. */
-export type FramebufferAttachment = Texture | Renderbuffer;
+export type FramebufferAttachment = Texture<TextureFaceLevel> | Renderbuffer;
 
 /** A data structure that organizes the memory resources that are needed to render an image. */
 export default class Framebuffer {
@@ -56,7 +57,7 @@ export default class Framebuffer {
 	 * @param attachment The texture to attach.
 	 * @param attachmentPoint The attachment point of the texture.
 	 */
-	public attach(attachment: Texture, attachmentPoint: FramebufferAttachmentPoint): void;
+	public attach(attachment: Texture<TextureFaceLevel>, attachmentPoint: FramebufferAttachmentPoint): void;
 
 	/**
 	 * Attaches a single layer of a texture to this framebuffer.
@@ -64,7 +65,7 @@ export default class Framebuffer {
 	 * @param attachmentPoint The attachment point of the texture.
 	 * @param layer The layer of the texture to attach.
 	 */
-	public attach(attachment: Texture, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
+	public attach(attachment: Texture<TextureFaceLevel>, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
 
 	/**
 	 * Attaches a renderbuffer to this framebuffer.
