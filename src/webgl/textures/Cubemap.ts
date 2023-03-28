@@ -121,12 +121,12 @@ export class CubemapFaceLevel extends TextureFaceLevel {
 	}
 
 	/** The width and height of this texture face level. */
-	public get dim(): number {
-		return this.dims[0] as number;
+	public get dim(): number | undefined {
+		return this.dims[0];
 	}
 
-	public set dim(value: number) {
-		this.dims = [value, this.dims[1] as number];
+	public set dim(value: number | undefined) {
+		this.dims = [value];
 	}
 
 	/**
