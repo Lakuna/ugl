@@ -1,4 +1,4 @@
-import { TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
+import { TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../Constant.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
 
 /** A 2D texture. */

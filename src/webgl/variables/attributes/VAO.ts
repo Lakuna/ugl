@@ -1,7 +1,7 @@
 import type Program from "../../Program.js";
 import type AttributeState from "./AttributeState.js";
 import Buffer from "./Buffer.js";
-import { BufferTarget, Primitive } from "../../WebGLConstant.js";
+import { BufferTarget, Primitive } from "../../Constant.js";
 import type { default as Uniform, UniformValue } from "../Uniform.js";
 import type { UintTypedArray } from "../../../types/TypedArray.js";
 

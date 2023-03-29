@@ -1,5 +1,5 @@
 import type { TypedArray } from "../../types/TypedArray.js";
-import { TextureFilter, TextureWrapFunction, type TextureTarget, TEXTURE0, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, TextureFaceTarget, TextureFormat, TextureDataType } from "../WebGLConstant.js";
+import { TextureFilter, TextureWrapFunction, type TextureTarget, TEXTURE0, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, TextureFaceTarget, TextureFormat, TextureDataType } from "../Constant.js";
 
 /** An array of data that can be randomly accessed in a shader program. */
 export default class Texture<FaceType extends TextureFaceLevel> {

@@ -1,5 +1,5 @@
 import Shader from "./Shader.js";
-import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./WebGLConstant.js";
+import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./Constant.js";
 import { default as Uniform, SamplerUniform } from "./variables/Uniform.js";
 import Attribute from "./variables/attributes/Attribute.js";
 import Varying from "./variables/Varying.js";

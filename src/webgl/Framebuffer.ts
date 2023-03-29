@@ -1,4 +1,4 @@
-import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./WebGLConstant.js";
+import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./Constant.js";
 import type Texture from "./textures/Texture.js";
 import Renderbuffer from "./Renderbuffer.js";
 import type { TextureFaceLevel } from "./textures/Texture.js";

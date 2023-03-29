@@ -1,5 +1,5 @@
 import type Buffer from "./Buffer.js";
-import type { BufferDataType } from "../../WebGLConstant.js";
+import type { BufferDataType } from "../../Constant.js";
 import type Program from "../../Program.js";
 import type Attribute from "./Attribute.js";
 

@@ -1,5 +1,5 @@
 import type Color from "./Color.js";
-import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT, DEPTH_TEST, STENCIL_TEST } from "../webgl/WebGLConstant.js";
+import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT, DEPTH_TEST, STENCIL_TEST } from "../webgl/Constant.js";
 
 /**
  * Clears the specified buffers to the specified values.

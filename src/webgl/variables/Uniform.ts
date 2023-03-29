@@ -1,6 +1,6 @@
 import Variable from "./Variable.js";
 import type Program from "../Program.js";
-import { UniformType } from "../WebGLConstant.js";
+import { UniformType } from "../Constant.js";
 import type Texture from "../textures/Texture.js";
 import type MeasuredIterable from "../../types/MeasuredIterable.js";
 import type { TextureFaceLevel } from "../textures/Texture.js";

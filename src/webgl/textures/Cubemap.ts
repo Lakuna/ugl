@@ -1,4 +1,5 @@
-import { TextureWrapFunction, TextureFilter, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../WebGLConstant.js";
+import { TextureFaceTarget, TextureTarget } from "../../index.js";
+import { TextureFilter, TextureFormat, TextureWrapFunction, UNPACK_ALIGNMENT } from "../Constant.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
 
 /** A cubemap texture. */

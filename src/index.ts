@@ -98,4 +98,4 @@ export {
 	RenderbufferFormat,
 	FramebufferTarget,
 	FramebufferAttachmentPoint
-} from "./webgl/WebGLConstant.js";
+} from "./webgl/Constant.js";
