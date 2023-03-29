@@ -1,7 +1,7 @@
-import Variable from "./Variable.js";
-import type Program from "./Program.js";
-import { AttributeType } from "./WebGLConstant.js";
-import type AttributeState from "./AttributeState.js";
+import Variable from "../Variable.js";
+import type Program from "../../Program.js";
+import { AttributeType } from "../../Constant.js";
+import type AttributeState from "../attributes/AttributeState.js";
 
 /** An input variable in a WebGL vertex shader. */
 export default abstract class Attribute extends Variable {

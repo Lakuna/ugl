@@ -1,4 +1,4 @@
-import { RenderbufferFormat, RENDERBUFFER } from "./WebGLConstant.js";
+import { RenderbufferFormat, RENDERBUFFER } from "./Constant.js";
 
 /** A buffer that can contain an image or be the source or target of a rendering operation. */
 export default class Renderbuffer {

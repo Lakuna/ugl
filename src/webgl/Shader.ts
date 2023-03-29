@@ -1,4 +1,4 @@
-import { ShaderType, COMPILE_STATUS, DELETE_STATUS } from "./WebGLConstant.js";
+import { ShaderType, COMPILE_STATUS, DELETE_STATUS } from "./Constant.js";
 
 /** A function which runs on the GPU. */
 export default class Shader {

@@ -1,4 +1,4 @@
-import { SCISSOR_TEST } from "../webgl/WebGLConstant.js";
+import { SCISSOR_TEST } from "../webgl/Constant.js";
 
 /**
  * Resizes a canvas' drawing buffer to match its physical size.

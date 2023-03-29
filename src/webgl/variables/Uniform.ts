@@ -1,10 +1,11 @@
 import Variable from "./Variable.js";
-import type Program from "./Program.js";
-import { UniformType } from "./WebGLConstant.js";
-import type Texture from "./Texture.js";
-import type MeasuredIterable from "../types/MeasuredIterable.js";
+import type Program from "../Program.js";
+import { UniformType } from "../Constant.js";
+import type Texture from "../textures/Texture.js";
+import type MeasuredIterable from "../../types/MeasuredIterable.js";
+import type { TextureFaceLevel } from "../textures/Texture.js";
 
-export type UniformValue = number | Texture;
+export type UniformValue = number | Texture<TextureFaceLevel>;
 
 /** A global variable in a WebGL shader program. */
 export default abstract class Uniform extends Variable {
@@ -169,29 +170,29 @@ export class SamplerUniform extends SingleValuedUniform {
 	public readonly textureUnit: number;
 
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: MeasuredIterable<Texture>): void {
+	public arraySetter(value: MeasuredIterable<Texture<TextureFaceLevel>>): void {
 		const textureUnits: Int32Array = new Int32Array(value.length);
 		for (let i = 0; i < value.length; i++) { textureUnits[i] = (this.textureUnit) + i; }
 		for (let i = 0; i < value.length; i++) {
-			(value[i] as Texture).updateIfNeeded();
-			(value[i] as Texture).assign(textureUnits[i] as number);
+			(value[i] as Texture<TextureFaceLevel>).update();
+			(value[i] as Texture<TextureFaceLevel>).assign(textureUnits[i] as number);
 		}
 		this.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
-	public setter(value: Texture): void {
-		value.updateIfNeeded();
+	public setter(value: Texture<TextureFaceLevel>): void {
+		value.update();
 		value.assign(this.textureUnit);
 		this.gl.uniform1i(this.location, this.textureUnit);
 	}
 
 	/** The value of this uniform. */
-	public override get value(): Texture | MeasuredIterable<Texture> {
-		return this.valuePrivate as Texture | MeasuredIterable<Texture>;
+	public override get value(): Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>> {
+		return this.valuePrivate as Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>>;
 	}
 
-	public override set value(value: Texture | MeasuredIterable<Texture>) {
+	public override set value(value: Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>>) {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
