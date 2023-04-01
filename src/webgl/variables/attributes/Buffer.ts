@@ -1,4 +1,5 @@
 import type { UintTypedArray, TypedArray } from "../../../types/TypedArray.js";
+import Context from "../../Context.js";
 
 /** Binding points for buffers. */
 export enum BufferTarget {
@@ -87,7 +88,7 @@ export default class Buffer {
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(gl: WebGL2RenderingContext, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
+	public constructor(gl: Context, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
 
 	/**
 	 * Creates a buffer.
@@ -96,9 +97,9 @@ export default class Buffer {
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(gl: WebGL2RenderingContext, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
+	public constructor(gl: Context, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
 
-	public constructor(gl: WebGL2RenderingContext, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
+	public constructor(gl: Context, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
 		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint8ClampedArray || data instanceof Uint16Array || data instanceof Uint32Array)) {
 			throw new Error("The element array buffer must contain unsigned integers.");
 		}
@@ -109,7 +110,7 @@ export default class Buffer {
 		this.usage = usage;
 		this.typePrivate = BufferDataType.BYTE;
 
-		const buffer: WebGLBuffer | null = gl.createBuffer();
+		const buffer: WebGLBuffer | null = gl.gl.createBuffer();
 		if (!buffer) { throw new Error("Failed to create buffer."); }
 		this.buffer = buffer;
 
@@ -117,7 +118,7 @@ export default class Buffer {
 	}
 
 	/** The rendering context of this buffer. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The binding point to bind this buffer to. */
 	public target: BufferTarget;
@@ -138,7 +139,7 @@ export default class Buffer {
 
 	public set data(value: TypedArray) {
 		this.bind();
-		this.gl.bufferData(this.target, value, this.usage);
+		this.gl.gl.bufferData(this.target, value, this.usage);
 		this.dataPrivate = value;
 
 		if (value instanceof Int8Array) {
@@ -165,6 +166,6 @@ export default class Buffer {
 
 	/** Binds this buffer to its target binding point. */
 	public bind(): void {
-		this.gl.bindBuffer(this.target, this.buffer);
+		this.gl.gl.bindBuffer(this.target, this.buffer);
 	}
 }

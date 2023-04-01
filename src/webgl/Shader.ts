@@ -1,3 +1,5 @@
+import type Context from "./Context.js";
+
 /** Types of shaders. */
 export enum ShaderType {
 	/** A fragment shader, which calculates a color for each pixel of a primitive. */
@@ -20,17 +22,17 @@ export default class Shader {
 	 * @param type The type of the shader.
 	 * @param source The source code of the shader.
 	 */
-	public constructor(gl: WebGL2RenderingContext, type: ShaderType, source: string) {
+	public constructor(gl: Context, type: ShaderType, source: string) {
 		this.gl = gl;
 		this.type = type;
 		this.source = source;
 
-		const shader: WebGLShader | null = gl.createShader(type);
+		const shader: WebGLShader | null = gl.gl.createShader(type);
 		if (!shader) { throw new Error("Unable to create a shader."); }
 		this.shader = shader;
 
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
+		gl.gl.shaderSource(shader, source);
+		gl.gl.compileShader(shader);
 
 		if (!this.compileStatus) {
 			console.error(this.infoLog);
@@ -40,7 +42,7 @@ export default class Shader {
 	}
 
 	/** The rendering context of this shader. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The type of this shader. */
 	public readonly type: ShaderType;
@@ -53,21 +55,21 @@ export default class Shader {
 
 	/** Whether this shader is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.gl.getShaderParameter(this.shader, DELETE_STATUS);
+		return this.gl.gl.getShaderParameter(this.shader, DELETE_STATUS);
 	}
 
 	/** Whether the last shader compilation was successful. */
 	public get compileStatus(): boolean {
-		return this.gl.getShaderParameter(this.shader, COMPILE_STATUS);
+		return this.gl.gl.getShaderParameter(this.shader, COMPILE_STATUS);
 	}
 
 	/** The information log for this shader. */
 	public get infoLog(): string {
-		return this.gl.getShaderInfoLog(this.shader) ?? "";
+		return this.gl.gl.getShaderInfoLog(this.shader) ?? "";
 	}
 
 	/** Deletes this shader. */
 	public delete(): void {
-		this.gl.deleteShader(this.shader);
+		this.gl.gl.deleteShader(this.shader);
 	}
 }

@@ -1,4 +1,5 @@
 import type { TypedArray } from "../../types/TypedArray.js";
+import type Context from "../Context.js";
 
 /** Binding points for textures. */
 export enum TextureTarget {
@@ -190,7 +191,7 @@ export default class Texture<FaceType extends TextureFaceLevel> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: WebGL2RenderingContext,
+		gl: Context,
 		target: TextureTarget,
 		faces: Map<TextureFaceTarget, TextureFace<FaceType>> = new Map(),
 		magFilter: TextureFilter = TextureFilter.NEAREST,
@@ -201,7 +202,7 @@ export default class Texture<FaceType extends TextureFaceLevel> {
 		this.gl = gl;
 		this.target = target;
 
-		const texture: WebGLTexture | null = gl.createTexture();
+		const texture: WebGLTexture | null = gl.gl.createTexture();
 		if (!texture) { throw new Error("Failed to create a texture."); }
 		this.texture = texture;
 
@@ -214,7 +215,7 @@ export default class Texture<FaceType extends TextureFaceLevel> {
 	}
 
 	/** The rendering context of this texture. */
-	public gl: WebGL2RenderingContext;
+	public gl: Context;
 
 	/** The binding point of this texture. */
 	public target: TextureTarget;
@@ -228,54 +229,54 @@ export default class Texture<FaceType extends TextureFaceLevel> {
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureFilter {
 		this.bind();
-		return this.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
+		return this.gl.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
 	}
 
 	public set magFilter(value: TextureFilter) {
 		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
+		this.gl.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The minification filter for this texture. */
 	public get minFilter(): TextureFilter {
 		this.bind();
-		return this.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
+		return this.gl.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
 	}
 
 	public set minFilter(value: TextureFilter) {
 		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+		this.gl.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
 		this.bind();
-		return this.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
+		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
 	}
 
 	public set wrapSFunction(value: TextureWrapFunction) {
 		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
+		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
 		this.bind();
-		return this.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
+		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
 	}
 
 	public set wrapTFunction(value: TextureWrapFunction) {
 		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
+		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** Binds this texture to its target binding point. */
 	public bind(): void {
-		this.gl.bindTexture(this.target, this.texture);
+		this.gl.gl.bindTexture(this.target, this.texture);
 	}
 
 	/**
@@ -284,13 +285,13 @@ export default class Texture<FaceType extends TextureFaceLevel> {
 	 */
 	public assign(textureUnit: number): void {
 		this.bind();
-		this.gl.activeTexture(TEXTURE0 + textureUnit);
+		this.gl.gl.activeTexture(TEXTURE0 + textureUnit);
 	}
 
 	/** Generates a mipmap for this texture. */
 	public generateMipmap(): void {
 		this.bind();
-		this.gl.generateMipmap(this.target);
+		this.gl.gl.generateMipmap(this.target);
 	}
 
 	/** Updates the texels of this texture. */
@@ -381,7 +382,7 @@ export class TextureFace<FaceType extends TextureFaceLevel> {
 	 * @param gl The rendering context of this texture face.
 	 * @param target The target of this this texture face.
 	 */
-	public update(gl: WebGL2RenderingContext, target: TextureFaceTarget): void {
+	public update(gl: Context, target: TextureFaceTarget): void {
 		for (const [lod, level] of this.levels) {
 			level.update(gl, target, lod);
 		}
@@ -571,7 +572,7 @@ export abstract class TextureFaceLevel {
 	 * @param target The target of this texture face level.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	public update(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void {
+	public update(gl: Context, target: TextureFaceTarget, lod: number): void {
 		if (!this.needsUpdate) {
 			return;
 		}
@@ -587,7 +588,7 @@ export abstract class TextureFaceLevel {
 	 * @param target The target of this texture face level.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected abstract updateInternal(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void;
+	protected abstract updateInternal(gl: Context, target: TextureFaceTarget, lod: number): void;
 
 	/** Sets this texture face level as outdated. */
 	public setNeedsUpdate(): void {

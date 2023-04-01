@@ -1,3 +1,4 @@
+import type Context from "./Context.js";
 import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
 import Texture, { TextureFaceLevel } from "./textures/Texture.js";
 
@@ -82,26 +83,26 @@ export default class Framebuffer {
 	 * Unbinds all framebuffers from the given rendering context.
 	 * @param gl The rendering context.
 	 */
-	public static unbind(gl: WebGL2RenderingContext): void {
-		gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
+	public static unbind(gl: Context): void {
+		gl.gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
 	}
 
 	/**
 	 * Creates a framebuffer.
 	 * @param gl The rendering context of the framebuffer.
 	 */
-	public constructor(gl: WebGL2RenderingContext, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
+	public constructor(gl: Context, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
 		this.gl = gl;
 		this.target = target;
 		this.attachmentsPrivate = new Map();
 
-		const framebuffer: WebGLFramebuffer | null = gl.createFramebuffer();
+		const framebuffer: WebGLFramebuffer | null = gl.gl.createFramebuffer();
 		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
 		this.framebuffer = framebuffer;
 	}
 
 	/** The rendering context of this framebuffer. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The WebGL API interface of this framebuffer. */
 	public readonly framebuffer: WebGLFramebuffer;
@@ -111,7 +112,7 @@ export default class Framebuffer {
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
-		this.gl.bindFramebuffer(this.target, this.framebuffer);
+		this.gl.gl.bindFramebuffer(this.target, this.framebuffer);
 	}
 
 	/** A map of attachments on this framebuffer. */
@@ -148,11 +149,11 @@ export default class Framebuffer {
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {
-			this.gl.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
+			this.gl.gl.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
 		} else if (typeof layer == "number") {
-			this.gl.framebufferTextureLayer(this.target, attachmentPoint, attachment.texture, 0, layer);
+			this.gl.gl.framebufferTextureLayer(this.target, attachmentPoint, attachment.texture, 0, layer);
 		} else {
-			this.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target, attachment.texture, 0);
+			this.gl.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target, attachment.texture, 0);
 		}
 
 		this.attachmentsPrivate.set(attachmentPoint, attachment);

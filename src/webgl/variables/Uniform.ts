@@ -114,7 +114,7 @@ export default abstract class Uniform extends Variable {
 	 * @param textureUnit The texture unit to assign to this uniform if it ends up being a sampler.
 	 */
 	public static create(program: Program, index: number, textureUnit: number): Uniform {
-		const activeInfo: WebGLActiveInfo | null = program.gl.getActiveUniform(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = program.gl.gl.getActiveUniform(program.program, index);
 		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
 
 		switch (activeInfo.type as UniformType) {
@@ -191,11 +191,11 @@ export default abstract class Uniform extends Variable {
 
 		this.valuePrivate = [];
 
-		const activeInfo: WebGLActiveInfo | null = this.gl.getActiveUniform(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = this.gl.gl.getActiveUniform(program.program, index);
 		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
 		this.activeInfo = activeInfo;
 
-		const location: WebGLUniformLocation | null = this.gl.getUniformLocation(program.program, this.activeInfo.name);
+		const location: WebGLUniformLocation | null = this.gl.gl.getUniformLocation(program.program, this.activeInfo.name);
 		if (!location) { throw new Error("Unable to get uniform location."); }
 		this.location = location;
 	}
@@ -275,14 +275,14 @@ export class SamplerUniform extends SingleValuedUniform {
 			(value[i] as Texture<TextureFaceLevel>).update();
 			(value[i] as Texture<TextureFaceLevel>).assign(textureUnits[i] as number);
 		}
-		this.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
 	public setter(value: Texture<TextureFaceLevel>): void {
 		value.update();
 		value.assign(this.textureUnit);
-		this.gl.uniform1i(this.location, this.textureUnit);
+		this.gl.gl.uniform1i(this.location, this.textureUnit);
 	}
 
 	/** The value of this uniform. */
@@ -323,12 +323,12 @@ export abstract class ScalarUniform extends SingleValuedUniform {
 export class FloatUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform1fv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform1fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
 	public setter(value: number): void {
-		this.gl.uniform1f(this.location, value);
+		this.gl.gl.uniform1f(this.location, value);
 	}
 }
 
@@ -336,12 +336,12 @@ export class FloatUniform extends ScalarUniform {
 export class IntegerUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform1iv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform1iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
 	public setter(value: number): void {
-		this.gl.uniform1i(this.location, value);
+		this.gl.gl.uniform1i(this.location, value);
 	}
 }
 
@@ -349,12 +349,12 @@ export class IntegerUniform extends ScalarUniform {
 export class UnsignedIntegerUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform1uiv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform1uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
 	public setter(value: number): void {
-		this.gl.uniform1ui(this.location, value);
+		this.gl.gl.uniform1ui(this.location, value);
 	}
 }
 
@@ -375,7 +375,7 @@ export abstract class MultipleValuedUniform extends Uniform {
 export class FloatVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform2fv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform2fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -383,7 +383,7 @@ export class FloatVector2Uniform extends MultipleValuedUniform {
 export class FloatVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform3fv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform3fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -391,7 +391,7 @@ export class FloatVector3Uniform extends MultipleValuedUniform {
 export class FloatVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform4fv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform4fv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -399,7 +399,7 @@ export class FloatVector4Uniform extends MultipleValuedUniform {
 export class IntegerVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform2iv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform2iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -407,7 +407,7 @@ export class IntegerVector2Uniform extends MultipleValuedUniform {
 export class IntegerVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform3iv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform3iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -415,7 +415,7 @@ export class IntegerVector3Uniform extends MultipleValuedUniform {
 export class IntegerVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform4iv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform4iv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -423,7 +423,7 @@ export class IntegerVector4Uniform extends MultipleValuedUniform {
 export class UnsignedIntegerVector2Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform2uiv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform2uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -431,7 +431,7 @@ export class UnsignedIntegerVector2Uniform extends MultipleValuedUniform {
 export class UnsignedIntegerVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform3uiv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform3uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -439,7 +439,7 @@ export class UnsignedIntegerVector3Uniform extends MultipleValuedUniform {
 export class UnsignedIntegerVector4Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniform4uiv(this.location, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniform4uiv(this.location, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -463,7 +463,7 @@ export abstract class MatrixUniform extends MultipleValuedUniform {
 export class FloatMatrix2x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -471,7 +471,7 @@ export class FloatMatrix2x2Uniform extends MatrixUniform {
 export class FloatMatrix2x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix2x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix2x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -479,7 +479,7 @@ export class FloatMatrix2x3Uniform extends MatrixUniform {
 export class FloatMatrix2x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix2x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix2x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -487,7 +487,7 @@ export class FloatMatrix2x4Uniform extends MatrixUniform {
 export class FloatMatrix3x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix3x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix3x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -495,7 +495,7 @@ export class FloatMatrix3x2Uniform extends MatrixUniform {
 export class FloatMatrix3x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -503,7 +503,7 @@ export class FloatMatrix3x3Uniform extends MatrixUniform {
 export class FloatMatrix3x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix3x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix3x4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -511,7 +511,7 @@ export class FloatMatrix3x4Uniform extends MatrixUniform {
 export class FloatMatrix4x2Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix4x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix4x2fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -519,7 +519,7 @@ export class FloatMatrix4x2Uniform extends MatrixUniform {
 export class FloatMatrix4x3Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix4x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix4x3fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }
 
@@ -527,6 +527,6 @@ export class FloatMatrix4x3Uniform extends MatrixUniform {
 export class FloatMatrix4x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
-		this.gl.uniformMatrix4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
+		this.gl.gl.uniformMatrix4fv(this.location, this.transpose, value, this.sourceOffset, this.sourceLength);
 	}
 }

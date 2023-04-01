@@ -70,7 +70,7 @@ export default abstract class Attribute extends Variable {
 	 * @param index The index of this attribute.
 	 */
 	public static create(program: Program, index: number): Attribute {
-		const activeInfo: WebGLActiveInfo | null = program.gl.getActiveAttrib(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = program.gl.gl.getActiveAttrib(program.program, index);
 		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
 
 		switch (activeInfo.type as AttributeType) {
@@ -114,11 +114,11 @@ export default abstract class Attribute extends Variable {
 		this.enabledPrivate = false;
 		this.enabled = true;
 
-		const activeInfo: WebGLActiveInfo | null = this.gl.getActiveAttrib(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = this.gl.gl.getActiveAttrib(program.program, index);
 		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
 		this.activeInfo = activeInfo;
 
-		this.location = this.gl.getAttribLocation(program.program, this.activeInfo.name);
+		this.location = this.gl.gl.getAttribLocation(program.program, this.activeInfo.name);
 	}
 
 	/** The active information of this attribute. */
@@ -143,9 +143,9 @@ export default abstract class Attribute extends Variable {
 
 	public set enabled(value: boolean) {
 		if (value) {
-			this.gl.enableVertexAttribArray(this.location);
+			this.gl.gl.enableVertexAttribArray(this.location);
 		} else {
-			this.gl.disableVertexAttribArray(this.location);
+			this.gl.gl.disableVertexAttribArray(this.location);
 		}
 
 		this.enabledPrivate = value;
@@ -184,7 +184,7 @@ export class FloatAttribute extends Attribute {
 	public setter(value: AttributeState): void {
 		value.buffer.bind();
 		this.enabled = true;
-		this.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
+		this.gl.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
 	}
 }
 
@@ -206,7 +206,7 @@ export class IntegerAttribute extends Attribute {
 	public setter(value: AttributeState): void {
 		value.buffer.bind();
 		this.enabled = true;
-		this.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
+		this.gl.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
 	}
 }
 
@@ -234,7 +234,7 @@ export class MatrixAttribute extends Attribute {
 		for (let i = 0; i < this.dim; i++) {
 			const location: number = this.location + i;
 			this.enabled = true;
-			this.gl.vertexAttribPointer(location, value.size / this.dim, value.type, value.normalized, stride, value.offset + (stride / this.dim) * i);
+			this.gl.gl.vertexAttribPointer(location, value.size / this.dim, value.type, value.normalized, stride, value.offset + (stride / this.dim) * i);
 		}
 	}
 }

@@ -1,3 +1,5 @@
+import type Context from "./Context.js";
+
 /** Formats for a renderbuffer. */
 export enum RenderbufferFormat {
 	RGBA4 = 0x8056,
@@ -58,22 +60,22 @@ export default class Renderbuffer {
 	 * @param width The width of the renderbuffer.
 	 * @param height The height of the renderbuffer.
 	 */
-	public constructor(gl: WebGL2RenderingContext, format: RenderbufferFormat, width: number, height: number) {
+	public constructor(gl: Context, format: RenderbufferFormat, width: number, height: number) {
 		this.gl = gl;
 		this.format = format;
 		this.width = width;
 		this.height = height;
 
-		const renderbuffer: WebGLRenderbuffer | null = gl.createRenderbuffer();
+		const renderbuffer: WebGLRenderbuffer | null = gl.gl.createRenderbuffer();
 		if (!renderbuffer) { throw new Error("Failed to create a renderbuffer."); }
 		this.renderbuffer = renderbuffer;
 
 		this.bind();
-		gl.renderbufferStorage(RENDERBUFFER, format, width, height);
+		gl.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
 	}
 
 	/** The rendering context of this renderbuffer. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The WebGL API interface of this renderbuffer. */
 	public readonly renderbuffer: WebGLRenderbuffer;
@@ -89,6 +91,6 @@ export default class Renderbuffer {
 
 	/** Binds this renderbuffer. */
 	public bind(): void {
-		this.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
+		this.gl.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
 	}
 }

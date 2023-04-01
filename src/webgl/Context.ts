@@ -79,7 +79,7 @@ export default class Context {
 	}
 
 	/** This rendering context. */
-	public gl: WebGL2RenderingContext;
+	public readonly gl: WebGL2RenderingContext;
 
 	/** The canvas of this rendering context. */
 	public get canvas(): Canvas {

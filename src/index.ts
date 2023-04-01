@@ -28,10 +28,7 @@ export {
 } from "./webgl/textures/Texture2D.js";
 export {
 	AttributeType,
-	default as Attribute,
-	FloatAttribute,
-	IntegerAttribute,
-	MatrixAttribute
+	default as Attribute
 } from "./webgl/variables/attributes/Attribute.js";
 export { default as AttributeState } from "./webgl/variables/attributes/AttributeState.js";
 export {
@@ -49,33 +46,7 @@ export {
 export {
 	UniformType,
 	type UniformValue,
-	default as Uniform,
-	SingleValuedUniform,
-	SamplerUniform,
-	ScalarUniform,
-	FloatUniform,
-	IntegerUniform,
-	UnsignedIntegerUniform,
-	MultipleValuedUniform,
-	FloatVector2Uniform,
-	FloatVector3Uniform,
-	FloatVector4Uniform,
-	IntegerVector2Uniform,
-	IntegerVector3Uniform,
-	IntegerVector4Uniform,
-	UnsignedIntegerVector2Uniform,
-	UnsignedIntegerVector3Uniform,
-	UnsignedIntegerVector4Uniform,
-	MatrixUniform,
-	FloatMatrix2x2Uniform,
-	FloatMatrix2x3Uniform,
-	FloatMatrix2x4Uniform,
-	FloatMatrix3x2Uniform,
-	FloatMatrix3x3Uniform,
-	FloatMatrix3x4Uniform,
-	FloatMatrix4x2Uniform,
-	FloatMatrix4x3Uniform,
-	FloatMatrix4x4Uniform
+	default as Uniform
 } from "./webgl/variables/Uniform.js";
 export { default as Variable } from "./webgl/variables/Variable.js";
 export { default as Varying } from "./webgl/variables/Varying.js";

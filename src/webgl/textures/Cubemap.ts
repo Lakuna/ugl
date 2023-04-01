@@ -1,3 +1,4 @@
+import type Context from "../Context.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureFormat, UNPACK_ALIGNMENT, TextureFaceTarget, TextureTarget } from "./Texture.js";
 
 /** A cubemap texture. */
@@ -18,7 +19,7 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: WebGL2RenderingContext,
+		gl: Context,
 		nxFace: TextureFace<CubemapFaceLevel>,
 		pxFace: TextureFace<CubemapFaceLevel>,
 		nyFace: TextureFace<CubemapFaceLevel>,
@@ -134,20 +135,20 @@ export class CubemapFaceLevel extends TextureFaceLevel {
 	 * @param texture The WebGL texture.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected override updateInternal(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void {
+	protected override updateInternal(gl: Context, target: TextureFaceTarget, lod: number): void {
 		if (this.dim) {
 			if (this.dim > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.dim % alignment == 0) {
-						gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			gl.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
+			gl.gl.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

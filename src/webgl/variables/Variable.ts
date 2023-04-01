@@ -1,3 +1,4 @@
+import type Context from "../Context.js";
 import type Program from "../Program.js";
 import { UniformType } from "./Uniform.js";
 import { AttributeType } from "./attributes/Attribute.js";
@@ -17,7 +18,7 @@ export default abstract class Variable {
 	public readonly program: Program;
 
 	/** The rendering context of this variable. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The active information of this variable. */
 	public abstract readonly activeInfo: WebGLActiveInfo;

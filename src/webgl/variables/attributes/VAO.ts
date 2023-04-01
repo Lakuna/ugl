@@ -3,6 +3,7 @@ import type AttributeState from "./AttributeState.js";
 import Buffer, { BufferTarget } from "./Buffer.js";
 import type { default as Uniform, UniformValue } from "../Uniform.js";
 import type { UintTypedArray } from "../../../types/TypedArray.js";
+import type Context from "../../Context.js";
 
 /** Types of primitives that can be rasterized. */
 export enum Primitive {
@@ -40,7 +41,7 @@ export default class VAO {
 		this.program = program;
 		this.gl = program.gl;
 
-		const vao: WebGLVertexArrayObject | null = this.gl.createVertexArray();
+		const vao: WebGLVertexArrayObject | null = this.gl.gl.createVertexArray();
 		if (!vao) { throw new Error("Failed to create VAO."); }
 		this.vao = vao;
 
@@ -51,7 +52,7 @@ export default class VAO {
 	}
 
 	/** The rendering context of this VAO. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The program that this VAO is used with. */
 	public readonly program: Program;
@@ -86,7 +87,7 @@ export default class VAO {
 
 	/** Makes this the active VAO. */
 	public bind(): void {
-		this.gl.bindVertexArray(this.vao);
+		this.gl.gl.bindVertexArray(this.vao);
 	}
 
 	/**
@@ -125,14 +126,14 @@ export default class VAO {
 		}
 
 		if (this.elementArrayBuffer) {
-			this.gl.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
+			this.gl.gl.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
 		} else {
 			const firstAttribute: AttributeState | undefined = this.attributes[0];
 			if (!firstAttribute) { return; }
 			const dataLength: number = firstAttribute.buffer.data.length;
 			const dataSize: number = firstAttribute.size;
 
-			this.gl.drawArrays(primitive, offset, dataLength / dataSize);
+			this.gl.gl.drawArrays(primitive, offset, dataLength / dataSize);
 		}
 	}
 }

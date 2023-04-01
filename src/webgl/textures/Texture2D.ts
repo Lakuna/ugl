@@ -1,3 +1,4 @@
+import type Context from "../Context.js";
 import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "./Texture.js";
 
 /** A 2D texture. */
@@ -8,7 +9,7 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	 * @param source The pixel source.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromSource(gl: WebGL2RenderingContext, source: TextureSource): Texture2D {
+	public static fromSource(gl: Context, source: TextureSource): Texture2D {
 		return new Texture2D(
 			gl,
 			new TextureFace(
@@ -30,7 +31,7 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: WebGL2RenderingContext,
+		gl: Context,
 		face: TextureFace<Texture2DFaceLevel>,
 		magFilter: TextureFilter = TextureFilter.NEAREST,
 		minFilter: TextureFilter = TextureFilter.NEAREST,
@@ -102,20 +103,20 @@ export class Texture2DFaceLevel extends TextureFaceLevel {
 	 * @param texture The WebGL texture.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected override updateInternal(gl: WebGL2RenderingContext, target: TextureFaceTarget, lod: number): void {
+	protected override updateInternal(gl: Context, target: TextureFaceTarget, lod: number): void {
 		if (this.width && this.height) {
 			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.width % alignment == 0) {
-						gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			gl.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
+			gl.gl.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

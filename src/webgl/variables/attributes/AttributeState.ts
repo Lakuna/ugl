@@ -1,6 +1,7 @@
 import Buffer, { BufferDataType } from "./Buffer.js";
 import type Program from "../../Program.js";
 import type Attribute from "./Attribute.js";
+import type Context from "../../Context.js";
 
 /** Information about how to access data in a buffer. */
 export default class AttributeState {
@@ -25,7 +26,7 @@ export default class AttributeState {
 	}
 
 	/** The rendering context of this buffer. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly gl: Context;
 
 	/** The name of this attribute in a shader program. */
 	public readonly name: string;
