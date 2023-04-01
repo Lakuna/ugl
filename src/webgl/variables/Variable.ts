@@ -1,5 +1,6 @@
 import type Program from "../Program.js";
-import type { UniformType, AttributeType } from "../Constant.js";
+import { UniformType } from "./Uniform.js";
+import { AttributeType } from "./attributes/Attribute.js";
 
 /** A variable in a WebGL shader program. */
 export default abstract class Variable {

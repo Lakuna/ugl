@@ -1,6 +1,4 @@
-import { TextureFaceTarget, TextureTarget } from "../../index.js";
-import { TextureFilter, TextureFormat, TextureWrapFunction, UNPACK_ALIGNMENT } from "../Constant.js";
-import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
+import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureFormat, UNPACK_ALIGNMENT, TextureFaceTarget, TextureTarget } from "./Texture.js";
 
 /** A cubemap texture. */
 export default class Cubemap extends Texture<CubemapFaceLevel> {

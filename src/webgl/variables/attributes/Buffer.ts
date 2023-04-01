@@ -1,6 +1,82 @@
-import type { UintTypedArray } from "../../../types/TypedArray.js";
-import type { TypedArray } from "../../../types/TypedArray.js";
-import { BufferTarget, BufferUsage, BufferDataType } from "../../Constant.js";
+import type { UintTypedArray, TypedArray } from "../../../types/TypedArray.js";
+
+/** Binding points for buffers. */
+export enum BufferTarget {
+	/** A buffer containing vertex attributes. */
+	ARRAY_BUFFER = 0x8892,
+
+	/** A buffer containing element indices. */
+	ELEMENT_ARRAY_BUFFER = 0x8893,
+
+	/** A buffer for copying from one buffer to another. */
+	COPY_READ_BUFFER = 0x8F36,
+
+	/** A buffer for copying from one buffer to another. */
+	COPY_WRITE_BUFFER = 0x8F37,
+
+	/** A buffer for transform feedback operations. */
+	TRANSFORM_FEEDBACK_BUFFER = 0x8C8E,
+
+	/** A buffer used for storing uniform blocks. */
+	UNIFORM_BUFFER = 0x8A11,
+
+	/** A buffer used for pixel transfer operations. */
+	PIXEL_PACK_BUFFER = 0x88EB,
+
+	/** A buffer used for pixel transfer operations. */
+	PIXEL_UNPACK_BUFFER = 0x88EC
+}
+
+/** Usage patterns of a buffer's data store for optimization purposes. */
+export enum BufferUsage {
+	/** The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands. */
+	STATIC_DRAW = 0x88E4,
+
+	/** The contents are intended to be respecified repeatedly by the application, and used many times as the source for WebGL drawing and image specification commands. */
+	DYNAMIC_DRAW = 0x88E8,
+
+	/** The contents are intended to be specified once by the application, and used at most a few times as the source for WebGL drawing and image specification commands. */
+	STREAM_DRAW = 0x88E0,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and queried many times by the application. */
+	STATIC_READ = 0x88E5,
+
+	/** The contents are intended to be respecified repeatedly by reading data from WebGL, and queried many times by the application. */
+	DYNAMIC_READ = 0x88E9,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application. */
+	STREAM_READ = 0x88E1,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands. */
+	STATIC_COPY = 0x88E6,
+
+	/** The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands. */
+	DYNAMIC_COPY = 0x88EA,
+
+	/** The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for WebGL drawing and image specification commands. */
+	STREAM_COPY = 0x88E2
+}
+
+/** Types of data that can be stored as components in a buffer. */
+export enum BufferDataType {
+	/** An 8-bit signed integer. */
+	BYTE = 0x1400,
+
+	/** A 16-bit signed integer. */
+	SHORT = 0x1402,
+
+	/** An 8-bit unsigned integer. */
+	UNSIGNED_BYTE = 0x1401,
+
+	/** A 16-bit unsigned integer. */
+	UNSIGNED_SHORT = 0x1403,
+
+	/** A 32-bit signed floating-point number. */
+	FLOAT = 0x1406,
+
+	/** A 16-bit signed floating-point number. */
+	HALF_FLOAT = 0x140B
+}
 
 /** A data stucture that supplies per-vertex data to the GPU. */
 export default class Buffer {

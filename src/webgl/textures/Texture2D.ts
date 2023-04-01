@@ -1,5 +1,4 @@
-import { TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "../Constant.js";
-import Texture, { TextureFace, TextureFaceLevel, type TextureSource } from "./Texture.js";
+import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "./Texture.js";
 
 /** A 2D texture. */
 export default class Texture2D extends Texture<Texture2DFaceLevel> {

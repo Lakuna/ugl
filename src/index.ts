@@ -5,43 +5,49 @@ export {
 	type FloatTypedArray,
 	type TypedArray
 } from "./types/TypedArray.js";
-export { default as clearContext } from "./utility/clearContext.js";
 export { default as Color } from "./utility/Color.js";
-export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
-export {
-	resizeCanvasBuffer,
-	resizeViewport,
-	resizeScissor,
-	default as resizeContext
-} from "./utility/resizeContext.js";
 export {
 	default as Cubemap,
 	CubemapFaceLevel
 } from "./webgl/textures/Cubemap.js";
 export {
-	default as Texture2D,
-	Texture2DFaceLevel
-} from "./webgl/textures/Texture2D.js";
-export {
+	TextureTarget,
+	TextureFaceTarget,
+	TextureFormat,
+	TextureDataType,
+	TextureFilter,
+	TextureWrapFunction,
 	default as Texture,
 	type TextureSource,
 	TextureFace,
 	TextureFaceLevel
 } from "./webgl/textures/Texture.js";
 export {
+	default as Texture2D,
+	Texture2DFaceLevel
+} from "./webgl/textures/Texture2D.js";
+export {
+	AttributeType,
 	default as Attribute,
 	FloatAttribute,
 	IntegerAttribute,
 	MatrixAttribute
 } from "./webgl/variables/attributes/Attribute.js";
 export { default as AttributeState } from "./webgl/variables/attributes/AttributeState.js";
-export { default as Buffer } from "./webgl/variables/attributes/Buffer.js";
 export {
+	BufferTarget,
+	BufferUsage,
+	BufferDataType,
+	default as Buffer
+} from "./webgl/variables/attributes/Buffer.js";
+export {
+	Primitive,
 	default as VAO,
 	type UniformSourceObject,
 	type UniformSource
 } from "./webgl/variables/attributes/VAO.js";
 export {
+	UniformType,
 	type UniformValue,
 	default as Uniform,
 	SingleValuedUniform,
@@ -74,28 +80,24 @@ export {
 export { default as Variable } from "./webgl/variables/Variable.js";
 export { default as Varying } from "./webgl/variables/Varying.js";
 export {
-	default as Framebuffer,
-	type FramebufferAttachment
+	type Canvas,
+	default as Context
+} from "./webgl/Context.js";
+export {
+	FramebufferTarget,
+	FramebufferAttachmentPoint,
+	type FramebufferAttachment,
+	default as Framebuffer
 } from "./webgl/Framebuffer.js";
-export { default as Program } from "./webgl/Program.js";
-export { default as Renderbuffer } from "./webgl/Renderbuffer.js";
-export { default as Shader } from "./webgl/Shader.js";
+export {
+	TransformFeedbackBufferMode,
+	default as Program
+} from "./webgl/Program.js";
+export {
+	RenderbufferFormat,
+	default as Renderbuffer
+} from "./webgl/Renderbuffer.js";
 export {
 	ShaderType,
-	TransformFeedbackBufferMode,
-	UniformType,
-	AttributeType,
-	BufferTarget,
-	BufferUsage,
-	BufferDataType,
-	Primitive,
-	TextureTarget,
-	TextureFaceTarget,
-	TextureFormat,
-	TextureDataType,
-	TextureFilter,
-	TextureWrapFunction,
-	RenderbufferFormat,
-	FramebufferTarget,
-	FramebufferAttachmentPoint
-} from "./webgl/Constant.js";
+	default as Shader
+} from "./webgl/Shader.js";

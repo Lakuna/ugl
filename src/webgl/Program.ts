@@ -1,8 +1,28 @@
-import Shader from "./Shader.js";
-import { ShaderType, TransformFeedbackBufferMode, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS, ACTIVE_ATTRIBUTES, ACTIVE_UNIFORMS, TRANSFORM_FEEDBACK_VARYINGS } from "./Constant.js";
 import { default as Uniform, SamplerUniform } from "./variables/Uniform.js";
 import Attribute from "./variables/attributes/Attribute.js";
 import Varying from "./variables/Varying.js";
+import Shader, { ShaderType, DELETE_STATUS } from "./Shader.js";
+
+/** Modes for capturing transform feedback varyings. */
+export enum TransformFeedbackBufferMode {
+	INTERLEAVED_ATTRIBS = 0x8C8C,
+	SEPARATE_ATTRIBS = 0x8C8D
+}
+
+/** The linking status of a shader program. */
+export const LINK_STATUS = 0x8B82;
+
+/** The validation status of a shader program. */
+export const VALIDATE_STATUS = 0x8B83;
+
+/** The number of active attributes in a shader program. */
+export const ACTIVE_ATTRIBUTES = 0x8B89;
+
+/** The number of active uniforms in a shader program. */
+export const ACTIVE_UNIFORMS = 0x8B86;
+
+/** The number of active varyings that are used for transform feedback in a shader program. */
+export const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
 
 /** A vertex shader and a fragment shader which are used together to rasterize primitives. */
 export default class Program {

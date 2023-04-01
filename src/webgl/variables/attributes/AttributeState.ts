@@ -1,5 +1,4 @@
-import type Buffer from "./Buffer.js";
-import type { BufferDataType } from "../../Constant.js";
+import Buffer, { BufferDataType } from "./Buffer.js";
 import type Program from "../../Program.js";
 import type Attribute from "./Attribute.js";
 

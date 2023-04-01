@@ -1,7 +1,77 @@
-import { FramebufferTarget, FramebufferAttachmentPoint, RENDERBUFFER } from "./Constant.js";
-import type Texture from "./textures/Texture.js";
-import Renderbuffer from "./Renderbuffer.js";
-import type { TextureFaceLevel } from "./textures/Texture.js";
+import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
+import Texture, { TextureFaceLevel } from "./textures/Texture.js";
+
+/** Binding points for framebuffers. */
+export enum FramebufferTarget {
+	/** A collection buffer data storage of color, alpha, depth, and stencil buffers used to render an image. */
+	FRAMEBUFFER = 0x8D40,
+
+	/** Used as a destination for drawing, rendering, clearing, and writing operations. */
+	DRAW_FRAMEBUFFER = 0x8CA9,
+
+	/** Used as a source for reading operations. */
+	READ_FRAMEBUFFER = 0x8CA8
+}
+
+/** Attachment points for framebuffer attachments. */
+export enum FramebufferAttachmentPoint {
+	/** The first color buffer. */
+	COLOR_ATTACHMENT0 = 0x8CE0,
+
+	/** The second color buffer. */
+	COLOR_ATTACHMENT1 = 0x8CE1,
+
+	/** The third color buffer. */
+	COLOR_ATTACHMENT2 = 0x8CE2,
+
+	/** The fourth color buffer. */
+	COLOR_ATTACHMENT3 = 0x8CE3,
+
+	/** The fifth color buffer. */
+	COLOR_ATTACHMENT4 = 0x8CE4,
+
+	/** The sixth color buffer. */
+	COLOR_ATTACHMENT5 = 0x8CE5,
+
+	/** The seventh color buffer. */
+	COLOR_ATTACHMENT6 = 0x8CE6,
+
+	/** The eighth color buffer. */
+	COLOR_ATTACHMENT7 = 0x8CE7,
+
+	/** The ninth color buffer. */
+	COLOR_ATTACHMENT8 = 0x8CE8,
+
+	/** The tenth color buffer. */
+	COLOR_ATTACHMENT9 = 0x8CE9,
+
+	/** The eleventh color buffer. */
+	COLOR_ATTACHMENT10 = 0x8CEA,
+
+	/** The twelfth color buffer. */
+	COLOR_ATTACHMENT11 = 0x8CEB,
+
+	/** The thirteenth color buffer. */
+	COLOR_ATTACHMENT12 = 0x8CEC,
+
+	/** The fourteenth color buffer. */
+	COLOR_ATTACHMENT13 = 0x8CED,
+
+	/** The fifteenth color buffer. */
+	COLOR_ATTACHMENT14 = 0x8CEE,
+
+	/** The sixteenth color buffer. */
+	COLOR_ATTACHMENT15 = 0x8CEF,
+
+	/** The depth buffer. */
+	DEPTH_ATTACHMENT = 0x8D00,
+
+	/** The stencil buffer. */
+	STENCIL_ATTACHMENT = 0x8D20,
+
+	/** The depth and stencil buffer. */
+	DEPTH_STENCIL_ATTACHMENT = 0x821A
+}
 
 /** An attachment for a framebuffer. */
 export type FramebufferAttachment = Texture<TextureFaceLevel> | Renderbuffer;

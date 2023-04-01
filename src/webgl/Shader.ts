@@ -1,4 +1,17 @@
-import { ShaderType, COMPILE_STATUS, DELETE_STATUS } from "./Constant.js";
+/** Types of shaders. */
+export enum ShaderType {
+	/** A fragment shader, which calculates a color for each pixel of a primitive. */
+	FRAGMENT_SHADER = 0x8B30,
+
+	/** A vertex shader, which calculates a position for each vertex of a primitive. */
+	VERTEX_SHADER = 0x8B31
+}
+
+/** The deletion status of a shader or shader program. */
+export const DELETE_STATUS = 0x8B80;
+
+/** The compilation status of a shader. */
+export const COMPILE_STATUS = 0x8B81;
 
 /** A function which runs on the GPU. */
 export default class Shader {

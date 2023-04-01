@@ -1,5 +1,181 @@
 import type { TypedArray } from "../../types/TypedArray.js";
-import { TextureFilter, TextureWrapFunction, type TextureTarget, TEXTURE0, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T, TextureFaceTarget, TextureFormat, TextureDataType } from "../Constant.js";
+
+/** Binding points for textures. */
+export enum TextureTarget {
+	/** A two-dimensional texture. */
+	TEXTURE_2D = 0x0DE1,
+
+	/** A cube-mapped texture. */
+	TEXTURE_CUBE_MAP = 0x8513,
+
+	/** A three-dimensional texture. */
+	TEXTURE_3D = 0x806F,
+
+	/** A two-dimensional array texture. */
+	TEXTURE_2D_ARRAY = 0x8C1A
+}
+
+/** Binding points for texture faces. */
+export enum TextureFaceTarget {
+	/** A two-dimensional texture. */
+	TEXTURE_2D = 0x0DE1,
+
+	/** A three-dimensional texture. */
+	TEXTURE_3D = 0x806F,
+
+	/** A two-dimensional array texture. */
+	TEXTURE_2D_ARRAY = 0x8C1A,
+
+	/** The positive X-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515,
+
+	/** The negative X-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516,
+
+	/** The positive Y-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517,
+
+	/** The negative Y-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518,
+
+	/** The positive Z-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519,
+
+	/** The negative Z-axis face for a cube-mapped texture. */
+	TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A
+}
+
+/** Formats for the color components in a texture. */
+export enum TextureFormat {
+	/** Reads the red, green, and blue components from the color buffer. */
+	RGBA = 0x1908,
+
+	/** Discards the alpha component and reads the red, green, and blue components. */
+	RGB = 0x1907,
+
+	/** Each component is a luminance/alpha component. */
+	LUMINANCE_ALPHA = 0x190A,
+
+	/** Each color component is a luminance component, and alpha is one. */
+	LUMINANCE = 0x1909,
+
+	/** Discards the red, green, and blue components and reads the alpha component. */
+	ALPHA = 0x1906,
+	R8 = 0x8229,
+	R8_SNORM = 0x8F94,
+	RG8 = 0x822B,
+	RG8_SNORM = 0x8F95,
+	RGB8 = 0x8051,
+	RGB8_SNORM = 0x8F96,
+	RGB565 = 0x8D62,
+	RGBA4 = 0x8056,
+	RGB5_A1 = 0x8057,
+	RGBA8 = 0x8058,
+	RGBA8_SNORM = 0x8F97,
+	RGB10_A2 = 0x8059,
+	RGB10_A2UI = 0x906F,
+	SRGB8 = 0x8C41,
+	SRGB8_ALPHA8 = 0x8C43,
+	R16F = 0x822D,
+	RG16F = 0x822F,
+	RGB16F = 0x881B,
+	RGBA16F = 0x881A,
+	R32F = 0x822E,
+	RG32F = 0x8230,
+	RGB32F = 0x8815,
+	RGBA32F = 0x8814,
+	R11F_G11F_B10F = 0x8C3A,
+	RGB9_E5 = 0x8C3D,
+	R8I = 0x8231,
+	R8UI = 0x8232,
+	R16I = 0x8233,
+	R16UI = 0x8234,
+	R32I = 0x8235,
+	R32UI = 0x8236,
+	RG8I = 0x8237,
+	RG8UI = 0x8238,
+	RG16I = 0x8239,
+	RG16UI = 0x823A,
+	RG32I = 0x823B,
+	RG32UI = 0x823C,
+	RGB8I = 0x8D8F,
+	RGB8UI = 0x8D7D,
+	RGB16I = 0x8D89,
+	RGB16UI = 0x8D77,
+	RGB32I = 0x8D83,
+	RGB32UI = 0x8D71,
+	RGBA8I = 0x8D8E,
+	RGBA8UI = 0x8D7C,
+	RGBA16I = 0x8D88,
+	RGBA16UI = 0x8D76,
+	RGBA32I = 0x8D82,
+	RGBA32UI = 0x8D70,
+
+	// Below here is not for internal use.
+	RED = 0x1903,
+	RED_INTEGER = 0x8D94,
+	RG = 0x8227,
+	RG_INTEGER = 0x8228,
+	RGB_INTEGER = 0x8D98,
+	RGBA_INTEGER = 0x8D99
+}
+
+/** Data types for texel data. */
+export enum TextureDataType {
+	UNSIGNED_BYTE = 0x1401,
+	UNSIGNED_SHORT_5_6_5 = 0x8363,
+	UNSIGNED_SHORT_4_4_4_4 = 0x8033,
+	UNSIGNED_SHORT_5_5_5_1 = 0x8034,
+	UNSIGNED_SHORT = 0x1403,
+	UNSIGNED_INT = 0x1405,
+	UNSIGNED_INT_24_8_WEBGL = 0x84FA,
+	FLOAT = 0x1406,
+	HALF_FLOAT_OES = 0x8D61,
+	BYTE = 0x1400,
+	SHORT = 0x1402,
+	INT = 0x1404,
+	HALF_FLOAT = 0x140B,
+	UNSIGNED_INT_2_10_10_10_REV = 0x8368,
+	UNSIGNED_INT_10F_11F_11F_REV = 0x8C3B,
+	UNSIGNED_INT_5_9_9_9_REV = 0x8C3E,
+	UNSIGNED_INT_24_8 = 0x84FA,
+	FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8DAD
+}
+
+/** Magnification and minification filters for textures. */
+export enum TextureFilter {
+	NEAREST = 0x2600,
+	LINEAR = 0x2601,
+	NEAREST_MIPMAP_NEAREST = 0x2700,
+	LINEAR_MIPMAP_NEAREST = 0x2701,
+	NEAREST_MIPMAP_LINEAR = 0x2702,
+	LINEAR_MIPMAP_LINEAR = 0x2703
+}
+
+/** Wrapping functions for textures. */
+export enum TextureWrapFunction {
+	REPEAT = 0x2901,
+	CLAMP_TO_EDGE = 0x812F,
+	MIRRORED_REPEAT = 0x8370
+}
+
+/** The first texture unit. */
+export const TEXTURE0 = 0x84C0;
+
+/** The magnification filter for a texture. */
+export const TEXTURE_MAG_FILTER = 0x2800;
+
+/** The minification filter for a texture. */
+export const TEXTURE_MIN_FILTER = 0x2801;
+
+/** The wrapping mode for a texture on the S axis. */
+export const TEXTURE_WRAP_S = 0x2802;
+
+/** The wrapping mode for a texture on the T axis. */
+export const TEXTURE_WRAP_T = 0x2803;
+
+/** The number of texels to unpack at a time in each row of a texture. */
+export const UNPACK_ALIGNMENT = 0x0CF5;
 
 /** An array of data that can be randomly accessed in a shader program. */
 export default class Texture<FaceType extends TextureFaceLevel> {
