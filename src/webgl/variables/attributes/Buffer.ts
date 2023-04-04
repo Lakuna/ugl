@@ -81,7 +81,7 @@ export const enum BufferDataType {
 
 /**
  * A data stucture that supplies per-vertex data to the GPU.
- * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default class Buffer {
 	/**

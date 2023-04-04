@@ -28,7 +28,10 @@ export const ACTIVE_UNIFORMS = 0x8B86;
 /** The number of active varyings that are used for transform feedback in a shader program. */
 export const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
 
-/** A vertex shader and a fragment shader which are used together to rasterize primitives. */
+/**
+ * A vertex shader and a fragment shader which are used together to rasterize primitives.
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/what-is)
+ */
 export default class Program {
 	/**
 	 * Creates a shader program from source code.

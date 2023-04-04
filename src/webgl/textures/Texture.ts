@@ -369,7 +369,7 @@ export const UNPACK_ALIGNMENT = 0x0CF5;
 
 /**
  * An array of data that can be randomly accessed in a shader program.
- * @see [Textures](https://www.lakuna.pw/a/webgl/textures)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/textures)
  */
 export default class Texture<MipType extends Mip> {
 	/**

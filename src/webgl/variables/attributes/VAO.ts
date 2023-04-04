@@ -31,7 +31,7 @@ export const enum Primitive {
 
 /**
  * A collection of attribute state; a vertex attribute array.
- * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default class VAO {
 	/**

@@ -118,7 +118,7 @@ export type UniformValue = number | Texture<Mip>;
 
 /**
  * A global variable in a WebGL shader program.
- * @see [Uniforms](https://www.lakuna.pw/a/webgl/uniforms)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/uniforms)
  */
 export default abstract class Uniform extends Variable {
 	/**

@@ -15,7 +15,10 @@ export const DELETE_STATUS = 0x8B80;
 /** The compilation status of a shader. */
 export const COMPILE_STATUS = 0x8B81;
 
-/** A function which runs on the GPU. */
+/**
+ * A function which runs on the GPU.
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/what-is)
+ */
 export default class Shader {
 	/**
 	 * Creates a shader from source code.

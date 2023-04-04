@@ -1,7 +1,10 @@
 import type Context from "../Context.js";
 import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureTarget, MipmapTarget, TextureInternalFormat, UNPACK_ALIGNMENT } from "./Texture.js";
 
-/** A 2D texture. */
+/**
+ * A 2D texture.
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/textures)
+ */
 export default class Texture2D extends Texture<Texture2DMip> {
 	/**
 	 * Creates a basic 2D texture from a pixel source.

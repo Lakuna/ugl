@@ -79,7 +79,7 @@ export type FramebufferAttachment = Texture<Mip> | Renderbuffer;
 
 /**
  * A data structure that organizes the memory resources that are needed to render an image.
- * @see [Framebuffers](https://www.lakuna.pw/a/webgl/framebuffers)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
  */
 export default class Framebuffer {
 	/**

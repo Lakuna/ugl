@@ -1,7 +1,10 @@
 import Variable from "./Variable.js";
 import type Program from "../Program.js";
 
-/** An input variable in a WebGL fragment shader used for transform feedback. */
+/**
+ * An input variable in a WebGL fragment shader used for transform feedback.
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+ */
 export default class Varying extends Variable {
 	/**
 	 * Creates a transform feedback varying. This should only be called by the `Program` constructor.

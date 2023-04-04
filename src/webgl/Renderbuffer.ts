@@ -141,7 +141,10 @@ export const enum RenderbufferFormat {
 /** A renderbuffer. */
 export const RENDERBUFFER = 0x8D41;
 
-/** A buffer that can contain an image or be the source or target of a rendering operation. */
+/**
+ * A buffer that can contain an image or be the source or target of a rendering operation.
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
+ */
 export default class Renderbuffer {
 	/**
 	 * Creates a renderbuffer.

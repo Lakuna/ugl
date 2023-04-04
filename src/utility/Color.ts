@@ -76,7 +76,7 @@ export default class Color extends Float32Array {
 
 	/**
 	 * The luminance of this color.
-	 * @see [Relative luminance](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
+	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
 	 */
 	public get luminance(): number {
 		return 0.2126 * luminancePiecewise(this.r)
@@ -88,7 +88,7 @@ export default class Color extends Float32Array {
 	 * Calculates the contrast ratio between this color and another.
 	 * @param c The other color.
 	 * @returns The contrast ratio between the colors.
-	 * @see [Contrast ratio](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
+	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
 	 */
 	public contrast(c: Color): number {
 		const l1: number = this.luminance;

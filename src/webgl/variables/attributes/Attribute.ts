@@ -64,7 +64,7 @@ export const enum AttributeType {
 
 /**
  * An input variable in a WebGL vertex shader.
- * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default abstract class Attribute extends Variable {
 	/**
