@@ -56,11 +56,11 @@ export default class Texture2D extends Texture<Texture2DMip> {
 
 	/** The face of this texture. */
 	public get face(): Mipmap<Texture2DMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_2D) as Mipmap<Texture2DMip>;
+		return this.getFace(MipmapTarget.TEXTURE_2D) as Mipmap<Texture2DMip>;
 	}
 
 	public set face(value: Mipmap<Texture2DMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_2D, value);
+		this.setFace(MipmapTarget.TEXTURE_2D, value);
 	}
 }
 

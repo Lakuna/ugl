@@ -54,56 +54,56 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The negative X-axis face of this texture. */
 	public get nxFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as Mipmap<CubemapMip>;
 	}
 
 	public set nxFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, value);
 	}
 
 	/** The positive X-axis face of this texture. */
 	public get pxFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as Mipmap<CubemapMip>;
 	}
 
 	public set pxFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, value);
 	}
 
 	/** The negative Y-axis face of this texture. */
 	public get nyFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as Mipmap<CubemapMip>;
 	}
 
 	public set nyFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, value);
 	}
 
 	/** The positive Y-axis face of this texture. */
 	public get pyFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as Mipmap<CubemapMip>;
 	}
 
 	public set pyFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, value);
 	}
 
 	/** The negative Z-axis face of this texture. */
 	public get nzFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as Mipmap<CubemapMip>;
 	}
 
 	public set nzFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, value);
 	}
 
 	/** The positive Z-axis face of this texture. */
 	public get pzFace(): Mipmap<CubemapMip> {
-		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as Mipmap<CubemapMip>;
+		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as Mipmap<CubemapMip>;
 	}
 
 	public set pzFace(value: Mipmap<CubemapMip>) {
-		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, value);
+		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, value);
 	}
 }
 

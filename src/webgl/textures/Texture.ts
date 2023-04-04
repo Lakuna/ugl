@@ -404,19 +404,40 @@ export default class Texture<MipType extends Mip> {
 		this.minFilter = minFilter;
 		this.wrapSFunction = wrapSFunction;
 		this.wrapTFunction = wrapTFunction;
+
+		this.setAllNeedsUpdate();
 	}
 
 	/** The rendering context of this texture. */
-	public gl: Context;
+	public readonly gl: Context;
 
 	/** The binding point of this texture. */
-	public target: TextureTarget;
+	public readonly target: TextureTarget;
 
 	/** The WebGL texture represented by this object. */
-	public texture: WebGLTexture;
+	public readonly texture: WebGLTexture;
 
 	/** The faces of this texture. */
-	public faces: Map<MipmapTarget, Mipmap<MipType>>;
+	private readonly faces: Map<MipmapTarget, Mipmap<MipType>>;
+
+	/**
+	 * Gets a face of this texture.
+	 * @param target The target of the face.
+	 * @returns The face.
+	 */
+	public getFace(target: MipmapTarget): Mipmap<MipType> | undefined {
+		return this.faces.get(target);
+	}
+
+	/**
+	 * Sets a face of this texture.
+	 * @param target The target of the face.
+	 * @param face The face.
+	 */
+	public setFace(target: MipmapTarget, face: Mipmap<MipType>): void {
+		this.faces.set(target, face);
+		face.setAllNeedsUpdate();
+	}
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureMagFilter {
@@ -486,20 +507,30 @@ export default class Texture<MipType extends Mip> {
 		this.gl.gl.generateMipmap(this.target);
 	}
 
-	/** Updates the texels of this texture. */
-	public update(): void {
+	/**
+	 * Updates the texels of this texture.
+	 * @returns Whether any updates were performed.
+	 */
+	public update(): boolean {
 		this.bind();
 
+		let anyDidUpdate = false;
 		for (const [target, face] of this.faces) {
-			face.update(this.gl, target);
-		}
-
-		for (const face of this.faces.values()) {
-			if (!face.isTextureComplete && this.minFilter != TextureMinFilter.LINEAR && this.minFilter != TextureMinFilter.NEAREST) {
-				this.generateMipmap();
-				break;
+			if (face.update(this.gl, target)) {
+				anyDidUpdate = true;
 			}
 		}
+
+		if (anyDidUpdate && this.minFilter != TextureMinFilter.LINEAR && this.minFilter != TextureMinFilter.NEAREST) {
+			for (const face of this.faces.values()) {
+				if (!face.isTextureComplete) {
+					this.generateMipmap();
+					break;
+				}
+			}
+		}
+
+		return anyDidUpdate;
 	}
 
 	/** Sets all of the faces of this texture as outdated. */
@@ -530,11 +561,30 @@ export class Mipmap<MipType extends Mip> {
 	}
 
 	/** A map of the mips to their level of detail. */
-	public mips: Map<number, MipType>;
+	private readonly mips: Map<number, MipType>;
+
+	/**
+	 * Gets a mip.
+	 * @param level The level of the mip.
+	 * @returns The mip.
+	 */
+	public getMip(level: number): MipType | undefined {
+		return this.mips.get(level);
+	}
+
+	/**
+	 * Sets a mip.
+	 * @param level The level of the mip.
+	 * @param mip The mip.
+	 */
+	public setMip(level: number, mip: MipType): void {
+		this.mips.set(level, mip);
+		mip.setNeedsUpdate();
+	}
 
 	/** Whether this mipmap is texture complete. */
 	public get isTextureComplete(): boolean {
-		const baseMip: MipType | undefined = this.mips.get(0);
+		const baseMip: MipType | undefined = this.getMip(0);
 		if (!baseMip) {
 			return false;
 		}
@@ -550,7 +600,7 @@ export class Mipmap<MipType extends Mip> {
 
 		let lod = 1;
 		while (dims.some((dim: number) => dim > 1)) {
-			const mip: MipType | undefined = this.mips.get(lod);
+			const mip: MipType | undefined = this.getMip(lod);
 			if (!mip) {
 				return false;
 			}
@@ -573,11 +623,17 @@ export class Mipmap<MipType extends Mip> {
 	 * Updates this mipmap.
 	 * @param gl The rendering context of this mipmap.
 	 * @param target The target of this this mipmap.
+	 * @returns Whether any updates were performed.
 	 */
-	public update(gl: Context, target: MipmapTarget): void {
+	public update(gl: Context, target: MipmapTarget): boolean {
+		let anyDidUpdate = false;
 		for (const [lod, level] of this.mips) {
-			level.update(gl, target, lod);
+			if (level.update(gl, target, lod)) {
+				anyDidUpdate = true;
+			}
 		}
+
+		return anyDidUpdate;
 	}
 
 	/** Sets all of the mips as outdated. */
@@ -763,15 +819,18 @@ export abstract class Mip {
 	 * @param gl The rendering context of this mip.
 	 * @param target The target of this mip.
 	 * @param lod The level of detail of this mip.
+	 * @returns Whether an update was performed.
 	 */
-	public update(gl: Context, target: MipmapTarget, lod: number): void {
+	public update(gl: Context, target: MipmapTarget, lod: number): boolean {
 		if (!this.needsUpdate) {
-			return;
+			return false;
 		}
 
 		this.updateInternal(gl, target, lod);
 
 		this.needsUpdate = false;
+
+		return true;
 	}
 
 	/**
