@@ -1,4 +1,4 @@
-import { default as Uniform, SamplerUniform } from "./variables/Uniform.js";
+import Uniform, { type SamplerUniform } from "./variables/Uniform.js";
 import Attribute from "./variables/attributes/Attribute.js";
 import Varying from "./variables/Varying.js";
 import Shader, { ShaderType, DELETE_STATUS } from "./Shader.js";

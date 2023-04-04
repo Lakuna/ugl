@@ -1,4 +1,4 @@
-import Color from "../utility/Color.js";
+import type Color from "../utility/Color.js";
 
 /** A canvas. */
 export type Canvas = HTMLCanvasElement | OffscreenCanvas;

@@ -1,4 +1,4 @@
-import Buffer, { BufferDataType } from "./Buffer.js";
+import type { default as Buffer, BufferDataType } from "./Buffer.js";
 import type Program from "../../Program.js";
 import type Attribute from "./Attribute.js";
 import type Context from "../../Context.js";

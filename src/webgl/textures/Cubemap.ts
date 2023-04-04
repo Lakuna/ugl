@@ -1,5 +1,5 @@
 import type Context from "../Context.js";
-import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
+import Texture, { type Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
 
 /** A cubemap texture. */
 export default class Cubemap extends Texture<CubemapMip> {

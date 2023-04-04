@@ -1,5 +1,5 @@
 import type { UintTypedArray, TypedArray } from "../../../types/TypedArray.js";
-import Context from "../../Context.js";
+import type Context from "../../Context.js";
 
 /** Binding points for buffers. */
 export const enum BufferTarget {

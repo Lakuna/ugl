@@ -1,6 +1,6 @@
 import Variable from "./Variable.js";
 import type Program from "../Program.js";
-import Texture, { Mip } from "../textures/Texture.js";
+import type { default as Texture, Mip } from "../textures/Texture.js";
 import type MeasuredIterable from "../../types/MeasuredIterable.js";
 
 /** Possible variable types for uniforms. */

@@ -1,6 +1,6 @@
 import type Context from "./Context.js";
 import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
-import Texture, { Mip } from "./textures/Texture.js";
+import type { default as Texture, Mip } from "./textures/Texture.js";
 
 /** Binding points for framebuffers. */
 export const enum FramebufferTarget {
