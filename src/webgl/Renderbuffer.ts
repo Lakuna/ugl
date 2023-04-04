@@ -1,7 +1,7 @@
 import type Context from "./Context.js";
 
 /** Formats for a renderbuffer. */
-export enum RenderbufferFormat {
+export const enum RenderbufferFormat {
 	/** 4 bits each for red, green, blue, and alpha. */
 	RGBA4 = 0x8056,
 

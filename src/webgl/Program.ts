@@ -5,7 +5,7 @@ import Shader, { ShaderType, DELETE_STATUS } from "./Shader.js";
 import type Context from "./Context.js";
 
 /** Modes for capturing transform feedback varyings. */
-export enum TransformFeedbackBufferMode {
+export const enum TransformFeedbackBufferMode {
 	/** All of the varyings will be written to the same buffer, interleaved in the specified order. */
 	INTERLEAVED_ATTRIBS = 0x8C8C,
 

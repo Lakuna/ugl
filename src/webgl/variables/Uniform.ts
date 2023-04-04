@@ -4,7 +4,7 @@ import Texture, { Mip } from "../textures/Texture.js";
 import type MeasuredIterable from "../../types/MeasuredIterable.js";
 
 /** Possible variable types for uniforms. */
-export enum UniformType {
+export const enum UniformType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

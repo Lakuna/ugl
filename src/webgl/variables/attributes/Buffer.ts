@@ -2,7 +2,7 @@ import type { UintTypedArray, TypedArray } from "../../../types/TypedArray.js";
 import Context from "../../Context.js";
 
 /** Binding points for buffers. */
-export enum BufferTarget {
+export const enum BufferTarget {
 	/** A buffer containing vertex attributes. */
 	ARRAY_BUFFER = 0x8892,
 
@@ -29,7 +29,7 @@ export enum BufferTarget {
 }
 
 /** Usage patterns of a buffer's data store for optimization purposes. */
-export enum BufferUsage {
+export const enum BufferUsage {
 	/** The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands. */
 	STATIC_DRAW = 0x88E4,
 
@@ -59,7 +59,7 @@ export enum BufferUsage {
 }
 
 /** Types of data that can be stored as components in a buffer. */
-export enum BufferDataType {
+export const enum BufferDataType {
 	/** An 8-bit signed integer. */
 	BYTE = 0x1400,
 

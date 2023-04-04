@@ -1,7 +1,7 @@
 import type Context from "./Context.js";
 
 /** Types of shaders. */
-export enum ShaderType {
+export const enum ShaderType {
 	/** A fragment shader, which calculates a color for each pixel of a primitive. */
 	FRAGMENT_SHADER = 0x8B30,
 

@@ -3,7 +3,7 @@ import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
 import Texture, { Mip } from "./textures/Texture.js";
 
 /** Binding points for framebuffers. */
-export enum FramebufferTarget {
+export const enum FramebufferTarget {
 	/** A collection buffer data storage of color, alpha, depth, and stencil buffers used to render an image. */
 	FRAMEBUFFER = 0x8D40,
 
@@ -15,7 +15,7 @@ export enum FramebufferTarget {
 }
 
 /** Attachment points for framebuffer attachments. */
-export enum FramebufferAttachmentPoint {
+export const enum FramebufferAttachmentPoint {
 	/** The first color buffer. */
 	COLOR_ATTACHMENT0 = 0x8CE0,
 

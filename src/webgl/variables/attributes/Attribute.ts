@@ -3,7 +3,7 @@ import type Program from "../../Program.js";
 import type AttributeState from "../attributes/AttributeState.js";
 
 /** Possible variable types for attributes. */
-export enum AttributeType {
+export const enum AttributeType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

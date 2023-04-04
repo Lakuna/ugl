@@ -2,7 +2,7 @@ import type { TypedArray } from "../../types/TypedArray.js";
 import type Context from "../Context.js";
 
 /** Binding points for textures. */
-export enum TextureTarget {
+export const enum TextureTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0DE1,
 
@@ -17,7 +17,7 @@ export enum TextureTarget {
 }
 
 /** Binding points for texture faces. */
-export enum MipmapTarget {
+export const enum MipmapTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0DE1,
 
@@ -50,7 +50,7 @@ export enum MipmapTarget {
  * Internal formats for the color components in a texture.
  * @see [OpenGL ES 3 reference](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage3D.xhtml)
  */
-export enum TextureInternalFormat {
+export const enum TextureInternalFormat {
 	/** `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. Color renderable and texture filterable. */
 	RGB = 0x1907,
 
@@ -215,7 +215,7 @@ export enum TextureInternalFormat {
 }
 
 /** Formats for the color components in a texture. */
-export enum TextureBaseFormat {
+export const enum TextureBaseFormat {
 	/** Indicates that a texture uses only the red, green, and blue channels. */
 	RGB = 0x1907,
 
@@ -251,7 +251,7 @@ export enum TextureBaseFormat {
 }
 
 /** Data types for texel data. */
-export enum TextureDataType {
+export const enum TextureDataType {
 	/** Indicates that data must come from a `Uint8Array` or a `Uint8ClampedArray`. */
 	UNSIGNED_BYTE = 0x1401,
 
@@ -308,7 +308,7 @@ export enum TextureDataType {
 }
 
 /** Magnification filters for textures. */
-export enum TextureMagFilter {
+export const enum TextureMagFilter {
 	/** Chooses one pixel from the largest mip. */
 	NEAREST = 0x2600,
 
@@ -317,7 +317,7 @@ export enum TextureMagFilter {
 }
 
 /** Minification filters for textures. */
-export enum TextureMinFilter {
+export const enum TextureMinFilter {
 	/** Chooses one pixel from the largest mip. */
 	NEAREST = 0x2600,
 
@@ -338,7 +338,7 @@ export enum TextureMinFilter {
 }
 
 /** Wrapping functions for textures. */
-export enum TextureWrapFunction {
+export const enum TextureWrapFunction {
 	/** The texture repeats after it ends. */
 	REPEAT = 0x2901,
 

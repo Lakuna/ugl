@@ -6,7 +6,7 @@ import type { UintTypedArray } from "../../../types/TypedArray.js";
 import type Context from "../../Context.js";
 
 /** Types of primitives that can be rasterized. */
-export enum Primitive {
+export const enum Primitive {
 	/** Draws a dot at each vertex. */
 	POINTS = 0x0000,
 
