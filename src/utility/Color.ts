@@ -19,10 +19,10 @@ export default class Color extends Float32Array {
 
 	/**
 	 * Creates a color from RGBA values.
-	 * @param r The amount of red in the color, from `0` to `1`.
-	 * @param g The amount of green in the color, from `0` to `1`.
-	 * @param b The amount of blue in the color, from `0` to `1`.
-	 * @param a The opacity of the color, from `0` to `1`.
+	 * @param r The red component of the color, from `0` to `1`.
+	 * @param g The green component of the color, from `0` to `1`.
+	 * @param b The blue component of the color, from `0` to `1`.
+	 * @param a The alpha component (opacity) of the color, from `0` to `1`.
 	 */
 	public constructor(r: number, g: number, b: number, a?: number);
 
@@ -38,7 +38,7 @@ export default class Color extends Float32Array {
 		);
 	}
 
-	/** The red value of this color. */
+	/** The red component of this color. */
 	public get r(): number {
 		return this[0] as number;
 	}
@@ -47,7 +47,7 @@ export default class Color extends Float32Array {
 		this[0] = value;
 	}
 
-	/** The green value of this color. */
+	/** The green component of this color. */
 	public get g(): number {
 		return this[1] as number;
 	}
@@ -56,7 +56,7 @@ export default class Color extends Float32Array {
 		this[1] = value;
 	}
 
-	/** The blue value of this color. */
+	/** The blue component of this color. */
 	public get b(): number {
 		return this[2] as number;
 	}
@@ -65,7 +65,7 @@ export default class Color extends Float32Array {
 		this[2] = value;
 	}
 
-	/** The alpha value of this color. */
+	/** The alpha component of this color. */
 	public get a(): number {
 		return this[3] as number;
 	}

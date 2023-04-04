@@ -8,23 +8,25 @@ export {
 export { default as Color } from "./utility/Color.js";
 export {
 	default as Cubemap,
-	CubemapFaceLevel
+	CubemapMip
 } from "./webgl/textures/Cubemap.js";
 export {
 	TextureTarget,
-	TextureFaceTarget,
-	TextureFormat,
+	MipmapTarget,
+	TextureInternalFormat,
+	TextureBaseFormat,
 	TextureDataType,
-	TextureFilter,
+	TextureMagFilter,
+	TextureMinFilter,
 	TextureWrapFunction,
 	default as Texture,
-	type TextureSource,
-	TextureFace,
-	TextureFaceLevel
+	type MipSource,
+	Mipmap,
+	Mip
 } from "./webgl/textures/Texture.js";
 export {
 	default as Texture2D,
-	Texture2DFaceLevel
+	Texture2DMip
 } from "./webgl/textures/Texture2D.js";
 export {
 	AttributeType,

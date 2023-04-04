@@ -1,6 +1,6 @@
 import type Context from "./Context.js";
 import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
-import Texture, { TextureFaceLevel } from "./textures/Texture.js";
+import Texture, { Mip } from "./textures/Texture.js";
 
 /** Binding points for framebuffers. */
 export enum FramebufferTarget {
@@ -75,9 +75,12 @@ export enum FramebufferAttachmentPoint {
 }
 
 /** An attachment for a framebuffer. */
-export type FramebufferAttachment = Texture<TextureFaceLevel> | Renderbuffer;
+export type FramebufferAttachment = Texture<Mip> | Renderbuffer;
 
-/** A data structure that organizes the memory resources that are needed to render an image. */
+/**
+ * A data structure that organizes the memory resources that are needed to render an image.
+ * @see [Framebuffers](https://www.lakuna.pw/a/webgl/framebuffers)
+ */
 export default class Framebuffer {
 	/**
 	 * Unbinds all framebuffers from the given rendering context.
@@ -128,7 +131,7 @@ export default class Framebuffer {
 	 * @param attachment The texture to attach.
 	 * @param attachmentPoint The attachment point of the texture.
 	 */
-	public attach(attachment: Texture<TextureFaceLevel>, attachmentPoint: FramebufferAttachmentPoint): void;
+	public attach(attachment: Texture<Mip>, attachmentPoint: FramebufferAttachmentPoint): void;
 
 	/**
 	 * Attaches a single layer of a texture to this framebuffer.
@@ -136,7 +139,7 @@ export default class Framebuffer {
 	 * @param attachmentPoint The attachment point of the texture.
 	 * @param layer The layer of the texture to attach.
 	 */
-	public attach(attachment: Texture<TextureFaceLevel>, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
+	public attach(attachment: Texture<Mip>, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
 
 	/**
 	 * Attaches a renderbuffer to this framebuffer.

@@ -1,20 +1,20 @@
 import type Context from "../Context.js";
-import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureTarget, TextureFaceTarget, TextureFormat, UNPACK_ALIGNMENT } from "./Texture.js";
+import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureTarget, MipmapTarget, TextureInternalFormat, UNPACK_ALIGNMENT } from "./Texture.js";
 
 /** A 2D texture. */
-export default class Texture2D extends Texture<Texture2DFaceLevel> {
+export default class Texture2D extends Texture<Texture2DMip> {
 	/**
 	 * Creates a basic 2D texture from a pixel source.
 	 * @param gl The rendering context of the texture.
 	 * @param source The pixel source.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromSource(gl: Context, source: TextureSource): Texture2D {
+	public static fromSource(gl: Context, source: MipSource): Texture2D {
 		return new Texture2D(
 			gl,
-			new TextureFace(
+			new Mipmap(
 				new Map([
-					[0, new Texture2DFaceLevel(source)]
+					[0, new Texture2DMip(source)]
 				])
 			)
 		);
@@ -32,9 +32,9 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	 */
 	public constructor(
 		gl: Context,
-		face: TextureFace<Texture2DFaceLevel>,
-		magFilter: TextureFilter = TextureFilter.NEAREST,
-		minFilter: TextureFilter = TextureFilter.NEAREST,
+		face: Mipmap<Texture2DMip>,
+		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
+		minFilter: TextureMinFilter = TextureMinFilter.NEAREST,
 		wrapSFunction: TextureWrapFunction = TextureWrapFunction.REPEAT,
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
@@ -42,7 +42,7 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 			gl,
 			TextureTarget.TEXTURE_2D,
 			new Map([
-				[TextureFaceTarget.TEXTURE_2D, face]
+				[MipmapTarget.TEXTURE_2D, face]
 			]),
 			magFilter,
 			minFilter,
@@ -52,17 +52,17 @@ export default class Texture2D extends Texture<Texture2DFaceLevel> {
 	}
 
 	/** The face of this texture. */
-	public get face(): TextureFace<Texture2DFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_2D) as TextureFace<Texture2DFaceLevel>;
+	public get face(): Mipmap<Texture2DMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_2D) as Mipmap<Texture2DMip>;
 	}
 
-	public set face(value: TextureFace<Texture2DFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_2D, value);
+	public set face(value: Mipmap<Texture2DMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_2D, value);
 	}
 }
 
 /** A level of a face of a 2D texture. */
-export class Texture2DFaceLevel extends TextureFaceLevel {
+export class Texture2DMip extends Mip {
 	/**
 	 * Creates a level of a texture face.
 	 * @param source The pixel source of the texture.
@@ -71,8 +71,8 @@ export class Texture2DFaceLevel extends TextureFaceLevel {
 	 * @param height The height of the texture face level.
 	 */
 	public constructor(
-		source: TextureSource,
-		internalFormat: TextureFormat = TextureFormat.RGBA,
+		source: MipSource,
+		internalFormat: TextureInternalFormat = TextureInternalFormat.RGBA,
 		width?: number,
 		height?: number
 	) {
@@ -103,7 +103,7 @@ export class Texture2DFaceLevel extends TextureFaceLevel {
 	 * @param texture The WebGL texture.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected override updateInternal(gl: Context, target: TextureFaceTarget, lod: number): void {
+	protected override updateInternal(gl: Context, target: MipmapTarget, lod: number): void {
 		if (this.width && this.height) {
 			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {

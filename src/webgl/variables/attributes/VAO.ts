@@ -29,7 +29,10 @@ export enum Primitive {
 	TRIANGLES = 0x0004
 }
 
-/** A collection of attribute state; a vertex attribute array. */
+/**
+ * A collection of attribute state; a vertex attribute array.
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ */
 export default class VAO {
 	/**
 	 * Creates a vertex array object.

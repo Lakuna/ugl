@@ -79,7 +79,10 @@ export enum BufferDataType {
 	HALF_FLOAT = 0x140B
 }
 
-/** A data stucture that supplies per-vertex data to the GPU. */
+/**
+ * A data stucture that supplies per-vertex data to the GPU.
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ */
 export default class Buffer {
 	/**
 	 * Creates an element array buffer.

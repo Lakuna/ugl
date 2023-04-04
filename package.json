@@ -1,7 +1,7 @@
 {
 	"name": "@lakuna/ugl",
 	"version": "13.0.0",
-	"description": "A lightweight visual application framework for WebGL.",
+	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end",
 		"framework",

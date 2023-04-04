@@ -1,6 +1,6 @@
 import Variable from "./Variable.js";
 import type Program from "../Program.js";
-import Texture, { TextureFaceLevel } from "../textures/Texture.js";
+import Texture, { Mip } from "../textures/Texture.js";
 import type MeasuredIterable from "../../types/MeasuredIterable.js";
 
 /** Possible variable types for uniforms. */
@@ -17,26 +17,37 @@ export enum UniformType {
 	/** A four-dimensional vector of 32-bit signed floating-point values. */
 	FLOAT_VEC4 = 0x8B52,
 
+	/** A sampler of a 2D texture. */
 	SAMPLER_2D = 0x8B5E,
 
+	/** A sampler of a 3D texture. */
 	SAMPLER_3D = 0x8B5F,
 
+	/** A sampler of a cube texture. */
 	SAMPLER_CUBE = 0x8B60,
 
+	/** A sampler of a 2D shadow texture. */
 	SAMPLER_2D_SHADOW = 0x8B62,
 
+	/** A sampler of a 2D array texture. */
 	SAMPLER_2D_ARRAY = 0x8DC1,
 
+	/** A sampler of a 2D array shadow texture. */
 	SAMPLER_2D_ARRAY_SHADOW = 0x8DC4,
 
+	/** A sampler of a cube shadow texture. */
 	SAMPLER_CUBE_SHADOW = 0x8DC5,
 
+	/** An integer sampler of a 2D texture. */
 	INT_SAMPLER_2D = 0x8DCA,
 
+	/** An integer sampler of a 3D texture. */
 	INT_SAMPLER_3D = 0x8DCB,
 
+	/** An integer sampler of a cube texture. */
 	INT_SAMPLER_CUBE = 0x8DCC,
 
+	/** An integer sampler of a 2D array texture. */
 	INT_SAMPLER_2D_ARRAY = 0x8DCF,
 
 	/** A boolean value. */
@@ -103,9 +114,12 @@ export enum UniformType {
 	FLOAT_MAT4x3 = 0x8B6A
 }
 
-export type UniformValue = number | Texture<TextureFaceLevel>;
+export type UniformValue = number | Texture<Mip>;
 
-/** A global variable in a WebGL shader program. */
+/**
+ * A global variable in a WebGL shader program.
+ * @see [Uniforms](https://www.lakuna.pw/a/webgl/uniforms)
+ */
 export default abstract class Uniform extends Variable {
 	/**
 	 * Creates a uniform for the given variable type.
@@ -268,29 +282,29 @@ export class SamplerUniform extends SingleValuedUniform {
 	public readonly textureUnit: number;
 
 	/** The setter method for this uniform if the value is an array. */
-	public arraySetter(value: MeasuredIterable<Texture<TextureFaceLevel>>): void {
+	public arraySetter(value: MeasuredIterable<Texture<Mip>>): void {
 		const textureUnits: Int32Array = new Int32Array(value.length);
 		for (let i = 0; i < value.length; i++) { textureUnits[i] = (this.textureUnit) + i; }
 		for (let i = 0; i < value.length; i++) {
-			(value[i] as Texture<TextureFaceLevel>).update();
-			(value[i] as Texture<TextureFaceLevel>).assign(textureUnits[i] as number);
+			(value[i] as Texture<Mip>).update();
+			(value[i] as Texture<Mip>).assign(textureUnits[i] as number);
 		}
 		this.gl.gl.uniform1iv(this.location, textureUnits, this.sourceOffset, this.sourceLength);
 	}
 
 	/** The setter method for this uniform. */
-	public setter(value: Texture<TextureFaceLevel>): void {
+	public setter(value: Texture<Mip>): void {
 		value.update();
 		value.assign(this.textureUnit);
 		this.gl.gl.uniform1i(this.location, this.textureUnit);
 	}
 
 	/** The value of this uniform. */
-	public override get value(): Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>> {
-		return this.valuePrivate as Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>>;
+	public override get value(): Texture<Mip> | MeasuredIterable<Texture<Mip>> {
+		return this.valuePrivate as Texture<Mip> | MeasuredIterable<Texture<Mip>>;
 	}
 
-	public override set value(value: Texture<TextureFaceLevel> | MeasuredIterable<Texture<TextureFaceLevel>>) {
+	public override set value(value: Texture<Mip> | MeasuredIterable<Texture<Mip>>) {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {

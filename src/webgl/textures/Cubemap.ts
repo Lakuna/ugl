@@ -1,8 +1,8 @@
 import type Context from "../Context.js";
-import Texture, { TextureFace, TextureFaceLevel, type TextureSource, TextureFilter, TextureWrapFunction, TextureFormat, UNPACK_ALIGNMENT, TextureFaceTarget, TextureTarget } from "./Texture.js";
+import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
 
 /** A cubemap texture. */
-export default class Cubemap extends Texture<CubemapFaceLevel> {
+export default class Cubemap extends Texture<CubemapMip> {
 	/**
 	 * Creates a 2D texture.
 	 * @param gl The WebGL2 rendering context of the texture.
@@ -20,14 +20,14 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 	 */
 	public constructor(
 		gl: Context,
-		nxFace: TextureFace<CubemapFaceLevel>,
-		pxFace: TextureFace<CubemapFaceLevel>,
-		nyFace: TextureFace<CubemapFaceLevel>,
-		pyFace: TextureFace<CubemapFaceLevel>,
-		nzFace: TextureFace<CubemapFaceLevel>,
-		pzFace: TextureFace<CubemapFaceLevel>,
-		magFilter: TextureFilter = TextureFilter.NEAREST,
-		minFilter: TextureFilter = TextureFilter.NEAREST,
+		nxFace: Mipmap<CubemapMip>,
+		pxFace: Mipmap<CubemapMip>,
+		nyFace: Mipmap<CubemapMip>,
+		pyFace: Mipmap<CubemapMip>,
+		nzFace: Mipmap<CubemapMip>,
+		pzFace: Mipmap<CubemapMip>,
+		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
+		minFilter: TextureMinFilter = TextureMinFilter.NEAREST,
 		wrapSFunction: TextureWrapFunction = TextureWrapFunction.REPEAT,
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
@@ -35,12 +35,12 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 			gl,
 			TextureTarget.TEXTURE_CUBE_MAP,
 			new Map([
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nxFace],
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_X, pxFace],
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, nyFace],
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, pyFace],
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nzFace],
-				[TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pzFace]
+				[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nxFace],
+				[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, pxFace],
+				[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, nyFace],
+				[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, pyFace],
+				[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nzFace],
+				[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pzFace]
 			]),
 			magFilter,
 			minFilter,
@@ -50,62 +50,62 @@ export default class Cubemap extends Texture<CubemapFaceLevel> {
 	}
 
 	/** The negative X-axis face of this texture. */
-	public get nxFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as TextureFace<CubemapFaceLevel>;
+	public get nxFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as Mipmap<CubemapMip>;
 	}
 
-	public set nxFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, value);
+	public set nxFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, value);
 	}
 
 	/** The positive X-axis face of this texture. */
-	public get pxFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as TextureFace<CubemapFaceLevel>;
+	public get pxFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as Mipmap<CubemapMip>;
 	}
 
-	public set pxFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_X, value);
+	public set pxFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, value);
 	}
 
 	/** The negative Y-axis face of this texture. */
-	public get nyFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as TextureFace<CubemapFaceLevel>;
+	public get nyFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as Mipmap<CubemapMip>;
 	}
 
-	public set nyFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, value);
+	public set nyFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, value);
 	}
 
 	/** The positive Y-axis face of this texture. */
-	public get pyFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as TextureFace<CubemapFaceLevel>;
+	public get pyFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as Mipmap<CubemapMip>;
 	}
 
-	public set pyFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, value);
+	public set pyFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, value);
 	}
 
 	/** The negative Z-axis face of this texture. */
-	public get nzFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as TextureFace<CubemapFaceLevel>;
+	public get nzFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as Mipmap<CubemapMip>;
 	}
 
-	public set nzFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, value);
+	public set nzFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, value);
 	}
 
 	/** The positive Z-axis face of this texture. */
-	public get pzFace(): TextureFace<CubemapFaceLevel> {
-		return this.faces.get(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as TextureFace<CubemapFaceLevel>;
+	public get pzFace(): Mipmap<CubemapMip> {
+		return this.faces.get(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as Mipmap<CubemapMip>;
 	}
 
-	public set pzFace(value: TextureFace<CubemapFaceLevel>) {
-		this.faces.set(TextureFaceTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, value);
+	public set pzFace(value: Mipmap<CubemapMip>) {
+		this.faces.set(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, value);
 	}
 }
 
 /** A level of a face of a cubemap. */
-export class CubemapFaceLevel extends TextureFaceLevel {
+export class CubemapMip extends Mip {
 	/**
 	 * Creates a level of a texture face.
 	 * @param source The pixel source of the texture.
@@ -113,8 +113,8 @@ export class CubemapFaceLevel extends TextureFaceLevel {
 	 * @param dim The width and height of the texture face level.
 	 */
 	public constructor(
-		source: TextureSource,
-		internalFormat: TextureFormat = TextureFormat.RGBA,
+		source: MipSource,
+		internalFormat: TextureInternalFormat = TextureInternalFormat.RGBA,
 		dim?: number,
 	) {
 		super(source, internalFormat, [dim]);
@@ -135,7 +135,7 @@ export class CubemapFaceLevel extends TextureFaceLevel {
 	 * @param texture The WebGL texture.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected override updateInternal(gl: Context, target: TextureFaceTarget, lod: number): void {
+	protected override updateInternal(gl: Context, target: MipmapTarget, lod: number): void {
 		if (this.dim) {
 			if (this.dim > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {

@@ -62,7 +62,10 @@ export enum AttributeType {
 	FLOAT_MAT4 = 0x8B5C
 }
 
-/** An input variable in a WebGL vertex shader. */
+/**
+ * An input variable in a WebGL vertex shader.
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
+ */
 export default abstract class Attribute extends Variable {
 	/**
 	 * Creates an attribute for the given variable type.
