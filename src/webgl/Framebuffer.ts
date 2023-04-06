@@ -1,6 +1,6 @@
 import type Context from "./Context.js";
 import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
-import type { default as Texture, Mip } from "./textures/Texture.js";
+import { type default as Texture, Mip, type Mipmap, MipmapTarget } from "./textures/Texture.js";
 
 /** Binding points for framebuffers. */
 export const enum FramebufferTarget {
@@ -14,68 +14,20 @@ export const enum FramebufferTarget {
 	READ_FRAMEBUFFER = 0x8CA8
 }
 
-/** Attachment points for framebuffer attachments. */
-export const enum FramebufferAttachmentPoint {
-	/** The first color buffer. */
-	COLOR_ATTACHMENT0 = 0x8CE0,
-
-	/** The second color buffer. */
-	COLOR_ATTACHMENT1 = 0x8CE1,
-
-	/** The third color buffer. */
-	COLOR_ATTACHMENT2 = 0x8CE2,
-
-	/** The fourth color buffer. */
-	COLOR_ATTACHMENT3 = 0x8CE3,
-
-	/** The fifth color buffer. */
-	COLOR_ATTACHMENT4 = 0x8CE4,
-
-	/** The sixth color buffer. */
-	COLOR_ATTACHMENT5 = 0x8CE5,
-
-	/** The seventh color buffer. */
-	COLOR_ATTACHMENT6 = 0x8CE6,
-
-	/** The eighth color buffer. */
-	COLOR_ATTACHMENT7 = 0x8CE7,
-
-	/** The ninth color buffer. */
-	COLOR_ATTACHMENT8 = 0x8CE8,
-
-	/** The tenth color buffer. */
-	COLOR_ATTACHMENT9 = 0x8CE9,
-
-	/** The eleventh color buffer. */
-	COLOR_ATTACHMENT10 = 0x8CEA,
-
-	/** The twelfth color buffer. */
-	COLOR_ATTACHMENT11 = 0x8CEB,
-
-	/** The thirteenth color buffer. */
-	COLOR_ATTACHMENT12 = 0x8CEC,
-
-	/** The fourteenth color buffer. */
-	COLOR_ATTACHMENT13 = 0x8CED,
-
-	/** The fifteenth color buffer. */
-	COLOR_ATTACHMENT14 = 0x8CEE,
-
-	/** The sixteenth color buffer. */
-	COLOR_ATTACHMENT15 = 0x8CEF,
-
-	/** The depth buffer. */
-	DEPTH_ATTACHMENT = 0x8D00,
-
-	/** The stencil buffer. */
-	STENCIL_ATTACHMENT = 0x8D20,
-
-	/** The depth and stencil buffer. */
-	DEPTH_STENCIL_ATTACHMENT = 0x821A
-}
-
 /** An attachment for a framebuffer. */
-export type FramebufferAttachment = Texture<Mip> | Renderbuffer;
+export type FramebufferAttachment = Mip | Mipmap<Mip> | Renderbuffer;
+
+/** The first color attachment. */
+export const COLOR_ATTACHMENT0 = 0x8CE0;
+
+/** The depth attachment. */
+export const DEPTH_ATTACHMENT = 0x8D00;
+
+/** The stencil attachment. */
+export const STENCIL_ATTACHMENT = 0x8D20;
+
+/** The depth and stencil attachment. */
+export const DEPTH_STENCIL_ATTACHMENT = 0x821A;
 
 /**
  * A data structure that organizes the memory resources that are needed to render an image.
@@ -94,14 +46,28 @@ export default class Framebuffer {
 	 * Creates a framebuffer.
 	 * @param gl The rendering context of the framebuffer.
 	 */
-	public constructor(gl: Context, target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER) {
+	public constructor(
+		gl: Context,
+		colorAttachments: Array<FramebufferAttachment> = [],
+		depthAttachment?: FramebufferAttachment,
+		stencilAttachment?: FramebufferAttachment,
+		depthStencilAttachment?: FramebufferAttachment,
+		target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER
+	) {
 		this.gl = gl;
 		this.target = target;
-		this.attachmentsPrivate = new Map();
 
 		const framebuffer: WebGLFramebuffer | null = gl.gl.createFramebuffer();
 		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
 		this.framebuffer = framebuffer;
+
+		this.colorAttachments = [];
+		for (let i = 0; i < colorAttachments.length; i++) {
+			this.setColorAttachment(i, colorAttachments[i] as FramebufferAttachment);
+		}
+		if (depthAttachment) { this.depthAttachment = depthAttachment; }
+		if (stencilAttachment) { this.stencilAttachment = stencilAttachment; }
+		if (depthStencilAttachment) { this.depthStencilAttachment = depthStencilAttachment; }
 	}
 
 	/** The rendering context of this framebuffer. */
@@ -113,17 +79,73 @@ export default class Framebuffer {
 	/** The target binding point of this framebuffer. */
 	public target: FramebufferTarget;
 
+	/** A list of color attachments on this framebuffer. */
+	private readonly colorAttachments: Array<FramebufferAttachment>;
+
+	/**
+	 * Gets a color attachment.
+	 * @param i The index of the color attachment.
+	 * @returns The color attachment.
+	 */
+	public getColorAttachment(i: number): FramebufferAttachment | undefined {
+		return this.colorAttachments[i];
+	}
+
+	/**
+	 * Sets a color attachment.
+	 * @param i The index of the color attachment.
+	 * @param attachment The attachment.
+	 */
+	public setColorAttachment(i: number, attachment: FramebufferAttachment): void {
+		this.attach(attachment as Mip, COLOR_ATTACHMENT0 + i);
+		this.colorAttachments[i] = attachment;
+	}
+
+	/** The depth attachment on this framebuffer. */
+	private depthAttachmentPrivate?: FramebufferAttachment;
+
+	/** The depth attachment on this framebuffer. */
+	public get depthAttachment(): FramebufferAttachment | undefined {
+		return this.depthAttachmentPrivate;
+	}
+
+	public set depthAttachment(value: FramebufferAttachment | undefined) {
+		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		this.attach(value as Mip, DEPTH_ATTACHMENT);
+		this.depthAttachmentPrivate = value;
+	}
+
+	/** The stencil attachment on this framebuffer. */
+	private stencilAttachmentPrivate?: FramebufferAttachment;
+
+	/** The stencil attachment on this framebuffer. */
+	public get stencilAttachment(): FramebufferAttachment | undefined {
+		return this.stencilAttachmentPrivate;
+	}
+
+	public set stencilAttachment(value: FramebufferAttachment | undefined) {
+		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		this.attach(value as Mip, STENCIL_ATTACHMENT);
+		this.stencilAttachmentPrivate = value;
+	}
+
+	/** The depth stencil attachment on this framebuffer. */
+	private depthStencilAttachmentPrivate?: FramebufferAttachment;
+
+	/** The depth stencil attachment on this framebuffer. */
+	public get depthStencilAttachment(): FramebufferAttachment | undefined {
+		return this.depthStencilAttachmentPrivate;
+	}
+
+	public set depthStencilAttachment(value: FramebufferAttachment | undefined) {
+		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		this.attach(value as Mip, DEPTH_STENCIL_ATTACHMENT);
+		this.depthStencilAttachmentPrivate = value;
+	}
+
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
 		this.gl.gl.bindFramebuffer(this.target, this.framebuffer);
-	}
-
-	/** A map of attachments on this framebuffer. */
-	private attachmentsPrivate: Map<FramebufferAttachmentPoint, FramebufferAttachment>;
-
-	/** A map of attachments on this framebuffer. */
-	public get attachments(): ReadonlyMap<FramebufferAttachmentPoint, FramebufferAttachment> {
-		return this.attachmentsPrivate;
 	}
 
 	/**
@@ -131,7 +153,7 @@ export default class Framebuffer {
 	 * @param attachment The texture to attach.
 	 * @param attachmentPoint The attachment point of the texture.
 	 */
-	public attach(attachment: Texture<Mip>, attachmentPoint: FramebufferAttachmentPoint): void;
+	private attach(attachment: Mipmap<Mip>, attachmentPoint: number): void;
 
 	/**
 	 * Attaches a single layer of a texture to this framebuffer.
@@ -139,27 +161,25 @@ export default class Framebuffer {
 	 * @param attachmentPoint The attachment point of the texture.
 	 * @param layer The layer of the texture to attach.
 	 */
-	public attach(attachment: Texture<Mip>, attachmentPoint: FramebufferAttachmentPoint, layer: number): void;
+	private attach(attachment: Mip, attachmentPoint: number, layer?: number): void;
 
 	/**
 	 * Attaches a renderbuffer to this framebuffer.
 	 * @param attachment The renderbuffer to attach.
 	 * @param attachmentPoint The attachment point of the renderbuffer.
 	 */
-	public attach(attachment: Renderbuffer, attachmentPoint: FramebufferAttachmentPoint): void;
+	private attach(attachment: Renderbuffer, attachmentPoint: number): void;
 
-	public attach(attachment: FramebufferAttachment, attachmentPoint: FramebufferAttachmentPoint, layer?: number): void {
+	private attach(attachment: FramebufferAttachment, attachmentPoint: number, layer = 0): void {
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {
 			this.gl.gl.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
-		} else if (typeof layer == "number") {
-			this.gl.gl.framebufferTextureLayer(this.target, attachmentPoint, attachment.texture, 0, layer);
+		} else if (attachment instanceof Mip) {
+			this.gl.gl.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).texture, attachment.lod as number, layer);
 		} else {
-			this.gl.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target, attachment.texture, 0);
+			this.gl.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).texture, 0);
 		}
-
-		this.attachmentsPrivate.set(attachmentPoint, attachment);
 
 		Framebuffer.unbind(this.gl);
 	}

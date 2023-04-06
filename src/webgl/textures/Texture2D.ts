@@ -64,14 +64,14 @@ export default class Texture2D extends Texture<Texture2DMip> {
 	}
 }
 
-/** A level of a face of a 2D texture. */
+/** A mip of a 2D texture. */
 export class Texture2DMip extends Mip {
 	/**
-	 * Creates a level of a texture face.
-	 * @param source The pixel source of the texture.
-	 * @param internalFormat The format of the color components in the texture.
-	 * @param width The width of the texture face level.
-	 * @param height The height of the texture face level.
+	 * Creates a mip of a 2D texture.
+	 * @param source The pixel source of the mip.
+	 * @param internalFormat The format of the color components in the mip.
+	 * @param width The width of the mip.
+	 * @param height The height of the mip.
 	 */
 	public constructor(
 		source: MipSource,
@@ -82,7 +82,7 @@ export class Texture2DMip extends Mip {
 		super(source, internalFormat, [width, height]);
 	}
 
-	/** The width of this texture face level. */
+	/** The width of this mip. */
 	public get width(): number | undefined {
 		return this.dims[0];
 	}
@@ -91,7 +91,7 @@ export class Texture2DMip extends Mip {
 		this.dims = [value, this.dims[1]];
 	}
 
-	/** The height of this texture face level. */
+	/** The height of this mip. */
 	public get height(): number | undefined {
 		return this.dims[1];
 	}
@@ -102,24 +102,24 @@ export class Texture2DMip extends Mip {
 
 	/**
 	 * Updates this texture face level.
-	 * @param gl The rendering context of this texture face level.
-	 * @param texture The WebGL texture.
-	 * @param lod The level of detail of this texture face level.
+	 * @param texture The texture of this mip.
+	 * @param target The target of this mip.
+	 * @param lod The level of detail of this mip.
 	 */
-	protected override updateInternal(gl: Context, target: MipmapTarget, lod: number): void {
+	protected override updateInternal(texture: Texture<Texture2DMip>, target: MipmapTarget, lod: number): void {
 		if (this.width && this.height) {
 			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.width % alignment == 0) {
-						gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						texture.gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			gl.gl.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
+			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

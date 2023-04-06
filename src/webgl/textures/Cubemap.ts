@@ -107,13 +107,13 @@ export default class Cubemap extends Texture<CubemapMip> {
 	}
 }
 
-/** A level of a face of a cubemap. */
+/** A mip of a cubemap. */
 export class CubemapMip extends Mip {
 	/**
-	 * Creates a level of a texture face.
-	 * @param source The pixel source of the texture.
-	 * @param internalFormat The format of the color components in the texture.
-	 * @param dim The width and height of the texture face level.
+	 * Creates a mip of a cubemap.
+	 * @param source The pixel source of the mip.
+	 * @param internalFormat The format of the color components in the mip.
+	 * @param dim The width and height of the mip.
 	 */
 	public constructor(
 		source: MipSource,
@@ -123,7 +123,7 @@ export class CubemapMip extends Mip {
 		super(source, internalFormat, [dim]);
 	}
 
-	/** The width and height of this texture face level. */
+	/** The width and height of this mip. */
 	public get dim(): number | undefined {
 		return this.dims[0];
 	}
@@ -133,25 +133,25 @@ export class CubemapMip extends Mip {
 	}
 
 	/**
-	 * Updates this texture face level.
-	 * @param gl The rendering context of this texture face level.
-	 * @param texture The WebGL texture.
+	 * Updates this mip.
+	 * @param texture The texture of this mip.
+	 * @param target The target of this mip.
 	 * @param lod The level of detail of this texture face level.
 	 */
-	protected override updateInternal(gl: Context, target: MipmapTarget, lod: number): void {
+	protected override updateInternal(texture: Texture<CubemapMip>, target: MipmapTarget, lod: number): void {
 		if (this.dim) {
 			if (this.dim > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.dim % alignment == 0) {
-						gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						texture.gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			gl.gl.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
+			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

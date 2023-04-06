@@ -516,7 +516,7 @@ export default class Texture<MipType extends Mip> {
 
 		let anyDidUpdate = false;
 		for (const [target, face] of this.faces) {
-			if (face.update(this.gl, target)) {
+			if (face.update(this, target)) {
 				anyDidUpdate = true;
 			}
 		}
@@ -562,6 +562,22 @@ export class Mipmap<MipType extends Mip> {
 
 	/** A map of the mips to their level of detail. */
 	private readonly mips: Map<number, MipType>;
+
+	/** The texture of this mipmap. */
+	private texturePrivate?: Texture<MipType>;
+
+	/** The texture of this mipmap. */
+	public get texture(): Texture<MipType> | undefined {
+		return this.texturePrivate;
+	}
+
+	/** The target of this mipmap. */
+	private targetPrivate?: MipmapTarget;
+
+	/** The target of this mipmap. */
+	public get target(): MipmapTarget | undefined {
+		return this.targetPrivate;
+	}
 
 	/**
 	 * Gets a mip.
@@ -621,17 +637,20 @@ export class Mipmap<MipType extends Mip> {
 
 	/**
 	 * Updates this mipmap.
-	 * @param gl The rendering context of this mipmap.
+	 * @param texture The texture of this mipmap.
 	 * @param target The target of this this mipmap.
 	 * @returns Whether any updates were performed.
 	 */
-	public update(gl: Context, target: MipmapTarget): boolean {
+	public update(texture: Texture<MipType>, target: MipmapTarget): boolean {
 		let anyDidUpdate = false;
 		for (const [lod, level] of this.mips) {
-			if (level.update(gl, target, lod)) {
+			if (level.update(texture, target, lod)) {
 				anyDidUpdate = true;
 			}
 		}
+
+		this.texturePrivate = texture;
+		this.targetPrivate = target;
 
 		return anyDidUpdate;
 	}
@@ -662,6 +681,30 @@ export abstract class Mip {
 		this.dimsPrivate = dims;
 
 		this.needsUpdate = true;
+	}
+
+	/** The texture of this mip. */
+	private texturePrivate?: Texture<Mip>;
+
+	/** The texture of this mip. */
+	public get texture(): Texture<Mip> | undefined {
+		return this.texturePrivate;
+	}
+
+	/** The target of this mip. */
+	private targetPrivate?: MipmapTarget;
+
+	/** The target of this mip. */
+	public get target(): MipmapTarget | undefined {
+		return this.targetPrivate;
+	}
+
+	/** The level of detail of this mip. */
+	private lodPrivate?: number;
+
+	/** The level of detail of this mip. */
+	public get lod(): number | undefined {
+		return this.lodPrivate;
 	}
 
 	/** The source data of this mip. */
@@ -816,30 +859,34 @@ export abstract class Mip {
 
 	/**
 	 * Updates this mip.
-	 * @param gl The rendering context of this mip.
+	 * @param texture The texture of this mip.
 	 * @param target The target of this mip.
 	 * @param lod The level of detail of this mip.
 	 * @returns Whether an update was performed.
 	 */
-	public update(gl: Context, target: MipmapTarget, lod: number): boolean {
+	public update(texture: Texture<Mip>, target: MipmapTarget, lod: number): boolean {
 		if (!this.needsUpdate) {
 			return false;
 		}
 
-		this.updateInternal(gl, target, lod);
+		this.updateInternal(texture, target, lod);
 
 		this.needsUpdate = false;
+
+		this.texturePrivate = texture;
+		this.targetPrivate = target;
+		this.lodPrivate = lod;
 
 		return true;
 	}
 
 	/**
 	 * Updates this mip.
-	 * @param gl The rendering context of this mip.
+	 * @param texture The texture of this mip.
 	 * @param target The target of this mip.
 	 * @param lod The level of detail of this mip.
 	 */
-	protected abstract updateInternal(gl: Context, target: MipmapTarget, lod: number): void;
+	protected abstract updateInternal(texture: Texture<Mip>, target: MipmapTarget, lod: number): void;
 
 	/** Sets this mip as outdated. */
 	public setNeedsUpdate(): void {
