@@ -14,6 +14,30 @@ export const enum FramebufferTarget {
 	READ_FRAMEBUFFER = 0x8CA8
 }
 
+/** Statuses for framebuffers. */
+export const enum FramebufferStatus {
+	/** The framebuffer is ready to display. */
+	FRAMEBUFFER_COMPLETE = 0x8CD5,
+
+	/** The attachment types are mismatched or not all framebuffer attachment points are framebuffer attachment complete. */
+	FRAMEBUFFER_INCOMPLETE_ATTACHMENT = 0x8CD6,
+
+	/** There is no attachment. */
+	FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 0x8CD7,
+
+	/** Height and width of the attachment are not the same. */
+	FRAMEBUFFER_INCOMPLETE_DIMENSIONS = 0x8CD9,
+
+	/** The format of the attachment is not supported or if depth and stencil attachments are not the same renderbuffer. */
+	FRAMEBUFFER_UNSUPPORTED = 0x8CDD,
+
+	/** The values of the samples are different among attached renderbuffers, or are non-zero if the attached images are a mix of renderbuffers and textures. */
+	FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = 0x8D56,
+
+	/** If the base view index is not the same for all framebuffer attachment points where the object type is set, the framebuffer is considered incomplete. */
+	FRAMEBUFFER_INCOMPLETE_VIEW_TARGETS_OVR = 0x9633
+}
+
 /** An attachment for a framebuffer. */
 export type FramebufferAttachment = Mip | Mipmap<Mip> | Renderbuffer;
 
@@ -141,6 +165,12 @@ export default class Framebuffer {
 		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
 		this.attach(value as Mip, DEPTH_STENCIL_ATTACHMENT);
 		this.depthStencilAttachmentPrivate = value;
+	}
+
+	/** The status of this framebuffer. */
+	public get status(): FramebufferStatus {
+		this.bind();
+		return this.gl.gl.checkFramebufferStatus(this.target);
 	}
 
 	/** Binds this framebuffer to its target. */

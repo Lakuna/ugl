@@ -58,6 +58,7 @@ export {
 } from "./webgl/Context.js";
 export {
 	FramebufferTarget,
+	FramebufferStatus,
 	type FramebufferAttachment,
 	default as Framebuffer
 } from "./webgl/Framebuffer.js";
