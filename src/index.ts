@@ -29,6 +29,10 @@ export {
 	Texture2DMip
 } from "./webgl/textures/Texture2D.js";
 export {
+	default as Texture3D,
+	Texture3DMip
+} from "./webgl/textures/Texture3D.js";
+export {
 	AttributeType,
 	default as Attribute
 } from "./webgl/variables/attributes/Attribute.js";
