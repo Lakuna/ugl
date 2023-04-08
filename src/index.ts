@@ -58,6 +58,9 @@ export { default as Variable } from "./webgl/variables/Variable.js";
 export { default as Varying } from "./webgl/variables/Varying.js";
 export {
 	type Canvas,
+	Extension,
+	type ExtensionObject,
+	PowerPreference,
 	default as Context
 } from "./webgl/Context.js";
 export {
