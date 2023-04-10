@@ -53,6 +53,12 @@ export const STENCIL_ATTACHMENT = 0x8D20;
 /** The depth and stencil attachment. */
 export const DEPTH_STENCIL_ATTACHMENT = 0x821A;
 
+/** Indicates that the back framebuffer (canvas) should be drawn to. */
+export const BACK = 0x0405;
+
+/** Indicates that no framebuffers should be drawn to. */
+export const NONE = 0;
+
 /**
  * A data structure that organizes the memory resources that are needed to render an image.
  * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
@@ -64,6 +70,53 @@ export default class Framebuffer {
 	 */
 	public static unbind(gl: Context): void {
 		gl.gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
+	}
+
+	/**
+	 * Sets the drawing buffer array.
+	 * @param gl The rendering context.
+	 * @param none Whether to not render to any attachment.
+	 * @param back Whether to render to the back buffer.
+	 * @param colorAttachments A list of color attachments to render to.
+	 */
+	public static setDrawBuffers(gl: Context, none: boolean, back: boolean, colorAttachments: Array<number>): void {
+		const drawBuffers: Array<number> = [];
+		if (none) { drawBuffers.push(NONE); }
+		if (back) { drawBuffers.push(BACK); }
+		for (const colorAttachment of colorAttachments) { drawBuffers.push(COLOR_ATTACHMENT0 + colorAttachment); }
+		gl.gl.drawBuffers(drawBuffers);
+	}
+
+	/**
+	 * Sets the read buffer to none.
+	 * @param gl The rendering context.
+	 */
+	public static setReadBuffer(gl: Context): void;
+
+	/**
+	 * Sets the read buffer to the back buffer.
+	 * @param gl The rendering context.
+	 * @param back Whether to read from the back buffer.
+	 */
+	public static setReadBuffer(gl: Context, back: boolean): void;
+
+	/**
+	 * Sets the read buffer to a color buffer.
+	 * @param gl The rendering context.
+	 * @param colorBuffer The color attachment to read from.
+	 */
+	public static setReadBuffer(gl: Context, colorBuffer: number): void;
+
+	public static setReadBuffer(gl: Context, readBuffer?: boolean | number): void {
+		if (typeof readBuffer == "number") {
+			gl.gl.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
+		} else {
+			if (readBuffer) {
+				gl.gl.readBuffer(BACK);
+			} else {
+				gl.gl.readBuffer(NONE);
+			}
+		}
 	}
 
 	/**
