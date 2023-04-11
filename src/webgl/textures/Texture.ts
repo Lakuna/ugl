@@ -406,6 +406,7 @@ export default class Texture<MipType extends Mip> {
 		this.wrapTFunction = wrapTFunction;
 
 		this.setAllNeedsUpdate();
+		this.update();
 	}
 
 	/** The rendering context of this texture. */
