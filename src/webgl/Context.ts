@@ -97,6 +97,9 @@ export const STENCIL_BACK_VALUE_MASK = 0x8CA4;
 /** The winding orientation that is considered the front face of a polygon. */
 export const FRONT_FACE = 0x0B46;
 
+/** The viewport box. */
+export const VIEWPORT = 0x0BA2;
+
 /** Blending functions. */
 export const enum BlendFunction {
 	/** Multiplies all colors by zero. */
@@ -776,7 +779,10 @@ export default class Context {
 		}
 	}
 
-	/** The scissor box, which limits drawing to a specified rectangle. Disabled if not defined. */
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle. Disabled if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 */
 	public get scissorBox(): Box | undefined {
 		if (!this.gl.isEnabled(SCISSOR_TEST)) {
 			return undefined;
@@ -798,6 +804,24 @@ export default class Context {
 			this.gl.enable(SCISSOR_TEST);
 			this.gl.scissor(value.x, value.y, value.width, value.height);
 		}
+	}
+
+	/**
+	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 */
+	public get viewport(): Box {
+		const raw: Int32Array = this.gl.getParameter(VIEWPORT);
+		return {
+			x: raw[0] as number,
+			y: raw[1] as number,
+			width: raw[2] as number,
+			height: raw[3] as number
+		};
+	}
+
+	public set viewport(value: Box) {
+		this.gl.viewport(value.x, value.y, value.width, value.height);
 	}
 
 	/**
@@ -930,7 +954,7 @@ export default class Context {
 	 * Resizes this context's canvas' drawing buffer to match its physical size.
 	 * @returns Whether the drawing buffer was resized.
 	 */
-	public fitBuffer(): boolean {
+	public fitDrawingBuffer(): boolean {
 		if (this.canvas instanceof OffscreenCanvas) {
 			return false;
 		}
@@ -950,44 +974,8 @@ export default class Context {
 	}
 
 	/** Resizes this context's viewport to match the size of its current drawing buffer. */
-	public resizeViewport(): void;
-
-	/**
-	 * Resizes this context's viewport to match the given size.
-	 * @param x The horizontal offset of the viewport.
-	 * @param y The vertical offset of the viewport.
-	 * @param width The horizontal size of the viewport.
-	 * @param height The vertical size of the viewport.
-	 */
-	public resizeViewport(x: number, y: number, width: number, height: number): void;
-
-	public resizeViewport(x?: number, y?: number, width?: number, height?: number): void {
-		if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
-			this.gl.viewport(x, y, width, height);
-		} else {
-			this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-		}
-	}
-
-	/** * Disables the scissor test. */
-	public resizeScissor(): void;
-
-	/**
-	 * Resizes this context's scissor box to match the given size and enables the scissor test.
-	 * @param x The horizontal offset of the scissor box.
-	 * @param y The vertical offset of the scissor box.
-	 * @param width The horizontal size of the scissor box.
-	 * @param height The vertical size of the scissor box.
-	 */
-	public resizeScissor(x: number, y: number, width: number, height: number): void;
-
-	public resizeScissor(x?: number, y?: number, width?: number, height?: number): void {
-		if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
-			this.gl.enable(SCISSOR_TEST);
-			this.gl.scissor(x, y, width, height);
-		} else {
-			this.gl.disable(SCISSOR_TEST);
-		}
+	public fitViewport(): void {
+		this.viewport = { x: 0, y: 0, width: this.canvas.width, height: this.canvas.height };
 	}
 
 	/**
@@ -1011,14 +999,14 @@ export default class Context {
 			throw new Error("Cannot resize an offscreen context.");
 		}
 
-		const out: boolean = this.fitBuffer();
+		const out: boolean = this.fitDrawingBuffer();
 
 		if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
-			this.resizeViewport(x, y, width, height);
-			this.resizeScissor(x, y, width, height);
+			this.viewport = { x, y, width, height };
+			this.scissorBox = { x, y, width, height };
 		} else {
-			this.resizeViewport();
-			this.resizeScissor();
+			this.fitViewport();
+			this.scissorBox = undefined;
 		}
 
 		return out;
