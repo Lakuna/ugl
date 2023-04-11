@@ -1,3 +1,4 @@
+export { type default as Box } from "./types/Box.js";
 export { type default as MeasuredIterable } from "./types/MeasuredIterable.js";
 export {
 	type UintTypedArray,
@@ -58,7 +59,16 @@ export { default as Variable } from "./webgl/variables/Variable.js";
 export { default as Varying } from "./webgl/variables/Varying.js";
 export {
 	type Canvas,
+	BlendFunction,
+	type BlendFunctionSet,
+	FaceDirection,
+	TestFunction,
 	Extension,
+	type PolygonOffset,
+	type MultiSampleCoverageParameters,
+	type StencilTestParameters,
+	type StencilTestSet,
+	WindingOrientation,
 	type ExtensionObject,
 	PowerPreference,
 	default as Context

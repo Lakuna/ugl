@@ -1,3 +1,4 @@
+import type Box from "../types/Box.js";
 import type Color from "../utility/Color.js";
 
 /** A canvas. */
@@ -20,6 +21,183 @@ export const STENCIL_TEST = 0x0B90
 
 /** The scissor test. */
 export const SCISSOR_TEST = 0x0C11;
+
+/** Whether blending of the computed fragment color values is enabled. */
+export const BLEND = 0x0BE2;
+
+/** Whether polygons are culled. */
+export const CULL_FACE = 0x0B44;
+
+/** Whether color components are dithered before they get written to the color buffer. */
+export const DITHER = 0x0BD0;
+
+/** Whether an offset is added to depth values of polygons' fragments. */
+export const POLYGON_OFFSET_FILL = 0x8037;
+
+/** Whether a temporary coverage value determined by the alpha value is generated. */
+export const SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
+
+/** Whether fragments' coverages are combined with the temporary coverage value. */
+export const SAMPLE_COVERAGE = 0x80A0;
+
+/** Whether primitives are discarded immediately before the rasterization stage. */
+export const RASTERIZER_DISCARD = 0x8C89;
+
+/** The blend function for source RGB values. */
+export const BLEND_SRC_RGB = 0x80C9;
+
+/** The blend function for source alpha values. */
+export const BLEND_SRC_ALPHA = 0x80CB;
+
+/** The blend function for destination RGB values. */
+export const BLEND_DST_RGB = 0x80C8;
+
+/** The blend function for destination alpha values. */
+export const BLEND_DST_ALPHA = 0x80CA;
+
+/** The face direction that polygons will be culled in. */
+export const CULL_FACE_MODE = 0x0B45;
+
+/** The depth comparison function in use. */
+export const DEPTH_FUNC = 0x0B74;
+
+/** The polygon offset units. */
+export const POLYGON_OFFSET_UNITS = 0x2A00;
+
+/** The polygon offset factor. */
+export const POLYGON_OFFSET_FACTOR = 0x8038;
+
+/** The sample coverage value. */
+export const SAMPLE_COVERAGE_VALUE = 0x80AA;
+
+/** Whether the sample coverage is inverted. */
+export const SAMPLE_COVERAGE_INVERT = 0x80AB;
+
+/** The scissor box. */
+export const SCISSOR_BOX = 0x0C10;
+
+/** The front stencil function. */
+export const STENCIL_FUNC = 0x0B92;
+
+/** The front stencil reference value. */
+export const STENCIL_REF = 0x0B97;
+
+/** The front stencil mask. */
+export const STENCIL_VALUE_MASK = 0x0B93;
+
+/** The back stencil function. */
+export const STENCIL_BACK_FUNC = 0x8800;
+
+/** The back stencil reference value. */
+export const STENCIL_BACK_REF = 0x8CA3;
+
+/** The back stencil mask. */
+export const STENCIL_BACK_VALUE_MASK = 0x8CA4;
+
+/** The winding orientation that is considered the front face of a polygon. */
+export const FRONT_FACE = 0x0B46;
+
+/** Blending functions. */
+export const enum BlendFunction {
+	/** Multiplies all colors by zero. */
+	ZERO = 0,
+
+	/** Multiplies all colors by one. */
+	ONE = 1,
+
+	/** Multiplies all colors by the source colors. */
+	SRC_COLOR = 0x0300,
+
+	/** Multiplies all colors by one minus each source color. */
+	ONE_MINUS_SRC_COLOR = 0x0301,
+
+	/** Multiplies all colors by the destination color. */
+	DST_COLOR = 0x0306,
+
+	/** Multiplies all colors by one minus the destination color. */
+	ONE_MINUS_DST_COLOR = 0x0307,
+
+	/** Multiplies all colors by the source alpha value. */
+	SRC_ALPHA = 0x0302,
+
+	/** Multiplies all colors by one minus the source alpha value. */
+	ONE_MINUS_SRC_ALPHA = 0x0303,
+
+	/** Multiplies all colors by the destination alpha value. */
+	DST_ALPHA = 0x0304,
+
+	/** Multiplies all colors by one minus the destination alpha value. */
+	ONE_MINUS_DST_ALPHA = 0x0305,
+
+	/** Multiplies all colors by a constant color. */
+	CONSTANT_COLOR = 0x8001,
+
+	/** Multiplies all colors by one minus a constant color. */
+	ONE_MINUS_CONSTANT_COLOR = 0x8002,
+
+	/** Multiplies all colors by a constant alpha value. */
+	CONSTANT_ALPHA = 0x8003,
+
+	/** Multiplies all colors by one minus a constant alpha value. */
+	ONE_MINUS_CONSTANT_ALPHA = 0x8004,
+
+	/** Multiplies the RGB colors by the smaller of either the source alpha value or the value of one minus the destination alpha value. The alpha value is multiplied by one. */
+	SRC_ALPHA_SATURATE = 0x0308
+}
+
+/** A pair of blending functions. */
+export interface BlendFunctionSet {
+	/** The multiplier for the RGB source blending factors. */
+	srcRgb: BlendFunction;
+
+	/** The multiplier for the RGB destination blending factors. */
+	dstRgb: BlendFunction;
+
+	/** The multiplier for the alpha source blending factors. */
+	srcAlpha: BlendFunction;
+
+	/** The multiplier for the alpha destination blending factors. */
+	dstAlpha: BlendFunction;
+}
+
+/** Directions that a face can point. */
+export const enum FaceDirection {
+	/** The front of a face. */
+	FRONT = 0x0404,
+
+	/** The back of a face. */
+	BACK = 0x0405,
+
+	/** Both sides of a face. */
+	FRONT_AND_BACK = 0x0408
+}
+
+/** Test functions. */
+export const enum TestFunction {
+	/** Never passes. */
+	NEVER = 0x0200,
+
+	/** Passes if the incoming value is less than the buffer value. */
+	LESS = 0x0201,
+
+	/** Passes if the incoming value is equal to the buffer value. */
+	EQUAL = 0x0202,
+
+	/** Passes if the incoming value is less than or equal to the buffer value. */
+	LEQUAL = 0x0203,
+
+	/** Passes if the incoming value is greater than the buffer value. */
+	GREATER = 0x0204,
+
+	/** Passes if the incoming value is not equal to the buffer value. */
+	NOTEQUAL = 0x0205,
+
+	/** Passes if the incoming value is greater than or equal to the buffer value. */
+	GEQUAL = 0x0206,
+
+	/** Always passes. */
+	ALWAYS = 0x0207
+}
 
 /** WebGL extensions. */
 export const enum Extension {
@@ -246,6 +424,60 @@ export const enum Extension {
 	MultiDraw = "WEBGL_multi_draw"
 }
 
+/** Modifiers applied before the depth test is performed. */
+export interface PolygonOffset {
+	/** The scale factor for the variable depth offset for each polygon. */
+	factor: number;
+
+	/** The multiplier by which an implementation-specific value is multiplied to create a constant depth offset. */
+	units: number;
+}
+
+/** Multi-sample coverage parameters for anti-aliasing effects. */
+export interface MultiSampleCoverageParameters {
+	/** A single floating-point coverage value clamped to the range `[0,1]`. */
+	value: number;
+
+	/** Whether or not the coverage masks should be inverted. */
+	invert: boolean;
+}
+
+/**
+ * Parameters for stencil testing.
+ * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+ */
+export interface StencilTestParameters {
+	/** The test function. */
+	func: TestFunction;
+
+	/** The reference value for the stencil test. */
+	ref: number;
+
+	/** A bit-wise mask that is combined with the reference value and the stored stencil value when the test is done. */
+	mask: number;
+}
+
+/**
+ * A set of stencil test parameters.
+ * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+ */
+export interface StencilTestSet {
+	/** The parameters for the front stencil test. */
+	front: StencilTestParameters;
+
+	/** The parameters for the back stencil test. */
+	back: StencilTestParameters;
+}
+
+/** Winding orientations. */
+export const enum WindingOrientation {
+	/** Clockwise. */
+	CW = 0x0900,
+
+	/** Counter-clockwise. */
+	CCW = 0x0901
+}
+
 /** WebGL extension implementations. */
 export type ExtensionObject =
 	ANGLE_instanced_arrays
@@ -406,6 +638,230 @@ export default class Context {
 	}
 
 	/**
+	 * The blending functions. Disables blending if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 */
+	public get blendFunctions(): BlendFunctionSet | undefined {
+		if (!this.gl.isEnabled(BLEND)) {
+			return undefined;
+		}
+
+		return {
+			srcRgb: this.gl.getParameter(BLEND_SRC_RGB),
+			srcAlpha: this.gl.getParameter(BLEND_SRC_ALPHA),
+			dstRgb: this.gl.getParameter(BLEND_DST_RGB),
+			dstAlpha: this.gl.getParameter(BLEND_DST_ALPHA)
+		};
+	}
+
+	public set blendFunctions(value: BlendFunctionSet | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(BLEND);
+		} else {
+			this.gl.enable(BLEND);
+			this.gl.blendFuncSeparate(value.srcRgb, value.dstRgb, value.srcAlpha, value.dstAlpha);
+		}
+	}
+
+	/**
+	 * The direction that polygons face to be culled. Disables polygon culling if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 */
+	public get cullFace(): FaceDirection | undefined {
+		if (!this.gl.isEnabled(CULL_FACE)) {
+			return undefined;
+		}
+
+		return this.gl.getParameter(CULL_FACE_MODE);
+	}
+
+	public set cullFace(value: FaceDirection | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(CULL_FACE);
+		} else {
+			this.gl.enable(CULL_FACE);
+			this.gl.cullFace(value);
+		}
+	}
+
+	/** Whether color components are dithered before they get written to the color buffer. */
+	public get doDither(): boolean {
+		return this.gl.isEnabled(DITHER);
+	}
+
+	public set doDither(value: boolean) {
+		if (value) {
+			this.gl.enable(DITHER);
+		} else {
+			this.gl.disable(DITHER);
+		}
+	}
+
+	/**
+	 * The depth comparison function in use. Disables the depth test if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 */
+	public get depthFunction(): TestFunction | undefined {
+		if (!this.gl.isEnabled(DEPTH_TEST)) {
+			return undefined;
+		}
+
+		return this.gl.getParameter(DEPTH_FUNC);
+	}
+
+	public set depthFunction(value: TestFunction | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(DEPTH_TEST);
+		} else {
+			this.gl.enable(DEPTH_TEST);
+			this.gl.depthFunc(value);
+		}
+	}
+
+	/**
+	 * The scale factor and units used to calculate depth values. Disables polygon offset fill if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
+	 */
+	public get polygonOffset(): PolygonOffset | undefined {
+		if (!this.gl.isEnabled(POLYGON_OFFSET_FILL)) {
+			return undefined;
+		}
+
+		return {
+			factor: this.gl.getParameter(POLYGON_OFFSET_FACTOR),
+			units: this.gl.getParameter(POLYGON_OFFSET_UNITS)
+		};
+	}
+
+	public set polygonOffset(value: PolygonOffset | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(POLYGON_OFFSET_FILL);
+		} else {
+			this.gl.enable(POLYGON_OFFSET_FILL);
+			this.gl.polygonOffset(value.factor, value.units);
+		}
+	}
+
+	/** Whether a temporary coverage value is computed based on the alpha value. */
+	public get doSampleAlphaToCoverage(): boolean {
+		return this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
+	}
+
+	public set doSampleAlphaToCoverage(value: boolean) {
+		if (value) {
+			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
+		} else {
+			this.gl.disable(SAMPLE_ALPHA_TO_COVERAGE);
+		}
+	}
+
+	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
+	public get sampleCoverage(): MultiSampleCoverageParameters | undefined {
+		if (!this.gl.isEnabled(SAMPLE_COVERAGE)) {
+			return undefined;
+		}
+
+		return {
+			value: this.gl.getParameter(SAMPLE_COVERAGE_VALUE),
+			invert: this.gl.getParameter(SAMPLE_COVERAGE_INVERT)
+		};
+	}
+
+	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(SAMPLE_COVERAGE);
+		} else {
+			this.gl.enable(SAMPLE_COVERAGE);
+			this.gl.sampleCoverage(value.value, value.invert);
+		}
+	}
+
+	/** The scissor box, which limits drawing to a specified rectangle. Disabled if not defined. */
+	public get scissorBox(): Box | undefined {
+		if (!this.gl.isEnabled(SCISSOR_TEST)) {
+			return undefined;
+		}
+
+		const raw: Int32Array = this.gl.getParameter(SCISSOR_BOX);
+		return {
+			x: raw[0] as number,
+			y: raw[1] as number,
+			width: raw[2] as number,
+			height: raw[3] as number
+		};
+	}
+
+	public set scissorBox(value: Box | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(SCISSOR_TEST);
+		} else {
+			this.gl.enable(SCISSOR_TEST);
+			this.gl.scissor(value.x, value.y, value.width, value.height);
+		}
+	}
+
+	/**
+	 * The stencil test function and reference value. The stencil test is disabled if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 */
+	public get stencilFunctions(): StencilTestSet | undefined {
+		if (!this.gl.isEnabled(STENCIL_TEST)) {
+			return undefined;
+		}
+
+		return {
+			front: {
+				func: this.gl.getParameter(STENCIL_FUNC),
+				ref: this.gl.getParameter(STENCIL_REF),
+				mask: this.gl.getParameter(STENCIL_VALUE_MASK)
+			},
+			back: {
+				func: this.gl.getParameter(STENCIL_BACK_FUNC),
+				ref: this.gl.getParameter(STENCIL_BACK_REF),
+				mask: this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
+			}
+		};
+	}
+
+	public set stencilFunctions(value: StencilTestSet | undefined) {
+		if (typeof value == "undefined") {
+			this.gl.disable(STENCIL_TEST);
+		} else {
+			this.gl.enable(STENCIL_TEST);
+			this.gl.stencilFuncSeparate(FaceDirection.FRONT, value.front.func, value.front.ref, value.front.mask);
+			this.gl.stencilFuncSeparate(FaceDirection.BACK, value.back.func, value.back.ref, value.back.mask);
+		}
+	}
+
+	/**
+	 * Whether primitives are discarded immediately before the rasterization stage.
+	 * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+	 */
+	public get doRasterizerDiscard(): boolean {
+		return this.gl.isEnabled(RASTERIZER_DISCARD);
+	}
+
+	public set doRasterizerDiscard(value: boolean) {
+		if (value) {
+			this.gl.enable(RASTERIZER_DISCARD);
+		} else {
+			this.gl.disable(RASTERIZER_DISCARD);
+		}
+	}
+
+	/**
+	 * The winding orientation of front-facing polygons.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 */
+	public get frontFace(): WindingOrientation {
+		return this.gl.getParameter(FRONT_FACE);
+	}
+
+	public set frontFace(value: WindingOrientation) {
+		this.gl.frontFace(value);
+	}
+
+	/**
 	 * Makes this context XR-compatible.
 	 * @returns A promise that resolves once the WebGL context is ready to be used for rendering WebXR content.
 	 * @see [WebXR API documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
@@ -424,7 +880,7 @@ export default class Context {
 	}
 
 	/** A map of enabled extensions to their names. */
-	private extensions: Map<Extension, ExtensionObject>; // TODO
+	private extensions: Map<Extension, ExtensionObject>;
 
 	/**
 	 * Gets the requested extension.
@@ -538,7 +994,7 @@ export default class Context {
 	 * Resizes this context's canvas' drawing buffer to match its physical size, a viewport to match the drawing buffer, and disables the scissor test.
 	 * @returns Whether the drawing buffer was resized.
 	 */
-	public resizeContext(): boolean;
+	public resize(): boolean;
 
 	/**
 	 * Resizes this context's canvas' drawing buffer to match its physical size, the context's viewport and scissor box to match the given size, and enables the scissor test.
@@ -548,9 +1004,9 @@ export default class Context {
 	 * @param height The vertical size of the viewport and scissor box.
 	 * @returns Whether the drawing buffer was resized.
 	 */
-	public resizeContext(x: number, y: number, width: number, height: number): boolean;
+	public resize(x: number, y: number, width: number, height: number): boolean;
 
-	public resizeContext(x?: number, y?: number, width?: number, height?: number): boolean {
+	public resize(x?: number, y?: number, width?: number, height?: number): boolean {
 		if (this.gl.canvas instanceof OffscreenCanvas) {
 			throw new Error("Cannot resize an offscreen context.");
 		}
