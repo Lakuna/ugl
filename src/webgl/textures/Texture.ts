@@ -580,6 +580,15 @@ export class Mipmap<MipType extends Mip> {
 		return this.targetPrivate;
 	}
 
+	/** The top (most detailed) mip in this mipmap. */
+	public get top(): MipType {
+		return this.getMip(0) as MipType;
+	}
+
+	public set top(value: MipType) {
+		this.setMip(0, value);
+	}
+
 	/**
 	 * Gets a mip.
 	 * @param level The level of the mip.

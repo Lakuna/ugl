@@ -24,6 +24,37 @@ export default class Texture2D extends Texture<Texture2DMip> {
 	}
 
 	/**
+	 * Creates a basic 2D texture from an image URL. The texture will appear magenta until the image loads.
+	 * @param gl The rendering context of the texture.
+	 * @param url The URL of the image.
+	 * @returns A basic 2D texture.
+	 */
+	public static fromImageUrl(gl: Context, url: string): Texture2D {
+		const out = new Texture2D(
+			gl,
+			new Mipmap(new Map([
+				[0, new Texture2DMip(
+					new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]),
+					undefined,
+					1,
+					1
+				)]
+			]))
+		)
+
+		const image: HTMLImageElement = new Image();
+		image.addEventListener("load", () => {
+			out.face.top.source = image;
+			out.face.top.width = undefined;
+			out.face.top.height = undefined;
+		});
+		image.crossOrigin = "";
+		image.src = url;
+
+		return out;
+	}
+
+	/**
 	 * Creates a 2D texture.
 	 * @param gl The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.

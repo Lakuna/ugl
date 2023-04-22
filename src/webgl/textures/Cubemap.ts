@@ -1,11 +1,107 @@
 import type Context from "../Context.js";
-import Texture, { type Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
+import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
 
 /**
  * A cubemap texture.
  * @see [Tutorial](https://www.lakuna.pw/a/webgl/cubemaps)
  */
 export default class Cubemap extends Texture<CubemapMip> {
+	/**
+	 * Creates a basic cubemap from pixel sources.
+	 * @param gl The rendering context of the cubemap.
+	 * @param px The pixel source of the positive X-axis face.
+	 * @param nx The pixel source of the negative X-axis face.
+	 * @param py The pixel source of the positive Y-axis face.
+	 * @param ny The pixel source of the negative Y-axis face.
+	 * @param pz The pixel source of the positive Z-axis face.
+	 * @param nz The pixel source of the negative Z-axis face.
+	 * @returns A basic cubemap.
+	 */
+	public static fromSources(gl: Context, px: MipSource, nx: MipSource, py: MipSource, ny: MipSource, pz: MipSource, nz: MipSource): Cubemap {
+		return new Cubemap(
+			gl,
+			new Mipmap(new Map([[0, new CubemapMip(px)]])),
+			new Mipmap(new Map([[0, new CubemapMip(nx)]])),
+			new Mipmap(new Map([[0, new CubemapMip(py)]])),
+			new Mipmap(new Map([[0, new CubemapMip(ny)]])),
+			new Mipmap(new Map([[0, new CubemapMip(pz)]])),
+			new Mipmap(new Map([[0, new CubemapMip(nz)]]))
+		);
+	}
+
+	/**
+	 * Creates a basic cubemap from image URLs. The cubemap will appear magenta until the images load.
+	 * @param gl The rendering context of the cubemap.
+	 * @param px The URL of the image on the positive X-axis face.
+	 * @param nx The URL of the image on the negative X-axis face.
+	 * @param py The URL of the image on the positive Y-axis face.
+	 * @param ny The URL of the image on the negative Y-axis face.
+	 * @param pz The URL of the image on the positive Z-axis face.
+	 * @param nz The URL of the image on the negative Z-axis face.
+	 * @returns A basic 2D texture.
+	 */
+	public static fromImageUrls(gl: Context, px: string, nx: string, py: string, ny: string, pz: string, nz: string): Cubemap {
+		const out = new Cubemap(
+			gl,
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
+			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]]))
+		)
+
+		const pxImage: HTMLImageElement = new Image();
+		pxImage.addEventListener("load", () => {
+			out.pxFace.top.source = pxImage;
+			out.pxFace.top.dim = undefined;
+		});
+		pxImage.crossOrigin = "";
+		pxImage.src = px;
+
+		const nxImage: HTMLImageElement = new Image();
+		nxImage.addEventListener("load", () => {
+			out.nxFace.top.source = nxImage;
+			out.nxFace.top.dim = undefined;
+		});
+		nxImage.crossOrigin = "";
+		nxImage.src = nx;
+
+		const pyImage: HTMLImageElement = new Image();
+		pyImage.addEventListener("load", () => {
+			out.pyFace.top.source = pyImage;
+			out.pyFace.top.dim = undefined;
+		});
+		pyImage.crossOrigin = "";
+		pyImage.src = py;
+
+		const nyImage: HTMLImageElement = new Image();
+		nyImage.addEventListener("load", () => {
+			out.nyFace.top.source = nyImage;
+			out.nyFace.top.dim = undefined;
+		});
+		nyImage.crossOrigin = "";
+		nyImage.src = ny;
+
+		const pzImage: HTMLImageElement = new Image();
+		pzImage.addEventListener("load", () => {
+			out.pzFace.top.source = pzImage;
+			out.pzFace.top.dim = undefined;
+		});
+		pzImage.crossOrigin = "";
+		pzImage.src = pz;
+
+		const nzImage: HTMLImageElement = new Image();
+		nzImage.addEventListener("load", () => {
+			out.nzFace.top.source = nzImage;
+			out.nzFace.top.dim = undefined;
+		});
+		nzImage.crossOrigin = "";
+		nzImage.src = nz;
+
+		return out;
+	}
+
 	/**
 	 * Creates a 2D texture.
 	 * @param gl The WebGL2 rendering context of the texture.
