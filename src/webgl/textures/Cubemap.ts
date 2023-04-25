@@ -51,53 +51,31 @@ export default class Cubemap extends Texture<CubemapMip> {
 			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]]))
 		)
 
-		const pxImage: HTMLImageElement = new Image();
-		pxImage.addEventListener("load", () => {
-			out.pxFace.top.source = pxImage;
-			out.pxFace.top.dim = undefined;
-		});
-		pxImage.crossOrigin = "";
-		pxImage.src = px;
+		const loadedImages: Map<MipmapTarget, HTMLImageElement> = new Map();
+		for (const [target, src] of [
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, px],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nx],
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, py],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, ny],
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pz],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nz]
+		] as Array<[MipmapTarget, string]>) {
+			const image: HTMLImageElement = new Image();
+			image.addEventListener("load", () => {
+				loadedImages.set(target, image);
 
-		const nxImage: HTMLImageElement = new Image();
-		nxImage.addEventListener("load", () => {
-			out.nxFace.top.source = nxImage;
-			out.nxFace.top.dim = undefined;
-		});
-		nxImage.crossOrigin = "";
-		nxImage.src = nx;
-
-		const pyImage: HTMLImageElement = new Image();
-		pyImage.addEventListener("load", () => {
-			out.pyFace.top.source = pyImage;
-			out.pyFace.top.dim = undefined;
-		});
-		pyImage.crossOrigin = "";
-		pyImage.src = py;
-
-		const nyImage: HTMLImageElement = new Image();
-		nyImage.addEventListener("load", () => {
-			out.nyFace.top.source = nyImage;
-			out.nyFace.top.dim = undefined;
-		});
-		nyImage.crossOrigin = "";
-		nyImage.src = ny;
-
-		const pzImage: HTMLImageElement = new Image();
-		pzImage.addEventListener("load", () => {
-			out.pzFace.top.source = pzImage;
-			out.pzFace.top.dim = undefined;
-		});
-		pzImage.crossOrigin = "";
-		pzImage.src = pz;
-
-		const nzImage: HTMLImageElement = new Image();
-		nzImage.addEventListener("load", () => {
-			out.nzFace.top.source = nzImage;
-			out.nzFace.top.dim = undefined;
-		});
-		nzImage.crossOrigin = "";
-		nzImage.src = nz;
+				// Switch out the sources only once all of the images are loaded so that face sizes remain consistent.
+				if (loadedImages.size >= 6) {
+					for (const [target, image] of loadedImages) {
+						const face: Mipmap<CubemapMip> = out.getFace(target) as Mipmap<CubemapMip>;
+						face.top.source = image;
+						face.top.dim = undefined;
+					}
+				}
+			});
+			image.crossOrigin = "";
+			image.src = src;
+		}
 
 		return out;
 	}
