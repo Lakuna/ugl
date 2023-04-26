@@ -519,8 +519,8 @@ export default class Texture<MipType extends Mip> {
 	 * @param textureUnit The texture unit.
 	 */
 	public assign(textureUnit: number): void {
-		this.bind();
 		this.gl.gl.activeTexture(TEXTURE0 + textureUnit);
+		this.bind();
 	}
 
 	/** Generates a mipmap for this texture. */

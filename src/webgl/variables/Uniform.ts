@@ -294,9 +294,9 @@ export class SamplerUniform extends SingleValuedUniform {
 
 	/** The setter method for this uniform. */
 	public setter(value: Texture<Mip>): void {
-		value.update();
-		value.assign(this.textureUnit);
 		this.gl.gl.uniform1i(this.location, this.textureUnit);
+		value.assign(this.textureUnit);
+		value.update();
 	}
 
 	/** The value of this uniform. */
