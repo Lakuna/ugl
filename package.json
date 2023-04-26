@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "14.1.1",
+	"version": "14.2.0",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end",

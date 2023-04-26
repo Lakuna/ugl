@@ -211,43 +211,64 @@ export const enum TextureInternalFormat {
 	RGBA32I = 0x8D82,
 
 	/** `format` must be `RGBA_INTEGER`. `type` must be `UNSIGNED_INT`. Takes 32-bit unsigned integers for the red, green, blue, and alpha channels. Color renderable. */
-	RGBA32UI = 0x8D70
+	RGBA32UI = 0x8D70,
+
+	/** `format` must be `DEPTH_COMPONENT`. `type` must be `UNSIGNED_SHORT` or `UNSIGNED_INT`. Takes a 32-bit unsigned integer for the depth channel. */
+	DEPTH_COMPONENT16 = 0x81A5,
+
+	/** `format` must be `DEPTH_COMPONENT`. `type` must be `UNSIGNED_INT`. Takes a 24-bit unsigned integer for the depth channel. */
+	DEPTH_COMPONENT24 = 0x81A6,
+
+	/** `format` must be `DEPTH_COMPONENT`. `type` must be `FLOAT`. Takes a 32-bit floating-point value for the depth channel. */
+	DEPTH_COMPONENT32F = 0x8CAC,
+
+	/** `format` must be `DEPTH_STENCIL`. `type` must be `UNSIGNED_INT_24_8`. Takes a 24-bit unsigned integer for the depth channel and an 8-bit unsigned integer for the stencil channel. */
+	DEPTH24_STENCIL8 = 0x88F0,
+
+	/** `format` must be `DEPTH_STENCIL`. `type` must be `FLOAT_32_UNSIGNED_INT_24_8_REV`. Takes a 32-bit floating-point value for the depth channel and an 8-bit unsigned integer for the stencil channel. */
+	DEPTH32F_STENCIL8 = 0x8CAD
 }
 
 /** Formats for the color components in a texture. */
 export const enum TextureBaseFormat {
-	/** Indicates that a texture uses only the red, green, and blue channels. */
+	/** Each element is a red/green/blue triple. Fixed-point normalized components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using `1` for alpha. */
 	RGB = 0x1907,
 
-	/** Indicates that a texture uses the red, green, blue, and alpha channels. */
+	/** Each element contains all four components. */
 	RGBA = 0x1908,
 
-	/** Indicates that the color components are luminance components. */
+	/** Each element is a luminance/alpha double. Components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using the luminance value for red, green, and blue. */
 	LUMINANCE_ALPHA = 0x190A,
 
-	/** Indicates that the color components are luminance components and the alpha component is `1`. */
+	/** Each element is a single luminance component. Components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using the luminance value for red, green, and blue and `1` for alpha. */
 	LUMINANCE = 0x1909,
 
-	/** Indicates that a texture uses only the alpha channel. */
+	/** Each element is a single alpha component. Components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using `0` for red, green, and blue. */
 	ALPHA = 0x1906,
 
-	/** Indicates that a texture uses only the red channel. */
+	/** Each element is a single red component. Fixed-point normalized components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using `0` for green and blue and `1` for alpha. */
 	RED = 0x1903,
 
-	/** Indicates that a texture uses only the red channel and stores integers. */
+	/** Each element is a single red component. Components are assembled into an RGBA element by using `0` for green and blue and `1` for alpha. */
 	RED_INTEGER = 0x8D94,
 
-	/** Indicates that a texture uses only the red and green channels. */
+	/** Each element is a red/green double. Fixed-point normalized components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using `0` for blue and `1` for alpha. */
 	RG = 0x8227,
 
-	/** Indicates that a texture uses only the red and green channels and stores integers. */
+	/** Each element is a red/green double. Components are assembled into an RGBA element by using `0` for blue and `1` for alpha. */
 	RG_INTEGER = 0x8228,
 
-	/** Indicates that a texture uses only the red, green, and blue channels and stores integers. */
+	/** Each element contains all four components. */
 	RGB_INTEGER = 0x8D98,
 
 	/** Indicates that a texture uses the red, green, blue, and alpha channels and stores integers. */
-	RGBA_INTEGER = 0x8D99
+	RGBA_INTEGER = 0x8D99,
+
+	/** Each element contains a single depth value. Components are converted to floating-point and clamped to `[0,1]`. */
+	DEPTH_COMPONENT = 0x1902,
+
+	/** Each element is a pair of depth and stencil values. The depth component is interpreted as with `DEPTH_COMPONENT`. The stencil component is interpreted based on the internal format. */
+	DEPTH_STENCIL = 0x84F9
 }
 
 /** Data types for texel data. */
@@ -682,7 +703,7 @@ export abstract class Mip {
 	 * @param dims The dimensions of the mip.
 	 */
 	public constructor(
-		source: MipSource,
+		source?: MipSource,
 		internalFormat: TextureInternalFormat = TextureInternalFormat.RGBA,
 		dims: Array<number | undefined> = []
 	) {
@@ -718,14 +739,14 @@ export abstract class Mip {
 	}
 
 	/** The source data of this mip. */
-	private sourcePrivate: MipSource;
+	private sourcePrivate: MipSource | undefined;
 
 	/** The source data of this mip. */
-	public get source(): MipSource {
+	public get source(): MipSource | undefined {
 		return this.sourcePrivate;
 	}
 
-	public set source(value: MipSource) {
+	public set source(value: MipSource | undefined) {
 		this.sourcePrivate = value;
 		this.needsUpdate = true;
 	}
@@ -804,6 +825,13 @@ export abstract class Mip {
 				return TextureBaseFormat.RGB_INTEGER;
 			case TextureInternalFormat.RGBA8UI:
 				return TextureBaseFormat.RGBA_INTEGER;
+			case TextureInternalFormat.DEPTH_COMPONENT16:
+			case TextureInternalFormat.DEPTH_COMPONENT24:
+			case TextureInternalFormat.DEPTH_COMPONENT32F:
+				return TextureBaseFormat.DEPTH_COMPONENT;
+			case TextureInternalFormat.DEPTH24_STENCIL8:
+			case TextureInternalFormat.DEPTH32F_STENCIL8:
+				return TextureBaseFormat.DEPTH_STENCIL;
 			default:
 				throw new Error("Unknown default format pair.");
 		}
@@ -851,9 +879,17 @@ export abstract class Mip {
 			case TextureInternalFormat.RGB32F:
 			case TextureInternalFormat.RGBA16F:
 			case TextureInternalFormat.RGBA32F:
+			case TextureInternalFormat.DEPTH_COMPONENT32F:
 				return TextureDataType.FLOAT;
 			case TextureInternalFormat.RGB10_A2:
 				return TextureDataType.UNSIGNED_INT_2_10_10_10_REV;
+			case TextureInternalFormat.DEPTH_COMPONENT16:
+			case TextureInternalFormat.DEPTH_COMPONENT24:
+				return TextureDataType.UNSIGNED_INT;
+			case TextureInternalFormat.DEPTH24_STENCIL8:
+				return TextureDataType.UNSIGNED_INT_24_8;
+			case TextureInternalFormat.DEPTH32F_STENCIL8:
+				return TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV;
 			default:
 				throw new Error("Unknown default data type-format pair.");
 		}
