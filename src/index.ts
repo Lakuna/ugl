@@ -1,10 +1,10 @@
-export { type default as Box } from "./types/Box.js";
-export { type default as MeasuredIterable } from "./types/MeasuredIterable.js";
-export {
-	type UintTypedArray,
-	type IntTypedArray,
-	type FloatTypedArray,
-	type TypedArray
+export type { default as Box } from "./types/Box.js";
+export type { default as MeasuredIterable } from "./types/MeasuredIterable.js";
+export type {
+	UintTypedArray,
+	IntTypedArray,
+	FloatTypedArray,
+	TypedArray
 } from "./types/TypedArray.js";
 export { default as Color } from "./utility/Color.js";
 export {
