@@ -15,11 +15,7 @@ export default class Texture2D extends Texture<Texture2DMip> {
 	public static fromSource(gl: Context, source: MipSource): Texture2D {
 		return new Texture2D(
 			gl,
-			new Mipmap(
-				new Map([
-					[0, new Texture2DMip(source)]
-				])
-			)
+			new Mipmap(new Texture2DMip(source))
 		);
 	}
 
@@ -32,14 +28,14 @@ export default class Texture2D extends Texture<Texture2DMip> {
 	public static fromImageUrl(gl: Context, url: string): Texture2D {
 		const out = new Texture2D(
 			gl,
-			new Mipmap(new Map([
-				[0, new Texture2DMip(
+			new Mipmap(
+				new Texture2DMip(
 					new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]),
 					undefined,
 					1,
 					1
-				)]
-			]))
+				)
+			)
 		)
 
 		const image: HTMLImageElement = new Image();

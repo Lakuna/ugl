@@ -20,12 +20,12 @@ export default class Cubemap extends Texture<CubemapMip> {
 	public static fromSources(gl: Context, px: MipSource, nx: MipSource, py: MipSource, ny: MipSource, pz: MipSource, nz: MipSource): Cubemap {
 		return new Cubemap(
 			gl,
-			new Mipmap(new Map([[0, new CubemapMip(px)]])),
-			new Mipmap(new Map([[0, new CubemapMip(nx)]])),
-			new Mipmap(new Map([[0, new CubemapMip(py)]])),
-			new Mipmap(new Map([[0, new CubemapMip(ny)]])),
-			new Mipmap(new Map([[0, new CubemapMip(pz)]])),
-			new Mipmap(new Map([[0, new CubemapMip(nz)]]))
+			new Mipmap(new CubemapMip(px)),
+			new Mipmap(new CubemapMip(nx)),
+			new Mipmap(new CubemapMip(py)),
+			new Mipmap(new CubemapMip(ny)),
+			new Mipmap(new CubemapMip(pz)),
+			new Mipmap(new CubemapMip(nz))
 		);
 	}
 
@@ -43,12 +43,12 @@ export default class Cubemap extends Texture<CubemapMip> {
 	public static fromImageUrls(gl: Context, px: string, nx: string, py: string, ny: string, pz: string, nz: string): Cubemap {
 		const out = new Cubemap(
 			gl,
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]])),
-			new Mipmap(new Map([[0, new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)]]))
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
+			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1))
 		)
 
 		const loadedImages: Map<MipmapTarget, HTMLImageElement> = new Map();

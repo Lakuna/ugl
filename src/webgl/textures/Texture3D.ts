@@ -15,11 +15,7 @@ export default class Texture3D extends Texture<Texture3DMip> {
 	public static fromSource(gl: Context, source: MipSource): Texture3D {
 		return new Texture3D(
 			gl,
-			new Mipmap(
-				new Map([
-					[0, new Texture3DMip(source)]
-				])
-			)
+			new Mipmap(new Texture3DMip(source))
 		);
 	}
 

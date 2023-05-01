@@ -584,12 +584,12 @@ export class Mipmap<MipType extends Mip> {
 	 * Creates a mipmap.
 	 * @param mips A map of the mips to their level of detail.
 	 */
-	public constructor(mips: Map<number, MipType>) {
+	public constructor(...mips: Array<MipType>) {
 		this.mips = mips;
 	}
 
 	/** A map of the mips to their level of detail. */
-	private readonly mips: Map<number, MipType>;
+	private readonly mips: Array<MipType>;
 
 	/** The texture of this mipmap. */
 	private texturePrivate?: Texture<MipType>;
@@ -623,7 +623,7 @@ export class Mipmap<MipType extends Mip> {
 	 * @returns The mip.
 	 */
 	public getMip(level: number): MipType | undefined {
-		return this.mips.get(level);
+		return this.mips[level];
 	}
 
 	/**
@@ -632,7 +632,7 @@ export class Mipmap<MipType extends Mip> {
 	 * @param mip The mip.
 	 */
 	public setMip(level: number, mip: MipType): void {
-		this.mips.set(level, mip);
+		this.mips[level] = mip;
 		mip.setNeedsUpdate();
 	}
 
@@ -681,8 +681,9 @@ export class Mipmap<MipType extends Mip> {
 	 */
 	public update(texture: Texture<MipType>, target: MipmapTarget): boolean {
 		let anyDidUpdate = false;
-		for (const [lod, level] of this.mips) {
-			if (level.update(texture, target, lod)) {
+		for (let lod = 0; lod < this.mips.length; lod++) {
+			const level: MipType | undefined = this.mips[lod];
+			if (level && level.update(texture, target, lod)) {
 				anyDidUpdate = true;
 			}
 		}
