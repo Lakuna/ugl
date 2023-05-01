@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "15.0.0",
+	"version": "15.0.1",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -21,8 +21,8 @@
 		"url": "https://github.com/sponsors/Lakuna"
 	},
 	"files": [
-		"./dist/*",
-		"./src/*"
+		"dist/*",
+		"src/*"
 	],
 	"main": "./dist/index.js",
 	"browser": "./dist/index.js",
