@@ -59,6 +59,7 @@ export default class Texture3D extends Texture<Texture3DMip> {
 		return this.getFace(MipmapTarget.TEXTURE_3D) as Mipmap<Texture3DMip>;
 	}
 
+	/** The face of this texture. */
 	public set face(value: Mipmap<Texture3DMip>) {
 		this.setFace(MipmapTarget.TEXTURE_3D, value);
 	}
@@ -88,6 +89,7 @@ export class Texture3DMip extends Mip {
 		return this.dims[0];
 	}
 
+	/** The width of this mip. */
 	public set width(value: number | undefined) {
 		this.dims = [value, this.dims[1], this.dims[2]];
 	}
@@ -97,6 +99,7 @@ export class Texture3DMip extends Mip {
 		return this.dims[1];
 	}
 
+	/** The height of this mip. */
 	public set height(value: number | undefined) {
 		this.dims = [this.dims[0], value, this.dims[2]];
 	}
@@ -106,6 +109,7 @@ export class Texture3DMip extends Mip {
 		return this.dims[2];
 	}
 
+	/** The depth of this mip. */
 	public set depth(value: number | undefined) {
 		this.dims = [this.dims[0], this.dims[1], value];
 	}

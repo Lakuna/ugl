@@ -533,7 +533,10 @@ export const enum PowerPreference {
 	LowPower = "low-power"
 }
 
-// For internal use for making a fullscreen canvas.
+/**
+ * Recursively makes an element in the DOM fullscreen.
+ * @param element The element to make fullscreen.
+ */
 function recursiveFullscreen(element: HTMLElement): void {
 	element.style.width = "100%";
 	element.style.height = "100%";
@@ -657,6 +660,10 @@ export default class Context {
 		};
 	}
 
+	/**
+	 * The blending functions. Disables blending if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 */
 	public set blendFunctions(value: BlendFunctionSet | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(BLEND);
@@ -678,6 +685,10 @@ export default class Context {
 		return this.gl.getParameter(CULL_FACE_MODE);
 	}
 
+	/**
+	 * The direction that polygons face to be culled. Disables polygon culling if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 */
 	public set cullFace(value: FaceDirection | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(CULL_FACE);
@@ -692,6 +703,7 @@ export default class Context {
 		return this.gl.isEnabled(DITHER);
 	}
 
+	/** Whether color components are dithered before they get written to the color buffer. */
 	public set doDither(value: boolean) {
 		if (value) {
 			this.gl.enable(DITHER);
@@ -712,6 +724,10 @@ export default class Context {
 		return this.gl.getParameter(DEPTH_FUNC);
 	}
 
+	/**
+	 * The depth comparison function in use. Disables the depth test if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 */
 	public set depthFunction(value: TestFunction | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(DEPTH_TEST);
@@ -736,6 +752,10 @@ export default class Context {
 		};
 	}
 
+	/**
+	 * The scale factor and units used to calculate depth values. Disables polygon offset fill if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
+	 */
 	public set polygonOffset(value: PolygonOffset | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(POLYGON_OFFSET_FILL);
@@ -750,6 +770,7 @@ export default class Context {
 		return this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
 	}
 
+	/** Whether a temporary coverage value is computed based on the alpha value. */
 	public set doSampleAlphaToCoverage(value: boolean) {
 		if (value) {
 			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
@@ -770,6 +791,7 @@ export default class Context {
 		};
 	}
 
+	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
 	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(SAMPLE_COVERAGE);
@@ -797,6 +819,10 @@ export default class Context {
 		};
 	}
 
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle. Disabled if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 */
 	public set scissorBox(value: Box | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(SCISSOR_TEST);
@@ -820,6 +846,10 @@ export default class Context {
 		};
 	}
 
+	/**
+	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 */
 	public set viewport(value: Box) {
 		this.gl.viewport(value.x, value.y, value.width, value.height);
 	}
@@ -847,6 +877,10 @@ export default class Context {
 		};
 	}
 
+	/**
+	 * The stencil test function and reference value. The stencil test is disabled if not defined.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 */
 	public set stencilFunctions(value: StencilTestSet | undefined) {
 		if (typeof value == "undefined") {
 			this.gl.disable(STENCIL_TEST);
@@ -865,6 +899,10 @@ export default class Context {
 		return this.gl.isEnabled(RASTERIZER_DISCARD);
 	}
 
+	/**
+	 * Whether primitives are discarded immediately before the rasterization stage.
+	 * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+	 */
 	public set doRasterizerDiscard(value: boolean) {
 		if (value) {
 			this.gl.enable(RASTERIZER_DISCARD);
@@ -881,6 +919,10 @@ export default class Context {
 		return this.gl.getParameter(FRONT_FACE);
 	}
 
+	/**
+	 * The winding orientation of front-facing polygons.
+	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 */
 	public set frontFace(value: WindingOrientation) {
 		this.gl.frontFace(value);
 	}

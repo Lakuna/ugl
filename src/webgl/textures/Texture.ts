@@ -467,6 +467,7 @@ export default class Texture<MipType extends Mip> {
 		return this.gl.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
 	}
 
+	/** The magnification filter for this texture. */
 	public set magFilter(value: TextureMagFilter) {
 		this.bind();
 		this.gl.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
@@ -479,6 +480,7 @@ export default class Texture<MipType extends Mip> {
 		return this.gl.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
 	}
 
+	/** The minification filter for this texture. */
 	public set minFilter(value: TextureMinFilter) {
 		this.bind();
 		this.gl.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
@@ -491,6 +493,7 @@ export default class Texture<MipType extends Mip> {
 		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
 	}
 
+	/** The wrapping function of this texture in the S direction. */
 	public set wrapSFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
@@ -503,6 +506,7 @@ export default class Texture<MipType extends Mip> {
 		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
 	}
 
+	/** The wrapping function of this texture in the T direction. */
 	public set wrapTFunction(value: TextureWrapFunction) {
 		this.bind();
 		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
@@ -570,7 +574,9 @@ export type MipSource =
 	| HTMLImageElement
 	| HTMLCanvasElement
 	| HTMLVideoElement
-	| ImageBitmap;
+	| ImageBitmap
+	| undefined
+	| null;
 
 /** A mipmap. */
 export class Mipmap<MipType extends Mip> {
@@ -606,6 +612,7 @@ export class Mipmap<MipType extends Mip> {
 		return this.getMip(0) as MipType;
 	}
 
+	/** The top (most detailed) mip in this mipmap. */
 	public set top(value: MipType) {
 		this.setMip(0, value);
 	}
@@ -739,14 +746,15 @@ export abstract class Mip {
 	}
 
 	/** The source data of this mip. */
-	private sourcePrivate: MipSource | undefined;
+	private sourcePrivate: MipSource;
 
 	/** The source data of this mip. */
-	public get source(): MipSource | undefined {
+	public get source(): MipSource {
 		return this.sourcePrivate;
 	}
 
-	public set source(value: MipSource | undefined) {
+	/** The source data of this mip. */
+	public set source(value: MipSource) {
 		this.sourcePrivate = value;
 		this.needsUpdate = true;
 	}
@@ -759,6 +767,7 @@ export abstract class Mip {
 		return this.internalFormatPrivate;
 	}
 
+	/** The format of the color components in this mip. */
 	public set internalFormat(value: TextureInternalFormat) {
 		this.internalFormatPrivate = value;
 		this.needsUpdate = true;
@@ -772,6 +781,7 @@ export abstract class Mip {
 		return this.dimsPrivate;
 	}
 
+	/** The dimensions of this mip. */
 	public set dims(value: ReadonlyArray<number | undefined>) {
 		this.dimsPrivate = value;
 		this.needsUpdate = true;
@@ -837,6 +847,7 @@ export abstract class Mip {
 		}
 	}
 
+	/** The format of the texel data in this mip. */
 	public set format(value: TextureBaseFormat | undefined) {
 		this.formatPrivate = value;
 		this.needsUpdate = true;
@@ -895,6 +906,7 @@ export abstract class Mip {
 		}
 	}
 
+	/** The data type of the components in this mip. */
 	public set type(value: TextureDataType | undefined) {
 		this.typePrivate = value;
 		this.needsUpdate = true;

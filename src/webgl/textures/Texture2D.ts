@@ -90,6 +90,7 @@ export default class Texture2D extends Texture<Texture2DMip> {
 		return this.getFace(MipmapTarget.TEXTURE_2D) as Mipmap<Texture2DMip>;
 	}
 
+	/** The face of this texture. */
 	public set face(value: Mipmap<Texture2DMip>) {
 		this.setFace(MipmapTarget.TEXTURE_2D, value);
 	}
@@ -118,6 +119,7 @@ export class Texture2DMip extends Mip {
 		return this.dims[0];
 	}
 
+	/** The width of this mip. */
 	public set width(value: number | undefined) {
 		this.dims = [value, this.dims[1]];
 	}
@@ -127,6 +129,7 @@ export class Texture2DMip extends Mip {
 		return this.dims[1];
 	}
 
+	/** The height of this mip. */
 	public set height(value: number | undefined) {
 		this.dims = [this.dims[0], value];
 	}

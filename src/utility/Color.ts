@@ -43,6 +43,7 @@ export default class Color extends Float32Array {
 		return this[0] as number;
 	}
 
+	/** The red component of this color. */
 	public set r(value: number) {
 		this[0] = value;
 	}
@@ -52,6 +53,7 @@ export default class Color extends Float32Array {
 		return this[1] as number;
 	}
 
+	/** The green component of this color. */
 	public set g(value: number) {
 		this[1] = value;
 	}
@@ -61,6 +63,7 @@ export default class Color extends Float32Array {
 		return this[2] as number;
 	}
 
+	/** The blue component of this color. */
 	public set b(value: number) {
 		this[2] = value;
 	}
@@ -70,6 +73,7 @@ export default class Color extends Float32Array {
 		return this[3] as number;
 	}
 
+	/** The alpha component of this color. */
 	public set a(value: number) {
 		this[3] = value;
 	}

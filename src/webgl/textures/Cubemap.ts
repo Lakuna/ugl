@@ -131,6 +131,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as Mipmap<CubemapMip>;
 	}
 
+	/** The negative X-axis face of this texture. */
 	public set nxFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, value);
 	}
@@ -140,6 +141,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as Mipmap<CubemapMip>;
 	}
 
+	/** The positive X-axis face of this texture. */
 	public set pxFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, value);
 	}
@@ -149,6 +151,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as Mipmap<CubemapMip>;
 	}
 
+	/** The negative Y-axis face of this texture. */
 	public set nyFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, value);
 	}
@@ -158,6 +161,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as Mipmap<CubemapMip>;
 	}
 
+	/** The positive Y-axis face of this texture. */
 	public set pyFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, value);
 	}
@@ -167,6 +171,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as Mipmap<CubemapMip>;
 	}
 
+	/** The negative Z-axis face of this texture. */
 	public set nzFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, value);
 	}
@@ -176,6 +181,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as Mipmap<CubemapMip>;
 	}
 
+	/** The positive Z-axis face of this texture. */
 	public set pzFace(value: Mipmap<CubemapMip>) {
 		this.setFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, value);
 	}
@@ -202,6 +208,7 @@ export class CubemapMip extends Mip {
 		return this.dims[0];
 	}
 
+	/** The width and height of this mip. */
 	public set dim(value: number | undefined) {
 		this.dims = [value];
 	}

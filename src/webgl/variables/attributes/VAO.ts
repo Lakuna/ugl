@@ -79,6 +79,7 @@ export default class VAO {
 		return this.elementArrayBuffer?.data as UintTypedArray;
 	}
 
+	/** The indices in the element array buffer of this VAO if the data is indexed. */
 	public set indices(value: UintTypedArray | undefined) {
 		this.bind();
 		if (value) {

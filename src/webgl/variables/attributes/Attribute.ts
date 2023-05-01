@@ -144,6 +144,7 @@ export default abstract class Attribute extends Variable {
 		return this.enabledPrivate;
 	}
 
+	/** Whether this attribute can get data from a buffer. */
 	public set enabled(value: boolean) {
 		if (value) {
 			this.gl.gl.enableVertexAttribArray(this.location);
@@ -162,6 +163,7 @@ export default abstract class Attribute extends Variable {
 		return this.valuePrivate;
 	}
 
+	/** The value of this attribute. */
 	public set value(value: AttributeState | undefined) {
 		if (!value) { return; }
 		this.setter(value);

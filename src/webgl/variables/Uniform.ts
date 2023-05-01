@@ -114,6 +114,7 @@ export const enum UniformType {
 	FLOAT_MAT4x3 = 0x8B6A
 }
 
+/** A value that can be stored in a uniform. */
 export type UniformValue = number | Texture<Mip>;
 
 /**
@@ -237,6 +238,7 @@ export default abstract class Uniform extends Variable {
 		return this.valuePrivate;
 	}
 
+	/** The value of this uniform. */
 	public set value(value: UniformValue | MeasuredIterable<UniformValue>) {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
@@ -304,6 +306,7 @@ export class SamplerUniform extends SingleValuedUniform {
 		return this.valuePrivate as Texture<Mip> | MeasuredIterable<Texture<Mip>>;
 	}
 
+	/** The value of this uniform. */
 	public override set value(value: Texture<Mip> | MeasuredIterable<Texture<Mip>>) {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
@@ -322,6 +325,7 @@ export abstract class ScalarUniform extends SingleValuedUniform {
 		return this.valuePrivate as number | MeasuredIterable<number>;
 	}
 
+	/** The value of this uniform. */
 	public override set value(value: number | MeasuredIterable<number>) {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
@@ -379,6 +383,7 @@ export abstract class MultipleValuedUniform extends Uniform {
 		return this.valuePrivate as MeasuredIterable<number>;
 	}
 
+	/** The value of this uniform. */
 	public override set value(value: MeasuredIterable<number>) {
 		this.arraySetter(value);
 		this.valuePrivate = value;

@@ -140,6 +140,7 @@ export default class Buffer {
 		return this.dataPrivate;
 	}
 
+	/** The data contained within this buffer. */
 	public set data(value: TypedArray) {
 		this.bind();
 		this.gl.gl.bufferData(this.target, value, this.usage);

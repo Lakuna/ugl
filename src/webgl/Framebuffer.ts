@@ -186,6 +186,7 @@ export default class Framebuffer {
 		return this.depthAttachmentPrivate;
 	}
 
+	/** The depth attachment on this framebuffer. */
 	public set depthAttachment(value: FramebufferAttachment | undefined) {
 		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
 		this.attach(value as Mip, DEPTH_ATTACHMENT);
@@ -200,6 +201,7 @@ export default class Framebuffer {
 		return this.stencilAttachmentPrivate;
 	}
 
+	/** The stencil attachment on this framebuffer. */
 	public set stencilAttachment(value: FramebufferAttachment | undefined) {
 		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
 		this.attach(value as Mip, STENCIL_ATTACHMENT);
@@ -214,6 +216,7 @@ export default class Framebuffer {
 		return this.depthStencilAttachmentPrivate;
 	}
 
+	/** The depth stencil attachment on this framebuffer. */
 	public set depthStencilAttachment(value: FramebufferAttachment | undefined) {
 		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
 		this.attach(value as Mip, DEPTH_STENCIL_ATTACHMENT);
