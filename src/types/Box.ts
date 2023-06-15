@@ -1,3 +1,4 @@
+/** A rectangle. */
 export default interface Box {
 	/** The X-coordinate of the box. */
 	x: number;
