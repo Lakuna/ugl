@@ -1,4 +1,4 @@
-import type AttributeState from "#attributes/AttributeState";
+import type BufferInfo from "#attributes/BufferInfo";
 import Variable from "#variables/Variable";
 import type Program from "#webgl/Program";
 
@@ -134,7 +134,7 @@ export default abstract class Attribute extends Variable {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public abstract setter(value: AttributeState): void;
+	public abstract setter(value: BufferInfo): void;
 
 	/** Whether this attribute can get data from a buffer. */
 	private enabledPrivate: boolean;
@@ -156,15 +156,15 @@ export default abstract class Attribute extends Variable {
 	}
 
 	/** The value of this attribute. */
-	private valuePrivate?: AttributeState;
+	private valuePrivate?: BufferInfo;
 
 	/** The value of this attribute. */
-	public get value(): AttributeState | undefined {
+	public get value(): BufferInfo | undefined {
 		return this.valuePrivate;
 	}
 
 	/** The value of this attribute. */
-	public set value(value: AttributeState | undefined) {
+	public set value(value: BufferInfo | undefined) {
 		if (!value) { return; }
 		this.setter(value);
 		this.valuePrivate = value;
@@ -186,7 +186,7 @@ export class FloatAttribute extends Attribute {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: AttributeState): void {
+	public setter(value: BufferInfo): void {
 		value.buffer.bind();
 		this.enabled = true;
 		this.gl.gl.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
@@ -208,7 +208,7 @@ export class IntegerAttribute extends Attribute {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: AttributeState): void {
+	public setter(value: BufferInfo): void {
 		value.buffer.bind();
 		this.enabled = true;
 		this.gl.gl.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
@@ -234,7 +234,7 @@ export class MatrixAttribute extends Attribute {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: AttributeState): void {
+	public setter(value: BufferInfo): void {
 		const stride: number = (this.dim * this.dim) * value.size;
 		for (let i = 0; i < this.dim; i++) {
 			const location: number = this.location + i;
