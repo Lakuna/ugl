@@ -25,17 +25,17 @@ export default class Shader {
 	 * @param type The type of the shader.
 	 * @param source The source code of the shader.
 	 */
-	public constructor(gl: Context, type: ShaderType, source: string) {
-		this.gl = gl;
+	public constructor(context: Context, type: ShaderType, source: string) {
+		this.context = context;
 		this.type = type;
 		this.source = source;
 
-		const shader: WebGLShader | null = gl.gl.createShader(type);
+		const shader: WebGLShader | null = context.internal.createShader(type);
 		if (!shader) { throw new Error("Unable to create a shader."); }
 		this.shader = shader;
 
-		gl.gl.shaderSource(shader, source);
-		gl.gl.compileShader(shader);
+		context.internal.shaderSource(shader, source);
+		context.internal.compileShader(shader);
 
 		if (!this.compileStatus) {
 			console.error(this.infoLog);
@@ -45,7 +45,7 @@ export default class Shader {
 	}
 
 	/** The rendering context of this shader. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The type of this shader. */
 	public readonly type: ShaderType;
@@ -58,21 +58,21 @@ export default class Shader {
 
 	/** Whether this shader is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.gl.gl.getShaderParameter(this.shader, DELETE_STATUS);
+		return this.context.internal.getShaderParameter(this.shader, DELETE_STATUS);
 	}
 
 	/** Whether the last shader compilation was successful. */
 	public get compileStatus(): boolean {
-		return this.gl.gl.getShaderParameter(this.shader, COMPILE_STATUS);
+		return this.context.internal.getShaderParameter(this.shader, COMPILE_STATUS);
 	}
 
 	/** The information log for this shader. */
 	public get infoLog(): string {
-		return this.gl.gl.getShaderInfoLog(this.shader) ?? "";
+		return this.context.internal.getShaderInfoLog(this.shader) ?? "";
 	}
 
 	/** Deletes this shader. */
 	public delete(): void {
-		this.gl.gl.deleteShader(this.shader);
+		this.context.internal.deleteShader(this.shader);
 	}
 }

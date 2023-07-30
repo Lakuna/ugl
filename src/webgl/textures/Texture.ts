@@ -392,7 +392,7 @@ export const UNPACK_ALIGNMENT = 0x0CF5;
 export default class Texture<MipType extends Mip> {
 	/**
 	 * Creates a texture.
-	 * @param gl The WebGL2 rendering context of the texture.
+	 * @param context The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.
 	 * @param faces The faces of the texture.
 	 * @param minFilter The minification filter to use on the texture.
@@ -401,7 +401,7 @@ export default class Texture<MipType extends Mip> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: Context,
+		context: Context,
 		target: TextureTarget,
 		faces: Map<MipmapTarget, Mipmap<MipType>> = new Map(),
 		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
@@ -409,10 +409,10 @@ export default class Texture<MipType extends Mip> {
 		wrapSFunction: TextureWrapFunction = TextureWrapFunction.REPEAT,
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
-		this.gl = gl;
+		this.context = context;
 		this.target = target;
 
-		const texture: WebGLTexture | null = gl.gl.createTexture();
+		const texture: WebGLTexture | null = context.internal.createTexture();
 		if (!texture) { throw new Error("Failed to create a texture."); }
 		this.texture = texture;
 
@@ -428,7 +428,7 @@ export default class Texture<MipType extends Mip> {
 	}
 
 	/** The rendering context of this texture. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The binding point of this texture. */
 	public readonly target: TextureTarget;
@@ -461,58 +461,58 @@ export default class Texture<MipType extends Mip> {
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureMagFilter {
 		this.bind();
-		return this.gl.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER);
+		return this.context.internal.getTexParameter(this.target, TEXTURE_MAG_FILTER);
 	}
 
 	/** The magnification filter for this texture. */
 	public set magFilter(value: TextureMagFilter) {
 		this.bind();
-		this.gl.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
+		this.context.internal.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The minification filter for this texture. */
 	public get minFilter(): TextureMinFilter {
 		this.bind();
-		return this.gl.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER);
+		return this.context.internal.getTexParameter(this.target, TEXTURE_MIN_FILTER);
 	}
 
 	/** The minification filter for this texture. */
 	public set minFilter(value: TextureMinFilter) {
 		this.bind();
-		this.gl.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+		this.context.internal.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
 		this.bind();
-		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_S);
+		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_S);
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public set wrapSFunction(value: TextureWrapFunction) {
 		this.bind();
-		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
+		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_S, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
 		this.bind();
-		return this.gl.gl.getTexParameter(this.target, TEXTURE_WRAP_T);
+		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_T);
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public set wrapTFunction(value: TextureWrapFunction) {
 		this.bind();
-		this.gl.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
+		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_T, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** Binds this texture to its target binding point. */
 	public bind(): void {
-		this.gl.gl.bindTexture(this.target, this.texture);
+		this.context.internal.bindTexture(this.target, this.texture);
 	}
 
 	/**
@@ -520,14 +520,14 @@ export default class Texture<MipType extends Mip> {
 	 * @param textureUnit The texture unit.
 	 */
 	public assign(textureUnit: number): void {
-		this.gl.gl.activeTexture(TEXTURE0 + textureUnit);
+		this.context.internal.activeTexture(TEXTURE0 + textureUnit);
 		this.bind();
 	}
 
 	/** Generates a mipmap for this texture. */
 	public generateMipmap(): void {
 		this.bind();
-		this.gl.gl.generateMipmap(this.target);
+		this.context.internal.generateMipmap(this.target);
 	}
 
 	/**

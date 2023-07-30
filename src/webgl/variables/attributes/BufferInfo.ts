@@ -22,11 +22,11 @@ export default class AttributeState {
 		this.stride = stride;
 		this.offset = offset;
 
-		this.gl = buffer.gl;
+		this.context = buffer.context;
 	}
 
 	/** The rendering context of this buffer. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The name of this attribute in a shader program. */
 	public readonly name: string;

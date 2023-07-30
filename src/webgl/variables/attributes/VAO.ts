@@ -42,9 +42,9 @@ export default class VAO {
 	 */
 	public constructor(program: Program, attributes: Array<BufferInfo> = [], indices?: UintTypedArray) {
 		this.program = program;
-		this.gl = program.gl;
+		this.context = program.context;
 
-		const vao: WebGLVertexArrayObject | null = this.gl.gl.createVertexArray();
+		const vao: WebGLVertexArrayObject | null = this.context.internal.createVertexArray();
 		if (!vao) { throw new Error("Failed to create VAO."); }
 		this.vao = vao;
 
@@ -55,7 +55,7 @@ export default class VAO {
 	}
 
 	/** The rendering context of this VAO. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The program that this VAO is used with. */
 	public readonly program: Program;
@@ -83,7 +83,7 @@ export default class VAO {
 	public set indices(value: UintTypedArray | undefined) {
 		this.bind();
 		if (value) {
-			this.elementArrayBuffer = new Buffer(this.gl, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
+			this.elementArrayBuffer = new Buffer(this.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
 		} else {
 			this.elementArrayBuffer = undefined;
 		}
@@ -91,7 +91,7 @@ export default class VAO {
 
 	/** Makes this the active VAO. */
 	public bind(): void {
-		this.gl.gl.bindVertexArray(this.vao);
+		this.context.internal.bindVertexArray(this.vao);
 	}
 
 	/**
@@ -130,14 +130,14 @@ export default class VAO {
 		}
 
 		if (this.elementArrayBuffer) {
-			this.gl.gl.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
+			this.context.internal.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
 		} else {
 			const firstAttribute: BufferInfo | undefined = this.attributes[0];
 			if (!firstAttribute) { return; }
 			const dataLength: number = firstAttribute.buffer.data.length;
 			const dataSize: number = firstAttribute.size;
 
-			this.gl.gl.drawArrays(primitive, offset, dataLength / dataSize);
+			this.context.internal.drawArrays(primitive, offset, dataLength / dataSize);
 		}
 	}
 }

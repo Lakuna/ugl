@@ -11,26 +11,26 @@ import type Context from "#webgl/Context";
 export default class Texture2D extends Texture<Texture2DMip> {
 	/**
 	 * Creates a basic 2D texture from a pixel source.
-	 * @param gl The rendering context of the texture.
+	 * @param context The rendering context of the texture.
 	 * @param source The pixel source.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromSource(gl: Context, source: MipSource): Texture2D {
+	public static fromSource(context: Context, source: MipSource): Texture2D {
 		return new Texture2D(
-			gl,
+			context,
 			new Mipmap(new Texture2DMip(source))
 		);
 	}
 
 	/**
 	 * Creates a basic 2D texture from an image URL. The texture will appear magenta until the image loads.
-	 * @param gl The rendering context of the texture.
+	 * @param context The rendering context of the texture.
 	 * @param url The URL of the image.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromImageUrl(gl: Context, url: string): Texture2D {
+	public static fromImageUrl(context: Context, url: string): Texture2D {
 		const out = new Texture2D(
-			gl,
+			context,
 			new Mipmap(
 				new Texture2DMip(
 					new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]),
@@ -55,7 +55,7 @@ export default class Texture2D extends Texture<Texture2DMip> {
 
 	/**
 	 * Creates a 2D texture.
-	 * @param gl The WebGL2 rendering context of the texture.
+	 * @param context The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.
 	 * @param face The face of the texture.
 	 * @param minFilter The minification filter to use on the texture.
@@ -64,7 +64,7 @@ export default class Texture2D extends Texture<Texture2DMip> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: Context,
+		context: Context,
 		face: Mipmap<Texture2DMip>,
 		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
 		minFilter: TextureMinFilter = TextureMinFilter.NEAREST,
@@ -72,7 +72,7 @@ export default class Texture2D extends Texture<Texture2DMip> {
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
 		super(
-			gl,
+			context,
 			TextureTarget.TEXTURE_2D,
 			new Map([
 				[MipmapTarget.TEXTURE_2D, face]
@@ -144,15 +144,15 @@ export class Texture2DMip extends Mip {
 			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.width % alignment == 0) {
-						texture.gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
+			texture.context.internal.texImage2D(target, lod, this.internalFormat, this.width, this.height, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			texture.context.internal.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

@@ -66,75 +66,75 @@ export const NONE = 0;
 export default class Framebuffer {
 	/**
 	 * Unbinds all framebuffers from the given rendering context.
-	 * @param gl The rendering context.
+	 * @param context The rendering context.
 	 */
-	public static unbind(gl: Context): void {
-		gl.gl.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
+	public static unbind(context: Context): void {
+		context.internal.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
 	}
 
 	/**
 	 * Sets the drawing buffer array.
-	 * @param gl The rendering context.
+	 * @param context The rendering context.
 	 * @param none Whether to not render to any attachment.
 	 * @param back Whether to render to the back buffer.
 	 * @param colorAttachments A list of color attachments to render to.
 	 */
-	public static setDrawBuffers(gl: Context, none: boolean, back: boolean, colorAttachments: Array<number>): void {
+	public static setDrawBuffers(context: Context, none: boolean, back: boolean, colorAttachments: Array<number>): void {
 		const drawBuffers: Array<number> = [];
 		if (none) { drawBuffers.push(NONE); }
 		if (back) { drawBuffers.push(BACK); }
 		for (const colorAttachment of colorAttachments) { drawBuffers.push(COLOR_ATTACHMENT0 + colorAttachment); }
-		gl.gl.drawBuffers(drawBuffers);
+		context.internal.drawBuffers(drawBuffers);
 	}
 
 	/**
 	 * Sets the read buffer to none.
-	 * @param gl The rendering context.
+	 * @param context The rendering context.
 	 */
-	public static setReadBuffer(gl: Context): void;
+	public static setReadBuffer(context: Context): void;
 
 	/**
 	 * Sets the read buffer to the back buffer.
-	 * @param gl The rendering context.
+	 * @param context The rendering context.
 	 * @param back Whether to read from the back buffer.
 	 */
-	public static setReadBuffer(gl: Context, back: boolean): void;
+	public static setReadBuffer(context: Context, back: boolean): void;
 
 	/**
 	 * Sets the read buffer to a color buffer.
-	 * @param gl The rendering context.
+	 * @param context The rendering context.
 	 * @param colorBuffer The color attachment to read from.
 	 */
-	public static setReadBuffer(gl: Context, colorBuffer: number): void;
+	public static setReadBuffer(context: Context, colorBuffer: number): void;
 
-	public static setReadBuffer(gl: Context, readBuffer?: boolean | number): void {
+	public static setReadBuffer(context: Context, readBuffer?: boolean | number): void {
 		if (typeof readBuffer == "number") {
-			gl.gl.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
+			context.internal.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
 		} else {
 			if (readBuffer) {
-				gl.gl.readBuffer(BACK);
+				context.internal.readBuffer(BACK);
 			} else {
-				gl.gl.readBuffer(NONE);
+				context.internal.readBuffer(NONE);
 			}
 		}
 	}
 
 	/**
 	 * Creates a framebuffer.
-	 * @param gl The rendering context of the framebuffer.
+	 * @param context The rendering context of the framebuffer.
 	 */
 	public constructor(
-		gl: Context,
+		context: Context,
 		colorAttachments: Array<FramebufferAttachment> = [],
 		depthAttachment?: FramebufferAttachment,
 		stencilAttachment?: FramebufferAttachment,
 		depthStencilAttachment?: FramebufferAttachment,
 		target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER
 	) {
-		this.gl = gl;
+		this.context = context;
 		this.target = target;
 
-		const framebuffer: WebGLFramebuffer | null = gl.gl.createFramebuffer();
+		const framebuffer: WebGLFramebuffer | null = context.internal.createFramebuffer();
 		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
 		this.framebuffer = framebuffer;
 
@@ -148,7 +148,7 @@ export default class Framebuffer {
 	}
 
 	/** The rendering context of this framebuffer. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The WebGL API interface of this framebuffer. */
 	public readonly framebuffer: WebGLFramebuffer;
@@ -226,12 +226,12 @@ export default class Framebuffer {
 	/** The status of this framebuffer. */
 	public get status(): FramebufferStatus {
 		this.bind();
-		return this.gl.gl.checkFramebufferStatus(this.target);
+		return this.context.internal.checkFramebufferStatus(this.target);
 	}
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
-		this.gl.gl.bindFramebuffer(this.target, this.framebuffer);
+		this.context.internal.bindFramebuffer(this.target, this.framebuffer);
 	}
 
 	/**
@@ -260,13 +260,13 @@ export default class Framebuffer {
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {
-			this.gl.gl.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
+			this.context.internal.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
 		} else if (attachment instanceof Mip) {
-			this.gl.gl.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).texture, attachment.lod as number, layer);
+			this.context.internal.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).texture, attachment.lod as number, layer);
 		} else {
-			this.gl.gl.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).texture, 0);
+			this.context.internal.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).texture, 0);
 		}
 
-		Framebuffer.unbind(this.gl);
+		Framebuffer.unbind(this.context);
 	}
 }

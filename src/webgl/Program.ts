@@ -35,13 +35,13 @@ export const TRANSFORM_FEEDBACK_VARYINGS = 0x8C83;
 export default class Program {
 	/**
 	 * Creates a shader program from source code.
-	 * @param gl The rendering context of the shader program.
+	 * @param context The rendering context of the shader program.
 	 * @param vertexShaderSource The source code of the vertex shader.
 	 * @param fragmentShaderSource The source code of the fragment shader.
 	 * @returns A shader program.
 	 */
-	public static fromSource(gl: Context, vertexShaderSource: string, fragmentShaderSource: string): Program {
-		return new Program(new Shader(gl, ShaderType.VERTEX_SHADER, vertexShaderSource), new Shader(gl, ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
+	public static fromSource(context: Context, vertexShaderSource: string, fragmentShaderSource: string): Program {
+		return new Program(new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource), new Shader(context, ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
 	}
 
 	/**
@@ -52,7 +52,7 @@ export default class Program {
 	 * @param transformFeedbackBufferMode The mode to use when capturing transform feedback varyings.
 	 */
 	public constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames: Array<string> = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
-		if (vertexShader.gl != fragmentShader.gl) { throw new Error("Shaders have different rendering contexts."); }
+		if (vertexShader.context != fragmentShader.context) { throw new Error("Shaders have different rendering contexts."); }
 		if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new Error("Invalid vertex shader."); }
 		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new Error("Invalid fragment shader."); }
 
@@ -60,16 +60,16 @@ export default class Program {
 		this.fragmentShader = fragmentShader;
 		this.transformFeedbackBufferMode = transformFeedbackBufferMode;
 
-		this.gl = vertexShader.gl;
+		this.context = vertexShader.context;
 
-		const program: WebGLProgram | null = this.gl.gl.createProgram();
+		const program: WebGLProgram | null = this.context.internal.createProgram();
 		if (!program) { throw new Error("Unable to create a shader program."); }
 		this.program = program;
 
-		this.gl.gl.attachShader(program, vertexShader.shader);
-		this.gl.gl.attachShader(program, fragmentShader.shader);
-		this.gl.gl.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
-		this.gl.gl.linkProgram(program);
+		this.context.internal.attachShader(program, vertexShader.shader);
+		this.context.internal.attachShader(program, fragmentShader.shader);
+		this.context.internal.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
+		this.context.internal.linkProgram(program);
 
 		if (!this.linkStatus) {
 			console.error(this.infoLog);
@@ -79,7 +79,7 @@ export default class Program {
 
 		const uniforms: Map<string, Uniform> = new Map();
 		let nextTextureUnit = 0;
-		const numUniforms: number = this.gl.gl.getProgramParameter(program, ACTIVE_UNIFORMS);
+		const numUniforms: number = this.context.internal.getProgramParameter(program, ACTIVE_UNIFORMS);
 		for (let i = 0; i < numUniforms; i++) {
 			const uniform: Uniform = Uniform.create(this, i, nextTextureUnit);
 			uniforms.set(uniform.name, uniform);
@@ -88,7 +88,7 @@ export default class Program {
 		this.uniforms = uniforms;
 
 		const attributes: Map<string, Attribute> = new Map();
-		const numAttributes: number = this.gl.gl.getProgramParameter(program, ACTIVE_ATTRIBUTES);
+		const numAttributes: number = this.context.internal.getProgramParameter(program, ACTIVE_ATTRIBUTES);
 		for (let i = 0; i < numAttributes; i++) {
 			const attribute: Attribute = Attribute.create(this, i);
 			attributes.set(attribute.name, attribute);
@@ -96,7 +96,7 @@ export default class Program {
 		this.attributes = attributes;
 
 		const transformFeedbackVaryings: Map<string, Varying> = new Map();
-		const numTransformFeedbackVaryings: number = this.gl.gl.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
+		const numTransformFeedbackVaryings: number = this.context.internal.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
 		for (let i = 0; i < numTransformFeedbackVaryings; i++) {
 			const transformFeedbackVarying: Varying = new Varying(this, i);
 			transformFeedbackVaryings.set(transformFeedbackVarying.name, transformFeedbackVarying);
@@ -117,7 +117,7 @@ export default class Program {
 	public readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
 
 	/** The rendering context of this shader program. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The WebGL API interface of this shader program. */
 	public readonly program: WebGLProgram;
@@ -139,31 +139,31 @@ export default class Program {
 
 	/** Whether this program is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.gl.gl.getProgramParameter(this.program, DELETE_STATUS);
+		return this.context.internal.getProgramParameter(this.program, DELETE_STATUS);
 	}
 
 	/** Whether the last link operation was successful. */
 	public get linkStatus(): boolean {
-		return this.gl.gl.getProgramParameter(this.program, LINK_STATUS);
+		return this.context.internal.getProgramParameter(this.program, LINK_STATUS);
 	}
 
 	/** Whether the last validation operation was successful. */
 	public get validateStatus(): boolean {
-		return this.gl.gl.getProgramParameter(this.program, VALIDATE_STATUS);
+		return this.context.internal.getProgramParameter(this.program, VALIDATE_STATUS);
 	}
 
 	/** The information log for this shader program. */
 	public get infoLog(): string {
-		return this.gl.gl.getProgramInfoLog(this.program) ?? "";
+		return this.context.internal.getProgramInfoLog(this.program) ?? "";
 	}
 
 	/** Deletes this shader program. */
 	public delete(): void {
-		this.gl.gl.deleteProgram(this.program);
+		this.context.internal.deleteProgram(this.program);
 	}
 
 	/** Sets this as the active shader program. */
 	public use(): void {
-		this.gl.gl.useProgram(this.program);
+		this.context.internal.useProgram(this.program);
 	}
 }

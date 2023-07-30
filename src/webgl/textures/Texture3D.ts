@@ -11,20 +11,20 @@ import type Context from "#webgl/Context";
 export default class Texture3D extends Texture<Texture3DMip> {
 	/**
 	 * Creates a basic 3D texture from a pixel source.
-	 * @param gl The rendering context of the texture.
+	 * @param context The rendering context of the texture.
 	 * @param source The pixel source.
 	 * @returns A basic 3D texture.
 	 */
-	public static fromSource(gl: Context, source: MipSource): Texture3D {
+	public static fromSource(context: Context, source: MipSource): Texture3D {
 		return new Texture3D(
-			gl,
+			context,
 			new Mipmap(new Texture3DMip(source))
 		);
 	}
 
 	/**
 	 * Creates a 3D texture.
-	 * @param gl The WebGL2 rendering context of the texture.
+	 * @param context The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.
 	 * @param face The face of the texture.
 	 * @param minFilter The minification filter to use on the texture.
@@ -33,7 +33,7 @@ export default class Texture3D extends Texture<Texture3DMip> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: Context,
+		context: Context,
 		face: Mipmap<Texture3DMip>,
 		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
 		minFilter: TextureMinFilter = TextureMinFilter.NEAREST,
@@ -41,7 +41,7 @@ export default class Texture3D extends Texture<Texture3DMip> {
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
 		super(
-			gl,
+			context,
 			TextureTarget.TEXTURE_3D,
 			new Map([
 				[MipmapTarget.TEXTURE_3D, face]
@@ -127,12 +127,12 @@ export class Texture3DMip extends Mip {
 		if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
 			for (const alignment of [8, 4, 2, 1]) {
 				if (this.width % alignment == 0) {
-					texture.gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+					texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);
 					break;
 				}
 			}
 		}
 
-		texture.gl.gl.texImage3D(target, lod, this.internalFormat, this.width, this.height, this.depth, 0, this.format, this.type, this.source as ArrayBufferView);
+		texture.context.internal.texImage3D(target, lod, this.internalFormat, this.width, this.height, this.depth, 0, this.format, this.type, this.source as ArrayBufferView);
 	}
 }

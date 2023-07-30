@@ -11,14 +11,14 @@ export default abstract class Variable {
 	 */
 	public constructor(program: Program) {
 		this.program = program;
-		this.gl = program.gl;
+		this.context = program.context;
 	}
 
 	/** The shader program that this variable belongs to. */
 	public readonly program: Program;
 
 	/** The rendering context of this variable. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The active information of this variable. */
 	public abstract readonly activeInfo: WebGLActiveInfo;
