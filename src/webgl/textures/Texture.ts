@@ -1,5 +1,5 @@
-import type { TypedArray } from "../../types/TypedArray.js";
-import type Context from "../Context.js";
+import type { TypedArray } from "#types/TypedArray";
+import type Context from "#webgl/Context";
 
 /** Binding points for textures. */
 export const enum TextureTarget {
@@ -290,9 +290,6 @@ export const enum TextureDataType {
 
 	/** Indicates that data must come from a `Uint32Array`. */
 	UNSIGNED_INT = 0x1405,
-
-	/** Indicates that data must come from a `Uint32Array`. */
-	UNSIGNED_INT_24_8_WEBGL = 0x84FA,
 
 	/** Indicates that data must come from a `Float32Array`. */
 	FLOAT = 0x1406,

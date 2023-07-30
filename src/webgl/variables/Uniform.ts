@@ -1,7 +1,7 @@
-import Variable from "./Variable.js";
-import type Program from "../Program.js";
-import type { default as Texture, Mip } from "../textures/Texture.js";
-import type MeasuredIterable from "../../types/MeasuredIterable.js";
+import type { default as Texture, Mip } from "#textures/Texture";
+import type MeasuredIterable from "#types/MeasuredIterable";
+import Variable from "#variables/Variable";
+import type Program from "#webgl/Program";
 
 /** Possible variable types for uniforms. */
 export const enum UniformType {

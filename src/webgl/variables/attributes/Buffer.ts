@@ -1,5 +1,5 @@
-import type { UintTypedArray, TypedArray } from "../../../types/TypedArray.js";
-import type Context from "../../Context.js";
+import type { TypedArray, UintTypedArray } from "#types/TypedArray";
+import type Context from "#webgl/Context";
 
 /** Binding points for buffers. */
 export const enum BufferTarget {

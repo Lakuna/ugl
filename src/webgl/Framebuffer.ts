@@ -1,6 +1,6 @@
-import type Context from "./Context.js";
-import Renderbuffer, { RENDERBUFFER } from "./Renderbuffer.js";
-import { type default as Texture, Mip, type Mipmap, MipmapTarget } from "./textures/Texture.js";
+import { type default as Texture, Mip, type Mipmap, MipmapTarget } from "#textures/Texture";
+import type Context from "#webgl/Context";
+import Renderbuffer, { RENDERBUFFER } from "#webgl/Renderbuffer";
 
 /** Binding points for framebuffers. */
 export const enum FramebufferTarget {

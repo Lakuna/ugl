@@ -1,4 +1,4 @@
-import type Context from "./Context.js";
+import type Context from "#webgl/Context";
 
 /** Formats for a renderbuffer. */
 export const enum RenderbufferFormat {
@@ -107,14 +107,8 @@ export const enum RenderbufferFormat {
 	/** A 32-bit floating-point number for depth and 8 bits for stencil. */
 	DEPTH32F_STENCIL8 = 0x8CAD,
 
-	/** A 32-bit floating-point number each for red, green, blue, and alpha. */
-	RGBA32F_EXT = 0x8814,
-
 	/** A 32-bit floating-point number each for red, green, and blue. */
 	RGB32F_EXT = 0x8815,
-
-	/** 8 bits each for red, green, blue, and alpha. */
-	SRGB8_ALPHA8_EXT = 0x8C43,
 
 	/** A 16-bit floating-point number for red. */
 	R16F = 0x822D,

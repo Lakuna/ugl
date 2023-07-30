@@ -1,9 +1,9 @@
-import type Program from "../../Program.js";
-import type AttributeState from "./AttributeState.js";
-import Buffer, { BufferTarget } from "./Buffer.js";
-import type { default as Uniform, UniformValue } from "../Uniform.js";
-import type { UintTypedArray } from "../../../types/TypedArray.js";
-import type Context from "../../Context.js";
+import type AttributeState from "#attributes/AttributeState";
+import Buffer, { BufferTarget } from "#attributes/Buffer";
+import type { UintTypedArray } from "#types/TypedArray";
+import type { default as Uniform, UniformValue } from "#variables/Uniform";
+import type Context from "#webgl/Context";
+import type Program from "#webgl/Program";
 
 /** Types of primitives that can be rasterized. */
 export const enum Primitive {

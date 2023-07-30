@@ -1,5 +1,5 @@
-import Variable from "./Variable.js";
-import type Program from "../Program.js";
+import Variable from "#variables/Variable";
+import type Program from "#webgl/Program";
 
 /**
  * An input variable in a WebGL fragment shader used for transform feedback.

@@ -1,7 +1,7 @@
-import type Context from "../Context.js";
-import type Program from "../Program.js";
-import type { UniformType } from "./Uniform.js";
-import type { AttributeType } from "./attributes/Attribute.js";
+import type { AttributeType } from "#attributes/Attribute";
+import type { UniformType } from "#variables/Uniform";
+import type Context from "#webgl/Context";
+import type Program from "#webgl/Program";
 
 /** A variable in a WebGL shader program. */
 export default abstract class Variable {

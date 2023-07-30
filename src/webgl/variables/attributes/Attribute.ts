@@ -1,6 +1,6 @@
-import Variable from "../Variable.js";
-import type Program from "../../Program.js";
-import type AttributeState from "../attributes/AttributeState.js";
+import type AttributeState from "#attributes/AttributeState";
+import Variable from "#variables/Variable";
+import type Program from "#webgl/Program";
 
 /** Possible variable types for attributes. */
 export const enum AttributeType {

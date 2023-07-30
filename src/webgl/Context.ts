@@ -1,5 +1,5 @@
-import type Box from "../types/Box.js";
-import type Color from "../utility/Color.js";
+import type Box from "#types/Box";
+import type Color from "#utility/Color";
 
 /** A canvas. */
 export type Canvas = HTMLCanvasElement | OffscreenCanvas;

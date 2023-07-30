@@ -1,0 +1,97 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    name: Build
+    permissions: {}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out Repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+      - name: Install Dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm run test
+      - name: Build Documentation
+        run: npm run doc
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: |
+            dist
+            src
+            LICENSE
+            README.md
+            package.json
+      - name: Upload Documentation Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: docs
+
+  publish-npm:
+    name: Publish to npm
+    permissions: {}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out Repository
+        uses: actions/checkout@v3
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org
+      - name: Publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  
+  publish-gpr:
+    name: Publish to GitHub Packages
+    permissions:
+      packages: write
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out Repository
+        uses: actions/checkout@v3
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://npm.pkg.github.com
+      - name: Publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  publish-documentation:
+    name: Publish Documentation
+    permissions:
+      pages: write
+      id-token: write
+    needs:
+      - publish-npm
+      - publish-gpr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish
+        uses: actions/deploy-pages@v2

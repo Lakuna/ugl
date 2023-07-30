@@ -1,7 +1,7 @@
-import type { default as Buffer, BufferDataType } from "./Buffer.js";
-import type Program from "../../Program.js";
-import type Attribute from "./Attribute.js";
-import type Context from "../../Context.js";
+import type Attribute from "#attributes/Attribute";
+import type { default as Buffer, BufferDataType } from "#attributes/Buffer";
+import type Context from "#webgl/Context";
+import type Program from "#webgl/Program";
 
 /** Information about how to access data in a buffer. */
 export default class AttributeState {

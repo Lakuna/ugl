@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "15.0.2",
+	"version": "15.0.3",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -21,15 +21,9 @@
 		"url": "https://github.com/sponsors/Lakuna"
 	},
 	"files": [
-		"dist/*",
-		"src/*"
+		"dist",
+		"src"
 	],
-	"main": "./dist/index.js",
-	"browser": "./dist/index.js",
-	"exports": {
-		".": "./dist/index.js"
-	},
-	"types": "./dist/index.d.ts",
 	"repository": {
 		"type": "git",
 		"url": "github:Lakuna/ugl"
@@ -37,15 +31,28 @@
 	"scripts": {
 		"build": "tsc",
 		"lint": "eslint src",
-		"doc": "typedoc src"
+		"doc": "typedoc src",
+		"test": ""
 	},
-	"type": "module",
-	"sideEffects": false,
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.59.11",
-		"@typescript-eslint/parser": "^5.59.11",
-		"eslint": "^8.42.0",
+		"@typescript-eslint/eslint-plugin": "^6.1.0",
+		"@typescript-eslint/parser": "^6.1.0",
+		"eslint": "^8.45.0",
 		"typedoc": "^0.24.8",
-		"typescript": "^5.1.3"
-	}
+		"typescript": "^5.1.6"
+	},
+	"exports": {
+		".": "./dist/index.js"
+	},
+	"imports": {
+		"#types/*": "./dist/types/*.js",
+		"#utility/*": "./dist/utility/*.js",
+		"#webgl/*": "./dist/webgl/*.js",
+		"#textures/*": "./dist/webgl/textures/*.js",
+		"#variables/*": "./dist/webgl/variables/*.js",
+		"#attributes/*": "./dist/webgl/variables/attributes/*.js"
+	},
+	"types": "./dist/index.d.ts",
+	"type": "module",
+	"sideEffects": false
 }

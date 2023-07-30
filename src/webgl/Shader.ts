@@ -1,4 +1,4 @@
-import type Context from "./Context.js";
+import type Context from "#webgl/Context";
 
 /** Types of shaders. */
 export const enum ShaderType {

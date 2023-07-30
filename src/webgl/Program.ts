@@ -1,8 +1,8 @@
-import Uniform, { type SamplerUniform } from "./variables/Uniform.js";
-import Attribute from "./variables/attributes/Attribute.js";
-import Varying from "./variables/Varying.js";
-import Shader, { ShaderType, DELETE_STATUS } from "./Shader.js";
-import type Context from "./Context.js";
+import Attribute from "#attributes/Attribute";
+import Uniform, { type SamplerUniform } from "#variables/Uniform";
+import Varying from "#variables/Varying";
+import type Context from "#webgl/Context";
+import Shader, { ShaderType, DELETE_STATUS } from "#webgl/Shader";
 
 /** Modes for capturing transform feedback varyings. */
 export const enum TransformFeedbackBufferMode {

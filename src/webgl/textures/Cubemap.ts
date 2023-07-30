@@ -1,5 +1,8 @@
-import type Context from "../Context.js";
-import Texture, { Mipmap, Mip, type MipSource, TextureMagFilter, TextureMinFilter, TextureWrapFunction, TextureInternalFormat, UNPACK_ALIGNMENT, MipmapTarget, TextureTarget } from "./Texture.js";
+import Texture, {
+	Mip, Mipmap, MipmapTarget, type MipSource, TextureInternalFormat, TextureMagFilter,
+	TextureMinFilter, TextureTarget, TextureWrapFunction, UNPACK_ALIGNMENT
+} from "#textures/Texture";
+import type Context from "#webgl/Context";
 
 /**
  * A cubemap texture.
