@@ -1,3 +1,7 @@
+[![CodeQL](https://github.com/Lakuna/ugl/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Lakuna/ugl/actions/workflows/github-code-scanning/codeql)
+[![Publish](https://github.com/Lakuna/ugl/actions/workflows/publish.yml/badge.svg)](https://github.com/Lakuna/ugl/actions/workflows/publish.yml)
+[![Test](https://github.com/Lakuna/ugl/actions/workflows/test.yml/badge.svg)](https://github.com/Lakuna/ugl/actions/workflows/test.yml)
+
 # μGL
 
 A lightweight WebGL2 library. Includes a variety of classes which are useful for developing two- and three-dimensional games, animations, and simulations.
