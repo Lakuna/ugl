@@ -11,7 +11,7 @@ import type Context from "#webgl/Context";
 export default class Cubemap extends Texture<CubemapMip> {
 	/**
 	 * Creates a basic cubemap from pixel sources.
-	 * @param gl The rendering context of the cubemap.
+	 * @param context The rendering context of the cubemap.
 	 * @param px The pixel source of the positive X-axis face.
 	 * @param nx The pixel source of the negative X-axis face.
 	 * @param py The pixel source of the positive Y-axis face.
@@ -20,9 +20,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param nz The pixel source of the negative Z-axis face.
 	 * @returns A basic cubemap.
 	 */
-	public static fromSources(gl: Context, px: MipSource, nx: MipSource, py: MipSource, ny: MipSource, pz: MipSource, nz: MipSource): Cubemap {
+	public static fromSources(context: Context, px: MipSource, nx: MipSource, py: MipSource, ny: MipSource, pz: MipSource, nz: MipSource): Cubemap {
 		return new Cubemap(
-			gl,
+			context,
 			new Mipmap(new CubemapMip(px)),
 			new Mipmap(new CubemapMip(nx)),
 			new Mipmap(new CubemapMip(py)),
@@ -34,7 +34,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/**
 	 * Creates a basic cubemap from image URLs. The cubemap will appear magenta until the images load.
-	 * @param gl The rendering context of the cubemap.
+	 * @param context The rendering context of the cubemap.
 	 * @param px The URL of the image on the positive X-axis face.
 	 * @param nx The URL of the image on the negative X-axis face.
 	 * @param py The URL of the image on the positive Y-axis face.
@@ -43,9 +43,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param nz The URL of the image on the negative Z-axis face.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromImageUrls(gl: Context, px: string, nx: string, py: string, ny: string, pz: string, nz: string): Cubemap {
+	public static fromImageUrls(context: Context, px: string, nx: string, py: string, ny: string, pz: string, nz: string): Cubemap {
 		const out = new Cubemap(
-			gl,
+			context,
 			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
 			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
 			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
@@ -85,7 +85,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/**
 	 * Creates a 2D texture.
-	 * @param gl The WebGL2 rendering context of the texture.
+	 * @param context The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.
 	 * @param nxFace The negative X-axis face of the texture.
 	 * @param pxFace The positive X-axis face of the texture.
@@ -99,7 +99,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
 	 */
 	public constructor(
-		gl: Context,
+		context: Context,
 		nxFace: Mipmap<CubemapMip>,
 		pxFace: Mipmap<CubemapMip>,
 		nyFace: Mipmap<CubemapMip>,
@@ -112,7 +112,7 @@ export default class Cubemap extends Texture<CubemapMip> {
 		wrapTFunction: TextureWrapFunction = TextureWrapFunction.REPEAT
 	) {
 		super(
-			gl,
+			context,
 			TextureTarget.TEXTURE_CUBE_MAP,
 			new Map([
 				[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nxFace],
@@ -227,15 +227,15 @@ export class CubemapMip extends Mip {
 			if (this.dim > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.dim % alignment == 0) {
-						texture.gl.gl.pixelStorei(UNPACK_ALIGNMENT, alignment);
+						texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);
 						break;
 					}
 				}
 			}
 
-			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
+			texture.context.internal.texImage2D(target, lod, this.internalFormat, this.dim, this.dim, 0, this.format, this.type, this.source as ArrayBufferView);
 		} else {
-			texture.gl.gl.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
+			texture.context.internal.texImage2D(target, lod, this.internalFormat, this.format, this.type, this.source as ImageData);
 		}
 	}
 }

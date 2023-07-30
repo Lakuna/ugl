@@ -615,7 +615,7 @@ export default class Context {
 		preserveDrawingBuffer?: boolean
 	) {
 		if (src instanceof WebGL2RenderingContext) {
-			this.gl = src;
+			this.internal = src;
 		} else {
 			const gl: WebGL2RenderingContext | null = (src as HTMLCanvasElement).getContext("webgl2", {
 				alpha,
@@ -629,18 +629,18 @@ export default class Context {
 				preserveDrawingBuffer
 			}) as WebGL2RenderingContext | null;
 			if (!gl) { throw new Error("WebGL2 is not supported by your browser."); }
-			this.gl = gl;
+			this.internal = gl;
 		}
 
 		this.extensions = new Map();
 	}
 
 	/** This rendering context. */
-	public readonly gl: WebGL2RenderingContext;
+	public readonly internal: WebGL2RenderingContext;
 
 	/** The canvas of this rendering context. */
 	public get canvas(): Canvas {
-		return this.gl.canvas;
+		return this.internal.canvas;
 	}
 
 	/**
@@ -648,15 +648,15 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public get blendFunctions(): BlendFunctionSet | undefined {
-		if (!this.gl.isEnabled(BLEND)) {
+		if (!this.internal.isEnabled(BLEND)) {
 			return undefined;
 		}
 
 		return {
-			srcRgb: this.gl.getParameter(BLEND_SRC_RGB),
-			srcAlpha: this.gl.getParameter(BLEND_SRC_ALPHA),
-			dstRgb: this.gl.getParameter(BLEND_DST_RGB),
-			dstAlpha: this.gl.getParameter(BLEND_DST_ALPHA)
+			srcRgb: this.internal.getParameter(BLEND_SRC_RGB),
+			srcAlpha: this.internal.getParameter(BLEND_SRC_ALPHA),
+			dstRgb: this.internal.getParameter(BLEND_DST_RGB),
+			dstAlpha: this.internal.getParameter(BLEND_DST_ALPHA)
 		};
 	}
 
@@ -666,10 +666,10 @@ export default class Context {
 	 */
 	public set blendFunctions(value: BlendFunctionSet | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(BLEND);
+			this.internal.disable(BLEND);
 		} else {
-			this.gl.enable(BLEND);
-			this.gl.blendFuncSeparate(value.srcRgb, value.dstRgb, value.srcAlpha, value.dstAlpha);
+			this.internal.enable(BLEND);
+			this.internal.blendFuncSeparate(value.srcRgb, value.dstRgb, value.srcAlpha, value.dstAlpha);
 		}
 	}
 
@@ -678,11 +678,11 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public get cullFace(): FaceDirection | undefined {
-		if (!this.gl.isEnabled(CULL_FACE)) {
+		if (!this.internal.isEnabled(CULL_FACE)) {
 			return undefined;
 		}
 
-		return this.gl.getParameter(CULL_FACE_MODE);
+		return this.internal.getParameter(CULL_FACE_MODE);
 	}
 
 	/**
@@ -691,24 +691,24 @@ export default class Context {
 	 */
 	public set cullFace(value: FaceDirection | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(CULL_FACE);
+			this.internal.disable(CULL_FACE);
 		} else {
-			this.gl.enable(CULL_FACE);
-			this.gl.cullFace(value);
+			this.internal.enable(CULL_FACE);
+			this.internal.cullFace(value);
 		}
 	}
 
 	/** Whether color components are dithered before they get written to the color buffer. */
 	public get doDither(): boolean {
-		return this.gl.isEnabled(DITHER);
+		return this.internal.isEnabled(DITHER);
 	}
 
 	/** Whether color components are dithered before they get written to the color buffer. */
 	public set doDither(value: boolean) {
 		if (value) {
-			this.gl.enable(DITHER);
+			this.internal.enable(DITHER);
 		} else {
-			this.gl.disable(DITHER);
+			this.internal.disable(DITHER);
 		}
 	}
 
@@ -717,11 +717,11 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public get depthFunction(): TestFunction | undefined {
-		if (!this.gl.isEnabled(DEPTH_TEST)) {
+		if (!this.internal.isEnabled(DEPTH_TEST)) {
 			return undefined;
 		}
 
-		return this.gl.getParameter(DEPTH_FUNC);
+		return this.internal.getParameter(DEPTH_FUNC);
 	}
 
 	/**
@@ -730,10 +730,10 @@ export default class Context {
 	 */
 	public set depthFunction(value: TestFunction | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(DEPTH_TEST);
+			this.internal.disable(DEPTH_TEST);
 		} else {
-			this.gl.enable(DEPTH_TEST);
-			this.gl.depthFunc(value);
+			this.internal.enable(DEPTH_TEST);
+			this.internal.depthFunc(value);
 		}
 	}
 
@@ -742,13 +742,13 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
 	 */
 	public get polygonOffset(): PolygonOffset | undefined {
-		if (!this.gl.isEnabled(POLYGON_OFFSET_FILL)) {
+		if (!this.internal.isEnabled(POLYGON_OFFSET_FILL)) {
 			return undefined;
 		}
 
 		return {
-			factor: this.gl.getParameter(POLYGON_OFFSET_FACTOR),
-			units: this.gl.getParameter(POLYGON_OFFSET_UNITS)
+			factor: this.internal.getParameter(POLYGON_OFFSET_FACTOR),
+			units: this.internal.getParameter(POLYGON_OFFSET_UNITS)
 		};
 	}
 
@@ -758,46 +758,46 @@ export default class Context {
 	 */
 	public set polygonOffset(value: PolygonOffset | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(POLYGON_OFFSET_FILL);
+			this.internal.disable(POLYGON_OFFSET_FILL);
 		} else {
-			this.gl.enable(POLYGON_OFFSET_FILL);
-			this.gl.polygonOffset(value.factor, value.units);
+			this.internal.enable(POLYGON_OFFSET_FILL);
+			this.internal.polygonOffset(value.factor, value.units);
 		}
 	}
 
 	/** Whether a temporary coverage value is computed based on the alpha value. */
 	public get doSampleAlphaToCoverage(): boolean {
-		return this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
+		return this.internal.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
 	}
 
 	/** Whether a temporary coverage value is computed based on the alpha value. */
 	public set doSampleAlphaToCoverage(value: boolean) {
 		if (value) {
-			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
+			this.internal.enable(SAMPLE_ALPHA_TO_COVERAGE);
 		} else {
-			this.gl.disable(SAMPLE_ALPHA_TO_COVERAGE);
+			this.internal.disable(SAMPLE_ALPHA_TO_COVERAGE);
 		}
 	}
 
 	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
 	public get sampleCoverage(): MultiSampleCoverageParameters | undefined {
-		if (!this.gl.isEnabled(SAMPLE_COVERAGE)) {
+		if (!this.internal.isEnabled(SAMPLE_COVERAGE)) {
 			return undefined;
 		}
 
 		return {
-			value: this.gl.getParameter(SAMPLE_COVERAGE_VALUE),
-			invert: this.gl.getParameter(SAMPLE_COVERAGE_INVERT)
+			value: this.internal.getParameter(SAMPLE_COVERAGE_VALUE),
+			invert: this.internal.getParameter(SAMPLE_COVERAGE_INVERT)
 		};
 	}
 
 	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
 	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(SAMPLE_COVERAGE);
+			this.internal.disable(SAMPLE_COVERAGE);
 		} else {
-			this.gl.enable(SAMPLE_COVERAGE);
-			this.gl.sampleCoverage(value.value, value.invert);
+			this.internal.enable(SAMPLE_COVERAGE);
+			this.internal.sampleCoverage(value.value, value.invert);
 		}
 	}
 
@@ -806,11 +806,11 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public get scissorBox(): Box | undefined {
-		if (!this.gl.isEnabled(SCISSOR_TEST)) {
+		if (!this.internal.isEnabled(SCISSOR_TEST)) {
 			return undefined;
 		}
 
-		const raw: Int32Array = this.gl.getParameter(SCISSOR_BOX);
+		const raw: Int32Array = this.internal.getParameter(SCISSOR_BOX);
 		return {
 			x: raw[0] as number,
 			y: raw[1] as number,
@@ -825,10 +825,10 @@ export default class Context {
 	 */
 	public set scissorBox(value: Box | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(SCISSOR_TEST);
+			this.internal.disable(SCISSOR_TEST);
 		} else {
-			this.gl.enable(SCISSOR_TEST);
-			this.gl.scissor(value.x, value.y, value.width, value.height);
+			this.internal.enable(SCISSOR_TEST);
+			this.internal.scissor(value.x, value.y, value.width, value.height);
 		}
 	}
 
@@ -837,7 +837,7 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public get viewport(): Box {
-		const raw: Int32Array = this.gl.getParameter(VIEWPORT);
+		const raw: Int32Array = this.internal.getParameter(VIEWPORT);
 		return {
 			x: raw[0] as number,
 			y: raw[1] as number,
@@ -851,7 +851,7 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public set viewport(value: Box) {
-		this.gl.viewport(value.x, value.y, value.width, value.height);
+		this.internal.viewport(value.x, value.y, value.width, value.height);
 	}
 
 	/**
@@ -859,20 +859,20 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
 	 */
 	public get stencilFunctions(): StencilTestSet | undefined {
-		if (!this.gl.isEnabled(STENCIL_TEST)) {
+		if (!this.internal.isEnabled(STENCIL_TEST)) {
 			return undefined;
 		}
 
 		return {
 			front: {
-				func: this.gl.getParameter(STENCIL_FUNC),
-				ref: this.gl.getParameter(STENCIL_REF),
-				mask: this.gl.getParameter(STENCIL_VALUE_MASK)
+				func: this.internal.getParameter(STENCIL_FUNC),
+				ref: this.internal.getParameter(STENCIL_REF),
+				mask: this.internal.getParameter(STENCIL_VALUE_MASK)
 			},
 			back: {
-				func: this.gl.getParameter(STENCIL_BACK_FUNC),
-				ref: this.gl.getParameter(STENCIL_BACK_REF),
-				mask: this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
+				func: this.internal.getParameter(STENCIL_BACK_FUNC),
+				ref: this.internal.getParameter(STENCIL_BACK_REF),
+				mask: this.internal.getParameter(STENCIL_BACK_VALUE_MASK)
 			}
 		};
 	}
@@ -883,11 +883,11 @@ export default class Context {
 	 */
 	public set stencilFunctions(value: StencilTestSet | undefined) {
 		if (typeof value == "undefined") {
-			this.gl.disable(STENCIL_TEST);
+			this.internal.disable(STENCIL_TEST);
 		} else {
-			this.gl.enable(STENCIL_TEST);
-			this.gl.stencilFuncSeparate(FaceDirection.FRONT, value.front.func, value.front.ref, value.front.mask);
-			this.gl.stencilFuncSeparate(FaceDirection.BACK, value.back.func, value.back.ref, value.back.mask);
+			this.internal.enable(STENCIL_TEST);
+			this.internal.stencilFuncSeparate(FaceDirection.FRONT, value.front.func, value.front.ref, value.front.mask);
+			this.internal.stencilFuncSeparate(FaceDirection.BACK, value.back.func, value.back.ref, value.back.mask);
 		}
 	}
 
@@ -896,7 +896,7 @@ export default class Context {
 	 * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
 	 */
 	public get doRasterizerDiscard(): boolean {
-		return this.gl.isEnabled(RASTERIZER_DISCARD);
+		return this.internal.isEnabled(RASTERIZER_DISCARD);
 	}
 
 	/**
@@ -905,9 +905,9 @@ export default class Context {
 	 */
 	public set doRasterizerDiscard(value: boolean) {
 		if (value) {
-			this.gl.enable(RASTERIZER_DISCARD);
+			this.internal.enable(RASTERIZER_DISCARD);
 		} else {
-			this.gl.disable(RASTERIZER_DISCARD);
+			this.internal.disable(RASTERIZER_DISCARD);
 		}
 	}
 
@@ -916,7 +916,7 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public get frontFace(): WindingOrientation {
-		return this.gl.getParameter(FRONT_FACE);
+		return this.internal.getParameter(FRONT_FACE);
 	}
 
 	/**
@@ -924,7 +924,7 @@ export default class Context {
 	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public set frontFace(value: WindingOrientation) {
-		this.gl.frontFace(value);
+		this.internal.frontFace(value);
 	}
 
 	/**
@@ -933,7 +933,7 @@ export default class Context {
 	 * @see [WebXR API documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
 	 */
 	public async makeXrCompatible(): Promise<void> {
-		return (this.gl as unknown as { makeXRCompatible: () => Promise<void> }).makeXRCompatible()
+		return (this.internal as unknown as { makeXRCompatible: () => Promise<void> }).makeXRCompatible()
 			.catch(() => { throw new Error("Failed to make the context XR-compatible."); });
 	}
 
@@ -942,7 +942,7 @@ export default class Context {
 	 * @returns A list of all of the supported extensions.
 	 */
 	public getSupportedExtensions(): Array<Extension> {
-		return (this.gl.getSupportedExtensions() ?? []) as Array<Extension>;
+		return (this.internal.getSupportedExtensions() ?? []) as Array<Extension>;
 	}
 
 	/** A map of enabled extensions to their names. */
@@ -955,7 +955,7 @@ export default class Context {
 	 */
 	public getExtension(extension: Extension): ExtensionObject {
 		if (!this.extensions.has(extension)) {
-			this.extensions.set(extension, this.gl.getExtension(extension));
+			this.extensions.set(extension, this.internal.getExtension(extension));
 		}
 
 		return this.extensions.get(extension) as ExtensionObject;
@@ -971,25 +971,25 @@ export default class Context {
 	public clear(color?: Color | undefined, depth?: number | undefined, stencil?: number | undefined): void {
 		let colorBit = 0;
 		if (color) {
-			this.gl.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
+			this.internal.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
 			colorBit = COLOR_BUFFER_BIT;
 		}
 
 		let depthBit = 0;
 		if (typeof depth == "number") {
-			this.gl.enable(DEPTH_TEST);
-			this.gl.clearDepth(depth);
+			this.internal.enable(DEPTH_TEST);
+			this.internal.clearDepth(depth);
 			depthBit = DEPTH_BUFFER_BIT;
 		}
 
 		let stencilBit = 0;
 		if (typeof stencil == "number") {
-			this.gl.enable(STENCIL_TEST);
-			this.gl.clearStencil(stencil);
+			this.internal.enable(STENCIL_TEST);
+			this.internal.clearStencil(stencil);
 			stencilBit = STENCIL_BUFFER_BIT
 		}
 
-		this.gl.clear(colorBit | depthBit | stencilBit);
+		this.internal.clear(colorBit | depthBit | stencilBit);
 	}
 
 	/**
@@ -1037,7 +1037,7 @@ export default class Context {
 	public resize(x: number, y: number, width: number, height: number): boolean;
 
 	public resize(x?: number, y?: number, width?: number, height?: number): boolean {
-		if (this.gl.canvas instanceof OffscreenCanvas) {
+		if (this.internal.canvas instanceof OffscreenCanvas) {
 			throw new Error("Cannot resize an offscreen context.");
 		}
 

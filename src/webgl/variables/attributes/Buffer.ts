@@ -86,34 +86,34 @@ export const enum BufferDataType {
 export default class Buffer {
 	/**
 	 * Creates an element array buffer.
-	 * @param gl The rendering context of the buffer.
+	 * @param context The rendering context of the buffer.
 	 * @param data The data to store in the buffer.
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(gl: Context, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
+	public constructor(context: Context, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
 
 	/**
 	 * Creates a buffer.
-	 * @param gl The rendering context of the buffer.
+	 * @param context The rendering context of the buffer.
 	 * @param data The data to store in the buffer.
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(gl: Context, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
+	public constructor(context: Context, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
 
-	public constructor(gl: Context, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
+	public constructor(context: Context, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
 		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint8ClampedArray || data instanceof Uint16Array || data instanceof Uint32Array)) {
 			throw new Error("The element array buffer must contain unsigned integers.");
 		}
 
-		this.gl = gl;
+		this.context = context;
 		this.dataPrivate = data;
 		this.target = target;
 		this.usage = usage;
 		this.typePrivate = BufferDataType.BYTE;
 
-		const buffer: WebGLBuffer | null = gl.gl.createBuffer();
+		const buffer: WebGLBuffer | null = context.internal.createBuffer();
 		if (!buffer) { throw new Error("Failed to create buffer."); }
 		this.buffer = buffer;
 
@@ -121,7 +121,7 @@ export default class Buffer {
 	}
 
 	/** The rendering context of this buffer. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The binding point to bind this buffer to. */
 	public target: BufferTarget;
@@ -143,7 +143,7 @@ export default class Buffer {
 	/** The data contained within this buffer. */
 	public set data(value: TypedArray) {
 		this.bind();
-		this.gl.gl.bufferData(this.target, value, this.usage);
+		this.context.internal.bufferData(this.target, value, this.usage);
 		this.dataPrivate = value;
 
 		if (value instanceof Int8Array) {
@@ -170,6 +170,6 @@ export default class Buffer {
 
 	/** Binds this buffer to its target binding point. */
 	public bind(): void {
-		this.gl.gl.bindBuffer(this.target, this.buffer);
+		this.context.internal.bindBuffer(this.target, this.buffer);
 	}
 }

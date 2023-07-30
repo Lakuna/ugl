@@ -142,27 +142,27 @@ export const RENDERBUFFER = 0x8D41;
 export default class Renderbuffer {
 	/**
 	 * Creates a renderbuffer.
-	 * @param gl The rendering context of the renderbuffer.
+	 * @param context The rendering context of the renderbuffer.
 	 * @param format The format of the renderbuffer.
 	 * @param width The width of the renderbuffer.
 	 * @param height The height of the renderbuffer.
 	 */
-	public constructor(gl: Context, format: RenderbufferFormat, width: number, height: number) {
-		this.gl = gl;
+	public constructor(context: Context, format: RenderbufferFormat, width: number, height: number) {
+		this.context = context;
 		this.format = format;
 		this.width = width;
 		this.height = height;
 
-		const renderbuffer: WebGLRenderbuffer | null = gl.gl.createRenderbuffer();
+		const renderbuffer: WebGLRenderbuffer | null = context.internal.createRenderbuffer();
 		if (!renderbuffer) { throw new Error("Failed to create a renderbuffer."); }
 		this.renderbuffer = renderbuffer;
 
 		this.bind();
-		gl.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
+		context.internal.renderbufferStorage(RENDERBUFFER, format, width, height);
 	}
 
 	/** The rendering context of this renderbuffer. */
-	public readonly gl: Context;
+	public readonly context: Context;
 
 	/** The WebGL API interface of this renderbuffer. */
 	public readonly renderbuffer: WebGLRenderbuffer;
@@ -178,6 +178,6 @@ export default class Renderbuffer {
 
 	/** Binds this renderbuffer. */
 	public bind(): void {
-		this.gl.gl.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
+		this.context.internal.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
 	}
 }
