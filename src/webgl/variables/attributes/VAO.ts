@@ -1,4 +1,4 @@
-import type AttributeState from "#attributes/AttributeState";
+import type BufferInfo from "#attributes/BufferInfo";
 import Buffer, { BufferTarget } from "#attributes/Buffer";
 import type { UintTypedArray } from "#types/TypedArray";
 import type { default as Uniform, UniformValue } from "#variables/Uniform";
@@ -40,7 +40,7 @@ export default class VAO {
 	 * @param attributes The attributes associated with the VAO.
 	 * @param indices The indices to supply to the element array buffer of this VAO if the data should be indexed.
 	 */
-	public constructor(program: Program, attributes: Array<AttributeState> = [], indices?: UintTypedArray) {
+	public constructor(program: Program, attributes: Array<BufferInfo> = [], indices?: UintTypedArray) {
 		this.program = program;
 		this.gl = program.gl;
 
@@ -64,10 +64,10 @@ export default class VAO {
 	public readonly vao: WebGLVertexArrayObject;
 
 	/** The attributes associated with this VAO. */
-	private attributesPrivate: Array<AttributeState>;
+	private attributesPrivate: Array<BufferInfo>;
 
 	/** The attributes associated with this VAO. */
-	public get attributes(): ReadonlyArray<AttributeState> {
+	public get attributes(): ReadonlyArray<BufferInfo> {
 		return this.attributesPrivate;
 	}
 
@@ -98,7 +98,7 @@ export default class VAO {
 	 * Adds an attribute to this VAO.
 	 * @param attribute The attribute to add.
 	 */
-	public addAttribute(attribute: AttributeState): void {
+	public addAttribute(attribute: BufferInfo): void {
 		this.bind();
 		attribute.use(this.program);
 		this.attributesPrivate.push(attribute);
@@ -132,7 +132,7 @@ export default class VAO {
 		if (this.elementArrayBuffer) {
 			this.gl.gl.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
 		} else {
-			const firstAttribute: AttributeState | undefined = this.attributes[0];
+			const firstAttribute: BufferInfo | undefined = this.attributes[0];
 			if (!firstAttribute) { return; }
 			const dataLength: number = firstAttribute.buffer.data.length;
 			const dataSize: number = firstAttribute.size;

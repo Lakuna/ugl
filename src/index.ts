@@ -1,93 +1,29 @@
-export type { default as Box } from "./types/Box.js";
-export type { default as MeasuredIterable } from "./types/MeasuredIterable.js";
-export type {
-	UintTypedArray,
-	IntTypedArray,
-	FloatTypedArray,
-	TypedArray
-} from "./types/TypedArray.js";
-export { default as Color } from "./utility/Color.js";
+export type { default as Box } from "#types/Box";
+export type { default as MeasuredIterable } from "#types/MeasuredIterable";
+export type { FloatTypedArray, IntTypedArray, TypedArray, UintTypedArray } from "#types/TypedArray";
+export { default as Color } from "#utility/Color";
+export { default as Cubemap, CubemapMip } from "#textures/Cubemap";
 export {
-	default as Cubemap,
-	CubemapMip
-} from "./webgl/textures/Cubemap.js";
+	default as Texture, Mip, Mipmap, type MipSource, MipmapTarget, TextureBaseFormat,
+	TextureDataType, TextureInternalFormat, TextureMagFilter, TextureMinFilter, TextureTarget,
+	TextureWrapFunction
+} from "#textures/Texture";
+export { default as Texture2D, Texture2DMip } from "#textures/Texture2D";
+export { default as Texture3D, Texture3DMip } from "#textures/Texture3D";
+export { AttributeType, default as Attribute } from "#attributes/Attribute";
+export { default as BufferInfo } from "#attributes/BufferInfo";
+export { BufferDataType, BufferTarget, BufferUsage, default as Buffer } from "#attributes/Buffer";
+export { default as VAO, Primitive, type UniformSource, type UniformSourceObject } from "#attributes/VAO";
+export { default as Uniform, UniformType, type UniformValue } from "#variables/Uniform";
+export { default as Variable } from "#variables/Variable";
+export { default as Varying } from "#variables/Varying";
 export {
-	TextureTarget,
-	MipmapTarget,
-	TextureInternalFormat,
-	TextureBaseFormat,
-	TextureDataType,
-	TextureMagFilter,
-	TextureMinFilter,
-	TextureWrapFunction,
-	default as Texture,
-	type MipSource,
-	Mipmap,
-	Mip
-} from "./webgl/textures/Texture.js";
-export {
-	default as Texture2D,
-	Texture2DMip
-} from "./webgl/textures/Texture2D.js";
-export {
-	default as Texture3D,
-	Texture3DMip
-} from "./webgl/textures/Texture3D.js";
-export {
-	AttributeType,
-	default as Attribute
-} from "./webgl/variables/attributes/Attribute.js";
-export { default as AttributeState } from "./webgl/variables/attributes/AttributeState.js";
-export {
-	BufferTarget,
-	BufferUsage,
-	BufferDataType,
-	default as Buffer
-} from "./webgl/variables/attributes/Buffer.js";
-export {
-	Primitive,
-	default as VAO,
-	type UniformSourceObject,
-	type UniformSource
-} from "./webgl/variables/attributes/VAO.js";
-export {
-	UniformType,
-	type UniformValue,
-	default as Uniform
-} from "./webgl/variables/Uniform.js";
-export { default as Variable } from "./webgl/variables/Variable.js";
-export { default as Varying } from "./webgl/variables/Varying.js";
-export {
-	type Canvas,
-	BlendFunction,
-	type BlendFunctionSet,
-	FaceDirection,
-	TestFunction,
-	Extension,
-	type PolygonOffset,
-	type MultiSampleCoverageParameters,
-	type StencilTestParameters,
-	type StencilTestSet,
-	WindingOrientation,
-	type ExtensionObject,
-	PowerPreference,
-	default as Context
-} from "./webgl/Context.js";
-export {
-	FramebufferTarget,
-	FramebufferStatus,
-	type FramebufferAttachment,
-	default as Framebuffer
-} from "./webgl/Framebuffer.js";
-export {
-	TransformFeedbackBufferMode,
-	default as Program
-} from "./webgl/Program.js";
-export {
-	RenderbufferFormat,
-	default as Renderbuffer
-} from "./webgl/Renderbuffer.js";
-export {
-	ShaderType,
-	default as Shader
-} from "./webgl/Shader.js";
+	BlendFunction, type BlendFunctionSet, type Canvas, default as Context, Extension,
+	type ExtensionObject, FaceDirection, type MultiSampleCoverageParameters, type PolygonOffset,
+	PowerPreference, type StencilTestParameters, type StencilTestSet, TestFunction,
+	WindingOrientation
+} from "#webgl/Context";
+export { default as Framebuffer, type FramebufferAttachment, FramebufferStatus, FramebufferTarget } from "#webgl/Framebuffer";
+export { default as Program, TransformFeedbackBufferMode } from "#webgl/Program";
+export { default as Renderbuffer, RenderbufferFormat } from "#webgl/Renderbuffer";
+export { default as Shader, ShaderType } from "#webgl/Shader";
