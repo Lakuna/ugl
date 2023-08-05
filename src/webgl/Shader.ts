@@ -1,4 +1,5 @@
 import type Context from "#webgl/Context";
+import ShaderCompileError from "#utility/ShaderCompileError";
 
 /** Types of shaders. */
 export const enum ShaderType {
@@ -38,9 +39,9 @@ export default class Shader {
 		context.internal.compileShader(shader);
 
 		if (!this.compileStatus) {
-			console.error(this.infoLog);
+			const message: string = this.infoLog;
 			this.delete();
-			throw new Error("Shader failed to compile.");
+			throw new ShaderCompileError(message);
 		}
 	}
 

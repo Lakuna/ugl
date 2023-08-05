@@ -3,6 +3,7 @@ import Uniform, { type SamplerUniform } from "#variables/Uniform";
 import Varying from "#variables/Varying";
 import type Context from "#webgl/Context";
 import Shader, { ShaderType, DELETE_STATUS } from "#webgl/Shader";
+import ProgramLinkError from "#utility/ProgramLinkError";
 
 /** Modes for capturing transform feedback varyings. */
 export const enum TransformFeedbackBufferMode {
@@ -72,9 +73,9 @@ export default class Program {
 		this.context.internal.linkProgram(program);
 
 		if (!this.linkStatus) {
-			console.error(this.infoLog);
+			const message: string = this.infoLog;
 			this.delete();
-			throw new Error("Program failed to link.");
+			throw new ProgramLinkError(message);
 		}
 
 		const uniforms: Map<string, Uniform> = new Map();
