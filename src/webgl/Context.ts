@@ -1,5 +1,5 @@
 import type Box from "#types/Box";
-import type Color from "#utility/Color";
+import type { ColorLike } from "#utility/Color";
 
 /** A canvas. */
 export type Canvas = HTMLCanvasElement | OffscreenCanvas;
@@ -968,7 +968,7 @@ export default class Context {
 	 * @param depth The value to clear the depth buffer to, if any.
 	 * @param stencil The value to clear the stencil buffer to, if any.
 	 */
-	public clear(color?: Color | undefined, depth?: number | undefined, stencil?: number | undefined): void {
+	public clear(color?: ColorLike | undefined, depth?: number | undefined, stencil?: number | undefined): void {
 		let colorBit = 0;
 		if (color) {
 			this.internal.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
