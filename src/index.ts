@@ -1,7 +1,7 @@
 export type { default as Box } from "#types/Box";
 export type { default as MeasuredIterable } from "#types/MeasuredIterable";
 export type { FloatTypedArray, IntTypedArray, TypedArray, UintTypedArray } from "#types/TypedArray";
-export { default as Color } from "#utility/Color";
+export { default as Color, type ColorLike } from "#utility/Color";
 export { default as Cubemap, CubemapMip } from "#textures/Cubemap";
 export {
 	default as Texture, Mip, Mipmap, type MipSource, MipmapTarget, TextureBaseFormat,
