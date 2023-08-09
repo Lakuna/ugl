@@ -4,6 +4,7 @@ import type { UintTypedArray } from "#types/TypedArray";
 import type { default as Uniform, UniformValue } from "#variables/Uniform";
 import type Context from "#webgl/Context";
 import type Program from "#webgl/Program";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Types of primitives that can be rasterized. */
 export const enum Primitive {
@@ -45,7 +46,7 @@ export default class VAO {
 		this.context = program.context;
 
 		const vao: WebGLVertexArrayObject | null = this.context.internal.createVertexArray();
-		if (!vao) { throw new Error("Failed to create VAO."); }
+		if (!vao) { throw new UnsupportedOperationError(); }
 		this.internal = vao;
 
 		this.attributesPrivate = [];

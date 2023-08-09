@@ -3,6 +3,7 @@ import Texture, {
 	TextureMinFilter, TextureTarget, TextureWrapFunction, UNPACK_ALIGNMENT
 } from "#textures/Texture";
 import type Context from "#webgl/Context";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /**
  * A 3D texture.
@@ -121,7 +122,7 @@ export class Texture3DMip extends Mip {
 	 */
 	protected override updateInternal(texture: Texture<Texture3DMip>, target: MipmapTarget, lod: number): void {
 		if (typeof this.width == "undefined" || typeof this.height == "undefined" || typeof this.depth == "undefined") {
-			throw new Error("Dimension undefined.");
+			throw new UnsupportedOperationError("The dimensions of the texture are not defined.");
 		}
 
 		if (!this.unpackAlignment && this.height > 1) { // Unpack alignment doesn't apply to the last row.

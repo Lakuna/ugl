@@ -1,4 +1,5 @@
 import type Context from "#webgl/Context";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Formats for a renderbuffer. */
 export const enum RenderbufferFormat {
@@ -154,7 +155,7 @@ export default class Renderbuffer {
 		this.height = height;
 
 		const renderbuffer: WebGLRenderbuffer | null = context.internal.createRenderbuffer();
-		if (!renderbuffer) { throw new Error("Failed to create a renderbuffer."); }
+		if (!renderbuffer) { throw new UnsupportedOperationError(); }
 		this.internal = renderbuffer;
 
 		this.bind();

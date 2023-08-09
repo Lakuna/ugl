@@ -2,6 +2,7 @@ import type { default as Texture, Mip } from "#textures/Texture";
 import type MeasuredIterable from "#types/MeasuredIterable";
 import Variable from "#variables/Variable";
 import type Program from "#webgl/Program";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Possible variable types for uniforms. */
 export const enum UniformType {
@@ -130,7 +131,7 @@ export default abstract class Uniform extends Variable {
 	 */
 	public static create(program: Program, index: number, textureUnit: number): Uniform {
 		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveUniform(program.internal, index);
-		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
+		if (!activeInfo) { throw new UnsupportedOperationError(); }
 
 		switch (activeInfo.type as UniformType) {
 			case UniformType.FLOAT:
@@ -192,7 +193,7 @@ export default abstract class Uniform extends Variable {
 			case UniformType.FLOAT_MAT4x3:
 				return new FloatMatrix4x3Uniform(program, index);
 			default:
-				throw new Error("Unable to make uniform setter.");
+				throw new UnsupportedOperationError();
 		}
 	}
 
@@ -207,11 +208,11 @@ export default abstract class Uniform extends Variable {
 		this.valuePrivate = [];
 
 		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveUniform(program.internal, index);
-		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
+		if (!activeInfo) { throw new UnsupportedOperationError(); }
 		this.activeInfo = activeInfo;
 
 		const location: WebGLUniformLocation | null = this.context.internal.getUniformLocation(program.internal, this.activeInfo.name);
-		if (!location) { throw new Error("Unable to get uniform location."); }
+		if (!location) { throw new UnsupportedOperationError(); }
 		this.location = location;
 	}
 
@@ -243,7 +244,7 @@ export default abstract class Uniform extends Variable {
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
-			throw new Error("Cannot pass a scalar value to this uniform.");
+			throw new UnsupportedOperationError();
 		}
 
 		this.valuePrivate = value;

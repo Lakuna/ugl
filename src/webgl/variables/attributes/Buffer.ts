@@ -1,5 +1,6 @@
 import type { TypedArray, UintTypedArray } from "#types/TypedArray";
 import type Context from "#webgl/Context";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Binding points for buffers. */
 export const enum BufferTarget {
@@ -104,7 +105,7 @@ export default class Buffer {
 
 	public constructor(context: Context, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
 		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint8ClampedArray || data instanceof Uint16Array || data instanceof Uint32Array)) {
-			throw new Error("The element array buffer must contain unsigned integers.");
+			throw new UnsupportedOperationError("The element array buffer does not contain unsigned integers.");
 		}
 
 		this.context = context;
@@ -114,7 +115,7 @@ export default class Buffer {
 		this.typePrivate = BufferDataType.BYTE;
 
 		const buffer: WebGLBuffer | null = context.internal.createBuffer();
-		if (!buffer) { throw new Error("Failed to create buffer."); }
+		if (!buffer) { throw new UnsupportedOperationError(); }
 		this.internal = buffer;
 
 		this.data = data;
