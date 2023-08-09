@@ -36,6 +36,14 @@ export const enum Primitive {
  */
 export default class VAO {
 	/**
+	 * Unbinds all vertex array objects from the given rendering context.
+	 * @param context The rendering context.
+	 */
+	public static unbind(context: Context): void {
+		context.internal.bindVertexArray(null);
+	}
+
+	/**
 	 * Creates a vertex array object.
 	 * @param program The program that the VAO is used with.
 	 * @param attributes The attributes associated with the VAO.

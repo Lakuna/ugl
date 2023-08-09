@@ -142,6 +142,14 @@ export const RENDERBUFFER = 0x8D41;
  */
 export default class Renderbuffer {
 	/**
+	 * Unbinds all renderbuffers from the given rendering context.
+	 * @param context The rendering context.
+	 */
+	public static unbind(context: Context): void {
+		context.internal.bindRenderbuffer(RENDERBUFFER, null);
+	}
+
+	/**
 	 * Creates a renderbuffer.
 	 * @param context The rendering context of the renderbuffer.
 	 * @param format The format of the renderbuffer.

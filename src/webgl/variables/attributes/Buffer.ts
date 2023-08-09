@@ -86,6 +86,15 @@ export const enum BufferDataType {
  */
 export default class Buffer {
 	/**
+	 * Unbinds the buffer from the given binding point.
+	 * @param context The rendering context.
+	 * @param target The target.
+	 */
+	public static unbind(context: Context, target: BufferTarget): void {
+		context.internal.bindBuffer(target, null);
+	}
+
+	/**
 	 * Creates an element array buffer.
 	 * @param context The rendering context of the buffer.
 	 * @param data The data to store in the buffer.
