@@ -224,7 +224,7 @@ export class CubemapMip extends Mip {
 	 */
 	protected override updateInternal(texture: Texture<CubemapMip>, target: MipmapTarget, lod: number): void {
 		if (this.dim) {
-			if (this.dim > 1) { // Unpack alignment doesn't apply to the last row.
+			if (!this.unpackAlignment && this.dim > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.dim % alignment == 0) {
 						texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);
