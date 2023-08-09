@@ -762,6 +762,9 @@ export abstract class Mip {
 		this.needsUpdate = true;
 	}
 
+	/** The unpack alignment of this mip. */
+	public unpackAlignment?: 1 | 2 | 4 | 8;
+
 	/** The format of the color components in this mip. */
 	private internalFormatPrivate: TextureInternalFormat;
 
@@ -928,6 +931,10 @@ export abstract class Mip {
 	public update(texture: Texture<Mip>, target: MipmapTarget, lod: number): boolean {
 		if (!this.needsUpdate) {
 			return false;
+		}
+
+		if (this.unpackAlignment) {
+			texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, this.unpackAlignment);
 		}
 
 		this.updateInternal(texture, target, lod);

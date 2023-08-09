@@ -124,7 +124,7 @@ export class Texture3DMip extends Mip {
 			throw new Error("Dimension undefined.");
 		}
 
-		if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
+		if (!this.unpackAlignment && this.height > 1) { // Unpack alignment doesn't apply to the last row.
 			for (const alignment of [8, 4, 2, 1]) {
 				if (this.width % alignment == 0) {
 					texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);

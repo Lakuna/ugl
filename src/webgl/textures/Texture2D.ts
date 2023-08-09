@@ -141,7 +141,7 @@ export class Texture2DMip extends Mip {
 	 */
 	protected override updateInternal(texture: Texture<Texture2DMip>, target: MipmapTarget, lod: number): void {
 		if (this.width && this.height) {
-			if (this.height > 1) { // Unpack alignment doesn't apply to the last row.
+			if (!this.unpackAlignment && this.height > 1) { // Unpack alignment doesn't apply to the last row.
 				for (const alignment of [8, 4, 2, 1]) {
 					if (this.width % alignment == 0) {
 						texture.context.internal.pixelStorei(UNPACK_ALIGNMENT, alignment);
