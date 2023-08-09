@@ -129,7 +129,7 @@ export default abstract class Uniform extends Variable {
 	 * @param textureUnit The texture unit to assign to this uniform if it ends up being a sampler.
 	 */
 	public static create(program: Program, index: number, textureUnit: number): Uniform {
-		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveUniform(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveUniform(program.internal, index);
 		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
 
 		switch (activeInfo.type as UniformType) {
@@ -206,11 +206,11 @@ export default abstract class Uniform extends Variable {
 
 		this.valuePrivate = [];
 
-		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveUniform(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveUniform(program.internal, index);
 		if (!activeInfo) { throw new Error("Unable to get uniform active information."); }
 		this.activeInfo = activeInfo;
 
-		const location: WebGLUniformLocation | null = this.context.internal.getUniformLocation(program.program, this.activeInfo.name);
+		const location: WebGLUniformLocation | null = this.context.internal.getUniformLocation(program.internal, this.activeInfo.name);
 		if (!location) { throw new Error("Unable to get uniform location."); }
 		this.location = location;
 	}

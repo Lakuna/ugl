@@ -155,7 +155,7 @@ export default class Renderbuffer {
 
 		const renderbuffer: WebGLRenderbuffer | null = context.internal.createRenderbuffer();
 		if (!renderbuffer) { throw new Error("Failed to create a renderbuffer."); }
-		this.renderbuffer = renderbuffer;
+		this.internal = renderbuffer;
 
 		this.bind();
 		context.internal.renderbufferStorage(RENDERBUFFER, format, width, height);
@@ -165,7 +165,7 @@ export default class Renderbuffer {
 	public readonly context: Context;
 
 	/** The WebGL API interface of this renderbuffer. */
-	public readonly renderbuffer: WebGLRenderbuffer;
+	public readonly internal: WebGLRenderbuffer;
 
 	/** The format of this renderbuffer. */
 	public readonly format: RenderbufferFormat;
@@ -178,6 +178,11 @@ export default class Renderbuffer {
 
 	/** Binds this renderbuffer. */
 	public bind(): void {
-		this.context.internal.bindRenderbuffer(RENDERBUFFER, this.renderbuffer);
+		this.context.internal.bindRenderbuffer(RENDERBUFFER, this.internal);
+	}
+
+	/** Deletes this renderbuffer. */
+	public delete(): void {
+		this.context.internal.deleteRenderbuffer(this.internal);
 	}
 }

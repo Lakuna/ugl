@@ -73,7 +73,7 @@ export default abstract class Attribute extends Variable {
 	 * @param index The index of this attribute.
 	 */
 	public static create(program: Program, index: number): Attribute {
-		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveAttrib(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveAttrib(program.internal, index);
 		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
 
 		switch (activeInfo.type as AttributeType) {
@@ -117,11 +117,11 @@ export default abstract class Attribute extends Variable {
 		this.enabledPrivate = false;
 		this.enabled = true;
 
-		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveAttrib(program.program, index);
+		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveAttrib(program.internal, index);
 		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
 		this.activeInfo = activeInfo;
 
-		this.location = this.context.internal.getAttribLocation(program.program, this.activeInfo.name);
+		this.location = this.context.internal.getAttribLocation(program.internal, this.activeInfo.name);
 	}
 
 	/** The active information of this attribute. */

@@ -33,7 +33,7 @@ export default class Shader {
 
 		const shader: WebGLShader | null = context.internal.createShader(type);
 		if (!shader) { throw new Error("Unable to create a shader."); }
-		this.shader = shader;
+		this.internal = shader;
 
 		context.internal.shaderSource(shader, source);
 		context.internal.compileShader(shader);
@@ -55,25 +55,25 @@ export default class Shader {
 	public readonly source: string;
 
 	/** The WebGL API interface of this shader. */
-	public readonly shader: WebGLShader;
+	public readonly internal: WebGLShader;
 
 	/** Whether this shader is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.context.internal.getShaderParameter(this.shader, DELETE_STATUS);
+		return this.context.internal.getShaderParameter(this.internal, DELETE_STATUS);
 	}
 
 	/** Whether the last shader compilation was successful. */
 	public get compileStatus(): boolean {
-		return this.context.internal.getShaderParameter(this.shader, COMPILE_STATUS);
+		return this.context.internal.getShaderParameter(this.internal, COMPILE_STATUS);
 	}
 
 	/** The information log for this shader. */
 	public get infoLog(): string {
-		return this.context.internal.getShaderInfoLog(this.shader) ?? "";
+		return this.context.internal.getShaderInfoLog(this.internal) ?? "";
 	}
 
 	/** Deletes this shader. */
 	public delete(): void {
-		this.context.internal.deleteShader(this.shader);
+		this.context.internal.deleteShader(this.internal);
 	}
 }

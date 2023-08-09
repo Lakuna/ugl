@@ -46,7 +46,7 @@ export default class VAO {
 
 		const vao: WebGLVertexArrayObject | null = this.context.internal.createVertexArray();
 		if (!vao) { throw new Error("Failed to create VAO."); }
-		this.vao = vao;
+		this.internal = vao;
 
 		this.attributesPrivate = [];
 		for (const attribute of attributes) { this.addAttribute(attribute); }
@@ -61,7 +61,7 @@ export default class VAO {
 	public readonly program: Program;
 
 	/** The WebGL API interface of this VAO. */
-	public readonly vao: WebGLVertexArrayObject;
+	public readonly internal: WebGLVertexArrayObject;
 
 	/** The attributes associated with this VAO. */
 	private attributesPrivate: Array<BufferInfo>;
@@ -91,7 +91,7 @@ export default class VAO {
 
 	/** Makes this the active VAO. */
 	public bind(): void {
-		this.context.internal.bindVertexArray(this.vao);
+		this.context.internal.bindVertexArray(this.internal);
 	}
 
 	/**

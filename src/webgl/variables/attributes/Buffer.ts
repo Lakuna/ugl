@@ -115,7 +115,7 @@ export default class Buffer {
 
 		const buffer: WebGLBuffer | null = context.internal.createBuffer();
 		if (!buffer) { throw new Error("Failed to create buffer."); }
-		this.buffer = buffer;
+		this.internal = buffer;
 
 		this.data = data;
 	}
@@ -130,7 +130,7 @@ export default class Buffer {
 	public usage: BufferUsage;
 
 	/** The WebGL API interface of this buffer. */
-	public readonly buffer: WebGLBuffer;
+	public readonly internal: WebGLBuffer;
 
 	/** The data contained within this buffer. */
 	private dataPrivate: TypedArray;
@@ -170,6 +170,11 @@ export default class Buffer {
 
 	/** Binds this buffer to its target binding point. */
 	public bind(): void {
-		this.context.internal.bindBuffer(this.target, this.buffer);
+		this.context.internal.bindBuffer(this.target, this.internal);
+	}
+
+	/** Deletes this buffer. */
+	public delete(): void {
+		this.context.internal.deleteBuffer(this.internal);
 	}
 }

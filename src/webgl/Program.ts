@@ -65,10 +65,10 @@ export default class Program {
 
 		const program: WebGLProgram | null = this.context.internal.createProgram();
 		if (!program) { throw new Error("Unable to create a shader program."); }
-		this.program = program;
+		this.internal = program;
 
-		this.context.internal.attachShader(program, vertexShader.shader);
-		this.context.internal.attachShader(program, fragmentShader.shader);
+		this.context.internal.attachShader(program, vertexShader.internal);
+		this.context.internal.attachShader(program, fragmentShader.internal);
 		this.context.internal.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
 		this.context.internal.linkProgram(program);
 
@@ -121,7 +121,7 @@ export default class Program {
 	public readonly context: Context;
 
 	/** The WebGL API interface of this shader program. */
-	public readonly program: WebGLProgram;
+	public readonly internal: WebGLProgram;
 
 	/** A map of uniform names to uniforms. */
 	public readonly uniforms: ReadonlyMap<string, Uniform>;
@@ -140,31 +140,31 @@ export default class Program {
 
 	/** Whether this program is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.program, DELETE_STATUS);
+		return this.context.internal.getProgramParameter(this.internal, DELETE_STATUS);
 	}
 
 	/** Whether the last link operation was successful. */
 	public get linkStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.program, LINK_STATUS);
+		return this.context.internal.getProgramParameter(this.internal, LINK_STATUS);
 	}
 
 	/** Whether the last validation operation was successful. */
 	public get validateStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.program, VALIDATE_STATUS);
+		return this.context.internal.getProgramParameter(this.internal, VALIDATE_STATUS);
 	}
 
 	/** The information log for this shader program. */
 	public get infoLog(): string {
-		return this.context.internal.getProgramInfoLog(this.program) ?? "";
+		return this.context.internal.getProgramInfoLog(this.internal) ?? "";
 	}
 
 	/** Deletes this shader program. */
 	public delete(): void {
-		this.context.internal.deleteProgram(this.program);
+		this.context.internal.deleteProgram(this.internal);
 	}
 
 	/** Sets this as the active shader program. */
 	public use(): void {
-		this.context.internal.useProgram(this.program);
+		this.context.internal.useProgram(this.internal);
 	}
 }
