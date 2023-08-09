@@ -1,5 +1,6 @@
 import type { TypedArray } from "#types/TypedArray";
 import type Context from "#webgl/Context";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Binding points for textures. */
 export const enum TextureTarget {
@@ -413,7 +414,7 @@ export default class Texture<MipType extends Mip> {
 		this.target = target;
 
 		const texture: WebGLTexture | null = context.internal.createTexture();
-		if (!texture) { throw new Error("Failed to create a texture."); }
+		if (!texture) { throw new UnsupportedOperationError(); }
 		this.internal = texture;
 
 		this.faces = faces;
@@ -849,7 +850,7 @@ export abstract class Mip {
 			case TextureInternalFormat.DEPTH32F_STENCIL8:
 				return TextureBaseFormat.DEPTH_STENCIL;
 			default:
-				throw new Error("Unknown default format pair.");
+				throw new UnsupportedOperationError("No default format exists for the specified internal format.");
 		}
 	}
 
@@ -908,7 +909,7 @@ export abstract class Mip {
 			case TextureInternalFormat.DEPTH32F_STENCIL8:
 				return TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV;
 			default:
-				throw new Error("Unknown default data type-format pair.");
+				throw new UnsupportedOperationError("No default type exists for the specified internal format.");
 		}
 	}
 

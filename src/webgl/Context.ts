@@ -1,5 +1,7 @@
 import type Box from "#types/Box";
 import type { ColorLike } from "#utility/Color";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
+import HeadlessEnvironmentError from "#utility/UnsupportedOperationError";
 
 /** A canvas. */
 export type Canvas = HTMLCanvasElement | OffscreenCanvas;
@@ -557,7 +559,7 @@ export default class Context {
 	 */
 	public static makeFullscreen(): Context {
 		if (typeof document == "undefined") {
-			throw new Error("Cannot create a canvas in a headless environment.");
+			throw new HeadlessEnvironmentError();
 		}
 
 		const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -628,7 +630,7 @@ export default class Context {
 				premultipliedAlpha,
 				preserveDrawingBuffer
 			}) as WebGL2RenderingContext | null;
-			if (!gl) { throw new Error("WebGL2 is not supported by your browser."); }
+			if (!gl) { throw new UnsupportedOperationError(); }
 			this.internal = gl;
 		}
 
@@ -934,7 +936,7 @@ export default class Context {
 	 */
 	public async makeXrCompatible(): Promise<void> {
 		return (this.internal as unknown as { makeXRCompatible: () => Promise<void> }).makeXRCompatible()
-			.catch(() => { throw new Error("Failed to make the context XR-compatible."); });
+			.catch(() => { throw new UnsupportedOperationError(); });
 	}
 
 	/**
@@ -1038,7 +1040,7 @@ export default class Context {
 
 	public resize(x?: number, y?: number, width?: number, height?: number): boolean {
 		if (this.internal.canvas instanceof OffscreenCanvas) {
-			throw new Error("Cannot resize an offscreen context.");
+			throw new HeadlessEnvironmentError();
 		}
 
 		const out: boolean = this.fitDrawingBuffer();

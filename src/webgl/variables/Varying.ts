@@ -1,5 +1,6 @@
 import Variable from "#variables/Variable";
 import type Program from "#webgl/Program";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /**
  * An input variable in a WebGL fragment shader used for transform feedback.
@@ -15,7 +16,7 @@ export default class Varying extends Variable {
 		super(program);
 
 		const activeInfo: WebGLActiveInfo | null = this.context.internal.getTransformFeedbackVarying(program.internal, index);
-		if (!activeInfo) { throw new Error("Unable to get transform feedback varying active information."); }
+		if (!activeInfo) { throw new UnsupportedOperationError(); }
 		this.activeInfo = activeInfo;
 	}
 

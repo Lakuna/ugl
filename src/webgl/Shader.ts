@@ -1,5 +1,6 @@
 import type Context from "#webgl/Context";
 import ShaderCompileError from "#utility/ShaderCompileError";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Types of shaders. */
 export const enum ShaderType {
@@ -32,7 +33,7 @@ export default class Shader {
 		this.source = source;
 
 		const shader: WebGLShader | null = context.internal.createShader(type);
-		if (!shader) { throw new Error("Unable to create a shader."); }
+		if (!shader) { throw new UnsupportedOperationError(); }
 		this.internal = shader;
 
 		context.internal.shaderSource(shader, source);

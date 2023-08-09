@@ -1,6 +1,7 @@
 import { type default as Texture, Mip, type Mipmap, MipmapTarget } from "#textures/Texture";
 import type Context from "#webgl/Context";
 import Renderbuffer, { RENDERBUFFER } from "#webgl/Renderbuffer";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Binding points for framebuffers. */
 export const enum FramebufferTarget {
@@ -135,7 +136,7 @@ export default class Framebuffer {
 		this.target = target;
 
 		const framebuffer: WebGLFramebuffer | null = context.internal.createFramebuffer();
-		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
+		if (!framebuffer) { throw new UnsupportedOperationError(); }
 		this.internal = framebuffer;
 
 		this.colorAttachments = [];
@@ -188,7 +189,7 @@ export default class Framebuffer {
 
 	/** The depth attachment on this framebuffer. */
 	public set depthAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		if (!value) { throw new UnsupportedOperationError(); }
 		this.attach(value as Mip, DEPTH_ATTACHMENT);
 		this.depthAttachmentPrivate = value;
 	}
@@ -203,7 +204,7 @@ export default class Framebuffer {
 
 	/** The stencil attachment on this framebuffer. */
 	public set stencilAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		if (!value) { throw new UnsupportedOperationError(); }
 		this.attach(value as Mip, STENCIL_ATTACHMENT);
 		this.stencilAttachmentPrivate = value;
 	}
@@ -218,7 +219,7 @@ export default class Framebuffer {
 
 	/** The depth stencil attachment on this framebuffer. */
 	public set depthStencilAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new Error("Cannot set an attachment to be undefined."); }
+		if (!value) { throw new UnsupportedOperationError(); }
 		this.attach(value as Mip, DEPTH_STENCIL_ATTACHMENT);
 		this.depthStencilAttachmentPrivate = value;
 	}

@@ -2,6 +2,7 @@ import type Attribute from "#attributes/Attribute";
 import type { default as Buffer, BufferDataType } from "#attributes/Buffer";
 import type Context from "#webgl/Context";
 import type Program from "#webgl/Program";
+import UnknownAttributeError from "#utility/UnknownAttributeError";
 
 /** Information about how to access data in a buffer. */
 export default class AttributeState {
@@ -57,7 +58,7 @@ export default class AttributeState {
 	 */
 	public use(program: Program): void {
 		const attribute: Attribute | undefined = program.attributes.get(this.name);
-		if (!attribute) { throw new Error("Attribute not found."); }
+		if (!attribute) { throw new UnknownAttributeError(); }
 		attribute.value = this;
 	}
 }

@@ -1,6 +1,7 @@
 import type BufferInfo from "#attributes/BufferInfo";
 import Variable from "#variables/Variable";
 import type Program from "#webgl/Program";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Possible variable types for attributes. */
 export const enum AttributeType {
@@ -74,7 +75,7 @@ export default abstract class Attribute extends Variable {
 	 */
 	public static create(program: Program, index: number): Attribute {
 		const activeInfo: WebGLActiveInfo | null = program.context.internal.getActiveAttrib(program.internal, index);
-		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
+		if (!activeInfo) { throw new UnsupportedOperationError(); }
 
 		switch (activeInfo.type as AttributeType) {
 			case AttributeType.FLOAT:
@@ -102,7 +103,7 @@ export default abstract class Attribute extends Variable {
 			case AttributeType.FLOAT_MAT4:
 				return new MatrixAttribute(program, index, 4);
 			default:
-				throw new Error("Unable to make attribute setter.");
+				throw new UnsupportedOperationError();
 		}
 	}
 
@@ -118,7 +119,7 @@ export default abstract class Attribute extends Variable {
 		this.enabled = true;
 
 		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveAttrib(program.internal, index);
-		if (!activeInfo) { throw new Error("Unable to get attribute active information."); }
+		if (!activeInfo) { throw new UnsupportedOperationError(); }
 		this.activeInfo = activeInfo;
 
 		this.location = this.context.internal.getAttribLocation(program.internal, this.activeInfo.name);

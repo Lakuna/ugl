@@ -4,6 +4,7 @@ import Varying from "#variables/Varying";
 import type Context from "#webgl/Context";
 import Shader, { ShaderType, DELETE_STATUS } from "#webgl/Shader";
 import ProgramLinkError from "#utility/ProgramLinkError";
+import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
 /** Modes for capturing transform feedback varyings. */
 export const enum TransformFeedbackBufferMode {
@@ -53,9 +54,9 @@ export default class Program {
 	 * @param transformFeedbackBufferMode The mode to use when capturing transform feedback varyings.
 	 */
 	public constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames: Array<string> = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
-		if (vertexShader.context != fragmentShader.context) { throw new Error("Shaders have different rendering contexts."); }
-		if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new Error("Invalid vertex shader."); }
-		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new Error("Invalid fragment shader."); }
+		if (vertexShader.context != fragmentShader.context) { throw new ProgramLinkError("The shaders have different contexts."); }
+		if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new ProgramLinkError("The vertex shader is of the wrong type."); }
+		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new ProgramLinkError("The fragment shader is of the wrong type."); }
 
 		this.vertexShader = vertexShader;
 		this.fragmentShader = fragmentShader;
@@ -64,7 +65,7 @@ export default class Program {
 		this.context = vertexShader.context;
 
 		const program: WebGLProgram | null = this.context.internal.createProgram();
-		if (!program) { throw new Error("Unable to create a shader program."); }
+		if (!program) { throw new UnsupportedOperationError(); }
 		this.internal = program;
 
 		this.context.internal.attachShader(program, vertexShader.internal);
