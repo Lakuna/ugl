@@ -414,7 +414,7 @@ export default class Texture<MipType extends Mip> {
 
 		const texture: WebGLTexture | null = context.internal.createTexture();
 		if (!texture) { throw new Error("Failed to create a texture."); }
-		this.texture = texture;
+		this.internal = texture;
 
 		this.faces = faces;
 
@@ -434,7 +434,7 @@ export default class Texture<MipType extends Mip> {
 	public readonly target: TextureTarget;
 
 	/** The WebGL texture represented by this object. */
-	public readonly texture: WebGLTexture;
+	public readonly internal: WebGLTexture;
 
 	/** The faces of this texture. */
 	private readonly faces: Map<MipmapTarget, Mipmap<MipType>>;
@@ -512,7 +512,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** Binds this texture to its target binding point. */
 	public bind(): void {
-		this.context.internal.bindTexture(this.target, this.texture);
+		this.context.internal.bindTexture(this.target, this.internal);
 	}
 
 	/**
@@ -561,6 +561,11 @@ export default class Texture<MipType extends Mip> {
 		for (const face of this.faces.values()) {
 			face.setAllNeedsUpdate();
 		}
+	}
+
+	/** Deletes this texture. */
+	public delete(): void {
+		this.context.internal.deleteTexture(this.internal);
 	}
 }
 

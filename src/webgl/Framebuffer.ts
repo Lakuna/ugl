@@ -136,7 +136,7 @@ export default class Framebuffer {
 
 		const framebuffer: WebGLFramebuffer | null = context.internal.createFramebuffer();
 		if (!framebuffer) { throw new Error("Failed to create a framebuffer."); }
-		this.framebuffer = framebuffer;
+		this.internal = framebuffer;
 
 		this.colorAttachments = [];
 		for (let i = 0; i < colorAttachments.length; i++) {
@@ -151,7 +151,7 @@ export default class Framebuffer {
 	public readonly context: Context;
 
 	/** The WebGL API interface of this framebuffer. */
-	public readonly framebuffer: WebGLFramebuffer;
+	public readonly internal: WebGLFramebuffer;
 
 	/** The target binding point of this framebuffer. */
 	public target: FramebufferTarget;
@@ -231,7 +231,7 @@ export default class Framebuffer {
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
-		this.context.internal.bindFramebuffer(this.target, this.framebuffer);
+		this.context.internal.bindFramebuffer(this.target, this.internal);
 	}
 
 	/**
@@ -260,13 +260,18 @@ export default class Framebuffer {
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {
-			this.context.internal.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.renderbuffer);
+			this.context.internal.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.internal);
 		} else if (attachment instanceof Mip) {
-			this.context.internal.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).texture, attachment.lod as number, layer);
+			this.context.internal.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).internal, attachment.lod as number, layer);
 		} else {
-			this.context.internal.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).texture, 0);
+			this.context.internal.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).internal, 0);
 		}
 
 		Framebuffer.unbind(this.context);
+	}
+
+	/** Deletes this framebuffer. */
+	public delete(): void {
+		this.context.internal.deleteFramebuffer(this.internal);
 	}
 }
