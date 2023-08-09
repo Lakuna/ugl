@@ -392,6 +392,15 @@ export const UNPACK_ALIGNMENT = 0x0CF5;
  */
 export default class Texture<MipType extends Mip> {
 	/**
+	 * Unbinds the texture from the given binding point.
+	 * @param context The rendering context.
+	 * @param target The target.
+	 */
+	public static unbind(context: Context, target: TextureTarget): void {
+		context.internal.bindTexture(target, null);
+	}
+
+	/**
 	 * Creates a texture.
 	 * @param context The WebGL2 rendering context of the texture.
 	 * @param target The binding point of the texture.
