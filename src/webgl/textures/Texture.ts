@@ -470,52 +470,52 @@ export default class Texture<MipType extends Mip> {
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureMagFilter {
-		this.bind();
+		this.bind(); // TODO
 		return this.context.internal.getTexParameter(this.target, TEXTURE_MAG_FILTER);
 	}
 
 	/** The magnification filter for this texture. */
 	public set magFilter(value: TextureMagFilter) {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The minification filter for this texture. */
 	public get minFilter(): TextureMinFilter {
-		this.bind();
+		this.bind(); // TODO
 		return this.context.internal.getTexParameter(this.target, TEXTURE_MIN_FILTER);
 	}
 
 	/** The minification filter for this texture. */
 	public set minFilter(value: TextureMinFilter) {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
-		this.bind();
+		this.bind(); // TODO
 		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_S);
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public set wrapSFunction(value: TextureWrapFunction) {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_S, value);
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
-		this.bind();
+		this.bind(); // TODO
 		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_T);
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public set wrapTFunction(value: TextureWrapFunction) {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_T, value);
 		this.setAllNeedsUpdate();
 	}
@@ -531,12 +531,12 @@ export default class Texture<MipType extends Mip> {
 	 */
 	public assign(textureUnit: number): void {
 		this.context.internal.activeTexture(TEXTURE0 + textureUnit);
-		this.bind();
+		this.bind(); // TODO
 	}
 
 	/** Generates a mipmap for this texture. */
 	public generateMipmap(): void {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.generateMipmap(this.target);
 	}
 
@@ -545,7 +545,7 @@ export default class Texture<MipType extends Mip> {
 	 * @returns Whether any updates were performed.
 	 */
 	public update(): boolean {
-		this.bind();
+		this.bind(); // TODO
 
 		let anyDidUpdate = false;
 		for (const [target, face] of this.faces) {

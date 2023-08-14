@@ -90,7 +90,7 @@ export default class VAO {
 
 	/** The indices in the element array buffer of this VAO if the data is indexed. */
 	public set indices(value: UintTypedArray | undefined) {
-		this.bind();
+		this.bind(); // TODO
 		if (value) {
 			this.elementArrayBuffer = new Buffer(this.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
 		} else {
@@ -108,7 +108,7 @@ export default class VAO {
 	 * @param attribute The attribute to add.
 	 */
 	public addAttribute(attribute: BufferInfo): void {
-		this.bind();
+		this.bind(); // TODO
 		attribute.use(this.program);
 		this.attributesPrivate.push(attribute);
 	}
@@ -122,7 +122,7 @@ export default class VAO {
 	public draw(uniforms?: UniformSource, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
 
-		this.bind();
+		this.bind(); // TODO
 
 		if (uniforms) {
 			if (uniforms instanceof Map) {
