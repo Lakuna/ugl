@@ -136,6 +136,9 @@ export const enum RenderbufferFormat {
 /** A renderbuffer. */
 export const RENDERBUFFER = 0x8D41;
 
+/** The currently-bound renderbuffer. */
+export const RENDERBUFFER_BINDING = 0x8CA7;
+
 /**
  * A buffer that can contain an image or be the source or target of a rendering operation.
  * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
@@ -146,7 +149,25 @@ export default class Renderbuffer {
 	 * @param context The rendering context.
 	 */
 	public static unbind(context: Context): void {
-		context.internal.bindRenderbuffer(RENDERBUFFER, null);
+		Renderbuffer.bind(context, null);
+	}
+
+	/**
+	 * Binds the given renderbuffer.
+	 * @param context The rendering context.
+	 * @param renderbuffer The renderbuffer.
+	 */
+	private static bind(context: Context, renderbuffer: WebGLRenderbuffer | null): void {
+		context.internal.bindRenderbuffer(RENDERBUFFER, renderbuffer);
+	}
+
+	/**
+	 * Gets the currently-bound renderbuffer.
+	 * @param context The rendering context.
+	 * @returns The renderbuffer.
+	 */
+	private static getBoundRenderbuffer(context: Context): WebGLRenderbuffer | null {
+		return context.internal.getParameter(RENDERBUFFER_BINDING);
 	}
 
 	/**
@@ -166,8 +187,12 @@ export default class Renderbuffer {
 		if (!renderbuffer) { throw new UnsupportedOperationError(); }
 		this.internal = renderbuffer;
 
-		this.bind(); // TODO
+		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBoundRenderbuffer(this.context);
+		this.bind();
+
 		context.internal.renderbufferStorage(RENDERBUFFER, format, width, height);
+
+		Renderbuffer.bind(this.context, previousBinding);
 	}
 
 	/** The rendering context of this renderbuffer. */
@@ -187,7 +212,7 @@ export default class Renderbuffer {
 
 	/** Binds this renderbuffer. */
 	public bind(): void {
-		this.context.internal.bindRenderbuffer(RENDERBUFFER, this.internal);
+		Renderbuffer.bind(this.context, this.internal);
 	}
 
 	/** Deletes this renderbuffer. */
