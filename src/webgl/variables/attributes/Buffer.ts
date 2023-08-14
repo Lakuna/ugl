@@ -152,7 +152,7 @@ export default class Buffer {
 
 	/** The data contained within this buffer. */
 	public set data(value: TypedArray) {
-		this.bind();
+		this.bind(); // TODO
 		this.context.internal.bufferData(this.target, value, this.usage);
 		this.dataPrivate = value;
 

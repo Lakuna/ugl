@@ -166,7 +166,7 @@ export default class Renderbuffer {
 		if (!renderbuffer) { throw new UnsupportedOperationError(); }
 		this.internal = renderbuffer;
 
-		this.bind();
+		this.bind(); // TODO
 		context.internal.renderbufferStorage(RENDERBUFFER, format, width, height);
 	}
 

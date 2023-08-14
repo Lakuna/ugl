@@ -188,7 +188,7 @@ export class FloatAttribute extends Attribute {
 	 * @param value The value to pass to the attribute.
 	 */
 	public setter(value: BufferInfo): void {
-		value.buffer.bind();
+		value.buffer.bind(); // TODO
 		this.enabled = true;
 		this.context.internal.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
 	}
@@ -210,7 +210,7 @@ export class IntegerAttribute extends Attribute {
 	 * @param value The value to pass to the attribute.
 	 */
 	public setter(value: BufferInfo): void {
-		value.buffer.bind();
+		value.buffer.bind(); // TODO
 		this.enabled = true;
 		this.context.internal.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
 	}
