@@ -6,6 +6,9 @@ import type Context from "#webgl/Context";
 import type Program from "#webgl/Program";
 import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
+/** The currently-bound vertex array object. */
+export const VERTEX_ARRAY_BINDING = 0x85B5;
+
 /** Types of primitives that can be rasterized. */
 export const enum Primitive {
 	/** Draws a dot at each vertex. */
@@ -40,7 +43,25 @@ export default class VAO {
 	 * @param context The rendering context.
 	 */
 	public static unbind(context: Context): void {
-		context.internal.bindVertexArray(null);
+		VAO.bind(context, null);
+	}
+
+	/**
+	 * Gets the currently-bound vertex array object.
+	 * @param context The rendering context.
+	 * @returns The vertex array object.
+	 */
+	private static getBoundVertexArrayObject(context: Context): WebGLVertexArrayObject | null {
+		return context.internal.getParameter(VERTEX_ARRAY_BINDING);
+	}
+
+	/**
+	 * Binds the given renderbuffer.
+	 * @param context The rendering context.
+	 * @param renderbuffer The renderbuffer.
+	 */
+	private static bind(context: Context, vao: WebGLVertexArrayObject | null): void {
+		context.internal.bindVertexArray(vao);
 	}
 
 	/**
@@ -90,17 +111,21 @@ export default class VAO {
 
 	/** The indices in the element array buffer of this VAO if the data is indexed. */
 	public set indices(value: UintTypedArray | undefined) {
-		this.bind(); // TODO
+		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
+		this.bind();
+
 		if (value) {
 			this.elementArrayBuffer = new Buffer(this.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
 		} else {
 			this.elementArrayBuffer = undefined;
 		}
+
+		VAO.bind(this.context, previousBinding);
 	}
 
 	/** Makes this the active VAO. */
 	public bind(): void {
-		this.context.internal.bindVertexArray(this.internal);
+		VAO.bind(this.context, this.internal);
 	}
 
 	/**
@@ -108,9 +133,13 @@ export default class VAO {
 	 * @param attribute The attribute to add.
 	 */
 	public addAttribute(attribute: BufferInfo): void {
-		this.bind(); // TODO
+		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
+		this.bind();
+
 		attribute.use(this.program);
 		this.attributesPrivate.push(attribute);
+
+		VAO.bind(this.context, previousBinding);
 	}
 
 	/**
@@ -122,7 +151,8 @@ export default class VAO {
 	public draw(uniforms?: UniformSource, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
 
-		this.bind(); // TODO
+		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
+		this.bind();
 
 		if (uniforms) {
 			if (uniforms instanceof Map) {
@@ -148,6 +178,8 @@ export default class VAO {
 
 			this.context.internal.drawArrays(primitive, offset, dataLength / dataSize);
 		}
+
+		VAO.bind(this.context, previousBinding);
 	}
 }
 
