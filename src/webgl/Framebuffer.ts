@@ -261,7 +261,9 @@ export default class Framebuffer {
 	public get status(): FramebufferStatus {
 		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
 		this.bind();
+
 		const out: FramebufferStatus = this.context.internal.checkFramebufferStatus(this.target);
+
 		Framebuffer.bind(this.context, this.target, previousBinding);
 		return out;
 	}

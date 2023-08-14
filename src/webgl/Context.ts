@@ -619,7 +619,7 @@ export default class Context {
 		if (src instanceof WebGL2RenderingContext) {
 			this.internal = src;
 		} else {
-			const gl: WebGL2RenderingContext | null = (src as HTMLCanvasElement).getContext("webgl2", {
+			const gl: WebGL2RenderingContext | null = src.getContext("webgl2", {
 				alpha,
 				depth,
 				stencil,
@@ -935,8 +935,7 @@ export default class Context {
 	 * @see [WebXR API documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
 	 */
 	public async makeXrCompatible(): Promise<void> {
-		return (this.internal as unknown as { makeXRCompatible: () => Promise<void> }).makeXRCompatible()
-			.catch(() => { throw new UnsupportedOperationError(); });
+		return this.internal.makeXRCompatible().catch(() => { throw new UnsupportedOperationError(); });
 	}
 
 	/**
@@ -955,12 +954,12 @@ export default class Context {
 	 * @param extension The extension's name.
 	 * @returns The extension.
 	 */
-	public getExtension(extension: Extension): ExtensionObject {
+	public getExtension(extension: Extension): ExtensionObject | undefined {
 		if (!this.extensions.has(extension)) {
 			this.extensions.set(extension, this.internal.getExtension(extension));
 		}
 
-		return this.extensions.get(extension) as ExtensionObject;
+		return this.extensions.get(extension);
 	}
 
 	/**
