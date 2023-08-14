@@ -3,6 +3,15 @@ import type Context from "#webgl/Context";
 import Renderbuffer, { RENDERBUFFER } from "#webgl/Renderbuffer";
 import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
+/** The currently-bound framebuffer. */
+export const FRAMEBUFFER_BINDING = 0x8CA6;
+
+/** The currently-bound draw framebuffer. */
+export const DRAW_FRAMEBUFFER_BINDING = 0x8CA6;
+
+/** The currently-bound read framebuffer. */
+export const READ_FRAMEBUFFER_BINDING = 0x8CAA;
+
 /** Binding points for framebuffers. */
 export const enum FramebufferTarget {
 	/** A collection buffer data storage of color, alpha, depth, and stencil buffers used to render an image. */
@@ -66,11 +75,12 @@ export const NONE = 0;
  */
 export default class Framebuffer {
 	/**
-	 * Unbinds all framebuffers from the given rendering context.
+	 * Unbinds a framebuffer from the given rendering context.
 	 * @param context The rendering context.
+	 * @param target The target binding point.
 	 */
-	public static unbind(context: Context): void {
-		context.internal.bindFramebuffer(FramebufferTarget.FRAMEBUFFER, null);
+	public static unbind(context: Context, target: FramebufferTarget): void {
+		Framebuffer.bind(context, target, null);
 	}
 
 	/**
@@ -109,15 +119,38 @@ export default class Framebuffer {
 	public static setReadBuffer(context: Context, colorBuffer: number): void;
 
 	public static setReadBuffer(context: Context, readBuffer?: boolean | number): void {
-		if (typeof readBuffer == "number") {
-			context.internal.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
-		} else {
-			if (readBuffer) {
-				context.internal.readBuffer(BACK);
-			} else {
-				context.internal.readBuffer(NONE);
-			}
+		context.internal.readBuffer(typeof readBuffer == "number"
+			? COLOR_ATTACHMENT0 + readBuffer
+			: readBuffer
+				? BACK
+				: NONE);
+	}
+
+	/**
+	 * Gets the internal representation of the currently-bound framebuffer.
+	 * @param context The context that the framebuffer is bound to.
+	 * @param target The target that the framebuffer is bound to.
+	 * @returns The currently-bound framebuffer.
+	 */
+	private static getBoundFramebuffer(context: Context, target: FramebufferTarget): WebGLFramebuffer | null {
+		switch (target) {
+			case FramebufferTarget.FRAMEBUFFER:
+				return context.internal.getParameter(FRAMEBUFFER_BINDING);
+			case FramebufferTarget.READ_FRAMEBUFFER:
+				return context.internal.getParameter(READ_FRAMEBUFFER_BINDING);
+			case FramebufferTarget.DRAW_FRAMEBUFFER:
+				return context.internal.getParameter(DRAW_FRAMEBUFFER_BINDING);
 		}
+	}
+
+	/**
+	 * Binds a framebuffer to a binding point.
+	 * @param context The rendering context of the framebuffer.
+	 * @param target The target binding point.
+	 * @param framebuffer The framebuffer.
+	 */
+	private static bind(context: Context, target: FramebufferTarget, framebuffer: WebGLFramebuffer | null): void {
+		context.internal.bindFramebuffer(target, framebuffer);
 	}
 
 	/**
@@ -226,13 +259,16 @@ export default class Framebuffer {
 
 	/** The status of this framebuffer. */
 	public get status(): FramebufferStatus {
+		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
 		this.bind();
-		return this.context.internal.checkFramebufferStatus(this.target);
+		const out: FramebufferStatus = this.context.internal.checkFramebufferStatus(this.target);
+		Framebuffer.bind(this.context, this.target, previousBinding);
+		return out;
 	}
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
-		this.context.internal.bindFramebuffer(this.target, this.internal);
+		Framebuffer.bind(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -258,6 +294,7 @@ export default class Framebuffer {
 	private attach(attachment: Renderbuffer, attachmentPoint: number): void;
 
 	private attach(attachment: FramebufferAttachment, attachmentPoint: number, layer = 0): void {
+		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
 		this.bind();
 
 		if (attachment instanceof Renderbuffer) {
@@ -268,7 +305,7 @@ export default class Framebuffer {
 			this.context.internal.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).internal, 0);
 		}
 
-		Framebuffer.unbind(this.context);
+		Framebuffer.bind(this.context, this.target, previousBinding);
 	}
 
 	/** Deletes this framebuffer. */
