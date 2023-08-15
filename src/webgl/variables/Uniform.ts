@@ -287,7 +287,7 @@ export class SamplerUniform extends SingleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<Texture<Mip>>): void {
 		const textureUnits: Int32Array = new Int32Array(value.length);
-		for (let i = 0; i < value.length; i++) { textureUnits[i] = (this.textureUnit) + i; }
+		for (let i = 0; i < value.length; i++) { textureUnits[i] = this.textureUnit + i; }
 		for (let i = 0; i < value.length; i++) {
 			(value[i] as Texture<Mip>).update();
 			(value[i] as Texture<Mip>).assign(textureUnits[i] as number);
