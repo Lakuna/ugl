@@ -2,6 +2,21 @@ import type { TypedArray } from "#types/TypedArray";
 import type Context from "#webgl/Context";
 import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
+/** The currently-bound 2D texture. */
+export const TEXTURE_BINDING_2D = 0x8069;
+
+/** The currently-bound cubemap texture. */
+export const TEXTURE_BINDING_CUBE_MAP = 0x8514;
+
+/** The currently-bound 3D texture. */
+export const TEXTURE_BINDING_3D = 0x806A;
+
+/** The currently-bound 2D array texture. */
+export const TEXTURE_BINDING_2D_ARRAY = 0x8C1D;
+
+/** The currently-active texture unit. */
+export const ACTIVE_TEXTURE = 0x84E0;
+
 /** Binding points for textures. */
 export const enum TextureTarget {
 	/** A two-dimensional texture. */
@@ -397,7 +412,54 @@ export default class Texture<MipType extends Mip> {
 	 * @param target The target.
 	 */
 	public static unbind(context: Context, target: TextureTarget): void {
-		context.internal.bindTexture(target, null);
+		Texture.bind(context, target, null);
+	}
+
+	/**
+	 * Binds a framebuffer to a binding point.
+	 * @param context The rendering context of the framebuffer.
+	 * @param target The target binding point.
+	 * @param framebuffer The framebuffer.
+	 */
+	private static bind(context: Context, target: TextureTarget, framebuffer: WebGLTexture | null): void {
+		context.internal.bindTexture(target, framebuffer);
+	}
+
+	/**
+	 * Assigns a texture unit as active.
+	 * @param context The rendering context.
+	 * @param textureUnit The texture unit.
+	 */
+	private static assign(context: Context, textureUnit: number): void {
+		context.internal.activeTexture(TEXTURE0 + textureUnit);
+	}
+
+	/**
+	 * Gets the internal representation of the currently-bound texture.
+	 * @param context The context that the texture is bound to.
+	 * @param target The target that the texture is bound to.
+	 * @returns The currently-bound texture.
+	 */
+	private static getBoundTexture(context: Context, target: TextureTarget): WebGLTexture | null {
+		switch (target) {
+			case TextureTarget.TEXTURE_2D:
+				return context.internal.getParameter(TEXTURE_BINDING_2D);
+			case TextureTarget.TEXTURE_2D_ARRAY:
+				return context.internal.getParameter(TEXTURE_BINDING_2D_ARRAY);
+			case TextureTarget.TEXTURE_3D:
+				return context.internal.getParameter(TEXTURE_BINDING_3D);
+			case TextureTarget.TEXTURE_CUBE_MAP:
+				return context.internal.getParameter(TEXTURE_BINDING_3D);
+		}
+	}
+
+	/**
+	 * Gets the current active texture unit.
+	 * @param context The rendering context of the texture unit.
+	 * @returns The texture unit.
+	 */
+	private static getActiveTextureUnit(context: Context): number {
+		return context.internal.getParameter(ACTIVE_TEXTURE);
 	}
 
 	/**
@@ -470,59 +532,77 @@ export default class Texture<MipType extends Mip> {
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureMagFilter {
-		this.bind(); // TODO
-		return this.context.internal.getTexParameter(this.target, TEXTURE_MAG_FILTER);
+		return this.with((texture: this): TextureMagFilter => texture.context.internal.getTexParameter(texture.target, TEXTURE_MAG_FILTER));
 	}
 
 	/** The magnification filter for this texture. */
 	public set magFilter(value: TextureMagFilter) {
-		this.bind(); // TODO
-		this.context.internal.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
+		this.with((framebuffer: this): void => framebuffer.context.internal.texParameteri(framebuffer.target, TEXTURE_MAG_FILTER, value));
 		this.setAllNeedsUpdate();
 	}
 
 	/** The minification filter for this texture. */
 	public get minFilter(): TextureMinFilter {
-		this.bind(); // TODO
-		return this.context.internal.getTexParameter(this.target, TEXTURE_MIN_FILTER);
+		return this.with((texture: this): TextureMinFilter => texture.context.internal.getTexParameter(texture.target, TEXTURE_MIN_FILTER));
 	}
 
 	/** The minification filter for this texture. */
 	public set minFilter(value: TextureMinFilter) {
-		this.bind(); // TODO
-		this.context.internal.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+		this.with((texture: this): void => texture.context.internal.texParameteri(texture.target, TEXTURE_MIN_FILTER, value));
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
-		this.bind(); // TODO
-		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_S);
+		return this.with((texture: this): TextureWrapFunction => texture.context.internal.getTexParameter(texture.target, TEXTURE_WRAP_S));
 	}
 
 	/** The wrapping function of this texture in the S direction. */
 	public set wrapSFunction(value: TextureWrapFunction) {
-		this.bind(); // TODO
-		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_S, value);
+		this.with((texture: this): void => texture.context.internal.texParameteri(texture.target, TEXTURE_WRAP_S, value));
 		this.setAllNeedsUpdate();
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
-		this.bind(); // TODO
-		return this.context.internal.getTexParameter(this.target, TEXTURE_WRAP_T);
+		return this.with((texture: this): TextureWrapFunction => texture.context.internal.getTexParameter(texture.target, TEXTURE_WRAP_T));
 	}
 
 	/** The wrapping function of this texture in the T direction. */
 	public set wrapTFunction(value: TextureWrapFunction) {
-		this.bind(); // TODO
-		this.context.internal.texParameteri(this.target, TEXTURE_WRAP_T, value);
+		this.with((texture: this): void => texture.context.internal.texParameteri(texture.target, TEXTURE_WRAP_T, value));
 		this.setAllNeedsUpdate();
 	}
 
 	/** Binds this texture to its target binding point. */
 	public bind(): void {
-		this.context.internal.bindTexture(this.target, this.internal);
+		Texture.bind(this.context, this.target, this.internal);
+	}
+
+	/**
+	 * Executes the given function with this texture bound, then re-binds the previously-bound texture.
+	 * @param f The function to execute.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (texture: this) => T): T;
+
+	/**
+	 * Executes the given function with this texture bound and the given texture unit assigned, then re-binds the previously-bound texture and texture unit.
+	 * @param f The function to execute.
+	 * @param textureUnit The texture unit to use.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (texture: this) => T, textureUnit: number): T
+
+	public with<T>(f: (texture: this) => T, textureUnit?: number): T {
+		const previousTextureUnit: number = Texture.getActiveTextureUnit(this.context);
+		const previousBinding: WebGLTexture | null = Texture.getBoundTexture(this.context, this.target);
+		if (typeof textureUnit == "number") { Texture.assign(this.context, textureUnit); }
+		this.bind();
+		const out: T = f(this);
+		Texture.assign(this.context, previousTextureUnit);
+		Texture.bind(this.context, this.target, previousBinding);
+		return out;
 	}
 
 	/**
@@ -530,14 +610,12 @@ export default class Texture<MipType extends Mip> {
 	 * @param textureUnit The texture unit.
 	 */
 	public assign(textureUnit: number): void {
-		this.context.internal.activeTexture(TEXTURE0 + textureUnit);
-		this.bind(); // TODO
+		return this.with((): void => { }, textureUnit);
 	}
 
 	/** Generates a mipmap for this texture. */
 	public generateMipmap(): void {
-		this.bind(); // TODO
-		this.context.internal.generateMipmap(this.target);
+		return this.with((texture: this): void => texture.context.internal.generateMipmap(texture.target));
 	}
 
 	/**
@@ -545,25 +623,25 @@ export default class Texture<MipType extends Mip> {
 	 * @returns Whether any updates were performed.
 	 */
 	public update(): boolean {
-		this.bind(); // TODO
-
-		let anyDidUpdate = false;
-		for (const [target, face] of this.faces) {
-			if (face.update(this, target)) {
-				anyDidUpdate = true;
-			}
-		}
-
-		if (anyDidUpdate && this.minFilter != TextureMinFilter.LINEAR && this.minFilter != TextureMinFilter.NEAREST) {
-			for (const face of this.faces.values()) {
-				if (!face.isTextureComplete) {
-					this.generateMipmap();
-					break;
+		return this.with((texture: this): boolean => {
+			let anyDidUpdate = false;
+			for (const [target, face] of this.faces) {
+				if (face.update(this, target)) {
+					anyDidUpdate = true;
 				}
 			}
-		}
 
-		return anyDidUpdate;
+			if (anyDidUpdate && texture.minFilter != TextureMinFilter.LINEAR && texture.minFilter != TextureMinFilter.NEAREST) {
+				for (const face of texture.faces.values()) {
+					if (!face.isTextureComplete) {
+						texture.generateMipmap();
+						break;
+					}
+				}
+			}
+
+			return anyDidUpdate;
+		});
 	}
 
 	/** Sets all of the faces of this texture as outdated. */
