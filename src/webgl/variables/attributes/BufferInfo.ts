@@ -12,7 +12,7 @@ export default class AttributeState {
 	 * @param buffer The buffer which supplies data to the attribute.
 	 * @param size The number of components per vertex attribute.
 	 * @param normalized Whether to normalize the data after getting it from the buffer.
-	 * @param stride The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `255`.
+	 * @param stride The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `0xFF`.
 	 * @param offset The offset in bytes of the first component in the buffer.
 	 */
 	public constructor(name: string, buffer: Buffer, size: 1 | 2 | 3 | 4 = 3, normalized = false, stride = 0, offset = 0) {
@@ -41,7 +41,7 @@ export default class AttributeState {
 	/** Whether to normalize data after getting it from this buffer. */
 	public normalized: boolean;
 
-	/** The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `255`. */
+	/** The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `0xFF`. */
 	public stride: number;
 
 	/** The offset in bytes of the first component in the buffer. */

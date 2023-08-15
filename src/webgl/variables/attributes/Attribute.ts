@@ -2,6 +2,8 @@ import type BufferInfo from "#attributes/BufferInfo";
 import Variable from "#variables/Variable";
 import type Program from "#webgl/Program";
 import UnsupportedOperationError from "#utility/UnsupportedOperationError";
+import { BufferTarget } from "#webgl/variables/attributes/Buffer";
+import BufferTargetError from "#utility/BufferTargetError";
 
 /** Possible variable types for attributes. */
 export const enum AttributeType {
@@ -135,7 +137,23 @@ export default abstract class Attribute extends Variable {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public abstract setter(value: BufferInfo): void;
+	public setter(value: BufferInfo): void {
+		if (value.buffer.target != BufferTarget.ARRAY_BUFFER) {
+			throw new BufferTargetError();
+		}
+
+		this.enabled = true;
+
+		return value.buffer.with((): void => {
+			this.setterInternal(value);
+		});
+	}
+
+	/**
+	 * The setter method for this attribute.
+	 * @param value The value to pass to the attribute.
+	 */
+	protected abstract setterInternal(value: BufferInfo): void;
 
 	/** Whether this attribute can get data from a buffer. */
 	private enabledPrivate: boolean;
@@ -187,9 +205,7 @@ export class FloatAttribute extends Attribute {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: BufferInfo): void {
-		value.buffer.bind(); // TODO
-		this.enabled = true;
+	protected setterInternal(value: BufferInfo): void {
 		this.context.internal.vertexAttribPointer(this.location, value.size, value.type, value.normalized, value.stride, value.offset);
 	}
 }
@@ -209,9 +225,7 @@ export class IntegerAttribute extends Attribute {
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: BufferInfo): void {
-		value.buffer.bind(); // TODO
-		this.enabled = true;
+	protected setterInternal(value: BufferInfo): void {
 		this.context.internal.vertexAttribIPointer(this.location, value.size, value.type, value.stride, value.offset);
 	}
 }
@@ -223,24 +237,21 @@ export class MatrixAttribute extends Attribute {
 	 * @param program The shader program that this attribute belongs to.
 	 * @param index The index of this attribute.
 	 */
-	public constructor(program: Program, index: number, dim: number) {
+	public constructor(program: Program, index: number, dim: 1 | 2 | 3 | 4) {
 		super(program, index);
 		this.dim = dim;
 	}
 
 	/** The side length of values passed to this attribute. */
-	public readonly dim: number;
+	public readonly dim: 1 | 2 | 3 | 4;
 
 	/**
 	 * The setter method for this attribute.
 	 * @param value The value to pass to the attribute.
 	 */
-	public setter(value: BufferInfo): void {
-		const stride: number = (this.dim * this.dim) * value.size;
+	protected setterInternal(value: BufferInfo): void {
 		for (let i = 0; i < this.dim; i++) {
-			const location: number = this.location + i;
-			this.enabled = true;
-			this.context.internal.vertexAttribPointer(location, value.size / this.dim, value.type, value.normalized, stride, value.offset + (stride / this.dim) * i);
+			this.context.internal.vertexAttribPointer(this.location + i, this.dim, value.type, value.normalized, value.stride, value.offset + (value.stride || value.buffer.elementSize) * this.dim * i);
 		}
 	}
 }

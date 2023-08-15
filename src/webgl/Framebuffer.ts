@@ -259,18 +259,27 @@ export default class Framebuffer {
 
 	/** The status of this framebuffer. */
 	public get status(): FramebufferStatus {
-		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
-		this.bind();
-
-		const out: FramebufferStatus = this.context.internal.checkFramebufferStatus(this.target);
-
-		Framebuffer.bind(this.context, this.target, previousBinding);
-		return out;
+		return this.with((framebuffer: this): FramebufferStatus => {
+			return framebuffer.context.internal.checkFramebufferStatus(framebuffer.target);
+		});
 	}
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
 		Framebuffer.bind(this.context, this.target, this.internal);
+	}
+
+	/**
+	 * Executes the given function with this framebuffer bound, then re-binds the previously-bound framebuffer.
+	 * @param f The function to execute.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (framebuffer: this) => T): T {
+		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
+		this.bind();
+		const out: T = f(this);
+		Framebuffer.bind(this.context, this.target, previousBinding);
+		return out;
 	}
 
 	/**
@@ -296,18 +305,15 @@ export default class Framebuffer {
 	private attach(attachment: Renderbuffer, attachmentPoint: number): void;
 
 	private attach(attachment: FramebufferAttachment, attachmentPoint: number, layer = 0): void {
-		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
-		this.bind();
-
-		if (attachment instanceof Renderbuffer) {
-			this.context.internal.framebufferRenderbuffer(this.target, attachmentPoint, RENDERBUFFER, attachment.internal);
-		} else if (attachment instanceof Mip) {
-			this.context.internal.framebufferTextureLayer(this.target, attachmentPoint, (attachment.texture as Texture<Mip>).internal, attachment.lod as number, layer);
-		} else {
-			this.context.internal.framebufferTexture2D(this.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).internal, 0);
-		}
-
-		Framebuffer.bind(this.context, this.target, previousBinding);
+		return this.with((framebuffer: this): void => {
+			if (attachment instanceof Renderbuffer) {
+				framebuffer.context.internal.framebufferRenderbuffer(framebuffer.target, attachmentPoint, RENDERBUFFER, attachment.internal);
+			} else if (attachment instanceof Mip) {
+				framebuffer.context.internal.framebufferTextureLayer(framebuffer.target, attachmentPoint, (attachment.texture as Texture<Mip>).internal, attachment.lod as number, layer);
+			} else {
+				framebuffer.context.internal.framebufferTexture2D(framebuffer.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).internal, 0);
+			}
+		});
 	}
 
 	/** Deletes this framebuffer. */

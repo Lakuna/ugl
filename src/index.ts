@@ -2,6 +2,7 @@ export type { default as Box } from "#types/Box";
 export type { default as MeasuredIterable } from "#types/MeasuredIterable";
 export type { FloatTypedArray, IntTypedArray, TypedArray, UintTypedArray } from "#types/TypedArray";
 export { default as Color, type ColorLike } from "#utility/Color";
+export { default as BufferTargetError } from "#utility/BufferTargetError";
 export { default as HeadlessEnvironmentError } from "#utility/HeadlessEnvironmentError";
 export { default as ProgramLinkError } from "#utility/ProgramLinkError";
 export { default as ShaderCompileError } from "#utility/ShaderCompileError";

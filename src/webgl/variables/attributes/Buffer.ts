@@ -2,6 +2,30 @@ import type { TypedArray, UintTypedArray } from "#types/TypedArray";
 import type Context from "#webgl/Context";
 import UnsupportedOperationError from "#utility/UnsupportedOperationError";
 
+/** The currently-bound array buffer. */
+export const ARRAY_BUFFER_BINDING = 0x8894;
+
+/** The currently-bound element array buffer. */
+export const ELEMENT_ARRAY_BUFFER_BINDING = 0x8895;
+
+/** The currently-bound copy read buffer. */
+export const COPY_READ_BUFFER_BINDING = 0x8F36;
+
+/** The currently-bound copy write buffer. */
+export const COPY_WRITE_BUFFER_BINDING = 0x8F37;
+
+/** The currently-bound transform feedback buffer. */
+export const TRANSFORM_FEEDBACK_BUFFER_BINDING = 0x8C8F;
+
+/** The currently-bound uniform buffer. */
+export const UNIFORM_BUFFER_BINDING = 0x8A28;
+
+/** The currently-bound pixel pack buffer. */
+export const PIXEL_PACK_BUFFER_BINDING = 0x88ED;
+
+/** The currently-bound pixel unpack buffer. */
+export const PIXEL_UNPACK_BUFFER_BINDING = 0x88EF;
+
 /** Binding points for buffers. */
 export const enum BufferTarget {
 	/** A buffer containing vertex attributes. */
@@ -91,7 +115,44 @@ export default class Buffer {
 	 * @param target The target.
 	 */
 	public static unbind(context: Context, target: BufferTarget): void {
-		context.internal.bindBuffer(target, null);
+		Buffer.bind(context, target, null);
+	}
+
+	/**
+	 * Gets the internal representation of the currently-bound buffer.
+	 * @param context The context that the buffer is bound to.
+	 * @param target The target that the buffer is bound to.
+	 * @returns The currently-bound buffer.
+	 */
+	private static getBoundBuffer(context: Context, target: BufferTarget): WebGLBuffer | null {
+		switch (target) {
+			case BufferTarget.ARRAY_BUFFER:
+				return context.internal.getParameter(ARRAY_BUFFER_BINDING);
+			case BufferTarget.COPY_READ_BUFFER:
+				return context.internal.getParameter(COPY_READ_BUFFER_BINDING);
+			case BufferTarget.COPY_WRITE_BUFFER:
+				return context.internal.getParameter(COPY_WRITE_BUFFER_BINDING);
+			case BufferTarget.ELEMENT_ARRAY_BUFFER:
+				return context.internal.getParameter(ELEMENT_ARRAY_BUFFER_BINDING);
+			case BufferTarget.PIXEL_PACK_BUFFER:
+				return context.internal.getParameter(PIXEL_PACK_BUFFER_BINDING);
+			case BufferTarget.PIXEL_UNPACK_BUFFER:
+				return context.internal.getParameter(PIXEL_UNPACK_BUFFER_BINDING);
+			case BufferTarget.TRANSFORM_FEEDBACK_BUFFER:
+				return context.internal.getParameter(TRANSFORM_FEEDBACK_BUFFER_BINDING);
+			case BufferTarget.UNIFORM_BUFFER:
+				return context.internal.getParameter(UNIFORM_BUFFER_BINDING);
+		}
+	}
+
+	/**
+	 * Binds a buffer to a binding point.
+	 * @param context The rendering context of the buffer.
+	 * @param target The target binding point.
+	 * @param buffer The buffer.
+	 */
+	private static bind(context: Context, target: BufferTarget, buffer: WebGLBuffer | null): void {
+		context.internal.bindBuffer(target, buffer);
 	}
 
 	/**
@@ -152,21 +213,37 @@ export default class Buffer {
 
 	/** The data contained within this buffer. */
 	public set data(value: TypedArray) {
-		this.bind(); // TODO
-		this.context.internal.bufferData(this.target, value, this.usage);
-		this.dataPrivate = value;
+		this.with((buffer: this): void => {
+			buffer.context.internal.bufferData(buffer.target, value, buffer.usage);
+			buffer.dataPrivate = value;
 
-		if (value instanceof Int8Array) {
-			this.typePrivate = BufferDataType.BYTE;
-		} else if (value instanceof Uint8Array
-			|| value instanceof Uint8ClampedArray) {
-			this.typePrivate = BufferDataType.UNSIGNED_BYTE;
-		} else if (value instanceof Uint16Array) {
-			this.typePrivate = BufferDataType.UNSIGNED_SHORT;
-		} else if (value instanceof Int16Array) {
-			this.typePrivate = BufferDataType.SHORT;
-		} else {
-			this.typePrivate = BufferDataType.FLOAT;
+			if (value instanceof Int8Array) {
+				buffer.typePrivate = BufferDataType.BYTE;
+			} else if (value instanceof Uint8Array
+				|| value instanceof Uint8ClampedArray) {
+				buffer.typePrivate = BufferDataType.UNSIGNED_BYTE;
+			} else if (value instanceof Uint16Array) {
+				buffer.typePrivate = BufferDataType.UNSIGNED_SHORT;
+			} else if (value instanceof Int16Array) {
+				buffer.typePrivate = BufferDataType.SHORT;
+			} else {
+				buffer.typePrivate = BufferDataType.FLOAT;
+			}
+		});
+	}
+
+	/** The size of each element in this buffer in bytes. */
+	public get elementSize(): number {
+		switch (this.type) {
+			case BufferDataType.BYTE:
+			case BufferDataType.UNSIGNED_BYTE:
+				return 1;
+			case BufferDataType.HALF_FLOAT:
+			case BufferDataType.UNSIGNED_SHORT:
+			case BufferDataType.SHORT:
+				return 2;
+			case BufferDataType.FLOAT:
+				return 4;
 		}
 	}
 
@@ -180,7 +257,20 @@ export default class Buffer {
 
 	/** Binds this buffer to its target binding point. */
 	public bind(): void {
-		this.context.internal.bindBuffer(this.target, this.internal);
+		Buffer.bind(this.context, this.target, this.internal);
+	}
+
+	/**
+	 * Executes the given function with this buffer bound, then re-binds the previously-bound buffer.
+	 * @param f The function to execute.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (buffer: this) => T): T {
+		const previousBinding: WebGLBuffer | null = Buffer.getBoundBuffer(this.context, this.target);
+		this.bind();
+		const out: T = f(this);
+		Buffer.bind(this.context, this.target, previousBinding);
+		return out;
 	}
 
 	/** Deletes this buffer. */
