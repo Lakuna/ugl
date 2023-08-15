@@ -1,35 +1,72 @@
-export type { default as Box } from "#types/Box";
-export type { default as MeasuredIterable } from "#types/MeasuredIterable";
-export type { FloatTypedArray, IntTypedArray, TypedArray, UintTypedArray } from "#types/TypedArray";
-export { default as Color, type ColorLike } from "#utility/Color";
-export { default as BufferTargetError } from "#utility/BufferTargetError";
-export { default as HeadlessEnvironmentError } from "#utility/HeadlessEnvironmentError";
-export { default as ProgramLinkError } from "#utility/ProgramLinkError";
-export { default as ShaderCompileError } from "#utility/ShaderCompileError";
-export { default as UnknownAttributeError } from "#utility/UnknownAttributeError";
-export { default as UnsupportedOperationError } from "#utility/UnsupportedOperationError";
-export { default as Cubemap, CubemapMip } from "#textures/Cubemap";
-export {
-	default as Texture, Mip, Mipmap, type MipSource, MipmapTarget, TextureBaseFormat,
-	TextureDataType, TextureInternalFormat, TextureMagFilter, TextureMinFilter, TextureTarget,
-	TextureWrapFunction
-} from "#textures/Texture";
-export { default as Texture2d, Texture2dMip as Texture2DMip } from "#webgl/textures/Texture2d";
-export { default as Texture3d, Texture3dMip as Texture3DMip } from "#webgl/textures/Texture3d";
-export { AttributeType, default as Attribute } from "#attributes/Attribute";
-export { default as BufferInfo } from "#attributes/BufferInfo";
-export { BufferDataType, BufferTarget, BufferUsage, default as Buffer } from "#attributes/Buffer";
-export { default as Vao, Primitive, type UniformSource, type UniformSourceObject } from "#webgl/variables/attributes/Vao";
-export { default as Uniform, UniformType, type UniformValue } from "#variables/Uniform";
-export { default as Variable } from "#variables/Variable";
-export { default as Varying } from "#variables/Varying";
-export {
-	BlendFunction, type BlendFunctionSet, type Canvas, default as Context, Extension,
-	type ExtensionObject, FaceDirection, type MultiSampleCoverageParameters, type PolygonOffset,
-	PowerPreference, type StencilTestParameters, type StencilTestSet, TestFunction,
-	WindingOrientation
-} from "#webgl/Context";
-export { default as Framebuffer, type FramebufferAttachment, FramebufferStatus, FramebufferTarget } from "#webgl/Framebuffer";
-export { default as Program, TransformFeedbackBufferMode } from "#webgl/Program";
-export { default as Renderbuffer, RenderbufferFormat } from "#webgl/Renderbuffer";
-export { default as Shader, ShaderType } from "#webgl/Shader";
+export { default as AttributeType } from "#AttributeType";
+export { default as BlendFunction } from "#BlendFunction";
+export { default as BufferDataType } from "#BufferDataType";
+export { default as BufferTarget } from "#BufferTarget";
+export { default as BufferUsage } from "#BufferUsage";
+export { default as Extension } from "#Extension";
+export { default as FaceDirection } from "#FaceDirection";
+export { default as FramebufferStatus } from "#FramebufferStatus";
+export { default as FramebufferTarget } from "#FramebufferTarget";
+export { default as MipmapTarget } from "#MipmapTarget";
+export { default as PowerPreference } from "#PowerPreference";
+export { default as Primitive } from "#Primitive";
+export { default as RenderbufferFormat } from "#RenderbufferFormat";
+export { default as ShaderType } from "#ShaderType";
+export { default as TestFunction } from "#TestFunction";
+export { default as TextureBaseFormat } from "#TextureBaseFormat";
+export { default as TextureDataType } from "#TextureDataType";
+export { default as TextureInternalFormat } from "#TextureInternalFormat";
+export { default as TextureMagFilter } from "#TextureMagFilter";
+export { default as TextureMinFilter } from "#TextureMinFilter";
+export { default as TextureTarget } from "#TextureTarget";
+export { default as TextureWrapFunction } from "#TextureWrapFunction";
+export { default as TransformFeedbackBufferMode } from "#TransformFeedbackBufferMode";
+export { default as UniformType } from "#UniformType";
+export { default as WindingOrientation } from "#WindingOrientation";
+export { default as Buffer } from "#Buffer";
+export { default as BufferInfo } from "#BufferInfo";
+export { default as Context } from "#Context";
+export { default as Framebuffer } from "#Framebuffer";
+export { default as Program } from "#Program";
+export { default as Renderbuffer } from "#Renderbuffer";
+export { default as Shader } from "#Shader";
+export { default as Vao } from "#Vao";
+export { default as Cubemap } from "#Cubemap";
+export { default as CubemapMip } from "#CubemapMip";
+export { default as Mip } from "#Mip";
+export { default as Mipmap } from "#Mipmap";
+export { default as Texture } from "#Texture";
+export { default as Texture2d } from "#Texture2d";
+export { default as Texture2dMip } from "#Texture2dMip";
+export { default as Texture3d } from "#Texture3d";
+export { default as Texture3dMip } from "#Texture3dMip";
+export type { default as BlendFunctionSet } from "#BlendFunctionSet";
+export type { default as Box } from "#Box";
+export type { Canvas } from "#Canvas";
+export type { ColorLike } from "#ColorLike";
+export type { ExtensionObject } from "#ExtensionObject";
+export type { FloatTypedArray } from "#FloatTypedArray";
+export type { FramebufferAttachment } from "#FramebufferAttachment";
+export type { IntTypedArray } from "#IntTypedArray";
+export type { default as MeasuredIterable } from "#MeasuredIterable";
+export type { MipSource } from "#MipSource";
+export type { default as MultiSampleCoverageParameters } from "#MultiSampleCoverageParameters";
+export type { default as PolygonOffset } from "#PolygonOffset";
+export type { default as StencilTestParameters } from "#StencilTestParameters";
+export type { default as StencilTestSet } from "#StencilTestSet";
+export type { TypedArray } from "#TypedArray";
+export type { UintTypedArray } from "#UintTypedArray";
+export type { UniformSource } from "#UniformSource";
+export type { default as UniformSourceObject } from "#UniformSourceObject";
+export type { UniformValue } from "#UniformValue";
+export { default as BufferTargetError } from "#BufferTargetError";
+export { default as Color } from "#Color";
+export { default as HeadlessEnvironmentError } from "#HeadlessEnvironmentError";
+export { default as ProgramLinkError } from "#ProgramLinkError";
+export { default as ShaderCompileError } from "#ShaderCompileError";
+export { default as UnknownAttributeError } from "#UnknownAttributeError";
+export { default as UnsupportedOperationError } from "#UnsupportedOperationError";
+export { default as Attribute } from "#Attribute";
+export { default as Uniform } from "#Uniform";
+export { default as Variable } from "#Variable";
+export { default as Varying } from "#Varying";
