@@ -111,16 +111,13 @@ export default class VAO {
 
 	/** The indices in the element array buffer of this VAO if the data is indexed. */
 	public set indices(value: UintTypedArray | undefined) {
-		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
-		this.bind();
-
-		if (value) {
-			this.elementArrayBuffer = new Buffer(this.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
-		} else {
-			this.elementArrayBuffer = undefined;
-		}
-
-		VAO.bind(this.context, previousBinding);
+		this.with((vao: this): void => {
+			if (value) {
+				vao.elementArrayBuffer = new Buffer(vao.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
+			} else {
+				vao.elementArrayBuffer = undefined;
+			}
+		});
 	}
 
 	/** Makes this the active VAO. */
@@ -129,17 +126,27 @@ export default class VAO {
 	}
 
 	/**
+	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object.
+	 * @param f The function to execute.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (vao: this) => T): T {
+		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
+		this.bind();
+		const out: T = f(this);
+		VAO.bind(this.context, previousBinding);
+		return out;
+	}
+
+	/**
 	 * Adds an attribute to this VAO.
 	 * @param attribute The attribute to add.
 	 */
 	public addAttribute(attribute: BufferInfo): void {
-		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
-		this.bind();
-
-		attribute.use(this.program);
-		this.attributesPrivate.push(attribute);
-
-		VAO.bind(this.context, previousBinding);
+		return this.with((vao: this): void => {
+			attribute.use(vao.program);
+			vao.attributesPrivate.push(attribute);
+		});
 	}
 
 	/**
@@ -150,36 +157,32 @@ export default class VAO {
 	 */
 	public draw(uniforms?: UniformSource, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
 		this.program.use();
-
-		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
-		this.bind();
-
-		if (uniforms) {
-			if (uniforms instanceof Map) {
-				for (const [key, value] of uniforms.entries()) {
-					const uniform: Uniform | undefined = this.program.uniforms.get(key);
-					if (uniform) { uniform.value = value; }
-				}
-			} else {
-				for (const key in uniforms) {
-					const uniform: Uniform | undefined = this.program.uniforms.get(key);
-					if (uniform) { uniform.value = (uniforms[key] as UniformValue); }
+		return this.with((vao: this): void => {
+			if (uniforms) {
+				if (uniforms instanceof Map) {
+					for (const [key, value] of uniforms.entries()) {
+						const uniform: Uniform | undefined = vao.program.uniforms.get(key);
+						if (uniform) { uniform.value = value; }
+					}
+				} else {
+					for (const key in uniforms) {
+						const uniform: Uniform | undefined = vao.program.uniforms.get(key);
+						if (uniform) { uniform.value = (uniforms[key] as UniformValue); }
+					}
 				}
 			}
-		}
 
-		if (this.elementArrayBuffer) {
-			this.context.internal.drawElements(primitive, this.elementArrayBuffer.data.length, this.elementArrayBuffer.type, 0);
-		} else {
-			const firstAttribute: BufferInfo | undefined = this.attributes[0];
-			if (!firstAttribute) { return; }
-			const dataLength: number = firstAttribute.buffer.data.length;
-			const dataSize: number = firstAttribute.size;
+			if (vao.elementArrayBuffer) {
+				vao.context.internal.drawElements(primitive, vao.elementArrayBuffer.data.length, vao.elementArrayBuffer.type, 0);
+			} else {
+				const firstAttribute: BufferInfo | undefined = vao.attributes[0];
+				if (!firstAttribute) { return; }
+				const dataLength: number = firstAttribute.buffer.data.length;
+				const dataSize: number = firstAttribute.size;
 
-			this.context.internal.drawArrays(primitive, offset, dataLength / dataSize);
-		}
-
-		VAO.bind(this.context, previousBinding);
+				vao.context.internal.drawArrays(primitive, offset, dataLength / dataSize);
+			}
+		});
 	}
 }
 

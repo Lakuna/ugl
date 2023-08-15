@@ -187,12 +187,9 @@ export default class Renderbuffer {
 		if (!renderbuffer) { throw new UnsupportedOperationError(); }
 		this.internal = renderbuffer;
 
-		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBoundRenderbuffer(this.context);
-		this.bind();
-
-		context.internal.renderbufferStorage(RENDERBUFFER, format, width, height);
-
-		Renderbuffer.bind(this.context, previousBinding);
+		this.with((renderbuffer: this): void => {
+			renderbuffer.context.internal.renderbufferStorage(RENDERBUFFER, renderbuffer.format, renderbuffer.width, renderbuffer.height);
+		})
 	}
 
 	/** The rendering context of this renderbuffer. */
@@ -213,6 +210,19 @@ export default class Renderbuffer {
 	/** Binds this renderbuffer. */
 	public bind(): void {
 		Renderbuffer.bind(this.context, this.internal);
+	}
+
+	/**
+	 * Executes the given function with this renderbuffer bound, then re-binds the previously-bound renderbuffer.
+	 * @param f The function to execute.
+	 * @returns The return value of the executed function.
+	 */
+	public with<T>(f: (renderbuffer: this) => T): T {
+		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBoundRenderbuffer(this.context);
+		this.bind();
+		const out: T = f(this);
+		Renderbuffer.bind(this.context, previousBinding);
+		return out;
 	}
 
 	/** Deletes this renderbuffer. */
