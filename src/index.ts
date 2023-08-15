@@ -14,12 +14,12 @@ export {
 	TextureDataType, TextureInternalFormat, TextureMagFilter, TextureMinFilter, TextureTarget,
 	TextureWrapFunction
 } from "#textures/Texture";
-export { default as Texture2D, Texture2DMip } from "#textures/Texture2D";
-export { default as Texture3D, Texture3DMip } from "#textures/Texture3D";
+export { default as Texture2d, Texture2dMip as Texture2DMip } from "#webgl/textures/Texture2d";
+export { default as Texture3d, Texture3dMip as Texture3DMip } from "#webgl/textures/Texture3d";
 export { AttributeType, default as Attribute } from "#attributes/Attribute";
 export { default as BufferInfo } from "#attributes/BufferInfo";
 export { BufferDataType, BufferTarget, BufferUsage, default as Buffer } from "#attributes/Buffer";
-export { default as VAO, Primitive, type UniformSource, type UniformSourceObject } from "#attributes/VAO";
+export { default as Vao, Primitive, type UniformSource, type UniformSourceObject } from "#webgl/variables/attributes/Vao";
 export { default as Uniform, UniformType, type UniformValue } from "#variables/Uniform";
 export { default as Variable } from "#variables/Variable";
 export { default as Varying } from "#variables/Varying";

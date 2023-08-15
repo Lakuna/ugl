@@ -103,7 +103,7 @@ export default class Program {
 			const transformFeedbackVarying: Varying = new Varying(this, i);
 			transformFeedbackVaryings.set(transformFeedbackVarying.name, transformFeedbackVarying);
 		}
-		this.transformFeedbackVaryings = transformFeedbackVaryings;
+		this.varyings = transformFeedbackVaryings;
 
 		this.allowTransparent = true;
 		this.allowDepth = true;
@@ -130,8 +130,8 @@ export default class Program {
 	/** A map of attribute names to attributes. */
 	public readonly attributes: ReadonlyMap<string, Attribute>;
 
-	/** A map of transform feedback varying names to varyings. */
-	public readonly transformFeedbackVaryings: ReadonlyMap<string, Varying>;
+	/** A map of varying names to varyings. Only includes varyings that are used for transform feedback. */
+	public readonly varyings: ReadonlyMap<string, Varying>;
 
 	/** Whether this program is allowed to draw transparent objects. Used for optimization only. */
 	public allowTransparent: boolean;
