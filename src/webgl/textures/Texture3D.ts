@@ -9,17 +9,17 @@ import UnsupportedOperationError from "#utility/UnsupportedOperationError";
  * A 3D texture.
  * @see [Tutorial](https://www.lakuna.pw/a/webgl/textures)
  */
-export default class Texture3D extends Texture<Texture3DMip> {
+export default class Texture3d extends Texture<Texture3dMip> {
 	/**
 	 * Creates a basic 3D texture from a pixel source.
 	 * @param context The rendering context of the texture.
 	 * @param source The pixel source.
 	 * @returns A basic 3D texture.
 	 */
-	public static fromSource(context: Context, source: MipSource): Texture3D {
-		return new Texture3D(
+	public static fromSource(context: Context, source: MipSource): Texture3d {
+		return new Texture3d(
 			context,
-			new Mipmap(new Texture3DMip(source))
+			new Mipmap(new Texture3dMip(source))
 		);
 	}
 
@@ -35,7 +35,7 @@ export default class Texture3D extends Texture<Texture3DMip> {
 	 */
 	public constructor(
 		context: Context,
-		face: Mipmap<Texture3DMip>,
+		face: Mipmap<Texture3dMip>,
 		magFilter: TextureMagFilter = TextureMagFilter.NEAREST,
 		minFilter: TextureMinFilter = TextureMinFilter.NEAREST,
 		wrapSFunction: TextureWrapFunction = TextureWrapFunction.REPEAT,
@@ -55,18 +55,18 @@ export default class Texture3D extends Texture<Texture3DMip> {
 	}
 
 	/** The face of this texture. */
-	public get face(): Mipmap<Texture3DMip> {
-		return this.getFace(MipmapTarget.TEXTURE_3D) as Mipmap<Texture3DMip>;
+	public get face(): Mipmap<Texture3dMip> {
+		return this.getFace(MipmapTarget.TEXTURE_3D) as Mipmap<Texture3dMip>;
 	}
 
 	/** The face of this texture. */
-	public set face(value: Mipmap<Texture3DMip>) {
+	public set face(value: Mipmap<Texture3dMip>) {
 		this.setFace(MipmapTarget.TEXTURE_3D, value);
 	}
 }
 
 /** A mip of a 3D texture. */
-export class Texture3DMip extends Mip {
+export class Texture3dMip extends Mip {
 	/**
 	 * Creates a mip of a 3D texture.
 	 * @param source The pixel source of the mip.
@@ -120,7 +120,7 @@ export class Texture3DMip extends Mip {
 	 * @param target The target of this mip.
 	 * @param lod The level of detail of this mip.
 	 */
-	protected override updateInternal(texture: Texture<Texture3DMip>, target: MipmapTarget, lod: number): void {
+	protected override updateInternal(texture: Texture<Texture3dMip>, target: MipmapTarget, lod: number): void {
 		if (typeof this.width == "undefined" || typeof this.height == "undefined" || typeof this.depth == "undefined") {
 			throw new UnsupportedOperationError("The dimensions of the texture are not defined.");
 		}

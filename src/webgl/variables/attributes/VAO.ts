@@ -37,13 +37,13 @@ export const enum Primitive {
  * A collection of attribute state; a vertex attribute array.
  * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
  */
-export default class VAO {
+export default class Vao {
 	/**
 	 * Unbinds all vertex array objects from the given rendering context.
 	 * @param context The rendering context.
 	 */
 	public static unbind(context: Context): void {
-		VAO.bind(context, null);
+		Vao.bind(context, null);
 	}
 
 	/**
@@ -122,7 +122,7 @@ export default class VAO {
 
 	/** Makes this the active VAO. */
 	public bind(): void {
-		VAO.bind(this.context, this.internal);
+		Vao.bind(this.context, this.internal);
 	}
 
 	/**
@@ -131,10 +131,10 @@ export default class VAO {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (vao: this) => T): T {
-		const previousBinding: WebGLVertexArrayObject | null = VAO.getBoundVertexArrayObject(this.context);
+		const previousBinding: WebGLVertexArrayObject | null = Vao.getBoundVertexArrayObject(this.context);
 		this.bind();
 		const out: T = f(this);
-		VAO.bind(this.context, previousBinding);
+		Vao.bind(this.context, previousBinding);
 		return out;
 	}
 
