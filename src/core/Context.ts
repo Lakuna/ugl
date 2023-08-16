@@ -60,6 +60,9 @@ export default class Context {
 		premultipliedAlpha?: boolean,
 		preserveDrawingBuffer?: boolean
 	) {
+		if (typeof document == "undefined") { throw new HeadlessEnvironmentError(); }
+		if (typeof WebGL2RenderingContext == "undefined") { throw new UnsupportedOperationError(); }
+
 		if (src instanceof WebGL2RenderingContext) {
 			this.internal = src;
 		} else {
