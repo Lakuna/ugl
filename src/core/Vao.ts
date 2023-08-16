@@ -29,7 +29,9 @@ export default class Vao {
 	 * @param context The rendering context.
 	 * @returns The vertex array object.
 	 */
-	private static getBoundVertexArrayObject(context: Context): WebGLVertexArrayObject | null {
+	private static getBoundVertexArrayObject(
+		context: Context
+	): WebGLVertexArrayObject | null {
 		return context.internal.getParameter(VERTEX_ARRAY_BINDING);
 	}
 
@@ -38,7 +40,10 @@ export default class Vao {
 	 * @param context The rendering context.
 	 * @param renderbuffer The renderbuffer.
 	 */
-	private static bind(context: Context, vao: WebGLVertexArrayObject | null): void {
+	private static bind(
+		context: Context,
+		vao: WebGLVertexArrayObject | null
+	): void {
 		context.internal.bindVertexArray(vao);
 	}
 
@@ -48,16 +53,25 @@ export default class Vao {
 	 * @param attributes The attributes associated with the VAO.
 	 * @param indices The indices to supply to the element array buffer of this VAO if the data should be indexed.
 	 */
-	public constructor(program: Program, attributes: Array<BufferInfo> = [], indices?: UintTypedArray) {
+	public constructor(
+		program: Program,
+		attributes: Array<BufferInfo> = [],
+		indices?: UintTypedArray
+	) {
 		this.program = program;
 		this.context = program.context;
 
-		const vao: WebGLVertexArrayObject | null = this.context.internal.createVertexArray();
-		if (!vao) { throw new UnsupportedOperationError(); }
+		const vao: WebGLVertexArrayObject | null =
+			this.context.internal.createVertexArray();
+		if (!vao) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = vao;
 
 		this.attributesPrivate = [];
-		for (const attribute of attributes) { this.addAttribute(attribute); }
+		for (const attribute of attributes) {
+			this.addAttribute(attribute);
+		}
 
 		this.indices = indices;
 	}
@@ -91,7 +105,11 @@ export default class Vao {
 	public set indices(value: UintTypedArray | undefined) {
 		this.with((vao: this): void => {
 			if (value) {
-				vao.elementArrayBuffer = new Buffer(vao.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
+				vao.elementArrayBuffer = new Buffer(
+					vao.context,
+					value,
+					BufferTarget.ELEMENT_ARRAY_BUFFER
+				);
 				vao.elementArrayBuffer.bind(); // Attached to the VAO; not global.
 			} else {
 				vao.elementArrayBuffer = undefined;
@@ -111,7 +129,8 @@ export default class Vao {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (vao: this) => T): T {
-		const previousBinding: WebGLVertexArrayObject | null = Vao.getBoundVertexArrayObject(this.context);
+		const previousBinding: WebGLVertexArrayObject | null =
+			Vao.getBoundVertexArrayObject(this.context);
 		this.bind();
 		const out: T = f(this);
 		Vao.bind(this.context, previousBinding);
@@ -135,32 +154,51 @@ export default class Vao {
 	 * @param primitive The type of primitive to rasterize.
 	 * @param offset The number of elements to skip when rasterizing arrays.
 	 */
-	public draw(uniforms?: UniformSource, primitive: Primitive = Primitive.TRIANGLES, offset = 0): void {
+	public draw(
+		uniforms?: UniformSource,
+		primitive: Primitive = Primitive.TRIANGLES,
+		offset = 0
+	): void {
 		this.program.use();
 		return this.with((vao: this): void => {
 			if (uniforms) {
 				if (uniforms instanceof Map) {
 					for (const [key, value] of uniforms.entries()) {
 						const uniform: Uniform | undefined = vao.program.uniforms.get(key);
-						if (uniform) { uniform.value = value; }
+						if (uniform) {
+							uniform.value = value;
+						}
 					}
 				} else {
 					for (const key in uniforms) {
 						const uniform: Uniform | undefined = vao.program.uniforms.get(key);
-						if (uniform) { uniform.value = (uniforms[key] as UniformValue); }
+						if (uniform) {
+							uniform.value = uniforms[key] as UniformValue;
+						}
 					}
 				}
 			}
 
 			if (vao.elementArrayBuffer) {
-				vao.context.internal.drawElements(primitive, vao.elementArrayBuffer.data.length, vao.elementArrayBuffer.type, 0);
+				vao.context.internal.drawElements(
+					primitive,
+					vao.elementArrayBuffer.data.length,
+					vao.elementArrayBuffer.type,
+					0
+				);
 			} else {
 				const firstAttribute: BufferInfo | undefined = vao.attributes[0];
-				if (!firstAttribute) { return; }
+				if (!firstAttribute) {
+					return;
+				}
 				const dataLength: number = firstAttribute.buffer.data.length;
 				const dataSize: number = firstAttribute.size;
 
-				vao.context.internal.drawArrays(primitive, offset, dataLength / dataSize);
+				vao.context.internal.drawArrays(
+					primitive,
+					offset,
+					dataLength / dataSize
+				);
 			}
 		});
 	}

@@ -1,6 +1,17 @@
 import type Context from "#Context";
 import FramebufferTarget from "#FramebufferTarget";
-import { NONE, BACK, COLOR_ATTACHMENT0, FRAMEBUFFER_BINDING, READ_FRAMEBUFFER_BINDING, DRAW_FRAMEBUFFER_BINDING, DEPTH_ATTACHMENT, STENCIL_ATTACHMENT, DEPTH_STENCIL_ATTACHMENT, RENDERBUFFER } from "#constants";
+import {
+	NONE,
+	BACK,
+	COLOR_ATTACHMENT0,
+	FRAMEBUFFER_BINDING,
+	READ_FRAMEBUFFER_BINDING,
+	DRAW_FRAMEBUFFER_BINDING,
+	DEPTH_ATTACHMENT,
+	STENCIL_ATTACHMENT,
+	DEPTH_STENCIL_ATTACHMENT,
+	RENDERBUFFER
+} from "#constants";
 import type { FramebufferAttachment } from "#FramebufferAttachment";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import Mip from "#Mip";
@@ -31,11 +42,22 @@ export default class Framebuffer {
 	 * @param back Whether to render to the back buffer.
 	 * @param colorAttachments A list of color attachments to render to.
 	 */
-	public static setDrawBuffers(context: Context, none: boolean, back: boolean, colorAttachments: Array<number>): void {
+	public static setDrawBuffers(
+		context: Context,
+		none: boolean,
+		back: boolean,
+		colorAttachments: Array<number>
+	): void {
 		const drawBuffers: Array<number> = [];
-		if (none) { drawBuffers.push(NONE); }
-		if (back) { drawBuffers.push(BACK); }
-		for (const colorAttachment of colorAttachments) { drawBuffers.push(COLOR_ATTACHMENT0 + colorAttachment); }
+		if (none) {
+			drawBuffers.push(NONE);
+		}
+		if (back) {
+			drawBuffers.push(BACK);
+		}
+		for (const colorAttachment of colorAttachments) {
+			drawBuffers.push(COLOR_ATTACHMENT0 + colorAttachment);
+		}
 		context.internal.drawBuffers(drawBuffers);
 	}
 
@@ -59,12 +81,17 @@ export default class Framebuffer {
 	 */
 	public static setReadBuffer(context: Context, colorBuffer: number): void;
 
-	public static setReadBuffer(context: Context, readBuffer?: boolean | number): void {
-		context.internal.readBuffer(typeof readBuffer == "number"
-			? COLOR_ATTACHMENT0 + readBuffer
-			: readBuffer
+	public static setReadBuffer(
+		context: Context,
+		readBuffer?: boolean | number
+	): void {
+		context.internal.readBuffer(
+			typeof readBuffer == "number"
+				? COLOR_ATTACHMENT0 + readBuffer
+				: readBuffer
 				? BACK
-				: NONE);
+				: NONE
+		);
 	}
 
 	/**
@@ -73,7 +100,10 @@ export default class Framebuffer {
 	 * @param target The target that the framebuffer is bound to.
 	 * @returns The currently-bound framebuffer.
 	 */
-	private static getBoundFramebuffer(context: Context, target: FramebufferTarget): WebGLFramebuffer | null {
+	private static getBoundFramebuffer(
+		context: Context,
+		target: FramebufferTarget
+	): WebGLFramebuffer | null {
 		switch (target) {
 			case FramebufferTarget.FRAMEBUFFER:
 				return context.internal.getParameter(FRAMEBUFFER_BINDING);
@@ -90,7 +120,11 @@ export default class Framebuffer {
 	 * @param target The target binding point.
 	 * @param framebuffer The framebuffer.
 	 */
-	private static bind(context: Context, target: FramebufferTarget, framebuffer: WebGLFramebuffer | null): void {
+	private static bind(
+		context: Context,
+		target: FramebufferTarget,
+		framebuffer: WebGLFramebuffer | null
+	): void {
 		context.internal.bindFramebuffer(target, framebuffer);
 	}
 
@@ -109,17 +143,26 @@ export default class Framebuffer {
 		this.context = context;
 		this.target = target;
 
-		const framebuffer: WebGLFramebuffer | null = context.internal.createFramebuffer();
-		if (!framebuffer) { throw new UnsupportedOperationError(); }
+		const framebuffer: WebGLFramebuffer | null =
+			context.internal.createFramebuffer();
+		if (!framebuffer) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = framebuffer;
 
 		this.colorAttachments = [];
 		for (let i = 0; i < colorAttachments.length; i++) {
 			this.setColorAttachment(i, colorAttachments[i] as FramebufferAttachment);
 		}
-		if (depthAttachment) { this.depthAttachment = depthAttachment; }
-		if (stencilAttachment) { this.stencilAttachment = stencilAttachment; }
-		if (depthStencilAttachment) { this.depthStencilAttachment = depthStencilAttachment; }
+		if (depthAttachment) {
+			this.depthAttachment = depthAttachment;
+		}
+		if (stencilAttachment) {
+			this.stencilAttachment = stencilAttachment;
+		}
+		if (depthStencilAttachment) {
+			this.depthStencilAttachment = depthStencilAttachment;
+		}
 	}
 
 	/** The rendering context of this framebuffer. */
@@ -148,7 +191,10 @@ export default class Framebuffer {
 	 * @param i The index of the color attachment.
 	 * @param attachment The attachment.
 	 */
-	public setColorAttachment(i: number, attachment: FramebufferAttachment): void {
+	public setColorAttachment(
+		i: number,
+		attachment: FramebufferAttachment
+	): void {
 		this.attach(attachment as Mip, COLOR_ATTACHMENT0 + i);
 		this.colorAttachments[i] = attachment;
 	}
@@ -163,7 +209,9 @@ export default class Framebuffer {
 
 	/** The depth attachment on this framebuffer. */
 	public set depthAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new UnsupportedOperationError(); }
+		if (!value) {
+			throw new UnsupportedOperationError();
+		}
 		this.attach(value as Mip, DEPTH_ATTACHMENT);
 		this.depthAttachmentPrivate = value;
 	}
@@ -178,7 +226,9 @@ export default class Framebuffer {
 
 	/** The stencil attachment on this framebuffer. */
 	public set stencilAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new UnsupportedOperationError(); }
+		if (!value) {
+			throw new UnsupportedOperationError();
+		}
 		this.attach(value as Mip, STENCIL_ATTACHMENT);
 		this.stencilAttachmentPrivate = value;
 	}
@@ -193,7 +243,9 @@ export default class Framebuffer {
 
 	/** The depth stencil attachment on this framebuffer. */
 	public set depthStencilAttachment(value: FramebufferAttachment | undefined) {
-		if (!value) { throw new UnsupportedOperationError(); }
+		if (!value) {
+			throw new UnsupportedOperationError();
+		}
 		this.attach(value as Mip, DEPTH_STENCIL_ATTACHMENT);
 		this.depthStencilAttachmentPrivate = value;
 	}
@@ -201,7 +253,9 @@ export default class Framebuffer {
 	/** The status of this framebuffer. */
 	public get status(): FramebufferStatus {
 		return this.with((framebuffer: this): FramebufferStatus => {
-			return framebuffer.context.internal.checkFramebufferStatus(framebuffer.target);
+			return framebuffer.context.internal.checkFramebufferStatus(
+				framebuffer.target
+			);
 		});
 	}
 
@@ -216,7 +270,8 @@ export default class Framebuffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (framebuffer: this) => T): T {
-		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBoundFramebuffer(this.context, this.target);
+		const previousBinding: WebGLFramebuffer | null =
+			Framebuffer.getBoundFramebuffer(this.context, this.target);
 		this.bind();
 		const out: T = f(this);
 		Framebuffer.bind(this.context, this.target, previousBinding);
@@ -236,7 +291,11 @@ export default class Framebuffer {
 	 * @param attachmentPoint The attachment point of the texture.
 	 * @param layer The layer of the texture to attach.
 	 */
-	private attach(attachment: Mip, attachmentPoint: number, layer?: number): void;
+	private attach(
+		attachment: Mip,
+		attachmentPoint: number,
+		layer?: number
+	): void;
 
 	/**
 	 * Attaches a renderbuffer to this framebuffer.
@@ -245,14 +304,35 @@ export default class Framebuffer {
 	 */
 	private attach(attachment: Renderbuffer, attachmentPoint: number): void;
 
-	private attach(attachment: FramebufferAttachment, attachmentPoint: number, layer = 0): void {
+	private attach(
+		attachment: FramebufferAttachment,
+		attachmentPoint: number,
+		layer = 0
+	): void {
 		return this.with((framebuffer: this): void => {
 			if (attachment instanceof Renderbuffer) {
-				framebuffer.context.internal.framebufferRenderbuffer(framebuffer.target, attachmentPoint, RENDERBUFFER, attachment.internal);
+				framebuffer.context.internal.framebufferRenderbuffer(
+					framebuffer.target,
+					attachmentPoint,
+					RENDERBUFFER,
+					attachment.internal
+				);
 			} else if (attachment instanceof Mip) {
-				framebuffer.context.internal.framebufferTextureLayer(framebuffer.target, attachmentPoint, (attachment.texture as Texture<Mip>).internal, attachment.lod as number, layer);
+				framebuffer.context.internal.framebufferTextureLayer(
+					framebuffer.target,
+					attachmentPoint,
+					(attachment.texture as Texture<Mip>).internal,
+					attachment.lod as number,
+					layer
+				);
 			} else {
-				framebuffer.context.internal.framebufferTexture2D(framebuffer.target, attachmentPoint, attachment.target as MipmapTarget, (attachment.texture as Texture<Mip>).internal, 0);
+				framebuffer.context.internal.framebufferTexture2D(
+					framebuffer.target,
+					attachmentPoint,
+					attachment.target as MipmapTarget,
+					(attachment.texture as Texture<Mip>).internal,
+					0
+				);
 			}
 		});
 	}

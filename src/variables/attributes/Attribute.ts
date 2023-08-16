@@ -21,11 +21,17 @@ export default abstract class Attribute extends Variable {
 		this.enabledPrivate = false;
 		this.enabled = true;
 
-		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveAttrib(program.internal, index);
-		if (!activeInfo) { throw new UnsupportedOperationError(); }
+		const activeInfo: WebGLActiveInfo | null =
+			this.context.internal.getActiveAttrib(program.internal, index);
+		if (!activeInfo) {
+			throw new UnsupportedOperationError();
+		}
 		this.activeInfo = activeInfo;
 
-		this.location = this.context.internal.getAttribLocation(program.internal, this.activeInfo.name);
+		this.location = this.context.internal.getAttribLocation(
+			program.internal,
+			this.activeInfo.name
+		);
 	}
 
 	/** The active information of this attribute. */
@@ -85,7 +91,9 @@ export default abstract class Attribute extends Variable {
 
 	/** The value of this attribute. */
 	public set value(value: BufferInfo | undefined) {
-		if (!value) { return; }
+		if (!value) {
+			return;
+		}
 		this.setter(value);
 		this.valuePrivate = value;
 	}

@@ -20,7 +20,9 @@ export default class Shader {
 		this.source = source;
 
 		const shader: WebGLShader | null = context.internal.createShader(type);
-		if (!shader) { throw new UnsupportedOperationError(); }
+		if (!shader) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = shader;
 
 		context.internal.shaderSource(shader, source);
@@ -47,12 +49,18 @@ export default class Shader {
 
 	/** Whether this shader is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.context.internal.getShaderParameter(this.internal, DELETE_STATUS);
+		return this.context.internal.getShaderParameter(
+			this.internal,
+			DELETE_STATUS
+		);
 	}
 
 	/** Whether the last shader compilation was successful. */
 	public get compileStatus(): boolean {
-		return this.context.internal.getShaderParameter(this.internal, COMPILE_STATUS);
+		return this.context.internal.getShaderParameter(
+			this.internal,
+			COMPILE_STATUS
+		);
 	}
 
 	/** The information log for this shader. */

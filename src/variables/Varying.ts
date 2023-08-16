@@ -15,8 +15,14 @@ export default class Varying extends Variable {
 	public constructor(program: Program, index: number) {
 		super(program);
 
-		const activeInfo: WebGLActiveInfo | null = this.context.internal.getTransformFeedbackVarying(program.internal, index);
-		if (!activeInfo) { throw new UnsupportedOperationError(); }
+		const activeInfo: WebGLActiveInfo | null =
+			this.context.internal.getTransformFeedbackVarying(
+				program.internal,
+				index
+			);
+		if (!activeInfo) {
+			throw new UnsupportedOperationError();
+		}
 		this.activeInfo = activeInfo;
 	}
 

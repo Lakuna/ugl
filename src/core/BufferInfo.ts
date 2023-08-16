@@ -16,7 +16,14 @@ export default class BufferInfo {
 	 * @param stride The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `0xFF`.
 	 * @param offset The offset in bytes of the first component in the buffer.
 	 */
-	public constructor(name: string, buffer: Buffer, size: 1 | 2 | 3 | 4 = 3, normalized = false, stride = 0, offset = 0) {
+	public constructor(
+		name: string,
+		buffer: Buffer,
+		size: 1 | 2 | 3 | 4 = 3,
+		normalized = false,
+		stride = 0,
+		offset = 0
+	) {
 		this.name = name;
 		this.buffer = buffer;
 		this.size = size;
@@ -59,7 +66,9 @@ export default class BufferInfo {
 	 */
 	public use(program: Program): void {
 		const attribute: Attribute | undefined = program.attributes.get(this.name);
-		if (!attribute) { throw new UnknownAttributeError(); }
+		if (!attribute) {
+			throw new UnknownAttributeError();
+		}
 		attribute.value = this;
 	}
 }

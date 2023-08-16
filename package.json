@@ -30,7 +30,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint src",
+		"lint": "prettier . --check && eslint src",
 		"doc": "typedoc src",
 		"test": "mocha"
 	},
@@ -44,7 +44,9 @@
 		"@typescript-eslint/parser": "^6.1.0",
 		"chai": "^4.3.7",
 		"eslint": "^8.45.0",
+		"eslint-config-prettier": "^9.0.0",
 		"mocha": "^10.2.0",
+		"prettier": "^3.0.2",
 		"typedoc": "^0.24.8",
 		"typescript": "^5.1.6"
 	},

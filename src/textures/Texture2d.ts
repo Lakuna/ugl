@@ -21,10 +21,7 @@ export default class Texture2d extends Texture<Texture2dMip> {
 	 * @returns A basic 2D texture.
 	 */
 	public static fromSource(context: Context, source: MipSource): Texture2d {
-		return new Texture2d(
-			context,
-			new Mipmap(new Texture2dMip(source))
-		);
+		return new Texture2d(context, new Mipmap(new Texture2dMip(source)));
 	}
 
 	/**
@@ -38,13 +35,13 @@ export default class Texture2d extends Texture<Texture2dMip> {
 			context,
 			new Mipmap(
 				new Texture2dMip(
-					new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]),
+					new Uint8Array([0xff, 0x00, 0xff, 0xff]),
 					undefined,
 					1,
 					1
 				)
 			)
-		)
+		);
 
 		const image: HTMLImageElement = new Image();
 		image.addEventListener("load", () => {
@@ -79,9 +76,7 @@ export default class Texture2d extends Texture<Texture2dMip> {
 		super(
 			context,
 			TextureTarget.TEXTURE_2D,
-			new Map([
-				[MipmapTarget.TEXTURE_2D, face]
-			]),
+			new Map([[MipmapTarget.TEXTURE_2D, face]]),
 			magFilter,
 			minFilter,
 			wrapSFunction,

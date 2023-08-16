@@ -8,9 +8,7 @@ export default class Color extends Float32Array {
 	 * @returns The modified value.
 	 */
 	private static luminancePiecewise(c: number) {
-		return c > 0.04045
-			? ((c + 0.055) / 1.055) ** 2.4
-			: c / 12.92
+		return c > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92;
 	}
 
 	/**
@@ -20,9 +18,11 @@ export default class Color extends Float32Array {
 	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
 	 */
 	private static luminance(color: ColorLike): number {
-		return 0.2126 * Color.luminancePiecewise(color[0])
-			+ 0.7152 * Color.luminancePiecewise(color[1])
-			+ 0.0722 * Color.luminancePiecewise(color[2]);
+		return (
+			0.2126 * Color.luminancePiecewise(color[0]) +
+			0.7152 * Color.luminancePiecewise(color[1]) +
+			0.0722 * Color.luminancePiecewise(color[2])
+		);
 	}
 
 	/**
@@ -36,9 +36,7 @@ export default class Color extends Float32Array {
 		const l1: number = Color.luminance(a);
 		const l2: number = Color.luminance(b);
 
-		return l1 > l2
-			? (l1 + 0.05) / (l2 + 0.05)
-			: (l2 + 0.05) / (l1 + 0.05);
+		return l1 > l2 ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05);
 	}
 
 	/**
@@ -56,15 +54,16 @@ export default class Color extends Float32Array {
 	 */
 	public constructor(r: number, g: number, b: number, a?: number);
 
-	public constructor(r = 0xFFFFFF, g?: number, b?: number, a?: number) {
-		super(typeof g == "number" && typeof b == "number"
-			? [r, g, b, typeof a == "number" ? a : 1]
-			: [
-				((r >> 16) & 0xFF) / 0xFF,
-				((r >> 8) & 0xFF) / 0xFF,
-				(r & 0xFF) / 0xFF,
-				0xFF / 0xFF
-			]
+	public constructor(r = 0xffffff, g?: number, b?: number, a?: number) {
+		super(
+			typeof g == "number" && typeof b == "number"
+				? [r, g, b, typeof a == "number" ? a : 1]
+				: [
+						((r >> 16) & 0xff) / 0xff,
+						((r >> 8) & 0xff) / 0xff,
+						(r & 0xff) / 0xff,
+						0xff / 0xff
+				  ]
 		);
 	}
 
