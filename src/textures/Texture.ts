@@ -1,7 +1,7 @@
 import type Mip from "#Mip";
 import type Context from "#Context";
 import TextureTarget from "#TextureTarget";
-import { TEXTURE0, TEXTURE_BINDING_2D, TEXTURE_BINDING_2D_ARRAY, TEXTURE_BINDING_3D, TEXTURE_BINDING_CUBE_MAP, ACTIVE_TEXTURE, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T } from "#constants";
+import { TEXTURE0, TEXTURE_BINDING_2D, TEXTURE_BINDING_2D_ARRAY, TEXTURE_BINDING_3D, TEXTURE_BINDING_CUBE_MAP, TEXTURE_MAG_FILTER, TEXTURE_MIN_FILTER, TEXTURE_WRAP_S, TEXTURE_WRAP_T } from "#constants";
 import type MipmapTarget from "#MipmapTarget";
 import type Mipmap from "#Mipmap";
 import TextureMagFilter from "#TextureMagFilter";
@@ -59,15 +59,6 @@ export default class Texture<MipType extends Mip> {
 			case TextureTarget.TEXTURE_CUBE_MAP:
 				return context.internal.getParameter(TEXTURE_BINDING_CUBE_MAP);
 		}
-	}
-
-	/**
-	 * Gets the current active texture unit.
-	 * @param context The rendering context of the texture unit.
-	 * @returns The texture unit.
-	 */
-	private static getActiveTextureUnit(context: Context): number {
-		return context.internal.getParameter(ACTIVE_TEXTURE);
 	}
 
 	/**
@@ -192,33 +183,21 @@ export default class Texture<MipType extends Mip> {
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */
-	public with<T>(f: (texture: this) => T): T;
-
-	/**
-	 * Executes the given function with this texture bound and the given texture unit assigned, then re-binds the previously-bound texture and texture unit.
-	 * @param f The function to execute.
-	 * @param textureUnit The texture unit to use.
-	 * @returns The return value of the executed function.
-	 */
-	public with<T>(f: (texture: this) => T, textureUnit: number): T
-
-	public with<T>(f: (texture: this) => T, textureUnit?: number): T {
-		const previousTextureUnit: number = Texture.getActiveTextureUnit(this.context) - TEXTURE0;
+	public with<T>(f: (texture: this) => T): T {
 		const previousBinding: WebGLTexture | null = Texture.getBoundTexture(this.context, this.target);
-		if (typeof textureUnit == "number") { Texture.assign(this.context, textureUnit); }
 		this.bind();
 		const out: T = f(this);
-		Texture.assign(this.context, previousTextureUnit);
 		Texture.bind(this.context, this.target, previousBinding);
 		return out;
 	}
 
 	/**
-	 * Assigns this texture to a texture unit.
+	 * Assigns this texture to a texture unit and binds it to its binding point.
 	 * @param textureUnit The texture unit.
 	 */
 	public assign(textureUnit: number): void {
-		return this.with((): void => { }, textureUnit);
+		Texture.assign(this.context, textureUnit)
+		this.bind();
 	}
 
 	/** Generates a mipmap for this texture. */
