@@ -60,7 +60,7 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  
+
   publish-gpr:
     name: Publish to GitHub Packages
     permissions:
@@ -82,7 +82,7 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
   publish-documentation:
     name: Publish Documentation
     permissions:

@@ -6,7 +6,14 @@ import ProgramLinkError from "#ProgramLinkError";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type Uniform from "#Uniform";
 import type SamplerUniform from "#SamplerUniform";
-import { ACTIVE_UNIFORMS, ACTIVE_ATTRIBUTES, TRANSFORM_FEEDBACK_VARYINGS, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS } from "#constants";
+import {
+	ACTIVE_UNIFORMS,
+	ACTIVE_ATTRIBUTES,
+	TRANSFORM_FEEDBACK_VARYINGS,
+	DELETE_STATUS,
+	LINK_STATUS,
+	VALIDATE_STATUS
+} from "#constants";
 import Attribute from "#Attribute";
 import Varying from "#Varying";
 import UniformFactory from "#UniformFactory";
@@ -24,8 +31,15 @@ export default class Program {
 	 * @param fragmentShaderSource The source code of the fragment shader.
 	 * @returns A shader program.
 	 */
-	public static fromSource(context: Context, vertexShaderSource: string, fragmentShaderSource: string): Program {
-		return new Program(new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource), new Shader(context, ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
+	public static fromSource(
+		context: Context,
+		vertexShaderSource: string,
+		fragmentShaderSource: string
+	): Program {
+		return new Program(
+			new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource),
+			new Shader(context, ShaderType.FRAGMENT_SHADER, fragmentShaderSource)
+		);
 	}
 
 	/**
@@ -35,10 +49,21 @@ export default class Program {
 	 * @param transformFeedbackVaryingNames The names of the varyings which should be tracked for transform feedback.
 	 * @param transformFeedbackBufferMode The mode to use when capturing transform feedback varyings.
 	 */
-	public constructor(vertexShader: Shader, fragmentShader: Shader, transformFeedbackVaryingNames: Array<string> = [], transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS) {
-		if (vertexShader.context != fragmentShader.context) { throw new ProgramLinkError("The shaders have different contexts."); }
-		if (vertexShader.type != ShaderType.VERTEX_SHADER) { throw new ProgramLinkError("The vertex shader is of the wrong type."); }
-		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) { throw new ProgramLinkError("The fragment shader is of the wrong type."); }
+	public constructor(
+		vertexShader: Shader,
+		fragmentShader: Shader,
+		transformFeedbackVaryingNames: Array<string> = [],
+		transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS
+	) {
+		if (vertexShader.context != fragmentShader.context) {
+			throw new ProgramLinkError("The shaders have different contexts.");
+		}
+		if (vertexShader.type != ShaderType.VERTEX_SHADER) {
+			throw new ProgramLinkError("The vertex shader is of the wrong type.");
+		}
+		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) {
+			throw new ProgramLinkError("The fragment shader is of the wrong type.");
+		}
 
 		this.vertexShader = vertexShader;
 		this.fragmentShader = fragmentShader;
@@ -47,12 +72,18 @@ export default class Program {
 		this.context = vertexShader.context;
 
 		const program: WebGLProgram | null = this.context.internal.createProgram();
-		if (!program) { throw new UnsupportedOperationError(); }
+		if (!program) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = program;
 
 		this.context.internal.attachShader(program, vertexShader.internal);
 		this.context.internal.attachShader(program, fragmentShader.internal);
-		this.context.internal.transformFeedbackVaryings(program, transformFeedbackVaryingNames, transformFeedbackBufferMode);
+		this.context.internal.transformFeedbackVaryings(
+			program,
+			transformFeedbackVaryingNames,
+			transformFeedbackBufferMode
+		);
 		this.context.internal.linkProgram(program);
 
 		if (!this.linkStatus) {
@@ -63,16 +94,24 @@ export default class Program {
 
 		const uniforms: Map<string, Uniform> = new Map();
 		let nextTextureUnit = 0;
-		const numUniforms: number = this.context.internal.getProgramParameter(program, ACTIVE_UNIFORMS);
+		const numUniforms: number = this.context.internal.getProgramParameter(
+			program,
+			ACTIVE_UNIFORMS
+		);
 		for (let i = 0; i < numUniforms; i++) {
 			const uniform: Uniform = UniformFactory.create(this, i, nextTextureUnit);
 			uniforms.set(uniform.name, uniform);
-			if (typeof (uniform as SamplerUniform).textureUnit == "number") { nextTextureUnit++; } // Increment texture unit if it gets used.
+			if (typeof (uniform as SamplerUniform).textureUnit == "number") {
+				nextTextureUnit++;
+			} // Increment texture unit if it gets used.
 		}
 		this.uniforms = uniforms;
 
 		const attributes: Map<string, Attribute> = new Map();
-		const numAttributes: number = this.context.internal.getProgramParameter(program, ACTIVE_ATTRIBUTES);
+		const numAttributes: number = this.context.internal.getProgramParameter(
+			program,
+			ACTIVE_ATTRIBUTES
+		);
 		for (let i = 0; i < numAttributes; i++) {
 			const attribute: Attribute = AttributeFactory.create(this, i);
 			attributes.set(attribute.name, attribute);
@@ -80,10 +119,17 @@ export default class Program {
 		this.attributes = attributes;
 
 		const transformFeedbackVaryings: Map<string, Varying> = new Map();
-		const numTransformFeedbackVaryings: number = this.context.internal.getProgramParameter(program, TRANSFORM_FEEDBACK_VARYINGS);
+		const numTransformFeedbackVaryings: number =
+			this.context.internal.getProgramParameter(
+				program,
+				TRANSFORM_FEEDBACK_VARYINGS
+			);
 		for (let i = 0; i < numTransformFeedbackVaryings; i++) {
 			const transformFeedbackVarying: Varying = new Varying(this, i);
-			transformFeedbackVaryings.set(transformFeedbackVarying.name, transformFeedbackVarying);
+			transformFeedbackVaryings.set(
+				transformFeedbackVarying.name,
+				transformFeedbackVarying
+			);
 		}
 		this.varyings = transformFeedbackVaryings;
 
@@ -123,17 +169,26 @@ export default class Program {
 
 	/** Whether this program is flagged for deletion. */
 	public get deleteStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.internal, DELETE_STATUS);
+		return this.context.internal.getProgramParameter(
+			this.internal,
+			DELETE_STATUS
+		);
 	}
 
 	/** Whether the last link operation was successful. */
 	public get linkStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.internal, LINK_STATUS);
+		return this.context.internal.getProgramParameter(
+			this.internal,
+			LINK_STATUS
+		);
 	}
 
 	/** Whether the last validation operation was successful. */
 	public get validateStatus(): boolean {
-		return this.context.internal.getProgramParameter(this.internal, VALIDATE_STATUS);
+		return this.context.internal.getProgramParameter(
+			this.internal,
+			VALIDATE_STATUS
+		);
 	}
 
 	/** The information log for this shader program. */

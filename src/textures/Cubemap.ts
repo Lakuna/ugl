@@ -25,7 +25,15 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param nz The pixel source of the negative Z-axis face.
 	 * @returns A basic cubemap.
 	 */
-	public static fromSources(context: Context, px: MipSource, nx: MipSource, py: MipSource, ny: MipSource, pz: MipSource, nz: MipSource): Cubemap {
+	public static fromSources(
+		context: Context,
+		px: MipSource,
+		nx: MipSource,
+		py: MipSource,
+		ny: MipSource,
+		pz: MipSource,
+		nz: MipSource
+	): Cubemap {
 		return new Cubemap(
 			context,
 			new Mipmap(new CubemapMip(px)),
@@ -48,16 +56,36 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param nz The URL of the image on the negative Z-axis face.
 	 * @returns A basic 2D texture.
 	 */
-	public static fromImageUrls(context: Context, px: string, nx: string, py: string, ny: string, pz: string, nz: string): Cubemap {
+	public static fromImageUrls(
+		context: Context,
+		px: string,
+		nx: string,
+		py: string,
+		ny: string,
+		pz: string,
+		nz: string
+	): Cubemap {
 		const out = new Cubemap(
 			context,
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1)),
-			new Mipmap(new CubemapMip(new Uint8Array([0xFF, 0x00, 0xFF, 0xFF]), undefined, 1))
-		)
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			),
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			),
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			),
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			),
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			),
+			new Mipmap(
+				new CubemapMip(new Uint8Array([0xff, 0x00, 0xff, 0xff]), undefined, 1)
+			)
+		);
 
 		const loadedImages: Map<MipmapTarget, HTMLImageElement> = new Map();
 		for (const [target, src] of [
@@ -75,7 +103,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 				// Switch out the sources only once all of the images are loaded so that face sizes remain consistent.
 				if (loadedImages.size >= 6) {
 					for (const [target, image] of loadedImages) {
-						const face: Mipmap<CubemapMip> = out.getFace(target) as Mipmap<CubemapMip>;
+						const face: Mipmap<CubemapMip> = out.getFace(
+							target
+						) as Mipmap<CubemapMip>;
 						face.top.source = image;
 						face.top.dim = undefined;
 					}
@@ -136,7 +166,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The negative X-axis face of this texture. */
 	public get nxFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The negative X-axis face of this texture. */
@@ -146,7 +178,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The positive X-axis face of this texture. */
 	public get pxFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The positive X-axis face of this texture. */
@@ -156,7 +190,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The negative Y-axis face of this texture. */
 	public get nyFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The negative Y-axis face of this texture. */
@@ -166,7 +202,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The positive Y-axis face of this texture. */
 	public get pyFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The positive Y-axis face of this texture. */
@@ -176,7 +214,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The negative Z-axis face of this texture. */
 	public get nzFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The negative Z-axis face of this texture. */
@@ -186,7 +226,9 @@ export default class Cubemap extends Texture<CubemapMip> {
 
 	/** The positive Z-axis face of this texture. */
 	public get pzFace(): Mipmap<CubemapMip> {
-		return this.getFace(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z) as Mipmap<CubemapMip>;
+		return this.getFace(
+			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z
+		) as Mipmap<CubemapMip>;
 	}
 
 	/** The positive Z-axis face of this texture. */

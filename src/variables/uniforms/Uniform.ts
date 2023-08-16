@@ -19,12 +19,21 @@ export default abstract class Uniform extends Variable {
 
 		this.valuePrivate = [];
 
-		const activeInfo: WebGLActiveInfo | null = this.context.internal.getActiveUniform(program.internal, index);
-		if (!activeInfo) { throw new UnsupportedOperationError(); }
+		const activeInfo: WebGLActiveInfo | null =
+			this.context.internal.getActiveUniform(program.internal, index);
+		if (!activeInfo) {
+			throw new UnsupportedOperationError();
+		}
 		this.activeInfo = activeInfo;
 
-		const location: WebGLUniformLocation | null = this.context.internal.getUniformLocation(program.internal, this.activeInfo.name);
-		if (!location) { throw new UnsupportedOperationError(); }
+		const location: WebGLUniformLocation | null =
+			this.context.internal.getUniformLocation(
+				program.internal,
+				this.activeInfo.name
+			);
+		if (!location) {
+			throw new UnsupportedOperationError();
+		}
 		this.location = location;
 	}
 

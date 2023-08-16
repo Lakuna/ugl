@@ -21,7 +21,10 @@ export default class Renderbuffer {
 	 * @param context The rendering context.
 	 * @param renderbuffer The renderbuffer.
 	 */
-	private static bind(context: Context, renderbuffer: WebGLRenderbuffer | null): void {
+	private static bind(
+		context: Context,
+		renderbuffer: WebGLRenderbuffer | null
+	): void {
 		context.internal.bindRenderbuffer(RENDERBUFFER, renderbuffer);
 	}
 
@@ -30,7 +33,9 @@ export default class Renderbuffer {
 	 * @param context The rendering context.
 	 * @returns The renderbuffer.
 	 */
-	private static getBoundRenderbuffer(context: Context): WebGLRenderbuffer | null {
+	private static getBoundRenderbuffer(
+		context: Context
+	): WebGLRenderbuffer | null {
 		return context.internal.getParameter(RENDERBUFFER_BINDING);
 	}
 
@@ -41,19 +46,32 @@ export default class Renderbuffer {
 	 * @param width The width of the renderbuffer.
 	 * @param height The height of the renderbuffer.
 	 */
-	public constructor(context: Context, format: RenderbufferFormat, width: number, height: number) {
+	public constructor(
+		context: Context,
+		format: RenderbufferFormat,
+		width: number,
+		height: number
+	) {
 		this.context = context;
 		this.format = format;
 		this.width = width;
 		this.height = height;
 
-		const renderbuffer: WebGLRenderbuffer | null = context.internal.createRenderbuffer();
-		if (!renderbuffer) { throw new UnsupportedOperationError(); }
+		const renderbuffer: WebGLRenderbuffer | null =
+			context.internal.createRenderbuffer();
+		if (!renderbuffer) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = renderbuffer;
 
 		this.with((renderbuffer: this): void => {
-			renderbuffer.context.internal.renderbufferStorage(RENDERBUFFER, renderbuffer.format, renderbuffer.width, renderbuffer.height);
-		})
+			renderbuffer.context.internal.renderbufferStorage(
+				RENDERBUFFER,
+				renderbuffer.format,
+				renderbuffer.width,
+				renderbuffer.height
+			);
+		});
 	}
 
 	/** The rendering context of this renderbuffer. */
@@ -82,7 +100,8 @@ export default class Renderbuffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (renderbuffer: this) => T): T {
-		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBoundRenderbuffer(this.context);
+		const previousBinding: WebGLRenderbuffer | null =
+			Renderbuffer.getBoundRenderbuffer(this.context);
 		this.bind();
 		const out: T = f(this);
 		Renderbuffer.bind(this.context, previousBinding);

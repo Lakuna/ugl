@@ -3,7 +3,40 @@ import type { Canvas } from "#Canvas";
 import type PowerPreference from "#PowerPreference";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type BlendFunctionSet from "#BlendFunctionSet";
-import { BLEND, BLEND_SRC_RGB, BLEND_SRC_ALPHA, BLEND_DST_RGB, BLEND_DST_ALPHA, CULL_FACE, CULL_FACE_MODE, DITHER, DEPTH_TEST, DEPTH_FUNC, POLYGON_OFFSET_FILL, POLYGON_OFFSET_FACTOR, POLYGON_OFFSET_UNITS, SAMPLE_ALPHA_TO_COVERAGE, SAMPLE_COVERAGE, SAMPLE_COVERAGE_VALUE, SAMPLE_COVERAGE_INVERT, SCISSOR_TEST, SCISSOR_BOX, VIEWPORT, STENCIL_TEST, STENCIL_FUNC, STENCIL_REF, STENCIL_VALUE_MASK, STENCIL_BACK_FUNC, STENCIL_BACK_REF, STENCIL_BACK_VALUE_MASK, RASTERIZER_DISCARD, FRONT_FACE, COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, STENCIL_BUFFER_BIT } from "#constants";
+import {
+	BLEND,
+	BLEND_SRC_RGB,
+	BLEND_SRC_ALPHA,
+	BLEND_DST_RGB,
+	BLEND_DST_ALPHA,
+	CULL_FACE,
+	CULL_FACE_MODE,
+	DITHER,
+	DEPTH_TEST,
+	DEPTH_FUNC,
+	POLYGON_OFFSET_FILL,
+	POLYGON_OFFSET_FACTOR,
+	POLYGON_OFFSET_UNITS,
+	SAMPLE_ALPHA_TO_COVERAGE,
+	SAMPLE_COVERAGE,
+	SAMPLE_COVERAGE_VALUE,
+	SAMPLE_COVERAGE_INVERT,
+	SCISSOR_TEST,
+	SCISSOR_BOX,
+	VIEWPORT,
+	STENCIL_TEST,
+	STENCIL_FUNC,
+	STENCIL_REF,
+	STENCIL_VALUE_MASK,
+	STENCIL_BACK_FUNC,
+	STENCIL_BACK_REF,
+	STENCIL_BACK_VALUE_MASK,
+	RASTERIZER_DISCARD,
+	FRONT_FACE,
+	COLOR_BUFFER_BIT,
+	DEPTH_BUFFER_BIT,
+	STENCIL_BUFFER_BIT
+} from "#constants";
 import FaceDirection from "#FaceDirection";
 import type TestFunction from "#TestFunction";
 import type PolygonOffset from "#PolygonOffset";
@@ -46,7 +79,8 @@ export default class Context {
 		failIfMajorPerformanceCaveat?: boolean,
 		powerPreference?: PowerPreference,
 		premultipliedAlpha?: boolean,
-		preserveDrawingBuffer?: boolean);
+		preserveDrawingBuffer?: boolean
+	);
 
 	public constructor(
 		src: WebGL2RenderingContext | Canvas,
@@ -60,8 +94,12 @@ export default class Context {
 		premultipliedAlpha?: boolean,
 		preserveDrawingBuffer?: boolean
 	) {
-		if (typeof document == "undefined") { throw new HeadlessEnvironmentError(); }
-		if (typeof WebGL2RenderingContext == "undefined") { throw new UnsupportedOperationError(); }
+		if (typeof document == "undefined") {
+			throw new HeadlessEnvironmentError();
+		}
+		if (typeof WebGL2RenderingContext == "undefined") {
+			throw new UnsupportedOperationError();
+		}
 
 		if (src instanceof WebGL2RenderingContext) {
 			this.internal = src;
@@ -77,7 +115,9 @@ export default class Context {
 				premultipliedAlpha,
 				preserveDrawingBuffer
 			}) as WebGL2RenderingContext | null;
-			if (!gl) { throw new UnsupportedOperationError(); }
+			if (!gl) {
+				throw new UnsupportedOperationError();
+			}
 			this.internal = gl;
 		}
 
@@ -118,7 +158,12 @@ export default class Context {
 			this.internal.disable(BLEND);
 		} else {
 			this.internal.enable(BLEND);
-			this.internal.blendFuncSeparate(value.srcRgb, value.dstRgb, value.srcAlpha, value.dstAlpha);
+			this.internal.blendFuncSeparate(
+				value.srcRgb,
+				value.dstRgb,
+				value.srcAlpha,
+				value.dstAlpha
+			);
 		}
 	}
 
@@ -335,8 +380,18 @@ export default class Context {
 			this.internal.disable(STENCIL_TEST);
 		} else {
 			this.internal.enable(STENCIL_TEST);
-			this.internal.stencilFuncSeparate(FaceDirection.FRONT, value.front.func, value.front.ref, value.front.mask);
-			this.internal.stencilFuncSeparate(FaceDirection.BACK, value.back.func, value.back.ref, value.back.mask);
+			this.internal.stencilFuncSeparate(
+				FaceDirection.FRONT,
+				value.front.func,
+				value.front.ref,
+				value.front.mask
+			);
+			this.internal.stencilFuncSeparate(
+				FaceDirection.BACK,
+				value.back.func,
+				value.back.ref,
+				value.back.mask
+			);
 		}
 	}
 
@@ -382,7 +437,9 @@ export default class Context {
 	 * @see [WebXR API documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
 	 */
 	public async makeXrCompatible(): Promise<void> {
-		return this.internal.makeXRCompatible().catch(() => { throw new UnsupportedOperationError(); });
+		return this.internal.makeXRCompatible().catch(() => {
+			throw new UnsupportedOperationError();
+		});
 	}
 
 	/**
@@ -416,10 +473,19 @@ export default class Context {
 	 * @param depth The value to clear the depth buffer to, if any.
 	 * @param stencil The value to clear the stencil buffer to, if any.
 	 */
-	public clear(color?: ColorLike | undefined, depth?: number | undefined, stencil?: number | undefined): void {
+	public clear(
+		color?: ColorLike | undefined,
+		depth?: number | undefined,
+		stencil?: number | undefined
+	): void {
 		let colorBit = 0;
 		if (color) {
-			this.internal.clearColor(color[0] ?? 0, color[1] ?? 0, color[2] ?? 0, color[3] ?? 0);
+			this.internal.clearColor(
+				color[0] ?? 0,
+				color[1] ?? 0,
+				color[2] ?? 0,
+				color[3] ?? 0
+			);
 			colorBit = COLOR_BUFFER_BIT;
 		}
 
@@ -434,7 +500,7 @@ export default class Context {
 		if (typeof stencil == "number") {
 			this.internal.enable(STENCIL_TEST);
 			this.internal.clearStencil(stencil);
-			stencilBit = STENCIL_BUFFER_BIT
+			stencilBit = STENCIL_BUFFER_BIT;
 		}
 
 		this.internal.clear(colorBit | depthBit | stencilBit);
@@ -453,7 +519,10 @@ export default class Context {
 		const displayWidth: number = this.canvas.clientWidth;
 		const displayHeight: number = this.canvas.clientHeight;
 
-		if (this.canvas.width != displayWidth || this.canvas.height != displayHeight) {
+		if (
+			this.canvas.width != displayWidth ||
+			this.canvas.height != displayHeight
+		) {
 			this.canvas.width = displayWidth;
 			this.canvas.height = displayHeight;
 
@@ -465,7 +534,12 @@ export default class Context {
 
 	/** Resizes this context's viewport to match the size of its current drawing buffer. */
 	public fitViewport(): void {
-		this.viewport = { x: 0, y: 0, width: this.canvas.width, height: this.canvas.height };
+		this.viewport = {
+			x: 0,
+			y: 0,
+			width: this.canvas.width,
+			height: this.canvas.height
+		};
 	}
 
 	/**
@@ -484,14 +558,24 @@ export default class Context {
 	 */
 	public resize(x: number, y: number, width: number, height: number): boolean;
 
-	public resize(x?: number, y?: number, width?: number, height?: number): boolean {
+	public resize(
+		x?: number,
+		y?: number,
+		width?: number,
+		height?: number
+	): boolean {
 		if (this.internal.canvas instanceof OffscreenCanvas) {
 			throw new HeadlessEnvironmentError();
 		}
 
 		const out: boolean = this.fitDrawingBuffer();
 
-		if (typeof x == "number" && typeof y == "number" && typeof width == "number" && typeof height == "number") {
+		if (
+			typeof x == "number" &&
+			typeof y == "number" &&
+			typeof width == "number" &&
+			typeof height == "number"
+		) {
 			this.viewport = { x, y, width, height };
 			this.scissorBox = { x, y, width, height };
 		} else {

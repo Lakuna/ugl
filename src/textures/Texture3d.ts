@@ -21,10 +21,7 @@ export default class Texture3d extends Texture<Texture3dMip> {
 	 * @returns A basic 3D texture.
 	 */
 	public static fromSource(context: Context, source: MipSource): Texture3d {
-		return new Texture3d(
-			context,
-			new Mipmap(new Texture3dMip(source))
-		);
+		return new Texture3d(context, new Mipmap(new Texture3dMip(source)));
 	}
 
 	/**
@@ -48,9 +45,7 @@ export default class Texture3d extends Texture<Texture3dMip> {
 		super(
 			context,
 			TextureTarget.TEXTURE_3D,
-			new Map([
-				[MipmapTarget.TEXTURE_3D, face]
-			]),
+			new Map([[MipmapTarget.TEXTURE_3D, face]]),
 			magFilter,
 			minFilter,
 			wrapSFunction,

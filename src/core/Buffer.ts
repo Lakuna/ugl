@@ -1,6 +1,15 @@
 import type Context from "#Context";
 import BufferTarget from "#BufferTarget";
-import { ARRAY_BUFFER_BINDING, COPY_READ_BUFFER_BINDING, COPY_WRITE_BUFFER_BINDING, ELEMENT_ARRAY_BUFFER_BINDING, PIXEL_PACK_BUFFER_BINDING, PIXEL_UNPACK_BUFFER_BINDING, TRANSFORM_FEEDBACK_BUFFER_BINDING, UNIFORM_BUFFER_BINDING } from "#constants";
+import {
+	ARRAY_BUFFER_BINDING,
+	COPY_READ_BUFFER_BINDING,
+	COPY_WRITE_BUFFER_BINDING,
+	ELEMENT_ARRAY_BUFFER_BINDING,
+	PIXEL_PACK_BUFFER_BINDING,
+	PIXEL_UNPACK_BUFFER_BINDING,
+	TRANSFORM_FEEDBACK_BUFFER_BINDING,
+	UNIFORM_BUFFER_BINDING
+} from "#constants";
 import type { UintTypedArray } from "#UintTypedArray";
 import type { TypedArray } from "#TypedArray";
 import BufferUsage from "#BufferUsage";
@@ -27,7 +36,10 @@ export default class Buffer {
 	 * @param target The target that the buffer is bound to.
 	 * @returns The currently-bound buffer.
 	 */
-	private static getBoundBuffer(context: Context, target: BufferTarget): WebGLBuffer | null {
+	private static getBoundBuffer(
+		context: Context,
+		target: BufferTarget
+	): WebGLBuffer | null {
 		switch (target) {
 			case BufferTarget.ARRAY_BUFFER:
 				return context.internal.getParameter(ARRAY_BUFFER_BINDING);
@@ -54,7 +66,11 @@ export default class Buffer {
 	 * @param target The target binding point.
 	 * @param buffer The buffer.
 	 */
-	private static bind(context: Context, target: BufferTarget, buffer: WebGLBuffer | null): void {
+	private static bind(
+		context: Context,
+		target: BufferTarget,
+		buffer: WebGLBuffer | null
+	): void {
 		context.internal.bindBuffer(target, buffer);
 	}
 
@@ -65,7 +81,12 @@ export default class Buffer {
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(context: Context, data: UintTypedArray, target?: BufferTarget.ELEMENT_ARRAY_BUFFER, usage?: BufferUsage);
+	public constructor(
+		context: Context,
+		data: UintTypedArray,
+		target?: BufferTarget.ELEMENT_ARRAY_BUFFER,
+		usage?: BufferUsage
+	);
 
 	/**
 	 * Creates a buffer.
@@ -74,11 +95,31 @@ export default class Buffer {
 	 * @param target The binding point to bind the buffer to.
 	 * @param usage The usage pattern of the buffer's data store.
 	 */
-	public constructor(context: Context, data: TypedArray, target?: BufferTarget, usage?: BufferUsage);
+	public constructor(
+		context: Context,
+		data: TypedArray,
+		target?: BufferTarget,
+		usage?: BufferUsage
+	);
 
-	public constructor(context: Context, data: TypedArray, target: BufferTarget = BufferTarget.ARRAY_BUFFER, usage: BufferUsage = BufferUsage.STATIC_DRAW) {
-		if (target == BufferTarget.ELEMENT_ARRAY_BUFFER && !(data instanceof Uint8Array || data instanceof Uint8ClampedArray || data instanceof Uint16Array || data instanceof Uint32Array)) {
-			throw new UnsupportedOperationError("The element array buffer does not contain unsigned integers.");
+	public constructor(
+		context: Context,
+		data: TypedArray,
+		target: BufferTarget = BufferTarget.ARRAY_BUFFER,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW
+	) {
+		if (
+			target == BufferTarget.ELEMENT_ARRAY_BUFFER &&
+			!(
+				data instanceof Uint8Array ||
+				data instanceof Uint8ClampedArray ||
+				data instanceof Uint16Array ||
+				data instanceof Uint32Array
+			)
+		) {
+			throw new UnsupportedOperationError(
+				"The element array buffer does not contain unsigned integers."
+			);
 		}
 
 		this.context = context;
@@ -88,7 +129,9 @@ export default class Buffer {
 		this.typePrivate = BufferDataType.BYTE;
 
 		const buffer: WebGLBuffer | null = context.internal.createBuffer();
-		if (!buffer) { throw new UnsupportedOperationError(); }
+		if (!buffer) {
+			throw new UnsupportedOperationError();
+		}
 		this.internal = buffer;
 
 		this.data = data;
@@ -122,8 +165,10 @@ export default class Buffer {
 
 			if (value instanceof Int8Array) {
 				buffer.typePrivate = BufferDataType.BYTE;
-			} else if (value instanceof Uint8Array
-				|| value instanceof Uint8ClampedArray) {
+			} else if (
+				value instanceof Uint8Array ||
+				value instanceof Uint8ClampedArray
+			) {
 				buffer.typePrivate = BufferDataType.UNSIGNED_BYTE;
 			} else if (value instanceof Uint16Array) {
 				buffer.typePrivate = BufferDataType.UNSIGNED_SHORT;
@@ -169,7 +214,10 @@ export default class Buffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (buffer: this) => T): T {
-		const previousBinding: WebGLBuffer | null = Buffer.getBoundBuffer(this.context, this.target);
+		const previousBinding: WebGLBuffer | null = Buffer.getBoundBuffer(
+			this.context,
+			this.target
+		);
 		this.bind();
 		const out: T = f(this);
 		Buffer.bind(this.context, this.target, previousBinding);
