@@ -104,14 +104,16 @@ export default class Vao {
 	}
 
 	/**
-	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object.
+	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object. Does the same for the element array buffer, if it is set.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (vao: this) => T): T {
 		const previousBinding: WebGLVertexArrayObject | null = Vao.getBoundVertexArrayObject(this.context);
 		this.bind();
-		const out: T = f(this);
+		const out: T = this.elementArrayBuffer
+			? this.elementArrayBuffer.with((): T => f(this))
+			: f(this);
 		Vao.bind(this.context, previousBinding);
 		return out;
 	}
