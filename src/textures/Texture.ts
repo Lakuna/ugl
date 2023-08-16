@@ -203,7 +203,7 @@ export default class Texture<MipType extends Mip> {
 	public with<T>(f: (texture: this) => T, textureUnit: number): T
 
 	public with<T>(f: (texture: this) => T, textureUnit?: number): T {
-		const previousTextureUnit: number = Texture.getActiveTextureUnit(this.context);
+		const previousTextureUnit: number = Texture.getActiveTextureUnit(this.context) - TEXTURE0;
 		const previousBinding: WebGLTexture | null = Texture.getBoundTexture(this.context, this.target);
 		if (typeof textureUnit == "number") { Texture.assign(this.context, textureUnit); }
 		this.bind();
