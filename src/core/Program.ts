@@ -4,11 +4,13 @@ import ShaderType from "#ShaderType";
 import TransformFeedbackBufferMode from "#TransformFeedbackBufferMode";
 import ProgramLinkError from "#ProgramLinkError";
 import UnsupportedOperationError from "#UnsupportedOperationError";
-import Uniform from "#Uniform";
+import type Uniform from "#Uniform";
 import type SamplerUniform from "#SamplerUniform";
 import { ACTIVE_UNIFORMS, ACTIVE_ATTRIBUTES, TRANSFORM_FEEDBACK_VARYINGS, DELETE_STATUS, LINK_STATUS, VALIDATE_STATUS } from "#constants";
 import Attribute from "#Attribute";
 import Varying from "#Varying";
+import UniformFactory from "#UniformFactory";
+import AttributeFactory from "#AttributeFactory";
 
 /**
  * A vertex shader and a fragment shader which are used together to rasterize primitives.
@@ -63,7 +65,7 @@ export default class Program {
 		let nextTextureUnit = 0;
 		const numUniforms: number = this.context.internal.getProgramParameter(program, ACTIVE_UNIFORMS);
 		for (let i = 0; i < numUniforms; i++) {
-			const uniform: Uniform = Uniform.create(this, i, nextTextureUnit);
+			const uniform: Uniform = UniformFactory.create(this, i, nextTextureUnit);
 			uniforms.set(uniform.name, uniform);
 			if (typeof (uniform as SamplerUniform).textureUnit == "number") { nextTextureUnit++; } // Increment texture unit if it gets used.
 		}
@@ -72,7 +74,7 @@ export default class Program {
 		const attributes: Map<string, Attribute> = new Map();
 		const numAttributes: number = this.context.internal.getProgramParameter(program, ACTIVE_ATTRIBUTES);
 		for (let i = 0; i < numAttributes; i++) {
-			const attribute: Attribute = Attribute.create(this, i);
+			const attribute: Attribute = AttributeFactory.create(this, i);
 			attributes.set(attribute.name, attribute);
 		}
 		this.attributes = attributes;
