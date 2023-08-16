@@ -18,42 +18,6 @@ import type { ColorLike } from "#ColorLike";
 /** A WebGL2 rendering context. */
 export default class Context {
 	/**
-	 * Recursively makes an element in the DOM fullscreen.
-	 * @param element The element to make fullscreen.
-	 */
-	private static recursiveFullscreen(element: HTMLElement): void {
-		element.style.width = "100%";
-		element.style.height = "100%";
-		element.style.margin = "0px";
-		element.style.padding = "0px";
-		element.style.display = "block";
-
-		if (element.parentElement) {
-			Context.recursiveFullscreen(element.parentElement);
-		}
-	}
-
-	/**
-	 * Creates a fullscreen rendering context. Destroys all other content in the DOM.
-	 * @returns A fullscreen rendering context.
-	 */
-	public static makeFullscreen(): Context {
-		if (typeof document == "undefined") {
-			throw new HeadlessEnvironmentError();
-		}
-
-		const canvas: HTMLCanvasElement = document.createElement("canvas");
-		canvas.style.touchAction = "none";
-
-		document.body = document.createElement("body");
-		document.body.appendChild(canvas);
-
-		Context.recursiveFullscreen(canvas);
-
-		return new Context(canvas);
-	}
-
-	/**
 	 * Creates a rendering context.
 	 * @param gl The rendering context.
 	 */
