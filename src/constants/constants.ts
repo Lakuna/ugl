@@ -10,9 +10,6 @@ export const TEXTURE_BINDING_3D = 0x806A;
 /** The currently-bound 2D array texture. */
 export const TEXTURE_BINDING_2D_ARRAY = 0x8C1D;
 
-/** The currently-active texture unit. */
-export const ACTIVE_TEXTURE = 0x84E0;
-
 /** The first texture unit. */
 export const TEXTURE0 = 0x84C0;
 
