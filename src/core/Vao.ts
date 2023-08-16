@@ -92,8 +92,10 @@ export default class Vao {
 		this.with((vao: this): void => {
 			if (value) {
 				vao.elementArrayBuffer = new Buffer(vao.context, value, BufferTarget.ELEMENT_ARRAY_BUFFER);
+				vao.elementArrayBuffer.bind(); // Attached to the VAO; not global.
 			} else {
 				vao.elementArrayBuffer = undefined;
+				Buffer.unbind(vao.context, BufferTarget.ELEMENT_ARRAY_BUFFER); // Attached to the VAO; not global.
 			}
 		});
 	}
@@ -104,16 +106,14 @@ export default class Vao {
 	}
 
 	/**
-	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object. Does the same for the element array buffer, if it is set.
+	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (vao: this) => T): T {
 		const previousBinding: WebGLVertexArrayObject | null = Vao.getBoundVertexArrayObject(this.context);
 		this.bind();
-		const out: T = this.elementArrayBuffer
-			? this.elementArrayBuffer.with((): T => f(this))
-			: f(this);
+		const out: T = f(this);
 		Vao.bind(this.context, previousBinding);
 		return out;
 	}
