@@ -61,6 +61,7 @@ export type { default as UniformSourceObject } from "#UniformSourceObject";
 export type { UniformValue } from "#UniformValue";
 export { default as BufferTargetError } from "#BufferTargetError";
 export { default as Color } from "#Color";
+export { default as makeFullscreenCanvas } from "#makeFullscreenCanvas";
 export { default as HeadlessEnvironmentError } from "#HeadlessEnvironmentError";
 export { default as ProgramLinkError } from "#ProgramLinkError";
 export { default as ShaderCompileError } from "#ShaderCompileError";

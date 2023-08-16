@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "17.0.0",
+	"version": "18.0.0",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -112,6 +112,7 @@
 		"#BufferTargetError": "./dist/utility/BufferTargetError.js",
 		"#Color": "./dist/utility/Color.js",
 		"#HeadlessEnvironmentError": "./dist/utility/HeadlessEnvironmentError.js",
+		"#makeFullscreenCanvas": "./dist/utility/makeFullscreenCanvas.js",
 		"#ProgramLinkError": "./dist/utility/ProgramLinkError.js",
 		"#ShaderCompileError": "./dist/utility/ShaderCompileError.js",
 		"#UnknownAttributeError": "./dist/utility/UnknownAttributeError.js",
