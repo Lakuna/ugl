@@ -1,5 +1,5 @@
 /** Binding points for buffers. */
-const enum BufferTarget {
+enum BufferTarget {
 	/** A buffer containing vertex attributes. */
 	ARRAY_BUFFER = 0x8892,
 

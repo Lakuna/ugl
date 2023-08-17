@@ -1,5 +1,5 @@
 /** Blending functions. */
-const enum BlendFunction {
+enum BlendFunction {
 	/** Multiplies all colors by zero. */
 	ZERO = 0,
 

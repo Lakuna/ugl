@@ -1,5 +1,5 @@
 /** Binding points for framebuffers. */
-const enum FramebufferTarget {
+enum FramebufferTarget {
 	/** A collection buffer data storage of color, alpha, depth, and stencil buffers used to render an image. */
 	FRAMEBUFFER = 0x8d40,
 

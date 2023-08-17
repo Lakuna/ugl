@@ -1,5 +1,5 @@
 /** Binding points for texture faces. */
-const enum MipmapTarget {
+enum MipmapTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0de1,
 

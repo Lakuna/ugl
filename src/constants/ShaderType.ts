@@ -1,5 +1,5 @@
 /** Types of shaders. */
-const enum ShaderType {
+enum ShaderType {
 	/** A fragment shader, which calculates a color for each pixel of a primitive. */
 	FRAGMENT_SHADER = 0x8b30,
 

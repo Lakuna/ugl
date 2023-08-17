@@ -1,5 +1,5 @@
 /** Usage patterns of a buffer's data store for optimization purposes. */
-const enum BufferUsage {
+enum BufferUsage {
 	/** The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands. */
 	STATIC_DRAW = 0x88e4,
 

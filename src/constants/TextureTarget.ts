@@ -1,5 +1,5 @@
 /** Binding points for textures. */
-const enum TextureTarget {
+enum TextureTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0de1,
 

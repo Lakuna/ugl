@@ -1,5 +1,5 @@
 /** Possible variable types for attributes. */
-const enum AttributeType {
+enum AttributeType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

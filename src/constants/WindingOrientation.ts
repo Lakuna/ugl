@@ -1,5 +1,5 @@
 /** Winding orientations. */
-const enum WindingOrientation {
+enum WindingOrientation {
 	/** Clockwise. */
 	CW = 0x0900,
 
