@@ -1,5 +1,5 @@
 /** Types of data that can be stored as components in a buffer. */
-const enum BufferDataType {
+enum BufferDataType {
 	/** An 8-bit signed integer. */
 	BYTE = 0x1400,
 

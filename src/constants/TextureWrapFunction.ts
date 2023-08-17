@@ -1,5 +1,5 @@
 /** Wrapping functions for textures. */
-const enum TextureWrapFunction {
+enum TextureWrapFunction {
 	/** The texture repeats after it ends. */
 	REPEAT = 0x2901,
 

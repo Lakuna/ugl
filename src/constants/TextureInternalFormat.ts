@@ -2,7 +2,7 @@
  * Internal formats for the color components in a texture.
  * @see [OpenGL ES 3 reference](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage3D.xhtml)
  */
-const enum TextureInternalFormat {
+enum TextureInternalFormat {
 	/** `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. Color renderable and texture filterable. */
 	RGB = 0x1907,
 

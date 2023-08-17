@@ -1,5 +1,5 @@
 /** Magnification filters for textures. */
-const enum TextureMagFilter {
+enum TextureMagFilter {
 	/** Chooses one pixel from the largest mip. */
 	NEAREST = 0x2600,
 

@@ -1,5 +1,5 @@
 /** Minification filters for textures. */
-const enum TextureMinFilter {
+enum TextureMinFilter {
 	/** Chooses one pixel from the largest mip. */
 	NEAREST = 0x2600,
 

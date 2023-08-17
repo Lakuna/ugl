@@ -1,5 +1,5 @@
 /** Possible variable types for uniforms. */
-const enum UniformType {
+enum UniformType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

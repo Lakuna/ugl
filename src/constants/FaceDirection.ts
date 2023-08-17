@@ -1,5 +1,5 @@
 /** Directions that a face can point. */
-const enum FaceDirection {
+enum FaceDirection {
 	/** The front of a face. */
 	FRONT = 0x0404,
 
