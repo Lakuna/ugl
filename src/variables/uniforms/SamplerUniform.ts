@@ -22,6 +22,7 @@ export default class SamplerUniform extends SingleValuedUniform {
 
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<Texture<Mip>>): void {
+		// TODO: Optional caching.
 		const textureUnits: Int32Array = new Int32Array(value.length);
 		for (let i = 0; i < value.length; i++) {
 			textureUnits[i] = this.textureUnit + i;
@@ -40,6 +41,7 @@ export default class SamplerUniform extends SingleValuedUniform {
 
 	/** The setter method for this uniform. */
 	public setter(value: Texture<Mip>): void {
+		// TODO: Optional caching.
 		this.context.internal.uniform1i(this.location, this.textureUnit);
 		value.assign(this.textureUnit);
 		value.update();
@@ -47,6 +49,7 @@ export default class SamplerUniform extends SingleValuedUniform {
 
 	/** The value of this uniform. */
 	public override get value(): Texture<Mip> | MeasuredIterable<Texture<Mip>> {
+		// TODO: Optional caching.
 		return this.valuePrivate as Texture<Mip> | MeasuredIterable<Texture<Mip>>;
 	}
 
@@ -54,6 +57,7 @@ export default class SamplerUniform extends SingleValuedUniform {
 	public override set value(
 		value: Texture<Mip> | MeasuredIterable<Texture<Mip>>
 	) {
+		// TODO: Optional caching.
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {

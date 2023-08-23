@@ -57,11 +57,13 @@ export default class Texture3d extends Texture<Texture3dMip> {
 
 	/** The face of this texture. */
 	public get face(): Mipmap<Texture3dMip> {
+		// TODO: Optional caching.
 		return this.getFace(MipmapTarget.TEXTURE_3D) as Mipmap<Texture3dMip>;
 	}
 
 	/** The face of this texture. */
 	public set face(value: Mipmap<Texture3dMip>) {
+		// TODO: Optional caching.
 		this.setFace(MipmapTarget.TEXTURE_3D, value);
 	}
 }

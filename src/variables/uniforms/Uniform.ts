@@ -57,11 +57,13 @@ export default abstract class Uniform extends Variable {
 
 	/** The value of this uniform. */
 	public get value(): UniformValue | MeasuredIterable<UniformValue> {
+		// TODO: Optional caching.
 		return this.valuePrivate;
 	}
 
 	/** The value of this uniform. */
 	public set value(value: UniformValue | MeasuredIterable<UniformValue>) {
+		// TODO: Optional caching.
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {

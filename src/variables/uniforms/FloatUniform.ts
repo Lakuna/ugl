@@ -5,6 +5,7 @@ import type MeasuredIterable from "#MeasuredIterable";
 export default class FloatUniform extends ScalarUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
+		// TODO: Optional caching.
 		this.context.internal.uniform1fv(
 			this.location,
 			value,
@@ -15,6 +16,7 @@ export default class FloatUniform extends ScalarUniform {
 
 	/** The setter method for this uniform. */
 	public setter(value: number): void {
+		// TODO: Optional caching.
 		this.context.internal.uniform1f(this.location, value);
 	}
 }

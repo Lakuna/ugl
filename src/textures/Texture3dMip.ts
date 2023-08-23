@@ -27,31 +27,37 @@ export default class Texture3dMip extends Mip {
 
 	/** The width of this mip. */
 	public get width(): number | undefined {
+		// TODO: Optional caching.
 		return this.dims[0];
 	}
 
 	/** The width of this mip. */
 	public set width(value: number | undefined) {
+		// TODO: Optional caching.
 		this.dims = [value, this.dims[1], this.dims[2]];
 	}
 
 	/** The height of this mip. */
 	public get height(): number | undefined {
+		// TODO: Optional caching.
 		return this.dims[1];
 	}
 
 	/** The height of this mip. */
 	public set height(value: number | undefined) {
+		// TODO: Optional caching.
 		this.dims = [this.dims[0], value, this.dims[2]];
 	}
 
 	/** The depth of this mip. */
 	public get depth(): number | undefined {
+		// TODO: Optional caching.
 		return this.dims[2];
 	}
 
 	/** The depth of this mip. */
 	public set depth(value: number | undefined) {
+		// TODO: Optional caching.
 		this.dims = [this.dims[0], this.dims[1], value];
 	}
 
@@ -66,6 +72,7 @@ export default class Texture3dMip extends Mip {
 		target: MipmapTarget,
 		lod: number
 	): void {
+		// TODO: Optional caching.
 		if (
 			typeof this.width == "undefined" ||
 			typeof this.height == "undefined" ||

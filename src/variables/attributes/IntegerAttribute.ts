@@ -21,6 +21,7 @@ export default class IntegerAttribute extends Attribute {
 	 * @param value The value to pass to the attribute.
 	 */
 	protected setterInternal(value: BufferInfo): void {
+		// TODO: Optional caching.
 		this.context.internal.vertexAttribIPointer(
 			this.location,
 			value.size,

@@ -111,7 +111,9 @@ export default class Context {
 
 		if (src instanceof WebGL2RenderingContext) {
 			this.internal = src;
+			this.canvas = src.canvas;
 		} else {
+			this.canvas = src;
 			const gl: WebGL2RenderingContext | null = src.getContext("webgl2", {
 				alpha,
 				depth,
@@ -136,15 +138,14 @@ export default class Context {
 	public readonly internal: WebGL2RenderingContext;
 
 	/** The canvas of this rendering context. */
-	public get canvas(): Canvas {
-		return this.internal.canvas;
-	}
+	public readonly canvas: Canvas;
 
 	/**
 	 * The blending functions. Disables blending if not defined.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public get blendFunctions(): BlendFunctionSet | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(BLEND)) {
 			return undefined;
 		}
@@ -162,6 +163,7 @@ export default class Context {
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public set blendFunctions(value: BlendFunctionSet | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(BLEND);
 		} else {
@@ -181,6 +183,7 @@ export default class Context {
 	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public get cullFace(): FaceDirection | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(CULL_FACE)) {
 			return undefined;
 		}
@@ -194,6 +197,7 @@ export default class Context {
 	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public set cullFace(value: FaceDirection | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(CULL_FACE);
 		} else {
@@ -207,6 +211,7 @@ export default class Context {
 	 * color buffer.
 	 */
 	public get doDither(): boolean {
+		// TODO: Optional caching.
 		return this.internal.isEnabled(DITHER);
 	}
 
@@ -215,6 +220,7 @@ export default class Context {
 	 * color buffer.
 	 */
 	public set doDither(value: boolean) {
+		// TODO: Optional caching.
 		if (value) {
 			this.internal.enable(DITHER);
 		} else {
@@ -228,6 +234,7 @@ export default class Context {
 	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public get depthFunction(): TestFunction | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(DEPTH_TEST)) {
 			return undefined;
 		}
@@ -241,6 +248,7 @@ export default class Context {
 	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public set depthFunction(value: TestFunction | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(DEPTH_TEST);
 		} else {
@@ -255,6 +263,7 @@ export default class Context {
 	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
 	 */
 	public get polygonOffset(): PolygonOffset | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(POLYGON_OFFSET_FILL)) {
 			return undefined;
 		}
@@ -271,6 +280,7 @@ export default class Context {
 	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
 	 */
 	public set polygonOffset(value: PolygonOffset | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(POLYGON_OFFSET_FILL);
 		} else {
@@ -283,6 +293,7 @@ export default class Context {
 	 * Whether a temporary coverage value is computed based on the alpha value.
 	 */
 	public get doSampleAlphaToCoverage(): boolean {
+		// TODO: Optional caching.
 		return this.internal.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
 	}
 
@@ -290,6 +301,7 @@ export default class Context {
 	 * Whether a temporary coverage value is computed based on the alpha value.
 	 */
 	public set doSampleAlphaToCoverage(value: boolean) {
+		// TODO: Optional caching.
 		if (value) {
 			this.internal.enable(SAMPLE_ALPHA_TO_COVERAGE);
 		} else {
@@ -302,6 +314,7 @@ export default class Context {
 	 * Disabled if not defined.
 	 */
 	public get sampleCoverage(): MultiSampleCoverageParameters | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(SAMPLE_COVERAGE)) {
 			return undefined;
 		}
@@ -317,6 +330,7 @@ export default class Context {
 	 * Disabled if not defined.
 	 */
 	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(SAMPLE_COVERAGE);
 		} else {
@@ -331,6 +345,7 @@ export default class Context {
 	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public get scissorBox(): Box | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(SCISSOR_TEST)) {
 			return undefined;
 		}
@@ -350,6 +365,7 @@ export default class Context {
 	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public set scissorBox(value: Box | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(SCISSOR_TEST);
 		} else {
@@ -364,6 +380,7 @@ export default class Context {
 	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public get viewport(): Box {
+		// TODO: Optional caching.
 		const raw: Int32Array = this.internal.getParameter(VIEWPORT);
 		return {
 			x: raw[0] as number,
@@ -379,6 +396,7 @@ export default class Context {
 	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public set viewport(value: Box) {
+		// TODO: Optional caching.
 		this.internal.viewport(value.x, value.y, value.width, value.height);
 	}
 
@@ -388,6 +406,7 @@ export default class Context {
 	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
 	 */
 	public get stencilFunctions(): StencilTestSet | undefined {
+		// TODO: Optional caching.
 		if (!this.internal.isEnabled(STENCIL_TEST)) {
 			return undefined;
 		}
@@ -412,6 +431,7 @@ export default class Context {
 	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
 	 */
 	public set stencilFunctions(value: StencilTestSet | undefined) {
+		// TODO: Optional caching.
 		if (typeof value == "undefined") {
 			this.internal.disable(STENCIL_TEST);
 		} else {
@@ -437,6 +457,7 @@ export default class Context {
 	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
 	 */
 	public get doRasterizerDiscard(): boolean {
+		// TODO: Optional caching.
 		return this.internal.isEnabled(RASTERIZER_DISCARD);
 	}
 
@@ -446,6 +467,7 @@ export default class Context {
 	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
 	 */
 	public set doRasterizerDiscard(value: boolean) {
+		// TODO: Optional caching.
 		if (value) {
 			this.internal.enable(RASTERIZER_DISCARD);
 		} else {
@@ -458,6 +480,7 @@ export default class Context {
 	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public get frontFace(): WindingOrientation {
+		// TODO: Optional caching.
 		return this.internal.getParameter(FRONT_FACE);
 	}
 
@@ -466,6 +489,7 @@ export default class Context {
 	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public set frontFace(value: WindingOrientation) {
+		// TODO: Optional caching.
 		this.internal.frontFace(value);
 	}
 

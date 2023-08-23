@@ -217,6 +217,7 @@ export default class Program {
 
 	/** Sets this as the active shader program. */
 	public use(): void {
+		// TODO: Optional caching.
 		this.context.internal.useProgram(this.internal);
 	}
 }

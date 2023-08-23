@@ -21,6 +21,7 @@ export default class Vao {
 	 * @param context The rendering context.
 	 */
 	public static unbind(context: Context): void {
+		// TODO: Optional caching.
 		Vao.bind(context, null);
 	}
 
@@ -32,6 +33,7 @@ export default class Vao {
 	private static getBoundVertexArrayObject(
 		context: Context
 	): WebGLVertexArrayObject | null {
+		// TODO: Optional caching.
 		return context.internal.getParameter(VERTEX_ARRAY_BINDING);
 	}
 
@@ -44,6 +46,7 @@ export default class Vao {
 		context: Context,
 		vao: WebGLVertexArrayObject | null
 	): void {
+		// TODO: Optional caching.
 		context.internal.bindVertexArray(vao);
 	}
 
@@ -102,6 +105,7 @@ export default class Vao {
 	 * indexed.
 	 */
 	public get indices(): UintTypedArray | undefined {
+		// TODO: Optional caching.
 		return this.elementArrayBuffer?.data as UintTypedArray;
 	}
 
@@ -110,6 +114,7 @@ export default class Vao {
 	 * indexed.
 	 */
 	public set indices(value: UintTypedArray | undefined) {
+		// TODO: Optional caching.
 		this.with((vao: this): void => {
 			if (value) {
 				vao.elementArrayBuffer = new Buffer(
@@ -127,6 +132,7 @@ export default class Vao {
 
 	/** Makes this the active VAO. */
 	public bind(): void {
+		// TODO: Optional caching.
 		Vao.bind(this.context, this.internal);
 	}
 
@@ -137,6 +143,7 @@ export default class Vao {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (vao: this) => T): T {
+		// TODO: Optional caching.
 		const previousBinding: WebGLVertexArrayObject | null =
 			Vao.getBoundVertexArrayObject(this.context);
 		this.bind();

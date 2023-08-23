@@ -11,6 +11,7 @@ export default abstract class SingleValuedUniform extends Uniform {
 	public override set value(
 		value: UniformValue | MeasuredIterable<UniformValue>
 	) {
+		// TODO: Optional caching.
 		if (typeof value != "number" && "length" in value) {
 			this.arraySetter(value);
 		} else {
