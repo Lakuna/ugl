@@ -3,8 +3,10 @@ import type { ColorLike } from "#ColorLike";
 /** A color. */
 export default class Color extends Float32Array {
 	/**
-	 * The piecewise equation used internally for calculating relative luminance.
-	 * @param c The value passed to the piecewise function (red, green, or blue).
+	 * The piecewise equation used internally for calculating relative
+	 * luminance.
+	 * @param c The value passed to the piecewise function (red, green, or
+	 * blue).
 	 * @returns The modified value.
 	 */
 	private static luminancePiecewise(c: number) {
@@ -15,7 +17,7 @@ export default class Color extends Float32Array {
 	 * Returns the luminance of a color.
 	 * @param color The color.
 	 * @returns The luminance.
-	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
+	 * @see [Relative luminance](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
 	 */
 	private static luminance(color: ColorLike): number {
 		return (
@@ -30,7 +32,7 @@ export default class Color extends Float32Array {
 	 * @param a The first color.
 	 * @param b The second color.
 	 * @returns The contrast ratio between the colors.
-	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
+	 * @see [Contrast ratio](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
 	 */
 	private static contrast(a: ColorLike, b: ColorLike): number {
 		const l1: number = Color.luminance(a);
@@ -109,7 +111,7 @@ export default class Color extends Float32Array {
 
 	/**
 	 * The luminance of this color.
-	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
+	 * @see [Relative luminance](https://www.w3.org/WAI/GL/wiki/Relative_luminance)
 	 */
 	public get luminance(): number {
 		return Color.luminance(this);
@@ -119,7 +121,7 @@ export default class Color extends Float32Array {
 	 * Calculates the contrast ratio between this color and another.
 	 * @param color The other color.
 	 * @returns The contrast ratio between the colors.
-	 * @see [Algorithm](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
+	 * @see [Contrast ratio](https://www.w3.org/WAI/GL/wiki/Contrast_ratio)
 	 */
 	public contrast(color: ColorLike): number {
 		return Color.contrast(this, color);

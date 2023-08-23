@@ -6,7 +6,7 @@ import type { UniformValue } from "#UniformValue";
 
 /**
  * A global variable in a WebGL shader program.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/uniforms)
+ * @see [Uniforms](https://www.lakuna.pw/a/webgl/uniforms)
  */
 export default abstract class Uniform extends Variable {
 	/**

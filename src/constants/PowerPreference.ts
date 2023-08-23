@@ -1,4 +1,7 @@
-/** Hint to the user agent indicating what configuration of GPU is suitable for a WebGL context. */
+/**
+ * A hint to the user agent indicating what configuration of GPU is suitable for
+ * a WebGL context.
+ */
 enum PowerPreference {
 	/** Lets the user agent decide which GPU configuration is most suitable. */
 	Default = "default",

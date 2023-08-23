@@ -60,14 +60,22 @@ export default class Context {
 	 * Creates a rendering context.
 	 * @param canvas The canvas of the rendering context.
 	 * @param alpha Whether the canvas contains an alpha buffer.
-	 * @param depth Whether the drawing buffer should have a depth buffer of at least 16 bits.
-	 * @param stencil Whether the drawing buffer should have a stencil buffer of at least 8 bits.
-	 * @param desynchronized Whether the user agent should reduce latency by desynchronizing the canvas paint cycle from the event loop.
+	 * @param depth Whether the drawing buffer should have a depth buffer of at
+	 * least 16 bits.
+	 * @param stencil Whether the drawing buffer should have a stencil buffer
+	 * of at least 8 bits.
+	 * @param desynchronized Whether the user agent should reduce latency by
+	 * desynchronizing the canvas paint cycle from the event loop.
 	 * @param antialias Whether or not to perform anti-aliasing if possible.
-	 * @param failIfMajorPerformanceCaveat Whether the context will fail to be created if the system performance is low or if no hardware GPU is available.
-	 * @param powerPreference Which configuration of GPU is suitable for the context.
-	 * @param premultipliedAlpha Whether the page compositor will assume that the drawing buffer contains colors with pre-multiplied alpha.
-	 * @param preserveDrawingBuffer Whether the buffers will preserve their values until cleared or overwritten by the author.
+	 * @param failIfMajorPerformanceCaveat Whether the context will fail to be
+	 * created if the system performance is low or if no hardware GPU is
+	 * available.
+	 * @param powerPreference Which configuration of GPU is suitable for the
+	 * context.
+	 * @param premultipliedAlpha Whether the page compositor will assume that
+	 * the drawing buffer contains colors with pre-multiplied alpha.
+	 * @param preserveDrawingBuffer Whether the buffers will preserve their
+	 * values until cleared or overwritten by the author.
 	 */
 	public constructor(
 		canvas: Canvas,
@@ -134,7 +142,7 @@ export default class Context {
 
 	/**
 	 * The blending functions. Disables blending if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public get blendFunctions(): BlendFunctionSet | undefined {
 		if (!this.internal.isEnabled(BLEND)) {
@@ -151,7 +159,7 @@ export default class Context {
 
 	/**
 	 * The blending functions. Disables blending if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public set blendFunctions(value: BlendFunctionSet | undefined) {
 		if (typeof value == "undefined") {
@@ -168,8 +176,9 @@ export default class Context {
 	}
 
 	/**
-	 * The direction that polygons face to be culled. Disables polygon culling if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * The direction that polygons face to be culled. Disables polygon culling
+	 * if not defined.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public get cullFace(): FaceDirection | undefined {
 		if (!this.internal.isEnabled(CULL_FACE)) {
@@ -180,8 +189,9 @@ export default class Context {
 	}
 
 	/**
-	 * The direction that polygons face to be culled. Disables polygon culling if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * The direction that polygons face to be culled. Disables polygon culling
+	 * if not defined.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public set cullFace(value: FaceDirection | undefined) {
 		if (typeof value == "undefined") {
@@ -192,12 +202,18 @@ export default class Context {
 		}
 	}
 
-	/** Whether color components are dithered before they get written to the color buffer. */
+	/**
+	 * Whether color components are dithered before they get written to the
+	 * color buffer.
+	 */
 	public get doDither(): boolean {
 		return this.internal.isEnabled(DITHER);
 	}
 
-	/** Whether color components are dithered before they get written to the color buffer. */
+	/**
+	 * Whether color components are dithered before they get written to the
+	 * color buffer.
+	 */
 	public set doDither(value: boolean) {
 		if (value) {
 			this.internal.enable(DITHER);
@@ -207,8 +223,9 @@ export default class Context {
 	}
 
 	/**
-	 * The depth comparison function in use. Disables the depth test if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 * The depth comparison function in use. Disables the depth test if not
+	 * defined.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public get depthFunction(): TestFunction | undefined {
 		if (!this.internal.isEnabled(DEPTH_TEST)) {
@@ -219,8 +236,9 @@ export default class Context {
 	}
 
 	/**
-	 * The depth comparison function in use. Disables the depth test if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 * The depth comparison function in use. Disables the depth test if not
+	 * defined.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public set depthFunction(value: TestFunction | undefined) {
 		if (typeof value == "undefined") {
@@ -232,8 +250,9 @@ export default class Context {
 	}
 
 	/**
-	 * The scale factor and units used to calculate depth values. Disables polygon offset fill if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
+	 * The scale factor and units used to calculate depth values. Disables
+	 * polygon offset fill if not defined.
+	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
 	 */
 	public get polygonOffset(): PolygonOffset | undefined {
 		if (!this.internal.isEnabled(POLYGON_OFFSET_FILL)) {
@@ -247,8 +266,9 @@ export default class Context {
 	}
 
 	/**
-	 * The scale factor and units used to calculate depth values. Disables polygon offset fill if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
+	 * The scale factor and units used to calculate depth values. Disables
+	 * polygon offset fill if not defined.
+	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
 	 */
 	public set polygonOffset(value: PolygonOffset | undefined) {
 		if (typeof value == "undefined") {
@@ -259,12 +279,16 @@ export default class Context {
 		}
 	}
 
-	/** Whether a temporary coverage value is computed based on the alpha value. */
+	/**
+	 * Whether a temporary coverage value is computed based on the alpha value.
+	 */
 	public get doSampleAlphaToCoverage(): boolean {
 		return this.internal.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
 	}
 
-	/** Whether a temporary coverage value is computed based on the alpha value. */
+	/**
+	 * Whether a temporary coverage value is computed based on the alpha value.
+	 */
 	public set doSampleAlphaToCoverage(value: boolean) {
 		if (value) {
 			this.internal.enable(SAMPLE_ALPHA_TO_COVERAGE);
@@ -273,7 +297,10 @@ export default class Context {
 		}
 	}
 
-	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
+	/**
+	 * Whether fragments should be combined with the temporary coverage value.
+	 * Disabled if not defined.
+	 */
 	public get sampleCoverage(): MultiSampleCoverageParameters | undefined {
 		if (!this.internal.isEnabled(SAMPLE_COVERAGE)) {
 			return undefined;
@@ -285,7 +312,10 @@ export default class Context {
 		};
 	}
 
-	/** Whether fragments should be combined with the temporary coverage value. Disabled if not defined. */
+	/**
+	 * Whether fragments should be combined with the temporary coverage value.
+	 * Disabled if not defined.
+	 */
 	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
 		if (typeof value == "undefined") {
 			this.internal.disable(SAMPLE_COVERAGE);
@@ -296,8 +326,9 @@ export default class Context {
 	}
 
 	/**
-	 * The scissor box, which limits drawing to a specified rectangle. Disabled if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 * The scissor box, which limits drawing to a specified rectangle. Disabled
+	 * if not defined.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public get scissorBox(): Box | undefined {
 		if (!this.internal.isEnabled(SCISSOR_TEST)) {
@@ -314,8 +345,9 @@ export default class Context {
 	}
 
 	/**
-	 * The scissor box, which limits drawing to a specified rectangle. Disabled if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 * The scissor box, which limits drawing to a specified rectangle. Disabled
+	 * if not defined.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public set scissorBox(value: Box | undefined) {
 		if (typeof value == "undefined") {
@@ -327,8 +359,9 @@ export default class Context {
 	}
 
 	/**
-	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 * The viewport box, which specifies the affine transformation of
+	 * coordinates from normalized device coordinates to window coordinates.
+	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public get viewport(): Box {
 		const raw: Int32Array = this.internal.getParameter(VIEWPORT);
@@ -341,16 +374,18 @@ export default class Context {
 	}
 
 	/**
-	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 * The viewport box, which specifies the affine transformation of
+	 * coordinates from normalized device coordinates to window coordinates.
+	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 */
 	public set viewport(value: Box) {
 		this.internal.viewport(value.x, value.y, value.width, value.height);
 	}
 
 	/**
-	 * The stencil test function and reference value. The stencil test is disabled if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 * The stencil test function and reference value. The stencil test is
+	 * disabled if not defined.
+	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
 	 */
 	public get stencilFunctions(): StencilTestSet | undefined {
 		if (!this.internal.isEnabled(STENCIL_TEST)) {
@@ -372,8 +407,9 @@ export default class Context {
 	}
 
 	/**
-	 * The stencil test function and reference value. The stencil test is disabled if not defined.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 * The stencil test function and reference value. The stencil test is
+	 * disabled if not defined.
+	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
 	 */
 	public set stencilFunctions(value: StencilTestSet | undefined) {
 		if (typeof value == "undefined") {
@@ -396,16 +432,18 @@ export default class Context {
 	}
 
 	/**
-	 * Whether primitives are discarded immediately before the rasterization stage.
-	 * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+	 * Whether primitives are discarded immediately before the rasterization
+	 * stage.
+	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
 	 */
 	public get doRasterizerDiscard(): boolean {
 		return this.internal.isEnabled(RASTERIZER_DISCARD);
 	}
 
 	/**
-	 * Whether primitives are discarded immediately before the rasterization stage.
-	 * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+	 * Whether primitives are discarded immediately before the rasterization
+	 * stage.
+	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
 	 */
 	public set doRasterizerDiscard(value: boolean) {
 		if (value) {
@@ -417,7 +455,7 @@ export default class Context {
 
 	/**
 	 * The winding orientation of front-facing polygons.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public get frontFace(): WindingOrientation {
 		return this.internal.getParameter(FRONT_FACE);
@@ -425,7 +463,7 @@ export default class Context {
 
 	/**
 	 * The winding orientation of front-facing polygons.
-	 * @see [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public set frontFace(value: WindingOrientation) {
 		this.internal.frontFace(value);
@@ -433,8 +471,9 @@ export default class Context {
 
 	/**
 	 * Makes this context XR-compatible.
-	 * @returns A promise that resolves once the WebGL context is ready to be used for rendering WebXR content.
-	 * @see [WebXR API documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
+	 * @returns A promise that resolves once the WebGL context is ready to be
+	 * used for rendering WebXR content.
+	 * @see [WebXR Device API](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
 	 */
 	public async makeXrCompatible(): Promise<void> {
 		return this.internal.makeXRCompatible().catch(() => {
@@ -532,7 +571,10 @@ export default class Context {
 		return false;
 	}
 
-	/** Resizes this context's viewport to match the size of its current drawing buffer. */
+	/**
+	 * Resizes this context's viewport to match the size of its current drawing
+	 * buffer.
+	 */
 	public fitViewport(): void {
 		this.viewport = {
 			x: 0,
@@ -543,13 +585,17 @@ export default class Context {
 	}
 
 	/**
-	 * Resizes this context's canvas' drawing buffer to match its physical size, a viewport to match the drawing buffer, and disables the scissor test.
+	 * Resizes this context's canvas' drawing buffer to match its physical
+	 * size, a viewport to match the drawing buffer, and disables the scissor
+	 * test.
 	 * @returns Whether the drawing buffer was resized.
 	 */
 	public resize(): boolean;
 
 	/**
-	 * Resizes this context's canvas' drawing buffer to match its physical size, the context's viewport and scissor box to match the given size, and enables the scissor test.
+	 * Resizes this context's canvas' drawing buffer to match its physical
+	 * size, the context's viewport and scissor box to match the given size,
+	 * and enables the scissor test.
 	 * @param x The horizontal offset of the viewport and scissor box.
 	 * @param y The vertical offset of the viewport and scissor box.
 	 * @param width The horizontal size of the viewport and scissor box.

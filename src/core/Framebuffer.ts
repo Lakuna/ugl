@@ -22,8 +22,9 @@ import type Texture from "#Texture";
 import type MipmapTarget from "#MipmapTarget";
 
 /**
- * A data structure that organizes the memory resources that are needed to render an image.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
+ * A data structure that organizes the memory resources that are needed to
+ * render an image.
+ * @see [Framebuffers](https://www.lakuna.pw/a/webgl/framebuffers)
  */
 export default class Framebuffer {
 	/**
@@ -265,7 +266,8 @@ export default class Framebuffer {
 	}
 
 	/**
-	 * Executes the given function with this framebuffer bound, then re-binds the previously-bound framebuffer.
+	 * Executes the given function with this framebuffer bound, then re-binds
+	 * the previously-bound framebuffer.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */

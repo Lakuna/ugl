@@ -6,7 +6,7 @@ import { DELETE_STATUS, COMPILE_STATUS } from "#constants";
 
 /**
  * A function which runs on the GPU.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/what-is)
+ * @see [Shaders](https://www.lakuna.pw/a/webgl/shaders)
  */
 export default class Shader {
 	/**

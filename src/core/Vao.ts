@@ -13,7 +13,7 @@ import type { UniformValue } from "#UniformValue";
 
 /**
  * A collection of attribute state; a vertex attribute array.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default class Vao {
 	/**
@@ -51,7 +51,8 @@ export default class Vao {
 	 * Creates a vertex array object.
 	 * @param program The program that the VAO is used with.
 	 * @param attributes The attributes associated with the VAO.
-	 * @param indices The indices to supply to the element array buffer of this VAO if the data should be indexed.
+	 * @param indices The indices to supply to the element array buffer of this
+	 * VAO if the data should be indexed.
 	 */
 	public constructor(
 		program: Program,
@@ -96,12 +97,18 @@ export default class Vao {
 	/** The element array buffer of this VAO if its data is indexed. */
 	private elementArrayBuffer: Buffer | undefined;
 
-	/** The indices in the element array buffer of this VAO if the data is indexed. */
+	/**
+	 * The indices in the element array buffer of this VAO if the data is
+	 * indexed.
+	 */
 	public get indices(): UintTypedArray | undefined {
 		return this.elementArrayBuffer?.data as UintTypedArray;
 	}
 
-	/** The indices in the element array buffer of this VAO if the data is indexed. */
+	/**
+	 * The indices in the element array buffer of this VAO if the data is
+	 * indexed.
+	 */
 	public set indices(value: UintTypedArray | undefined) {
 		this.with((vao: this): void => {
 			if (value) {
@@ -124,7 +131,8 @@ export default class Vao {
 	}
 
 	/**
-	 * Executes the given function with this vertex array object bound, then re-binds the previously-bound vertex array object.
+	 * Executes the given function with this vertex array object bound, then
+	 * re-binds the previously-bound vertex array object.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */
@@ -150,7 +158,8 @@ export default class Vao {
 
 	/**
 	 * Rasterizes the vertex data stored in this VAO.
-	 * @param uniforms A map of uniform variable names to their values to use when rasterizing.
+	 * @param uniforms A map of uniform variable names to their values to use
+	 * when rasterizing.
 	 * @param primitive The type of primitive to rasterize.
 	 * @param offset The number of elements to skip when rasterizing arrays.
 	 */

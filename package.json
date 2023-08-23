@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "18.0.6",
+	"version": "18.0.7",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -32,7 +32,8 @@
 		"build": "tsc",
 		"lint": "prettier . --check && eslint src",
 		"doc": "typedoc src",
-		"test": "mocha"
+		"test": "mocha",
+		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.5",

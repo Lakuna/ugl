@@ -4,12 +4,14 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
 
 /**
  * An input variable in a WebGL fragment shader used for transform feedback.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/gpgpu)
+ * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
  */
 export default class Varying extends Variable {
 	/**
-	 * Creates a transform feedback varying. This should only be called by the `Program` constructor.
-	 * @param program The shader program that this transform feedback varying belongs to.
+	 * Creates a transform feedback varying. This should only be called by the
+	 * `Program` constructor.
+	 * @param program The shader program that this transform feedback varying
+	 * belongs to.
 	 * @param index The index of this transform feedback varying.
 	 */
 	public constructor(program: Program, index: number) {

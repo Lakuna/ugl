@@ -13,6 +13,8 @@ export default abstract class MatrixUniform extends MultipleValuedUniform {
 		this.transpose = false;
 	}
 
-	/** Whether to transpose the value of this uniform when passing it to WebGL. */
+	/**
+	 * Whether to transpose the value of this uniform when passing it to WebGL.
+	 */
 	public transpose: boolean;
 }

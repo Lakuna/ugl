@@ -1,6 +1,9 @@
 /** Modes for capturing transform feedback varyings. */
 enum TransformFeedbackBufferMode {
-	/** All of the varyings will be written to the same buffer, interleaved in the specified order. */
+	/**
+	 * All of the varyings will be written to the same buffer, interleaved in
+	 * the specified order.
+	 */
 	INTERLEAVED_ATTRIBS = 0x8c8c,
 
 	/** Each varying will be written to a different buffer. */

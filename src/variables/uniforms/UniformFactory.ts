@@ -31,7 +31,8 @@ export default class UniformFactory {
 	 * Creates a uniform for the given variable type.
 	 * @param program The shader program that the uniform belongs to.
 	 * @param index The index of the uniform.
-	 * @param textureUnit The texture unit to assign to the uniform if it ends up being a sampler.
+	 * @param textureUnit The texture unit to assign to the uniform if it ends
+	 * up being a sampler.
 	 */
 	public static create(
 		program: Program,
