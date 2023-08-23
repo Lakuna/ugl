@@ -1,3 +1,4 @@
+import { ACTIVE_TEXTURE, TEXTURE0 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
 import UnsupportedOperationError from "#UnsupportedOperationError";
@@ -115,5 +116,32 @@ export default class Context extends ApiInterface {
 	public set unpackColorSpace(value: PredefinedColorSpace) {
 		this.api.unpackColorSpace = value;
 		this.unpackColorSpaceCache = value;
+	}
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 */
+	private activeTextureCache?: number;
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 */
+	public get activeTexture(): number {
+		if (typeof this.activeTextureCache == "undefined") {
+			this.activeTextureCache =
+				this.api.getParameter(ACTIVE_TEXTURE) - TEXTURE0;
+		}
+		return this.activeTextureCache;
+	}
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 */
+	public set activeTexture(value: number) {
+		this.api.activeTexture(value + TEXTURE0);
+		this.activeTextureCache = value;
 	}
 }

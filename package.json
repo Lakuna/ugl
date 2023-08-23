@@ -55,6 +55,7 @@
 		".": "./dist/index.js"
 	},
 	"imports": {
+		"#constants": "./dist/constants/constants.js",
 		"#ApiInterface": "./dist/core/ApiInterface.js",
 		"#Context": "./dist/core/Context.js",
 		"#Canvas": "./dist/types/Canvas.js",
