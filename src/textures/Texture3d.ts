@@ -11,7 +11,7 @@ import MipmapTarget from "#MipmapTarget";
 
 /**
  * A 3D texture.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/textures)
+ * @see [Textures](https://www.lakuna.pw/a/webgl/textures)
  */
 export default class Texture3d extends Texture<Texture3dMip> {
 	/**
@@ -31,8 +31,10 @@ export default class Texture3d extends Texture<Texture3dMip> {
 	 * @param face The face of the texture.
 	 * @param minFilter The minification filter to use on the texture.
 	 * @param magFilter The magnification filter to use on the texture.
-	 * @param wrapSFunction The function to use when wrapping the texture across the S-axis.
-	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
+	 * @param wrapSFunction The function to use when wrapping the texture
+	 * across the S-axis.
+	 * @param wrapTFunction The function to use when wrapping the texture
+	 * across the T-axis.
 	 */
 	public constructor(
 		context: Context,

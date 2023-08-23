@@ -76,19 +76,29 @@ export const BLEND = 0x0be2;
 /** Whether polygons are culled. */
 export const CULL_FACE = 0x0b44;
 
-/** Whether color components are dithered before they get written to the color buffer. */
+/**
+ * Whether color components are dithered before they get written to the color
+ * buffer.
+ */
 export const DITHER = 0x0bd0;
 
 /** Whether an offset is added to depth values of polygons' fragments. */
 export const POLYGON_OFFSET_FILL = 0x8037;
 
-/** Whether a temporary coverage value determined by the alpha value is generated. */
+/**
+ * Whether a temporary coverage value determined by the alpha value is
+ * generated.
+ */
 export const SAMPLE_ALPHA_TO_COVERAGE = 0x809e;
 
-/** Whether fragments' coverages are combined with the temporary coverage value. */
+/**
+ * Whether fragments' coverages are combined with the temporary coverage value.
+ */
 export const SAMPLE_COVERAGE = 0x80a0;
 
-/** Whether primitives are discarded immediately before the rasterization stage. */
+/**
+ * Whether primitives are discarded immediately before the rasterization stage.
+ */
 export const RASTERIZER_DISCARD = 0x8c89;
 
 /** The blend function for source RGB values. */
@@ -187,7 +197,10 @@ export const ACTIVE_ATTRIBUTES = 0x8b89;
 /** The number of active uniforms in a shader program. */
 export const ACTIVE_UNIFORMS = 0x8b86;
 
-/** The number of active varyings that are used for transform feedback in a shader program. */
+/**
+ * The number of active varyings that are used for transform feedback in a
+ * shader program.
+ */
 export const TRANSFORM_FEEDBACK_VARYINGS = 0x8c83;
 
 /** A renderbuffer. */

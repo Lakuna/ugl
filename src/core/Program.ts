@@ -20,8 +20,9 @@ import UniformFactory from "#UniformFactory";
 import AttributeFactory from "#AttributeFactory";
 
 /**
- * A vertex shader and a fragment shader which are used together to rasterize primitives.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/what-is)
+ * A vertex shader and a fragment shader which are used together to rasterize
+ * primitives.
+ * @see [Shaders](https://www.lakuna.pw/a/webgl/shaders)
  */
 export default class Program {
 	/**
@@ -46,8 +47,10 @@ export default class Program {
 	 * Creates a shader program.
 	 * @param vertexShader The vertex shader.
 	 * @param fragmentShader The fragment shader.
-	 * @param transformFeedbackVaryingNames The names of the varyings which should be tracked for transform feedback.
-	 * @param transformFeedbackBufferMode The mode to use when capturing transform feedback varyings.
+	 * @param transformFeedbackVaryingNames The names of the varyings which
+	 * should be tracked for transform feedback.
+	 * @param transformFeedbackBufferMode The mode to use when capturing
+	 * transform feedback varyings.
 	 */
 	public constructor(
 		vertexShader: Shader,
@@ -102,8 +105,8 @@ export default class Program {
 			const uniform: Uniform = UniformFactory.create(this, i, nextTextureUnit);
 			uniforms.set(uniform.name, uniform);
 			if (typeof (uniform as SamplerUniform).textureUnit == "number") {
-				nextTextureUnit++;
-			} // Increment texture unit if it gets used.
+				nextTextureUnit++; // Increment texture unit if it gets used.
+			}
 		}
 		this.uniforms = uniforms;
 
@@ -143,7 +146,9 @@ export default class Program {
 	/** The fragment shader of this shader program. */
 	public readonly fragmentShader: Shader;
 
-	/** The mode this program uses when capturing transform feedback varyings. */
+	/**
+	 * The mode this program uses when capturing transform feedback varyings.
+	 */
 	public readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
 
 	/** The rendering context of this shader program. */
@@ -158,13 +163,22 @@ export default class Program {
 	/** A map of attribute names to attributes. */
 	public readonly attributes: ReadonlyMap<string, Attribute>;
 
-	/** A map of varying names to varyings. Only includes varyings that are used for transform feedback. */
+	/**
+	 * A map of varying names to varyings. Only includes varyings that are used
+	 * for transform feedback.
+	 */
 	public readonly varyings: ReadonlyMap<string, Varying>;
 
-	/** Whether this program is allowed to draw transparent objects. Used for optimization only. */
+	/**
+	 * Whether this program is allowed to draw transparent objects. Used for
+	 * optimization only.
+	 */
 	public allowTransparent: boolean;
 
-	/** Whether this program is allowed to draw with depth. Used for optimization only. */
+	/**
+	 * Whether this program is allowed to draw with depth. Used for
+	 * optimization only.
+	 */
 	public allowDepth: boolean;
 
 	/** Whether this program is flagged for deletion. */

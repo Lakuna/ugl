@@ -25,7 +25,8 @@ export default class Texture2d extends Texture<Texture2dMip> {
 	}
 
 	/**
-	 * Creates a basic 2D texture from an image URL. The texture will appear magenta until the image loads.
+	 * Creates a basic 2D texture from an image URL. The texture will appear
+	 * magenta until the image loads.
 	 * @param context The rendering context of the texture.
 	 * @param url The URL of the image.
 	 * @returns A basic 2D texture.
@@ -62,8 +63,10 @@ export default class Texture2d extends Texture<Texture2dMip> {
 	 * @param face The face of the texture.
 	 * @param minFilter The minification filter to use on the texture.
 	 * @param magFilter The magnification filter to use on the texture.
-	 * @param wrapSFunction The function to use when wrapping the texture across the S-axis.
-	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
+	 * @param wrapSFunction The function to use when wrapping the texture
+	 * across the S-axis.
+	 * @param wrapTFunction The function to use when wrapping the texture
+	 * across the T-axis.
 	 */
 	public constructor(
 		context: Context,

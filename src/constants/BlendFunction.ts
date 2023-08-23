@@ -42,7 +42,11 @@ enum BlendFunction {
 	/** Multiplies all colors by one minus a constant alpha value. */
 	ONE_MINUS_CONSTANT_ALPHA = 0x8004,
 
-	/** Multiplies the RGB colors by the smaller of either the source alpha value or the value of one minus the destination alpha value. The alpha value is multiplied by one. */
+	/**
+	 * Multiplies the RGB colors by the smaller of either the source alpha
+	 * value or the value of one minus the destination alpha value. The alpha
+	 * value is multiplied by one.
+	 */
 	SRC_ALPHA_SATURATE = 0x0308
 }
 

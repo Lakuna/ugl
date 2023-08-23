@@ -17,7 +17,8 @@ function recursiveFullscreen(element: HTMLElement): void {
 }
 
 /**
- * Creates a fullscreen rendering context. Destroys all other content in the DOM.
+ * Creates a fullscreen rendering context. Destroys all other content in the
+ * DOM.
  * @returns A fullscreen rendering context.
  */
 export default function makeFullscreenCanvas(): HTMLCanvasElement {

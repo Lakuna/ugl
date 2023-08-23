@@ -11,7 +11,7 @@ import TextureTarget from "#TextureTarget";
 
 /**
  * A cubemap texture.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/cubemaps)
+ * @see [Cubemaps](https://www.lakuna.pw/a/webgl/cubemaps)
  */
 export default class Cubemap extends Texture<CubemapMip> {
 	/**
@@ -46,7 +46,8 @@ export default class Cubemap extends Texture<CubemapMip> {
 	}
 
 	/**
-	 * Creates a basic cubemap from image URLs. The cubemap will appear magenta until the images load.
+	 * Creates a basic cubemap from image URLs. The cubemap will appear magenta
+	 * until the images load.
 	 * @param context The rendering context of the cubemap.
 	 * @param px The URL of the image on the positive X-axis face.
 	 * @param nx The URL of the image on the negative X-axis face.
@@ -130,8 +131,10 @@ export default class Cubemap extends Texture<CubemapMip> {
 	 * @param pzFace The positive Z-axis face of the texture.
 	 * @param minFilter The minification filter to use on the texture.
 	 * @param magFilter The magnification filter to use on the texture.
-	 * @param wrapSFunction The function to use when wrapping the texture across the S-axis.
-	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
+	 * @param wrapSFunction The function to use when wrapping the texture
+	 * across the S-axis.
+	 * @param wrapTFunction The function to use when wrapping the texture
+	 * across the T-axis.
 	 */
 	public constructor(
 		context: Context,

@@ -21,7 +21,7 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
 
 /**
  * An array of data that can be randomly accessed in a shader program.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/textures)
+ * @see [Textures](https://www.lakuna.pw/a/webgl/textures)
  */
 export default class Texture<MipType extends Mip> {
 	/**
@@ -85,8 +85,10 @@ export default class Texture<MipType extends Mip> {
 	 * @param faces The faces of the texture.
 	 * @param minFilter The minification filter to use on the texture.
 	 * @param magFilter The magnification filter to use on the texture.
-	 * @param wrapSFunction The function to use when wrapping the texture across the S-axis.
-	 * @param wrapTFunction The function to use when wrapping the texture across the T-axis.
+	 * @param wrapSFunction The function to use when wrapping the texture
+	 * across the S-axis.
+	 * @param wrapTFunction The function to use when wrapping the texture
+	 * across the T-axis.
 	 */
 	public constructor(
 		context: Context,
@@ -240,7 +242,8 @@ export default class Texture<MipType extends Mip> {
 	}
 
 	/**
-	 * Executes the given function with this texture bound, then re-binds the previously-bound texture.
+	 * Executes the given function with this texture bound, then re-binds the
+	 * previously-bound texture.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */

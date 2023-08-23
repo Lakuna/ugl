@@ -7,7 +7,7 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
 import TextureDataType from "#TextureDataType";
 import { UNPACK_ALIGNMENT } from "#constants";
 
-/** A mip. */
+/** A version of a texture used for rendering at different sizes. */
 export default abstract class Mip {
 	/**
 	 * Creates a mip.

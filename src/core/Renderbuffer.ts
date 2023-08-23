@@ -4,8 +4,9 @@ import type RenderbufferFormat from "#RenderbufferFormat";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 
 /**
- * A buffer that can contain an image or be the source or target of a rendering operation.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/framebuffers)
+ * A buffer that can contain an image or be the source or target of a rendering
+ * operation.
+ * @see [Framebuffers](https://www.lakuna.pw/a/webgl/framebuffers)
  */
 export default class Renderbuffer {
 	/**
@@ -95,7 +96,8 @@ export default class Renderbuffer {
 	}
 
 	/**
-	 * Executes the given function with this renderbuffer bound, then re-binds the previously-bound renderbuffer.
+	 * Executes the given function with this renderbuffer bound, then re-binds
+	 * the previously-bound renderbuffer.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */

@@ -1,6 +1,9 @@
 /** Data types for texel data. */
 enum TextureDataType {
-	/** Indicates that data must come from a `Uint8Array` or a `Uint8ClampedArray`. */
+	/**
+	 * Indicates that data must come from a `Uint8Array` or a
+	 * `Uint8ClampedArray`.
+	 */
 	UNSIGNED_BYTE = 0x1401,
 
 	/** Indicates that data must come from a `Uint16Array`. */

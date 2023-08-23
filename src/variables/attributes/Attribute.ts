@@ -7,7 +7,7 @@ import BufferTargetError from "#BufferTargetError";
 
 /**
  * An input variable in a WebGL vertex shader.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default abstract class Attribute extends Variable {
 	/**

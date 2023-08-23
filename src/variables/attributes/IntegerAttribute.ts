@@ -2,7 +2,10 @@ import Attribute from "#Attribute";
 import type Program from "#Program";
 import type BufferInfo from "#BufferInfo";
 
-/** An integer, unsigned integer, or boolean input variable in a WebGL vertex shader. */
+/**
+ * An integer, unsigned integer, or boolean input variable in a WebGL vertex
+ * shader.
+ */
 export default class IntegerAttribute extends Attribute {
 	/**
 	 * Creates an integer, unsigned integer, or boolean attribute.

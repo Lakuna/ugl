@@ -18,7 +18,7 @@ import BufferDataType from "#BufferDataType";
 
 /**
  * A data stucture that supplies per-vertex data to the GPU.
- * @see [Tutorial](https://www.lakuna.pw/a/webgl/attributes)
+ * @see [Attributes](https://www.lakuna.pw/a/webgl/attributes)
  */
 export default class Buffer {
 	/**
@@ -209,7 +209,8 @@ export default class Buffer {
 	}
 
 	/**
-	 * Executes the given function with this buffer bound, then re-binds the previously-bound buffer.
+	 * Executes the given function with this buffer bound, then re-binds the
+	 * previously-bound buffer.
 	 * @param f The function to execute.
 	 * @returns The return value of the executed function.
 	 */

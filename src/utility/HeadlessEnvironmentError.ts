@@ -1,7 +1,11 @@
-/** An error resulting from attempting to use a headed function in a headless environment. */
+/**
+ * An error resulting from attempting to use a headed function in a headless
+ * environment.
+ */
 export default class HeadlessEnvironmentError extends Error {
 	/**
-	 * Creates an error resulting from attempting to use a headed function in a headless environment.
+	 * Creates an error resulting from attempting to use a headed function in a
+	 * headless environment.
 	 * @param message The message of the error.
 	 */
 	public constructor(

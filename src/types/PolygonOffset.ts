@@ -3,6 +3,9 @@ export default interface PolygonOffset {
 	/** The scale factor for the variable depth offset for each polygon. */
 	factor: number;
 
-	/** The multiplier by which an implementation-specific value is multiplied to create a constant depth offset. */
+	/**
+	 * The multiplier by which an implementation-specific value is multiplied
+	 * to create a constant depth offset.
+	 */
 	units: number;
 }

@@ -12,8 +12,10 @@ export default class BufferInfo {
 	 * @param name The name of the attribute in the WebGL program.
 	 * @param buffer The buffer which supplies data to the attribute.
 	 * @param size The number of components per vertex attribute.
-	 * @param normalized Whether to normalize the data after getting it from the buffer.
-	 * @param stride The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `0xFF`.
+	 * @param normalized Whether to normalize the data after getting it from
+	 * the buffer.
+	 * @param stride The offset in bytes between the beginning of consecutive
+	 * vertex attributes. Must not exceed `0xFF`.
 	 * @param offset The offset in bytes of the first component in the buffer.
 	 */
 	public constructor(
@@ -49,7 +51,10 @@ export default class BufferInfo {
 	/** Whether to normalize data after getting it from this buffer. */
 	public normalized: boolean;
 
-	/** The offset in bytes between the beginning of consecutive vertex attributes. Must not exceed `0xFF`. */
+	/**
+	 * The offset in bytes between the beginning of consecutive vertex
+	 * attributes. Must not exceed `0xFF`.
+	 */
 	public stride: number;
 
 	/** The offset in bytes of the first component in the buffer. */
