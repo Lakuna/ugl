@@ -5,7 +5,7 @@ import TransformFeedbackBufferMode from "#TransformFeedbackBufferMode";
 import ProgramLinkError from "#ProgramLinkError";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type Uniform from "#Uniform";
-import type SamplerUniform from "#SamplerUniform";
+import SamplerUniform from "#SamplerUniform";
 import {
 	ACTIVE_UNIFORMS,
 	ACTIVE_ATTRIBUTES,
@@ -104,7 +104,7 @@ export default class Program {
 		for (let i = 0; i < numUniforms; i++) {
 			const uniform: Uniform = UniformFactory.create(this, i, nextTextureUnit);
 			uniforms.set(uniform.name, uniform);
-			if (typeof (uniform as SamplerUniform).textureUnit == "number") {
+			if (uniform instanceof SamplerUniform) {
 				nextTextureUnit++; // Increment texture unit if it gets used.
 			}
 		}
