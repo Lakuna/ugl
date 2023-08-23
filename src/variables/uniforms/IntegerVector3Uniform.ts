@@ -7,6 +7,7 @@ import type MeasuredIterable from "#MeasuredIterable";
 export default class IntegerVector3Uniform extends MultipleValuedUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
+		// TODO: Optional caching.
 		this.context.internal.uniform3iv(
 			this.location,
 			value,

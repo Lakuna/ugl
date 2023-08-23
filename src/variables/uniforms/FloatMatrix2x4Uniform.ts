@@ -5,6 +5,7 @@ import type MeasuredIterable from "#MeasuredIterable";
 export default class FloatMatrix2x4Uniform extends MatrixUniform {
 	/** The setter method for this uniform if the value is an array. */
 	public arraySetter(value: MeasuredIterable<number>): void {
+		// TODO: Optional caching.
 		this.context.internal.uniformMatrix2x4fv(
 			this.location,
 			this.transpose,

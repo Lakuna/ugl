@@ -14,6 +14,7 @@ export default class Renderbuffer {
 	 * @param context The rendering context.
 	 */
 	public static unbind(context: Context): void {
+		// TODO: Optional caching.
 		Renderbuffer.bind(context, null);
 	}
 
@@ -26,6 +27,7 @@ export default class Renderbuffer {
 		context: Context,
 		renderbuffer: WebGLRenderbuffer | null
 	): void {
+		// TODO: Optional caching.
 		context.internal.bindRenderbuffer(RENDERBUFFER, renderbuffer);
 	}
 
@@ -37,6 +39,7 @@ export default class Renderbuffer {
 	private static getBoundRenderbuffer(
 		context: Context
 	): WebGLRenderbuffer | null {
+		// TODO: Optional caching.
 		return context.internal.getParameter(RENDERBUFFER_BINDING);
 	}
 
@@ -92,6 +95,7 @@ export default class Renderbuffer {
 
 	/** Binds this renderbuffer. */
 	public bind(): void {
+		// TODO: Optional caching.
 		Renderbuffer.bind(this.context, this.internal);
 	}
 
@@ -102,6 +106,7 @@ export default class Renderbuffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (renderbuffer: this) => T): T {
+		// TODO: Optional caching.
 		const previousBinding: WebGLRenderbuffer | null =
 			Renderbuffer.getBoundRenderbuffer(this.context);
 		this.bind();

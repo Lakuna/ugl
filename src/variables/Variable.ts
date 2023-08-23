@@ -25,16 +25,19 @@ export default abstract class Variable {
 
 	/** The name of this variable. */
 	public get name(): string {
+		// TODO: Optional caching.
 		return this.activeInfo.name;
 	}
 
 	/** The type of this variable. */
 	public get type(): UniformType | AttributeType {
+		// TODO: Optional caching.
 		return this.activeInfo.type;
 	}
 
 	/** The size of this variable in memory in bytes. */
 	public get size(): number {
+		// TODO: Optional caching.
 		return this.activeInfo.size;
 	}
 }

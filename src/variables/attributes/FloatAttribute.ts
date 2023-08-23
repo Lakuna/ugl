@@ -18,6 +18,7 @@ export default class FloatAttribute extends Attribute {
 	 * @param value The value to pass to the attribute.
 	 */
 	protected setterInternal(value: BufferInfo): void {
+		// TODO: Optional caching.
 		this.context.internal.vertexAttribPointer(
 			this.location,
 			value.size,

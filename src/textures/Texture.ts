@@ -30,6 +30,7 @@ export default class Texture<MipType extends Mip> {
 	 * @param target The target.
 	 */
 	public static unbind(context: Context, target: TextureTarget): void {
+		// TODO: Optional caching.
 		Texture.bind(context, target, null);
 	}
 
@@ -44,6 +45,7 @@ export default class Texture<MipType extends Mip> {
 		target: TextureTarget,
 		framebuffer: WebGLTexture | null
 	): void {
+		// TODO: Optional caching.
 		context.internal.bindTexture(target, framebuffer);
 	}
 
@@ -53,6 +55,7 @@ export default class Texture<MipType extends Mip> {
 	 * @param textureUnit The texture unit.
 	 */
 	private static assign(context: Context, textureUnit: number): void {
+		// TODO: Optional caching.
 		context.internal.activeTexture(TEXTURE0 + textureUnit);
 	}
 
@@ -66,6 +69,7 @@ export default class Texture<MipType extends Mip> {
 		context: Context,
 		target: TextureTarget
 	): WebGLTexture | null {
+		// TODO: Optional caching.
 		switch (target) {
 			case TextureTarget.TEXTURE_2D:
 				return context.internal.getParameter(TEXTURE_BINDING_2D);
@@ -152,6 +156,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The magnification filter for this texture. */
 	public get magFilter(): TextureMagFilter {
+		// TODO: Optional caching.
 		return this.with(
 			(texture: this): TextureMagFilter =>
 				texture.context.internal.getTexParameter(
@@ -163,6 +168,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The magnification filter for this texture. */
 	public set magFilter(value: TextureMagFilter) {
+		// TODO: Optional caching.
 		this.with((framebuffer: this): void =>
 			framebuffer.context.internal.texParameteri(
 				framebuffer.target,
@@ -175,6 +181,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The minification filter for this texture. */
 	public get minFilter(): TextureMinFilter {
+		// TODO: Optional caching.
 		return this.with(
 			(texture: this): TextureMinFilter =>
 				texture.context.internal.getTexParameter(
@@ -186,6 +193,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The minification filter for this texture. */
 	public set minFilter(value: TextureMinFilter) {
+		// TODO: Optional caching.
 		this.with((texture: this): void =>
 			texture.context.internal.texParameteri(
 				texture.target,
@@ -198,6 +206,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The wrapping function of this texture in the S direction. */
 	public get wrapSFunction(): TextureWrapFunction {
+		// TODO: Optional caching.
 		return this.with(
 			(texture: this): TextureWrapFunction =>
 				texture.context.internal.getTexParameter(texture.target, TEXTURE_WRAP_S)
@@ -206,6 +215,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The wrapping function of this texture in the S direction. */
 	public set wrapSFunction(value: TextureWrapFunction) {
+		// TODO: Optional caching.
 		this.with((texture: this): void =>
 			texture.context.internal.texParameteri(
 				texture.target,
@@ -218,6 +228,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The wrapping function of this texture in the T direction. */
 	public get wrapTFunction(): TextureWrapFunction {
+		// TODO: Optional caching.
 		return this.with(
 			(texture: this): TextureWrapFunction =>
 				texture.context.internal.getTexParameter(texture.target, TEXTURE_WRAP_T)
@@ -226,6 +237,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** The wrapping function of this texture in the T direction. */
 	public set wrapTFunction(value: TextureWrapFunction) {
+		// TODO: Optional caching.
 		this.with((texture: this): void =>
 			texture.context.internal.texParameteri(
 				texture.target,
@@ -238,6 +250,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** Binds this texture to its target binding point. */
 	public bind(): void {
+		// TODO: Optional caching.
 		Texture.bind(this.context, this.target, this.internal);
 	}
 
@@ -248,6 +261,7 @@ export default class Texture<MipType extends Mip> {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (texture: this) => T): T {
+		// TODO: Optional caching.
 		const previousBinding: WebGLTexture | null = Texture.getBoundTexture(
 			this.context,
 			this.target
@@ -263,6 +277,7 @@ export default class Texture<MipType extends Mip> {
 	 * @param textureUnit The texture unit.
 	 */
 	public assign(textureUnit: number): void {
+		// TODO: Optional caching.
 		Texture.assign(this.context, textureUnit);
 		this.bind();
 	}
@@ -279,6 +294,7 @@ export default class Texture<MipType extends Mip> {
 	 * @returns Whether any updates were performed.
 	 */
 	public update(): boolean {
+		// TODO: Optional caching.
 		return this.with((texture: this): boolean => {
 			let anyDidUpdate = false;
 			for (const [target, face] of this.faces) {
@@ -306,6 +322,7 @@ export default class Texture<MipType extends Mip> {
 
 	/** Sets all of the faces of this texture as outdated. */
 	public setAllNeedsUpdate(): void {
+		// TODO: Optional caching.
 		for (const face of this.faces.values()) {
 			face.setAllNeedsUpdate();
 		}

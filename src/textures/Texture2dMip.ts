@@ -25,21 +25,25 @@ export default class Texture2dMip extends Mip {
 
 	/** The width of this mip. */
 	public get width(): number | undefined {
+		// TODO: Optional caching.
 		return this.dims[0];
 	}
 
 	/** The width of this mip. */
 	public set width(value: number | undefined) {
+		// TODO: Optional caching.
 		this.dims = [value, this.dims[1]];
 	}
 
 	/** The height of this mip. */
 	public get height(): number | undefined {
+		// TODO: Optional caching.
 		return this.dims[1];
 	}
 
 	/** The height of this mip. */
 	public set height(value: number | undefined) {
+		// TODO: Optional caching.
 		this.dims = [this.dims[0], value];
 	}
 
@@ -54,6 +58,7 @@ export default class Texture2dMip extends Mip {
 		target: MipmapTarget,
 		lod: number
 	): void {
+		// TODO: Optional caching.
 		if (this.width && this.height) {
 			if (!this.unpackAlignment && this.height > 1) {
 				// Unpack alignment doesn't apply to the last row.

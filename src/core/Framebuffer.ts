@@ -33,6 +33,7 @@ export default class Framebuffer {
 	 * @param target The target binding point.
 	 */
 	public static unbind(context: Context, target: FramebufferTarget): void {
+		// TODO: Optional caching.
 		Framebuffer.bind(context, target, null);
 	}
 
@@ -105,6 +106,7 @@ export default class Framebuffer {
 		context: Context,
 		target: FramebufferTarget
 	): WebGLFramebuffer | null {
+		// TODO: Optional caching.
 		switch (target) {
 			case FramebufferTarget.FRAMEBUFFER:
 				return context.internal.getParameter(FRAMEBUFFER_BINDING);
@@ -184,6 +186,7 @@ export default class Framebuffer {
 	 * @returns The color attachment.
 	 */
 	public getColorAttachment(i: number): FramebufferAttachment | undefined {
+		// TODO: Optional caching.
 		return this.colorAttachments[i];
 	}
 
@@ -196,6 +199,7 @@ export default class Framebuffer {
 		i: number,
 		attachment: FramebufferAttachment
 	): void {
+		// TODO: Optional caching.
 		this.attach(attachment as Mip, COLOR_ATTACHMENT0 + i);
 		this.colorAttachments[i] = attachment;
 	}
@@ -205,11 +209,13 @@ export default class Framebuffer {
 
 	/** The depth attachment on this framebuffer. */
 	public get depthAttachment(): FramebufferAttachment | undefined {
+		// TODO: Optional caching.
 		return this.depthAttachmentPrivate;
 	}
 
 	/** The depth attachment on this framebuffer. */
 	public set depthAttachment(value: FramebufferAttachment | undefined) {
+		// TODO: Optional caching.
 		if (!value) {
 			throw new UnsupportedOperationError();
 		}
@@ -222,11 +228,13 @@ export default class Framebuffer {
 
 	/** The stencil attachment on this framebuffer. */
 	public get stencilAttachment(): FramebufferAttachment | undefined {
+		// TODO: Optional caching.
 		return this.stencilAttachmentPrivate;
 	}
 
 	/** The stencil attachment on this framebuffer. */
 	public set stencilAttachment(value: FramebufferAttachment | undefined) {
+		// TODO: Optional caching.
 		if (!value) {
 			throw new UnsupportedOperationError();
 		}
@@ -239,11 +247,13 @@ export default class Framebuffer {
 
 	/** The depth stencil attachment on this framebuffer. */
 	public get depthStencilAttachment(): FramebufferAttachment | undefined {
+		// TODO: Optional caching.
 		return this.depthStencilAttachmentPrivate;
 	}
 
 	/** The depth stencil attachment on this framebuffer. */
 	public set depthStencilAttachment(value: FramebufferAttachment | undefined) {
+		// TODO: Optional caching.
 		if (!value) {
 			throw new UnsupportedOperationError();
 		}
@@ -262,6 +272,7 @@ export default class Framebuffer {
 
 	/** Binds this framebuffer to its target. */
 	public bind(): void {
+		// TODO: Optional caching.
 		Framebuffer.bind(this.context, this.target, this.internal);
 	}
 
@@ -272,6 +283,7 @@ export default class Framebuffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (framebuffer: this) => T): T {
+		// TODO: Optional caching.
 		const previousBinding: WebGLFramebuffer | null =
 			Framebuffer.getBoundFramebuffer(this.context, this.target);
 		this.bind();
@@ -311,6 +323,7 @@ export default class Framebuffer {
 		attachmentPoint: number,
 		layer = 0
 	): void {
+		// TODO: Optional caching.
 		return this.with((framebuffer: this): void => {
 			if (attachment instanceof Renderbuffer) {
 				framebuffer.context.internal.framebufferRenderbuffer(

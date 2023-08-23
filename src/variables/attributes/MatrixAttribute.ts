@@ -22,6 +22,7 @@ export default class MatrixAttribute extends Attribute {
 	 * @param value The value to pass to the attribute.
 	 */
 	protected setterInternal(value: BufferInfo): void {
+		// TODO: Optional caching.
 		for (let i = 0; i < this.dim; i++) {
 			this.context.internal.vertexAttribPointer(
 				this.location + i,

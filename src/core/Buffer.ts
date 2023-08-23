@@ -27,6 +27,7 @@ export default class Buffer {
 	 * @param target The target.
 	 */
 	public static unbind(context: Context, target: BufferTarget): void {
+		// TODO: Optional caching.
 		Buffer.bind(context, target, null);
 	}
 
@@ -40,6 +41,8 @@ export default class Buffer {
 		context: Context,
 		target: BufferTarget
 	): WebGLBuffer | null {
+		// TODO: Optional caching.
+		// TODO: External function to get parameter constant for binding point.
 		switch (target) {
 			case BufferTarget.ARRAY_BUFFER:
 				return context.internal.getParameter(ARRAY_BUFFER_BINDING);
@@ -71,6 +74,7 @@ export default class Buffer {
 		target: BufferTarget,
 		buffer: WebGLBuffer | null
 	): void {
+		// TODO: Optional caching.
 		context.internal.bindBuffer(target, buffer);
 	}
 
@@ -182,6 +186,7 @@ export default class Buffer {
 
 	/** The size of each element in this buffer in bytes. */
 	public get elementSize(): number {
+		// TODO: Optional caching.
 		switch (this.type) {
 			case BufferDataType.BYTE:
 			case BufferDataType.UNSIGNED_BYTE:
@@ -205,6 +210,7 @@ export default class Buffer {
 
 	/** Binds this buffer to its target binding point. */
 	public bind(): void {
+		// TODO: Optional caching.
 		Buffer.bind(this.context, this.target, this.internal);
 	}
 
@@ -215,6 +221,7 @@ export default class Buffer {
 	 * @returns The return value of the executed function.
 	 */
 	public with<T>(f: (buffer: this) => T): T {
+		// TODO: Optional caching.
 		const previousBinding: WebGLBuffer | null = Buffer.getBoundBuffer(
 			this.context,
 			this.target

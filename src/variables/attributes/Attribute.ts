@@ -45,6 +45,7 @@ export default abstract class Attribute extends Variable {
 	 * @param value The value to pass to the attribute.
 	 */
 	public setter(value: BufferInfo): void {
+		// TODO: Optional caching.
 		if (value.buffer.target != BufferTarget.ARRAY_BUFFER) {
 			throw new BufferTargetError();
 		}
@@ -67,11 +68,13 @@ export default abstract class Attribute extends Variable {
 
 	/** Whether this attribute can get data from a buffer. */
 	public get enabled(): boolean {
+		// TODO: Optional caching.
 		return this.enabledPrivate;
 	}
 
 	/** Whether this attribute can get data from a buffer. */
 	public set enabled(value: boolean) {
+		// TODO: Optional caching.
 		if (value) {
 			this.context.internal.enableVertexAttribArray(this.location);
 		} else {
@@ -86,11 +89,13 @@ export default abstract class Attribute extends Variable {
 
 	/** The value of this attribute. */
 	public get value(): BufferInfo | undefined {
+		// TODO: Optional caching.
 		return this.valuePrivate;
 	}
 
 	/** The value of this attribute. */
 	public set value(value: BufferInfo | undefined) {
+		// TODO: Optional caching.
 		if (!value) {
 			return;
 		}

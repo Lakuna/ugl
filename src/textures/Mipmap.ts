@@ -56,12 +56,14 @@ export default class Mipmap<MipType extends Mip> {
 	 * @param mip The mip.
 	 */
 	public setMip(level: number, mip: MipType): void {
+		// TODO: Optional caching.
 		this.mips[level] = mip;
 		mip.setNeedsUpdate();
 	}
 
 	/** Whether this mipmap is texture complete. */
 	public get isTextureComplete(): boolean {
+		// TODO: Optional caching.
 		const baseMip: MipType | undefined = this.getMip(0);
 		if (!baseMip) {
 			return false;
@@ -107,6 +109,7 @@ export default class Mipmap<MipType extends Mip> {
 	 * @returns Whether any updates were performed.
 	 */
 	public update(texture: Texture<MipType>, target: MipmapTarget): boolean {
+		// TODO: Optional caching.
 		let anyDidUpdate = false;
 		for (let lod = 0; lod < this.mips.length; lod++) {
 			const level: MipType | undefined = this.mips[lod];
@@ -123,6 +126,7 @@ export default class Mipmap<MipType extends Mip> {
 
 	/** Sets all of the mips as outdated. */
 	public setAllNeedsUpdate(): void {
+		// TODO: Optional caching.
 		for (const level of this.mips.values()) {
 			level.setNeedsUpdate();
 		}
