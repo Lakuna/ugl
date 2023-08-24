@@ -56,14 +56,18 @@
 	},
 	"imports": {
 		"#constants": "./dist/constants/constants.js",
+		"#ShaderType": "./dist/constants/ShaderType.js",
 		"#Context": "./dist/core/Context.js",
 		"#Program": "./dist/core/Program.js",
 		"#Shader": "./dist/core/Shader.js",
 		"#Canvas": "./dist/types/Canvas.js",
 		"#DangerousExposedContext": "./dist/types/DangerousExposedContext.js",
+		"#DangerousExposedShader": "./dist/types/DangerousExposedShader.js",
 		"#ExperimentalRawContext": "./dist/types/ExperimentalRawContext.js",
 		"#ApiInterface": "./dist/utility/ApiInterface.js",
 		"#ContextDependent": "./dist/utility/ContextDependent.js",
+		"#ProgramLinkError": "./dist/utility/ProgramLinkError.js",
+		"#ShaderCompileError": "./dist/utility/ShaderCompileError.js",
 		"#UnsupportedOperationError": "./dist/utility/UnsupportedOperationError.js"
 	},
 	"types": "./dist/index.d.ts",

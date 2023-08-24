@@ -7,16 +7,16 @@ import type { ExperimentalRawContext } from "#ExperimentalRawContext";
 export default abstract class ApiInterface {
 	/**
 	 * Initializes the API interface.
-	 * @param api The API interface object.
+	 * @param gl The API interface object.
 	 * @internal
 	 */
-	protected constructor(api: WebGL2RenderingContext) {
-		this.api = api as ExperimentalRawContext;
+	protected constructor(gl: WebGL2RenderingContext) {
+		this.gl = gl as ExperimentalRawContext;
 	}
 
 	/**
 	 * The API interface.
 	 * @internal
 	 */
-	protected api: ExperimentalRawContext;
+	protected gl: ExperimentalRawContext;
 }

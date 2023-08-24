@@ -14,7 +14,7 @@ export default abstract class ContextDependent extends ApiInterface {
 	 * @internal
 	 */
 	protected constructor(context: Context) {
-		super((context as DangerousExposedContext).api);
+		super((context as DangerousExposedContext).gl);
 		this.context = context;
 	}
 

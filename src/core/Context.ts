@@ -41,7 +41,7 @@ export default class Context extends ApiInterface {
 			super(gl);
 		}
 
-		this.canvas = this.api.canvas;
+		this.canvas = this.gl.canvas;
 	}
 
 	/** The canvas of this rendering context. */
@@ -50,6 +50,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * The color space of the drawing buffer of this rendering context.
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
+	 * @internal
 	 */
 	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
 
@@ -59,7 +60,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get drawingBufferColorSpace(): PredefinedColorSpace {
 		if (typeof this.drawingBufferColorSpaceCache == "undefined") {
-			this.drawingBufferColorSpaceCache = this.api.drawingBufferColorSpace;
+			this.drawingBufferColorSpaceCache = this.gl.drawingBufferColorSpace;
 		}
 		return this.drawingBufferColorSpaceCache;
 	}
@@ -69,7 +70,7 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 */
 	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
-		this.api.drawingBufferColorSpace = value;
+		this.gl.drawingBufferColorSpace = value;
 		this.drawingBufferColorSpaceCache = value;
 	}
 
@@ -78,7 +79,7 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferHeight`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight)
 	 */
 	public get drawingBufferHeight(): number {
-		return this.api.drawingBufferHeight;
+		return this.gl.drawingBufferHeight;
 	}
 
 	/**
@@ -86,13 +87,14 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferWidth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth)
 	 */
 	public get drawingBufferWidth(): number {
-		return this.api.drawingBufferWidth;
+		return this.gl.drawingBufferWidth;
 	}
 
 	/**
 	 * The color space to convert to when importing textures.
 	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
 	 * @experimental
+	 * @internal
 	 */
 	private unpackColorSpaceCache?: PredefinedColorSpace;
 
@@ -103,7 +105,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get unpackColorSpace(): PredefinedColorSpace {
 		if (typeof this.unpackColorSpaceCache == "undefined") {
-			this.unpackColorSpaceCache = this.api.unpackColorSpace;
+			this.unpackColorSpaceCache = this.gl.unpackColorSpace;
 		}
 		return this.unpackColorSpaceCache;
 	}
@@ -114,13 +116,14 @@ export default class Context extends ApiInterface {
 	 * @experimental
 	 */
 	public set unpackColorSpace(value: PredefinedColorSpace) {
-		this.api.unpackColorSpace = value;
+		this.gl.unpackColorSpace = value;
 		this.unpackColorSpaceCache = value;
 	}
 
 	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @internal
 	 */
 	private activeTextureCache?: number;
 
@@ -130,8 +133,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get activeTexture(): number {
 		if (typeof this.activeTextureCache == "undefined") {
-			this.activeTextureCache =
-				this.api.getParameter(ACTIVE_TEXTURE) - TEXTURE0;
+			this.activeTextureCache = this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0;
 		}
 		return this.activeTextureCache;
 	}
@@ -141,7 +143,7 @@ export default class Context extends ApiInterface {
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 */
 	public set activeTexture(value: number) {
-		this.api.activeTexture(value + TEXTURE0);
+		this.gl.activeTexture(value + TEXTURE0);
 		this.activeTextureCache = value;
 	}
 }
