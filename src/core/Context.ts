@@ -1,8 +1,9 @@
-import { ACTIVE_TEXTURE, TEXTURE0 } from "#constants";
+import { ACTIVE_TEXTURE, TEXTURE0, BLEND_COLOR } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type { ExperimentalRawContext } from "#ExperimentalRawContext";
+import type Color from "#Color";
 
 /**
  * A WebGL2 rendering context.
@@ -75,6 +76,9 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 */
 	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
+		if (this.drawingBufferColorSpaceCache == value) {
+			return;
+		}
 		this.gl.drawingBufferColorSpace = value;
 		this.drawingBufferColorSpaceCache = value;
 	}
@@ -123,6 +127,9 @@ export default class Context extends ApiInterface {
 	 * @experimental
 	 */
 	public set unpackColorSpace(value: PredefinedColorSpace) {
+		if (this.unpackColorSpaceCache == value) {
+			return;
+		}
 		(this.gl as ExperimentalRawContext).unpackColorSpace = value;
 		this.unpackColorSpaceCache = value;
 	}
@@ -151,7 +158,46 @@ export default class Context extends ApiInterface {
 	 */
 	public set activeTexture(value: number) {
 		// TODO: Ensure that this is between `0` and `MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1`.
+		if (this.activeTextureCache == value) {
+			return;
+		}
 		this.gl.activeTexture(value + TEXTURE0);
 		this.activeTextureCache = value;
+	}
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 * @internal
+	 */
+	private blendColorCache?: Color;
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 */
+	public get blendColor(): Color {
+		if (typeof this.blendColorCache == "undefined") {
+			this.blendColorCache = this.gl.getParameter(BLEND_COLOR) as Color;
+		}
+		return this.blendColorCache;
+	}
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 */
+	public set blendColor(value: Color) {
+		if (
+			typeof this.blendColorCache != "undefined" &&
+			this.blendColorCache[0] == value[0] &&
+			this.blendColorCache[1] == value[1] &&
+			this.blendColorCache[2] == value[2] &&
+			this.blendColorCache[3] == value[3]
+		) {
+			return;
+		}
+		this.gl.blendColor(value[0], value[1], value[2], value[3]);
+		this.blendColorCache = value;
 	}
 }

@@ -27,3 +27,9 @@ export const LINK_STATUS = 0x8b82;
  * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
  */
 export const RENDERBUFFER = 0x8d41;
+
+/**
+ * The current blend color.
+ * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+ */
+export const BLEND_COLOR = 0x8005;

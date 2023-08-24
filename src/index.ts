@@ -10,6 +10,7 @@ export { default as Program } from "#Program";
 export { default as Renderbuffer } from "#Renderbuffer";
 export { default as Shader } from "#Shader";
 export type { Canvas } from "#Canvas";
+export type { default as Color } from "#Color";
 export { default as ProgramLinkError } from "#ProgramLinkError";
 export { default as ShaderCompileError } from "#ShaderCompileError";
 export { default as UnsupportedOperationError } from "#UnsupportedOperationError";
