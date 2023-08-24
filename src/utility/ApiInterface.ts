@@ -1,5 +1,3 @@
-import type { ExperimentalRawContext } from "#ExperimentalRawContext";
-
 /**
  * An object with direct access to the WebGL2 API.
  * @internal
@@ -11,12 +9,13 @@ export default abstract class ApiInterface {
 	 * @internal
 	 */
 	protected constructor(gl: WebGL2RenderingContext) {
-		this.gl = gl as ExperimentalRawContext;
+		this.gl = gl;
 	}
 
 	/**
 	 * The API interface.
 	 * @internal
+	 * @see [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
 	 */
-	protected gl: ExperimentalRawContext;
+	protected gl: WebGL2RenderingContext;
 }

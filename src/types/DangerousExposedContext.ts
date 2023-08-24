@@ -10,6 +10,7 @@ export type DangerousExposedContext = Context & {
 	/**
 	 * The API interface.
 	 * @internal
+	 * @see [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
 	 */
 	gl: WebGL2RenderingContext;
 };

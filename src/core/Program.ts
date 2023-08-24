@@ -38,13 +38,20 @@ export default class Program extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param vertexShader The vertex shader.
 	 * @param fragmentShader The fragment shader.
+	 * @param attributeLocations A map of attribute names to their desired
+	 * locations.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ProgramLinkError}
+	 * @see [`createProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram)
+	 * @see [`attachShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader)
+	 * @see [`bindAttribLocation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation)
+	 * @see [`linkProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram)
 	 */
 	public constructor(
 		context: Context,
 		vertexShader: Shader,
-		fragmentShader: Shader
+		fragmentShader: Shader,
+		attributeLocations?: Map<string, number>
 	) {
 		super(context);
 
@@ -66,6 +73,14 @@ export default class Program extends ContextDependent {
 		);
 		this.fragmentShader = fragmentShader;
 
+		if (typeof attributeLocations != "undefined") {
+			for (const [name, location] of attributeLocations) {
+				this.gl.bindAttribLocation(program, location, name);
+			}
+		}
+
+		this.gl.linkProgram(program);
+
 		if (!this.linkStatus) {
 			throw new ProgramLinkError(this.infoLog ?? undefined);
 		}
@@ -74,6 +89,7 @@ export default class Program extends ContextDependent {
 	/**
 	 * The API interface of this shader program.
 	 * @internal
+	 * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
 	 */
 	protected readonly internal: WebGLProgram;
 
@@ -93,6 +109,6 @@ export default class Program extends ContextDependent {
 	 * @see [`getProgramInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog)
 	 */
 	public get infoLog(): string | null {
-		return this.gl.getShaderInfoLog(this.internal);
+		return this.gl.getProgramInfoLog(this.internal);
 	}
 }

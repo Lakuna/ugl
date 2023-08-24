@@ -10,6 +10,7 @@ export type DangerousExposedShader = Shader & {
 	/**
 	 * The API interface.
 	 * @internal
+	 * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
 	 */
 	internal: WebGLShader;
 };

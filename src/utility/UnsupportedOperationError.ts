@@ -1,5 +1,6 @@
 /**
- * An error resulting from attempting to use a feature that is not supported by the current environment.
+ * An error resulting from attempting to use a feature that is not supported by
+ * the current environment.
  */
 export default class UnsupportedOperationError extends Error {
 	/**

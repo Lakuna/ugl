@@ -55,8 +55,11 @@
 		".": "./dist/index.js"
 	},
 	"imports": {
+		"#BufferTarget": "./dist/constants/BufferTarget.js",
 		"#constants": "./dist/constants/constants.js",
+		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
 		"#ShaderType": "./dist/constants/ShaderType.js",
+		"#Buffer": "./dist/core/Buffer.js",
 		"#Context": "./dist/core/Context.js",
 		"#Program": "./dist/core/Program.js",
 		"#Shader": "./dist/core/Shader.js",

@@ -17,6 +17,9 @@ export default class Shader extends ContextDependent {
 	 * @param source The source code.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ShaderCompileError}
+	 * @see [`createShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader)
+	 * @see [`shaderSource`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource)
+	 * @see [`compileShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader)
 	 */
 	public constructor(context: Context, type: ShaderType, source: string) {
 		super(context);
@@ -41,6 +44,7 @@ export default class Shader extends ContextDependent {
 	/**
 	 * The API interface of this shader.
 	 * @internal
+	 * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
 	 */
 	protected readonly internal: WebGLShader;
 

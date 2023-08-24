@@ -1,4 +1,7 @@
-/** Types of shaders. */
+/**
+ * Types of shaders.
+ * @see [`createShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader)
+ */
 enum ShaderType {
 	/**
 	 * A fragment shader, which runs once for each fragment and computes the

@@ -2,6 +2,7 @@ import { ACTIVE_TEXTURE, TEXTURE0 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
 import UnsupportedOperationError from "#UnsupportedOperationError";
+import type { ExperimentalRawContext } from "#ExperimentalRawContext";
 
 /**
  * A WebGL2 rendering context.
@@ -19,6 +20,7 @@ export default class Context extends ApiInterface {
 	 * @param canvas The canvas of the rendering context.
 	 * @throws {@link UnsupportedOperationError} if the environment does not
 	 * support WebGL2.
+	 * @see [`getContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
 	 */
 	public constructor(canvas: Canvas, options?: WebGLContextAttributes);
 
@@ -44,7 +46,10 @@ export default class Context extends ApiInterface {
 		this.canvas = this.gl.canvas;
 	}
 
-	/** The canvas of this rendering context. */
+	/**
+	 * The canvas of this rendering context.
+	 * @see [`canvas`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/canvas)
+	 */
 	public readonly canvas: Canvas;
 
 	/**
@@ -105,7 +110,9 @@ export default class Context extends ApiInterface {
 	 */
 	public get unpackColorSpace(): PredefinedColorSpace {
 		if (typeof this.unpackColorSpaceCache == "undefined") {
-			this.unpackColorSpaceCache = this.gl.unpackColorSpace;
+			this.unpackColorSpaceCache = (
+				this.gl as ExperimentalRawContext
+			).unpackColorSpace;
 		}
 		return this.unpackColorSpaceCache;
 	}
@@ -116,7 +123,7 @@ export default class Context extends ApiInterface {
 	 * @experimental
 	 */
 	public set unpackColorSpace(value: PredefinedColorSpace) {
-		this.gl.unpackColorSpace = value;
+		(this.gl as ExperimentalRawContext).unpackColorSpace = value;
 		this.unpackColorSpaceCache = value;
 	}
 
@@ -143,6 +150,7 @@ export default class Context extends ApiInterface {
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 */
 	public set activeTexture(value: number) {
+		// TODO: Ensure that this is between `0` and `MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1`.
 		this.gl.activeTexture(value + TEXTURE0);
 		this.activeTextureCache = value;
 	}

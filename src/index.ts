@@ -1,4 +1,7 @@
+export { default as BufferTarget } from "#BufferTarget";
+export { default as FramebufferTarget } from "#FramebufferTarget";
 export { default as ShaderType } from "#ShaderType";
+export { default as Buffer } from "#Buffer";
 export { default as Context } from "#Context";
 export { default as Program } from "#Program";
 export { default as Shader } from "#Shader";
