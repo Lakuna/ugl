@@ -1,9 +1,17 @@
-import { ACTIVE_TEXTURE, TEXTURE0, BLEND_COLOR } from "#constants";
+import {
+	ACTIVE_TEXTURE,
+	TEXTURE0,
+	BLEND_COLOR,
+	BLEND_EQUATION_RGB,
+	BLEND_EQUATION_ALPHA
+} from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type { ExperimentalRawContext } from "#ExperimentalRawContext";
 import type Color from "#Color";
+import BlendEquation from "#BlendEquation";
+import type BlendEquationSet from "#BlendEquationSet";
 
 /**
  * A WebGL2 rendering context.
@@ -199,5 +207,78 @@ export default class Context extends ApiInterface {
 		}
 		this.gl.blendColor(value[0], value[1], value[2], value[3]);
 		this.blendColorCache = value;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 * @internal
+	 */
+	private blendEquationCache?: BlendEquationSet;
+
+	/**
+	 * Initializes the blend equation cache.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 * @internal
+	 */
+	private setBlendEquationCache(): void {
+		if (typeof this.blendEquationCache == "undefined") {
+			this.blendEquationCache = new Uint8Array([
+				this.gl.getParameter(BLEND_EQUATION_RGB),
+				this.gl.getParameter(BLEND_EQUATION_ALPHA)
+			]) as unknown as BlendEquationSet;
+		}
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 */
+	public get blendEquation(): BlendEquationSet {
+		this.setBlendEquationCache();
+		return this.blendEquationCache as BlendEquationSet;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 */
+	public set blendEquation(value: BlendEquation | BlendEquationSet) {
+		const rgb: BlendEquation = (value as BlendEquationSet)?.[0] ?? value;
+		const alpha: BlendEquation = (value as BlendEquationSet)?.[1] ?? value;
+		if (
+			typeof this.blendEquationCache != "undefined" &&
+			this.blendEquationCache[0] == rgb &&
+			this.blendEquationCache[1] == alpha
+		) {
+			return;
+		}
+		if (rgb == alpha) {
+			this.gl.blendEquation(rgb);
+		} else {
+			this.gl.blendEquationSeparate(rgb, alpha);
+		}
+		this.blendEquationCache = new Uint8Array([
+			rgb,
+			alpha
+		]) as unknown as BlendEquationSet;
+	}
+
+	/**
+	 * The RGB blend equation.
+	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+	 */
+	public get blendEquationRgb(): BlendEquation {
+		this.setBlendEquationCache();
+		return (this.blendEquationCache as BlendEquationSet)[0];
+	}
+
+	/**
+	 * The alpha blend equation.
+	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+	 */
+	public get blendEquationAlpha(): BlendEquation {
+		this.setBlendEquationCache();
+		return (this.blendEquationCache as BlendEquationSet)[1];
 	}
 }

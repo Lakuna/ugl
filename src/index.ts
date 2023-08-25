@@ -1,3 +1,4 @@
+export { default as BlendEquation } from "#BlendEquation";
 export { default as BufferTarget } from "#BufferTarget";
 export { default as FramebufferTarget } from "#FramebufferTarget";
 export { default as ShaderType } from "#ShaderType";
@@ -9,6 +10,7 @@ export { default as Framebuffer } from "#Framebuffer";
 export { default as Program } from "#Program";
 export { default as Renderbuffer } from "#Renderbuffer";
 export { default as Shader } from "#Shader";
+export type { default as BlendEquationSet } from "#BlendEquationSet";
 export type { Canvas } from "#Canvas";
 export type { default as Color } from "#Color";
 export { default as ProgramLinkError } from "#ProgramLinkError";

@@ -33,3 +33,9 @@ export const RENDERBUFFER = 0x8d41;
  * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
  */
 export const BLEND_COLOR = 0x8005;
+
+/** The current RGB blend equation. */
+export const BLEND_EQUATION_RGB = 0x8009;
+
+/** The current alpha blend equation. */
+export const BLEND_EQUATION_ALPHA = 0x883d;
