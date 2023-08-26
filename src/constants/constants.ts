@@ -39,3 +39,15 @@ export const BLEND_EQUATION_RGB = 0x8009;
 
 /** The current alpha blend equation. */
 export const BLEND_EQUATION_ALPHA = 0x883d;
+
+/** The current source RGB blend function */
+export const BLEND_SRC_RGB = 0x80c9;
+
+/** The current destination RGB blend function */
+export const BLEND_DST_RGB = 0x80c8;
+
+/** The current source alpha blend function */
+export const BLEND_SRC_ALPHA = 0x80cb;
+
+/** The current destination alpha blend function */
+export const BLEND_DST_ALPHA = 0x80ca;

@@ -56,6 +56,7 @@
 	},
 	"imports": {
 		"#BlendEquation": "./dist/constants/BlendEquation.js",
+		"#BlendFunction": "./dist/constants/BlendFunction.js",
 		"#BufferTarget": "./dist/constants/BufferTarget.js",
 		"#constants": "./dist/constants/constants.js",
 		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
@@ -72,6 +73,8 @@
 		"#DangerousExposedShader": "./dist/types/internal/DangerousExposedShader.js",
 		"#ExperimentalRawContext": "./dist/types/internal/ExperimentalRawContext.js",
 		"#BlendEquationSet": "./dist/types/BlendEquationSet.js",
+		"#BlendFunctionFullSet": "./dist/types/BlendFunctionFullSet.js",
+		"#BlendFunctionSet": "./dist/types/BlendFunctionSet.js",
 		"#Canvas": "./dist/types/Canvas.js",
 		"#Color": "./dist/types/Color.js",
 		"#ApiInterface": "./dist/utility/internal/ApiInterface.js",

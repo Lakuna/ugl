@@ -3,7 +3,11 @@ import {
 	TEXTURE0,
 	BLEND_COLOR,
 	BLEND_EQUATION_RGB,
-	BLEND_EQUATION_ALPHA
+	BLEND_EQUATION_ALPHA,
+	BLEND_SRC_RGB,
+	BLEND_SRC_ALPHA,
+	BLEND_DST_RGB,
+	BLEND_DST_ALPHA
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -12,6 +16,9 @@ import type { ExperimentalRawContext } from "#ExperimentalRawContext";
 import type Color from "#Color";
 import BlendEquation from "#BlendEquation";
 import type BlendEquationSet from "#BlendEquationSet";
+import type BlendFunctionSet from "#BlendFunctionSet";
+import type BlendFunctionFullSet from "#BlendFunctionFullSet";
+import type BlendFunction from "#BlendFunction";
 
 /**
  * A WebGL2 rendering context.
@@ -234,15 +241,6 @@ export default class Context extends ApiInterface {
 	 * The RGB and alpha blend equations.
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 */
-	public get blendEquation(): BlendEquationSet {
-		this.setBlendEquationCache();
-		return this.blendEquationCache as BlendEquationSet;
-	}
-
-	/**
-	 * The RGB and alpha blend equations.
-	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
-	 */
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
 		const rgb: BlendEquation = (value as BlendEquationSet)?.[0] ?? value;
 		const alpha: BlendEquation = (value as BlendEquationSet)?.[1] ?? value;
@@ -280,5 +278,100 @@ export default class Context extends ApiInterface {
 	public get blendEquationAlpha(): BlendEquation {
 		this.setBlendEquationCache();
 		return (this.blendEquationCache as BlendEquationSet)[1];
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @internal
+	 */
+	private blendFunctionCache?: BlendFunctionFullSet;
+
+	/**
+	 * Initializes the blend function cache.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @internal
+	 */
+	private setBlendFunctionCache(): void {
+		if (typeof this.blendFunctionCache == "undefined") {
+			this.blendFunctionCache = new Uint8Array([
+				this.gl.getParameter(BLEND_SRC_RGB),
+				this.gl.getParameter(BLEND_DST_RGB),
+				this.gl.getParameter(BLEND_SRC_ALPHA),
+				this.gl.getParameter(BLEND_DST_ALPHA)
+			]) as unknown as BlendFunctionFullSet;
+		}
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 */
+	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
+		const sourceRgb: BlendFunction = value[0];
+		const destinationRgb: BlendFunction = value[1];
+		const sourceAlpha: BlendFunction = 2 in value ? value[2] : value[0];
+		const destinationAlpha: BlendFunction = 3 in value ? value[3] : value[1];
+		if (
+			typeof this.blendFunctionCache != "undefined" &&
+			this.blendFunctionCache[0] == sourceRgb &&
+			this.blendFunctionCache[1] == destinationRgb &&
+			this.blendFunctionCache[2] == sourceAlpha &&
+			this.blendFunctionCache[3] == destinationAlpha
+		) {
+			return;
+		}
+		if (sourceRgb == sourceAlpha && destinationRgb == destinationAlpha) {
+			this.gl.blendFunc(sourceRgb, destinationRgb);
+		} else {
+			this.gl.blendFuncSeparate(
+				sourceRgb,
+				destinationRgb,
+				sourceAlpha,
+				destinationAlpha
+			);
+		}
+		this.blendFunctionCache = new Uint8Array([
+			sourceRgb,
+			destinationRgb,
+			sourceAlpha,
+			destinationAlpha
+		]) as unknown as BlendFunctionFullSet;
+	}
+
+	/**
+	 * The source RGB blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionSourceRgb(): BlendFunction {
+		this.setBlendFunctionCache();
+		return (this.blendFunctionCache as BlendFunctionFullSet)[0];
+	}
+
+	/**
+	 * The destination RGB blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionDestinationRgb(): BlendFunction {
+		this.setBlendFunctionCache();
+		return (this.blendFunctionCache as BlendFunctionFullSet)[1];
+	}
+
+	/**
+	 * The source alpha blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionSourceAlpha(): BlendFunction {
+		this.setBlendFunctionCache();
+		return (this.blendFunctionCache as BlendFunctionFullSet)[2];
+	}
+
+	/**
+	 * The destination alpha blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionDestinationAlpha(): BlendFunction {
+		this.setBlendFunctionCache();
+		return (this.blendFunctionCache as BlendFunctionFullSet)[3];
 	}
 }
