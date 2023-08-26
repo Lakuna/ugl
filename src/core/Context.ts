@@ -241,6 +241,15 @@ export default class Context extends ApiInterface {
 	 * The RGB and alpha blend equations.
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 */
+	public get blendEquation(): BlendEquationSet {
+		this.setBlendEquationCache();
+		return this.blendEquationCache as BlendEquationSet;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 */
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
 		const rgb: BlendEquation = (value as BlendEquationSet)?.[0] ?? value;
 		const alpha: BlendEquation = (value as BlendEquationSet)?.[1] ?? value;
@@ -301,6 +310,15 @@ export default class Context extends ApiInterface {
 				this.gl.getParameter(BLEND_DST_ALPHA)
 			]) as unknown as BlendFunctionFullSet;
 		}
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 */
+	public get blendFunction(): BlendFunctionFullSet {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache as BlendFunctionFullSet;
 	}
 
 	/**
