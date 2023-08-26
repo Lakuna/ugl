@@ -1,53 +1,139 @@
 /**
  * The active texture unit.
  * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+ * @internal
  */
 export const ACTIVE_TEXTURE = 0x84e0;
 
 /**
  * The first texture unit.
  * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+ * @internal
  */
 export const TEXTURE0 = 0x84c0;
 
 /**
  * The compilation status of a shader.
  * @see [`getShaderParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderParameter)
+ * @internal
  */
 export const COMPILE_STATUS = 0x8b81;
 
 /**
  * The linking status of a shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
+ * @internal
  */
 export const LINK_STATUS = 0x8b82;
 
 /**
  * A renderbuffer.
  * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+ * @internal
  */
 export const RENDERBUFFER = 0x8d41;
 
 /**
  * The current blend color.
  * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+ * @internal
  */
 export const BLEND_COLOR = 0x8005;
 
-/** The current RGB blend equation. */
+/**
+ * The current RGB blend equation.
+ * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+ * @internal
+ */
 export const BLEND_EQUATION_RGB = 0x8009;
 
-/** The current alpha blend equation. */
+/**
+ * The current alpha blend equation.
+ * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+ * @internal
+ */
 export const BLEND_EQUATION_ALPHA = 0x883d;
 
-/** The current source RGB blend function */
+/**
+ * The current source RGB blend function.
+ * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+ * @internal
+ */
 export const BLEND_SRC_RGB = 0x80c9;
 
-/** The current destination RGB blend function */
+/**
+ * The current destination RGB blend function.
+ * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+ * @internal
+ */
 export const BLEND_DST_RGB = 0x80c8;
 
-/** The current source alpha blend function */
+/**
+ * The current source alpha blend function.
+ * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+ * @internal
+ */
 export const BLEND_SRC_ALPHA = 0x80cb;
 
-/** The current destination alpha blend function */
+/**
+ * The current destination alpha blend function.
+ * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+ * @internal
+ */
 export const BLEND_DST_ALPHA = 0x80ca;
+
+/**
+ * The currently-bound array buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const ARRAY_BUFFER_BINDING = 0x8894;
+
+/**
+ * The currently-bound element array buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const ELEMENT_ARRAY_BUFFER_BINDING = 0x8895;
+
+/**
+ * The currently-bound copy read buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const COPY_READ_BUFFER_BINDING = 0x8f36;
+
+/**
+ * The currently-bound copy write buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const COPY_WRITE_BUFFER_BINDING = 0x8f37;
+
+/**
+ * The currently-bound transform feedback buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const TRANSFORM_FEEDBACK_BUFFER_BINDING = 0x8c8f;
+
+/**
+ * The currently-bound uniform buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const UNIFORM_BUFFER_BINDING = 0x8a28;
+
+/**
+ * The currently-bound pixel pack buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const PIXEL_PACK_BUFFER_BINDING = 0x88ed;
+
+/**
+ * The currently-bound pixel unpack buffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const PIXEL_UNPACK_BUFFER_BINDING = 0x88ef;

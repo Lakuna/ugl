@@ -19,6 +19,8 @@ import type BlendEquationSet from "#BlendEquationSet";
 import type BlendFunctionSet from "#BlendFunctionSet";
 import type BlendFunctionFullSet from "#BlendFunctionFullSet";
 import type BlendFunction from "#BlendFunction";
+import ErrorCode from "#ErrorCode";
+import WebglError from "#WebglError";
 
 /**
  * A WebGL2 rendering context.
@@ -50,7 +52,7 @@ export default class Context extends ApiInterface {
 			const gl: WebGL2RenderingContext | null = source.getContext(
 				"webgl2",
 				options
-			) as WebGL2RenderingContext | null;
+			)!;
 			if (gl == null) {
 				throw new UnsupportedOperationError(
 					"The environment does not support WebGL2."
@@ -243,7 +245,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendEquation(): BlendEquationSet {
 		this.setBlendEquationCache();
-		return this.blendEquationCache as BlendEquationSet;
+		return this.blendEquationCache!;
 	}
 
 	/**
@@ -277,7 +279,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendEquationRgb(): BlendEquation {
 		this.setBlendEquationCache();
-		return (this.blendEquationCache as BlendEquationSet)[0];
+		return this.blendEquationCache![0];
 	}
 
 	/**
@@ -286,7 +288,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendEquationAlpha(): BlendEquation {
 		this.setBlendEquationCache();
-		return (this.blendEquationCache as BlendEquationSet)[1];
+		return this.blendEquationCache![1];
 	}
 
 	/**
@@ -318,7 +320,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendFunction(): BlendFunctionFullSet {
 		this.setBlendFunctionCache();
-		return this.blendFunctionCache as BlendFunctionFullSet;
+		return this.blendFunctionCache!;
 	}
 
 	/**
@@ -363,7 +365,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendFunctionSourceRgb(): BlendFunction {
 		this.setBlendFunctionCache();
-		return (this.blendFunctionCache as BlendFunctionFullSet)[0];
+		return this.blendFunctionCache![0];
 	}
 
 	/**
@@ -372,7 +374,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendFunctionDestinationRgb(): BlendFunction {
 		this.setBlendFunctionCache();
-		return (this.blendFunctionCache as BlendFunctionFullSet)[1];
+		return this.blendFunctionCache![1];
 	}
 
 	/**
@@ -381,7 +383,7 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendFunctionSourceAlpha(): BlendFunction {
 		this.setBlendFunctionCache();
-		return (this.blendFunctionCache as BlendFunctionFullSet)[2];
+		return this.blendFunctionCache![2];
 	}
 
 	/**
@@ -390,6 +392,26 @@ export default class Context extends ApiInterface {
 	 */
 	public get blendFunctionDestinationAlpha(): BlendFunction {
 		this.setBlendFunctionCache();
-		return (this.blendFunctionCache as BlendFunctionFullSet)[3];
+		return this.blendFunctionCache![3];
+	}
+
+	/**
+	 * The most recent WebGL error that has occurred in this context.
+	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+	 */
+	public get error(): ErrorCode {
+		return this.gl.getError();
+	}
+
+	/**
+	 * Throws a JavaScript error if a WebGL error has occurred.
+	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+	 * @throws {@link WebglError}
+	 */
+	public throwIfError(): void {
+		const code: ErrorCode = this.error;
+		if (code != ErrorCode.NO_ERROR) {
+			throw new WebglError(code);
+		}
 	}
 }

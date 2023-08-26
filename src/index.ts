@@ -1,6 +1,7 @@
 export { default as BlendEquation } from "#BlendEquation";
 export { default as BlendFunction } from "#BlendFunction";
 export { default as BufferTarget } from "#BufferTarget";
+export { default as ErrorCode } from "#ErrorCode";
 export { default as FramebufferTarget } from "#FramebufferTarget";
 export { default as ShaderType } from "#ShaderType";
 export { default as TextureTarget } from "#TextureTarget";
@@ -19,3 +20,4 @@ export type { default as Color } from "#Color";
 export { default as ProgramLinkError } from "#ProgramLinkError";
 export { default as ShaderCompileError } from "#ShaderCompileError";
 export { default as UnsupportedOperationError } from "#UnsupportedOperationError";
+export { default as WebglError } from "#WebglError";

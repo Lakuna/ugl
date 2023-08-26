@@ -59,6 +59,7 @@
 		"#BlendFunction": "./dist/constants/BlendFunction.js",
 		"#BufferTarget": "./dist/constants/BufferTarget.js",
 		"#constants": "./dist/constants/constants.js",
+		"#ErrorCode": "./dist/constants/ErrorCode.js",
 		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
 		"#ShaderType": "./dist/constants/ShaderType.js",
 		"#TextureTarget": "./dist/constants/TextureTarget.js",
@@ -79,9 +80,12 @@
 		"#Color": "./dist/types/Color.js",
 		"#ApiInterface": "./dist/utility/internal/ApiInterface.js",
 		"#ContextDependent": "./dist/utility/internal/ContextDependent.js",
+		"#getErrorCodeMessage": "./dist/utility/internal/getErrorCodeMessage.js",
+		"#getParameterForBufferTarget": "./dist/utility/internal/getParameterForBufferTarget.js",
 		"#ProgramLinkError": "./dist/utility/ProgramLinkError.js",
 		"#ShaderCompileError": "./dist/utility/ShaderCompileError.js",
-		"#UnsupportedOperationError": "./dist/utility/UnsupportedOperationError.js"
+		"#UnsupportedOperationError": "./dist/utility/UnsupportedOperationError.js",
+		"#WebglError": "./dist/utility/WebglError.js"
 	},
 	"types": "./dist/index.d.ts",
 	"type": "module",
