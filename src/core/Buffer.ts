@@ -1,7 +1,7 @@
 import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
 import UnsupportedOperationError from "#UnsupportedOperationError";
-import type BufferTarget from "#BufferTarget";
+import BufferTarget from "#BufferTarget";
 import type { DangerousExposedContext } from "#DangerousExposedContext";
 import getParameterForBufferTarget from "#getParameterForBufferTarget";
 import BufferUsage from "#BufferUsage";
@@ -117,53 +117,17 @@ export default class Buffer extends ContextDependent {
 	/**
 	 * Creates a buffer.
 	 * @param context The rendering context.
-	 * @param target The target binding point of the buffer.
-	 * @param usage The intended usage of the buffer.
-	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 */
-	public constructor(
-		context: Context,
-		target: BufferTarget,
-		usage: BufferUsage
-	);
-
-	/**
-	 * Creates a buffer.
-	 * @param context The rendering context.
-	 * @param target The target binding point of the buffer.
-	 * @param usage The intended usage of the buffer.
 	 * @param data The initial data in the buffer.
+	 * @param target The target binding point of the buffer.
+	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
 	 */
 	public constructor(
 		context: Context,
-		target: BufferTarget,
-		usage: BufferUsage,
-		data: TypedArray | null,
-		offset?: number
-	);
-
-	/**
-	 * Creates a buffer.
-	 * @param context The rendering context.
-	 * @param target The target binding point of the buffer.
-	 * @param usage The intended usage of the buffer.
-	 * @param size The initial size of the buffer in bytes.
-	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 */
-	public constructor(
-		context: Context,
-		target: BufferTarget,
-		usage: BufferUsage,
-		size: number
-	);
-
-	public constructor(
-		context: Context,
-		target: BufferTarget,
-		usage: BufferUsage,
-		data: TypedArray | number | null = null,
+		data: TypedArray,
+		target: BufferTarget = BufferTarget.ARRAY_BUFFER,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0
 	) {
 		super(context);
@@ -173,10 +137,11 @@ export default class Buffer extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = buffer;
+		this.dataCache = data;
 		this.targetCache = target;
 		this.usageCache = usage;
-		this.dataCache = data;
 		this.offsetCache = offset;
+		this.setData(data, usage, offset);
 	}
 
 	/**
@@ -231,14 +196,14 @@ export default class Buffer extends ContextDependent {
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 * @internal
 	 */
-	private dataCache: TypedArray | number | null;
+	private dataCache: TypedArray | null;
 
 	/**
 	 * The data contained in this buffer or the size of this buffer's data
 	 * store in bytes.
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 */
-	public get data(): Readonly<TypedArray> | number | null {
+	public get data(): Readonly<TypedArray> | null {
 		return this.dataCache;
 	}
 
@@ -255,6 +220,24 @@ export default class Buffer extends ContextDependent {
 	 */
 	public get offset(): number {
 		return this.offsetCache;
+	}
+
+	/**
+	 * Sets the data in this buffer.
+	 * @param data The initial data in the buffer.
+	 * @param usage The intended usage of the buffer.
+	 * @param offset The index of the element to start reading the buffer at.
+	 */
+	public setData(
+		data: TypedArray,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
+		offset = 0
+	): void {
+		this.gl.bufferData(this.target, data, usage, offset);
+		this.context.throwIfError();
+		this.dataCache = data;
+		this.usageCache = usage;
+		this.offsetCache = offset;
 	}
 
 	/**
