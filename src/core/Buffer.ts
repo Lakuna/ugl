@@ -17,7 +17,7 @@ export default class Buffer extends ContextDependent {
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	private static boundBuffersCache?: Map<
+	private static bindingsCache?: Map<
 		Context,
 		Map<BufferTarget, WebGLBuffer | null>
 	>;
@@ -34,14 +34,14 @@ export default class Buffer extends ContextDependent {
 		context: Context,
 		target: BufferTarget
 	): WebGLBuffer | null {
-		if (typeof this.boundBuffersCache == "undefined") {
-			this.boundBuffersCache = new Map();
+		if (typeof this.bindingsCache == "undefined") {
+			this.bindingsCache = new Map();
 		}
-		if (!this.boundBuffersCache.has(context)) {
-			this.boundBuffersCache.set(context, new Map());
+		if (!this.bindingsCache.has(context)) {
+			this.bindingsCache.set(context, new Map());
 		}
 		const contextMap: Map<BufferTarget, WebGLBuffer | null> =
-			this.boundBuffersCache.get(context)!;
+			this.bindingsCache.get(context)!;
 		if (!contextMap.has(target)) {
 			contextMap.set(
 				target,
@@ -72,7 +72,7 @@ export default class Buffer extends ContextDependent {
 		}
 		(context as DangerousExposedContext).gl.bindBuffer(target, buffer);
 		context.throwIfError();
-		Buffer.boundBuffersCache!.get(context)!.set(target, buffer);
+		Buffer.bindingsCache!.get(context)!.set(target, buffer);
 	}
 
 	/**

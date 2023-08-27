@@ -1,4 +1,7 @@
-/** Binding points for textures. */
+/**
+ * Binding points for textures.
+ * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+ */
 enum TextureTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0de1,

@@ -137,3 +137,59 @@ export const PIXEL_PACK_BUFFER_BINDING = 0x88ed;
  * @internal
  */
 export const PIXEL_UNPACK_BUFFER_BINDING = 0x88ef;
+
+/**
+ * The currently-bound 2D texture.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const TEXTURE_BINDING_2D = 0x8069;
+
+/**
+ * The currently-bound cubemap texture.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const TEXTURE_BINDING_CUBE_MAP = 0x8514;
+
+/**
+ * The currently-bound 3D texture.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const TEXTURE_BINDING_3D = 0x806a;
+
+/**
+ * The currently-bound 2D array texture.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const TEXTURE_BINDING_2D_ARRAY = 0x8c1d;
+
+/**
+ * The currently-bound framebuffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const FRAMEBUFFER_BINDING = 0x8ca6;
+
+/**
+ * The currently-bound draw framebuffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const DRAW_FRAMEBUFFER_BINDING = 0x8ca6;
+
+/**
+ * The currently-bound read framebuffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const READ_FRAMEBUFFER_BINDING = 0x8caa;
+
+/**
+ * The currently-bound renderbuffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const RENDERBUFFER_BINDING = 0x8ca7;
