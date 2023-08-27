@@ -228,12 +228,34 @@ export default class Buffer extends ContextDependent {
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
 	 */
+	public setData(data: TypedArray, usage?: BufferUsage, offset?: number): void;
+
+	/**
+	 * Updates a subset of the data in this buffer.
+	 * @param data The initial data in the buffer.
+	 * @param _ An ignored value.
+	 * @param offset The index of the element to start reading the buffer at.
+	 * @param replaceOffset The offset in bytes to start replacing data at.
+	 */
+	public setData(
+		data: TypedArray,
+		_: never,
+		offset: number,
+		replaceOffset: number
+	): void;
+
 	public setData(
 		data: TypedArray,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset = 0
+		offset = 0,
+		replaceOffset?: number
 	): void {
-		this.gl.bufferData(this.target, data, usage, offset);
+		if (typeof replaceOffset == "number") {
+			this.gl.bufferSubData(this.target, replaceOffset, data, offset);
+			usage = this.usageCache;
+		} else {
+			this.gl.bufferData(this.target, data, usage, offset);
+		}
 		this.context.throwIfError();
 		this.dataCache = data;
 		this.usageCache = usage;
