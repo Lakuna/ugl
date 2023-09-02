@@ -3,6 +3,7 @@ export { default as BlendFunction } from "#BlendFunction";
 export { default as BufferTarget } from "#BufferTarget";
 export { default as BufferUsage } from "#BufferUsage";
 export { default as ErrorCode } from "#ErrorCode";
+export { default as FramebufferStatus } from "#FramebufferStatus";
 export { default as FramebufferTarget } from "#FramebufferTarget";
 export { default as ShaderType } from "#ShaderType";
 export { default as TextureTarget } from "#TextureTarget";

@@ -4,6 +4,7 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
 import FramebufferTarget from "#FramebufferTarget";
 import type { DangerousExposedContext } from "#DangerousExposedContext";
 import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
+import FramebufferStatus from "#FramebufferStatus";
 
 /**
  * A portion of contiguous memory that can be thought of as a collection of
@@ -165,6 +166,17 @@ export default class Framebuffer extends ContextDependent {
 	public set target(value: FramebufferTarget) {
 		this.unbind();
 		this.targetCache = value;
+	}
+
+	/**
+	 * The status of this framebuffer.
+	 * @see [`checkFramebufferStatus`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/checkFramebufferStatus)
+	 */
+	public get status(): FramebufferStatus {
+		return this.with(
+			(framebuffer: this): FramebufferStatus =>
+				framebuffer.gl.checkFramebufferStatus(framebuffer.target)
+		);
 	}
 
 	/**

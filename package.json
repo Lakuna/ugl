@@ -61,6 +61,7 @@
 		"#BufferUsage": "./dist/constants/BufferUsage.js",
 		"#constants": "./dist/constants/constants.js",
 		"#ErrorCode": "./dist/constants/ErrorCode.js",
+		"#FramebufferStatus": "./dist/constants/FramebufferStatus.js",
 		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
 		"#ShaderType": "./dist/constants/ShaderType.js",
 		"#TextureTarget": "./dist/constants/TextureTarget.js",
