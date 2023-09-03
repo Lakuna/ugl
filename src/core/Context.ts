@@ -7,7 +7,8 @@ import {
 	BLEND_SRC_RGB,
 	BLEND_SRC_ALPHA,
 	BLEND_DST_RGB,
-	BLEND_DST_ALPHA
+	BLEND_DST_ALPHA,
+	COLOR_CLEAR_VALUE
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -413,5 +414,32 @@ export default class Context extends ApiInterface {
 		if (code != ErrorCode.NO_ERROR) {
 			throw new WebglError(code);
 		}
+	}
+
+	/**
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 * @internal
+	 */
+	private clearColorCache?: Color;
+
+	/**
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 */
+	public get clearColor(): Color {
+		if (typeof this.clearColorCache == "undefined") {
+			this.clearColorCache = this.gl.getParameter(COLOR_CLEAR_VALUE);
+		}
+		return this.clearColorCache!;
+	}
+
+	/**
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 */
+	public set clearColor(value: Color) {
+		this.gl.clearColor(value[0], value[1], value[2], value[3]);
+		this.clearColorCache = value;
 	}
 }
