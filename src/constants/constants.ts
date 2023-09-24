@@ -207,3 +207,10 @@ export const COLOR_CLEAR_VALUE = 0x0c22;
  * @internal
  */
 export const DEPTH_CLEAR_VALUE = 0x0B73;
+
+/**
+ * The current value to clear the stencil buffer to.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const STENCIL_CLEAR_VALUE = 0x0B91;

@@ -9,7 +9,8 @@ import {
 	BLEND_DST_RGB,
 	BLEND_DST_ALPHA,
 	COLOR_CLEAR_VALUE,
-	DEPTH_CLEAR_VALUE
+	DEPTH_CLEAR_VALUE,
+	STENCIL_CLEAR_VALUE
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -469,5 +470,32 @@ export default class Context extends ApiInterface {
 	public set clearDepth(value: number) {
 		this.gl.clearDepth(value);
 		this.clearDepthCache = value;
+	}
+
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 * @internal
+	 */
+	private clearStencilCache?: number;
+
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 */
+	public get clearStencil(): number {
+		if (typeof this.clearStencilCache == "undefined") {
+			this.clearStencilCache = this.gl.getParameter(STENCIL_CLEAR_VALUE);
+		}
+		return this.clearStencilCache!;
+	}
+
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 */
+	public set clearStencil(value: number) {
+		this.gl.clearStencil(value);
+		this.clearStencilCache = value;
 	}
 }
