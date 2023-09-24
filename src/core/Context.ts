@@ -175,6 +175,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @throws {@link WebglError}
 	 */
 	public set activeTexture(value: number) {
 		// TODO: Ensure that this is between `0` and `MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1`.
@@ -182,6 +183,7 @@ export default class Context extends ApiInterface {
 			return;
 		}
 		this.gl.activeTexture(value + TEXTURE0);
+		this.throwIfError();
 		this.activeTextureCache = value;
 	}
 
@@ -329,6 +331,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * The source and destination RGB and alpha blend functions.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @throws {@link WebglError}
 	 */
 	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
 		const sourceRgb: BlendFunction = value[0];
@@ -354,6 +357,7 @@ export default class Context extends ApiInterface {
 				destinationAlpha
 			);
 		}
+		this.throwIfError();
 		this.blendFunctionCache = new Uint8Array([
 			sourceRgb,
 			destinationRgb,

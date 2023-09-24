@@ -57,7 +57,6 @@ export default class Texture extends ContextDependent {
 	 * @param target The binding point.
 	 * @param texture The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static override bind(
@@ -78,7 +77,6 @@ export default class Texture extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param target The binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(context: Context, target: TextureTarget): void;
@@ -89,7 +87,6 @@ export default class Texture extends ContextDependent {
 	 * @param target The binding point.
 	 * @param texture The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(
@@ -163,7 +160,6 @@ export default class Texture extends ContextDependent {
 	/**
 	 * Binds this texture to its binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @throws {@link WebglError}
 	 */
 	public bind(): void {
 		Texture.bind(this.context, this.target, this.internal);
@@ -172,7 +168,6 @@ export default class Texture extends ContextDependent {
 	/**
 	 * Unbinds this texture from its binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @throws {@link WebglError}
 	 */
 	public unbind(): void {
 		Texture.unbind(this.context, this.target, this.internal);

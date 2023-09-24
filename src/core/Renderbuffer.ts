@@ -43,7 +43,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param renderbuffer The renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static override bind(
@@ -65,7 +64,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * Unbinds the renderbuffer that is bound.
 	 * @param context The rendering context.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(context: Context): void;
@@ -75,7 +73,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param renderbuffer The renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(
@@ -121,7 +118,6 @@ export default class Renderbuffer extends ContextDependent {
 	/**
 	 * Binds this renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @throws {@link WebglError}
 	 */
 	public bind(): void {
 		Renderbuffer.bind(this.context, this.internal);
@@ -130,7 +126,6 @@ export default class Renderbuffer extends ContextDependent {
 	/**
 	 * Unbinds this renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @throws {@link WebglError}
 	 */
 	public unbind(): void {
 		Renderbuffer.unbind(this.context, this.internal);

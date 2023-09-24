@@ -59,7 +59,6 @@ export default class Framebuffer extends ContextDependent {
 	 * @param target The binding point.
 	 * @param framebuffer The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static override bind(
@@ -83,7 +82,6 @@ export default class Framebuffer extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param target The binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(context: Context, target: FramebufferTarget): void;
@@ -94,7 +92,6 @@ export default class Framebuffer extends ContextDependent {
 	 * @param target The binding point.
 	 * @param framebuffer The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(
@@ -182,7 +179,6 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * Binds this framebuffer to its binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
-	 * @throws {@link WebglError}
 	 */
 	public bind(): void {
 		Framebuffer.bind(this.context, this.target, this.internal);
@@ -191,7 +187,6 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * Unbinds this framebuffer from its binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
-	 * @throws {@link WebglError}
 	 */
 	public unbind(): void {
 		Framebuffer.unbind(this.context, this.target, this.internal);

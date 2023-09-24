@@ -80,7 +80,6 @@ export default class Buffer extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param target The binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(context: Context, target: BufferTarget): void;
@@ -91,7 +90,6 @@ export default class Buffer extends ContextDependent {
 	 * @param target The binding point.
 	 * @param buffer The buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static unbind(
@@ -122,6 +120,7 @@ export default class Buffer extends ContextDependent {
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
+	 * @throws {@link WebglError}
 	 */
 	public constructor(
 		context: Context,
@@ -227,6 +226,7 @@ export default class Buffer extends ContextDependent {
 	 * @param data The initial data in the buffer.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
+	 * @throws {@link WebglError}
 	 */
 	public setData(data: TypedArray, usage?: BufferUsage, offset?: number): void;
 
@@ -236,6 +236,7 @@ export default class Buffer extends ContextDependent {
 	 * @param _ An ignored value.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @param replaceOffset The offset in bytes to start replacing data at.
+	 * @throws {@link WebglError}
 	 */
 	public setData(
 		data: TypedArray,
@@ -274,7 +275,6 @@ export default class Buffer extends ContextDependent {
 	/**
 	 * Unbinds this buffer from its binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @throws {@link WebglError}
 	 */
 	public unbind(): void {
 		Buffer.unbind(this.context, this.target, this.internal);
@@ -285,6 +285,7 @@ export default class Buffer extends ContextDependent {
 	 * previously-bound buffer.
 	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
+	 * @throws {@link WebglError}
 	 */
 	public with<T>(funktion: (buffer: this) => T): T {
 		const previousBinding: WebGLBuffer | null = Buffer.getBound(
