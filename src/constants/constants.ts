@@ -200,3 +200,10 @@ export const RENDERBUFFER_BINDING = 0x8ca7;
  * @internal
  */
 export const COLOR_CLEAR_VALUE = 0x0c22;
+
+/**
+ * The current value to clear the depth buffer to.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const DEPTH_CLEAR_VALUE = 0x0B73;

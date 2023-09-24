@@ -8,7 +8,8 @@ import {
 	BLEND_SRC_ALPHA,
 	BLEND_DST_RGB,
 	BLEND_DST_ALPHA,
-	COLOR_CLEAR_VALUE
+	COLOR_CLEAR_VALUE,
+	DEPTH_CLEAR_VALUE
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -441,5 +442,32 @@ export default class Context extends ApiInterface {
 	public set clearColor(value: Color) {
 		this.gl.clearColor(value[0], value[1], value[2], value[3]);
 		this.clearColorCache = value;
+	}
+
+	/**
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 * @internal
+	 */
+	private clearDepthCache?: number;
+
+	/**
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 */
+	public get clearDepth(): number {
+		if (typeof this.clearDepthCache == "undefined") {
+			this.clearDepthCache = this.gl.getParameter(DEPTH_CLEAR_VALUE);
+		}
+		return this.clearDepthCache!;
+	}
+
+	/**
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 */
+	public set clearDepth(value: number) {
+		this.gl.clearDepth(value);
+		this.clearDepthCache = value;
 	}
 }
