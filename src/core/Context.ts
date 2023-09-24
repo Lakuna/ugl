@@ -10,7 +10,10 @@ import {
 	BLEND_DST_ALPHA,
 	COLOR_CLEAR_VALUE,
 	DEPTH_CLEAR_VALUE,
-	STENCIL_CLEAR_VALUE
+	STENCIL_CLEAR_VALUE,
+	COLOR_BUFFER_BIT,
+	DEPTH_BUFFER_BIT,
+	STENCIL_BUFFER_BIT
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -420,6 +423,42 @@ export default class Context extends ApiInterface {
 		if (code != ErrorCode.NO_ERROR) {
 			throw new WebglError(code);
 		}
+	}
+
+	/**
+	 * Clears buffers to their specified preset values.
+	 * @param color Whether to clear the color buffer.
+	 * @param depth Whether to clear the depth buffer.
+	 * @param stencil Whether to clear the stencil buffer.
+	 */
+	public clear(color?: boolean, depth?: boolean, stencil?: boolean): void;
+
+	/**
+	 * Clears buffers to the specified values.
+	 * @param color The value to clear the color buffer to.
+	 * @param depth The value to clear the depth buffer to.
+	 * @param stencil The value to clear the stencil buffer to.
+	 */
+	public clear(color: Color, depth: number, stencil: number): void;
+
+	public clear(
+		color: boolean | Color = true,
+		depth: boolean | number = true,
+		stencil: boolean | number = true
+	): void {
+		if (typeof color == "boolean") {
+			this.gl.clear(
+				(color ? COLOR_BUFFER_BIT : 0) |
+					(depth ? DEPTH_BUFFER_BIT : 0) |
+					(stencil ? STENCIL_BUFFER_BIT : 0)
+			);
+			return;
+		}
+
+		this.clearColor = color;
+		this.clearDepth = depth as number;
+		this.clearStencil = stencil as number;
+		this.gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT | STENCIL_BUFFER_BIT);
 	}
 
 	/**

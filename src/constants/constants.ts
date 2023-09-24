@@ -214,3 +214,24 @@ export const DEPTH_CLEAR_VALUE = 0x0b73;
  * @internal
  */
 export const STENCIL_CLEAR_VALUE = 0x0b91;
+
+/**
+ * Used to clear the color buffer.
+ * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
+ * @internal
+ */
+export const COLOR_BUFFER_BIT = 0x00004000;
+
+/**
+ * Used to clear the depth buffer.
+ * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
+ * @internal
+ */
+export const DEPTH_BUFFER_BIT = 0x00000100;
+
+/**
+ * Used to clear the stencil buffer.
+ * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
+ * @internal
+ */
+export const STENCIL_BUFFER_BIT = 0x00000400;
