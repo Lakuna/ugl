@@ -36,20 +36,20 @@
 		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.3.5",
-		"@types/mocha": "^10.0.1",
-		"@types/offscreencanvas": "^2019.7.0",
-		"@types/webgl2": "^0.0.7",
-		"@types/webxr": "^0.5.2",
-		"@typescript-eslint/eslint-plugin": "^6.1.0",
-		"@typescript-eslint/parser": "^6.1.0",
-		"chai": "^4.3.7",
-		"eslint": "^8.45.0",
+		"@types/chai": "^4.3.6",
+		"@types/mocha": "^10.0.2",
+		"@types/offscreencanvas": "^2019.7.1",
+		"@types/webgl2": "^0.0.8",
+		"@types/webxr": "^0.5.5",
+		"@typescript-eslint/eslint-plugin": "^6.7.4",
+		"@typescript-eslint/parser": "^6.7.4",
+		"chai": "^4.3.10",
+		"eslint": "^8.51.0",
 		"eslint-config-prettier": "^9.0.0",
 		"mocha": "^10.2.0",
-		"prettier": "^3.0.2",
-		"typedoc": "^0.24.8",
-		"typescript": "^5.1.6"
+		"prettier": "^3.0.3",
+		"typedoc": "^0.25.2",
+		"typescript": "^5.2.2"
 	},
 	"exports": {
 		".": "./dist/index.js"
