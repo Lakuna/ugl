@@ -159,6 +159,8 @@ export default class Context extends ApiInterface {
 		this.unpackColorSpaceCache = value;
 	}
 
+	// TODO: Abstract away texture units.
+
 	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
