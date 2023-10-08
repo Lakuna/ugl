@@ -19,6 +19,7 @@ export type { default as BlendFunctionFullSet } from "#BlendFunctionFullSet";
 export type { default as BlendFunctionSet } from "#BlendFunctionSet";
 export type { Canvas } from "#Canvas";
 export type { default as Color } from "#Color";
+export type { default as ColorMask } from "#ColorMask";
 export type { FloatTypedArray } from "#FloatTypedArray";
 export type { TypedArray } from "#TypedArray";
 export type { IntTypedArray } from "#IntTypedArray";

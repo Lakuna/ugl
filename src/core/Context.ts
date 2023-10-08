@@ -13,7 +13,8 @@ import {
 	STENCIL_CLEAR_VALUE,
 	COLOR_BUFFER_BIT,
 	DEPTH_BUFFER_BIT,
-	STENCIL_BUFFER_BIT
+	STENCIL_BUFFER_BIT,
+	COLOR_WRITEMASK
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -27,6 +28,7 @@ import type BlendFunctionFullSet from "#BlendFunctionFullSet";
 import type BlendFunction from "#BlendFunction";
 import ErrorCode from "#ErrorCode";
 import WebglError from "#WebglError";
+import type ColorMask from "#ColorMask";
 
 /**
  * A WebGL2 rendering context.
@@ -540,5 +542,36 @@ export default class Context extends ApiInterface {
 	public set clearStencil(value: number) {
 		this.gl.clearStencil(value);
 		this.clearStencilCache = value;
+	}
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 * @internal
+	 */
+	private colorMaskCache?: ColorMask;
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 */
+	public get colorMask(): ColorMask {
+		if (typeof this.colorMaskCache == "undefined") {
+			this.colorMaskCache = this.gl.getParameter(COLOR_WRITEMASK);
+		}
+
+		return this.colorMaskCache!;
+	}
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 */
+	public set colorMask(value: ColorMask) {
+		this.gl.colorMask(value[0], value[1], value[2], value[3]);
+		this.colorMaskCache = value;
 	}
 }

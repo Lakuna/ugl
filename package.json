@@ -80,6 +80,7 @@
 		"#BlendFunctionSet": "./dist/types/BlendFunctionSet.js",
 		"#Canvas": "./dist/types/Canvas.js",
 		"#Color": "./dist/types/Color.js",
+		"#ColorMask": "./dist/types/ColorMask.js",
 		"#FloatTypedArray": "./dist/types/FloatTypedArray.js",
 		"#IntTypedArray": "./dist/types/IntTypedArray.js",
 		"#TypedArray": "./dist/types/TypedArray.js",

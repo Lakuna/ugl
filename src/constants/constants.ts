@@ -235,3 +235,11 @@ export const DEPTH_BUFFER_BIT = 0x00000100;
  * @internal
  */
 export const STENCIL_BUFFER_BIT = 0x00000400;
+
+/**
+ * The mask that specifies which components to enable or disable when
+ * rendering to a framebuffer.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const COLOR_WRITEMASK = 0x0c23;
