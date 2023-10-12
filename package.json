@@ -67,6 +67,7 @@
 		"#ShaderType": "./dist/constants/ShaderType.js",
 		"#TextureDataType": "./dist/constants/TextureDataType.js",
 		"#TextureFormat": "./dist/constants/TextureFormat.js",
+		"#TextureInternalFormat": "./dist/constants/TextureInternalFormat.js",
 		"#TextureTarget": "./dist/constants/TextureTarget.js",
 		"#Mip": "./dist/core/textures/Mip.js",
 		"#Texture": "./dist/core/textures/Texture.js",

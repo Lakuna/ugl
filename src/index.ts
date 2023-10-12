@@ -9,6 +9,7 @@ export { default as MipmapTarget } from "#MipmapTarget";
 export { default as ShaderType } from "#ShaderType";
 export { default as TextureDataType } from "#TextureDataType";
 export { default as TextureFormat } from "#TextureFormat";
+export { default as TextureInternalFormat } from "#TextureInternalFormat";
 export { default as TextureTarget } from "#TextureTarget";
 export { default as Mip } from "#Mip";
 export { default as Texture } from "#Texture";
