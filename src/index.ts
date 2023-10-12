@@ -7,6 +7,7 @@ export { default as FramebufferStatus } from "#FramebufferStatus";
 export { default as FramebufferTarget } from "#FramebufferTarget";
 export { default as MipmapTarget } from "#MipmapTarget";
 export { default as ShaderType } from "#ShaderType";
+export { default as TextureDataType } from "#TextureDataType";
 export { default as TextureTarget } from "#TextureTarget";
 export { default as Mip } from "#Mip";
 export { default as Texture } from "#Texture";

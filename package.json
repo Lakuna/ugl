@@ -65,6 +65,7 @@
 		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
 		"#MipmapTarget": "./dist/constants/MipmapTarget.js",
 		"#ShaderType": "./dist/constants/ShaderType.js",
+		"#TextureDataType": "./dist/constants/TextureDataType.js",
 		"#TextureTarget": "./dist/constants/TextureTarget.js",
 		"#Mip": "./dist/core/textures/Mip.js",
 		"#Texture": "./dist/core/textures/Texture.js",
