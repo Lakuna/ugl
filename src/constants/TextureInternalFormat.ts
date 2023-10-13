@@ -789,6 +789,8 @@ enum TextureInternalFormat {
 	 * @see [`EXT_texture_compression_rgtc`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_texture_compression_rgtc)
 	 */
 	COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT = 0x8dbe
+
+	// TODO: Might be missing two constants called `RGUI` and `RGBA4444`.
 }
 
 export default TextureInternalFormat;
