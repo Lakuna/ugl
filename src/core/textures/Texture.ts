@@ -17,12 +17,13 @@ export default class Texture extends ContextDependent {
 	 */
 	private static bindingsCache?: Map<
 		WebGL2RenderingContext,
-		Map<TextureTarget, WebGLTexture | null>
+		Map<number, Map<TextureTarget, WebGLTexture | null>>
 	>;
 
 	/**
 	 * Gets the currently-bound texture for a binding point.
 	 * @param context The rendering context.
+	 * @param textureUnit The texture unit.
 	 * @param target The binding point.
 	 * @returns The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -30,6 +31,7 @@ export default class Texture extends ContextDependent {
 	 */
 	protected static getBound(
 		context: Context,
+		textureUnit: number,
 		target: TextureTarget
 	): WebGLTexture | null {
 		if (typeof this.bindingsCache == "undefined") {
@@ -41,22 +43,30 @@ export default class Texture extends ContextDependent {
 				new Map()
 			);
 		}
-		const contextMap: Map<TextureTarget, WebGLTexture | null> =
-			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
-		if (!contextMap.has(target)) {
-			contextMap.set(
+		const contextMap: Map<
+			number,
+			Map<TextureTarget, WebGLTexture | null>
+		> = this.bindingsCache.get((context as DangerousExposedContext).gl)!;
+		if (!contextMap.has(textureUnit)) {
+			contextMap.set(textureUnit, new Map());
+		}
+		const textureUnitMap: Map<TextureTarget, WebGLTexture | null> =
+			contextMap.get(textureUnit)!;
+		if (!textureUnitMap.has(target)) {
+			textureUnitMap.set(
 				target,
 				(context as DangerousExposedContext).gl.getParameter(
 					getParameterForTextureTarget(target)
 				)
 			);
 		}
-		return contextMap.get(target)!;
+		return textureUnitMap.get(target)!;
 	}
 
 	/**
 	 * Binds a texture to a binding point.
 	 * @param context The rendering context.
+	 * @param textureUnit The texture unit.
 	 * @param target The binding point.
 	 * @param texture The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -64,32 +74,40 @@ export default class Texture extends ContextDependent {
 	 */
 	protected static override bind(
 		context: Context,
+		textureUnit: number,
 		target: TextureTarget,
 		texture: WebGLTexture | null
 	): void {
-		if (Texture.getBound(context, target) == texture) {
+		if (Texture.getBound(context, textureUnit, target) == texture) {
 			return;
 		}
+		(context as DangerousExposedContext).activeTexture = textureUnit;
 		(context as DangerousExposedContext).gl.bindTexture(target, texture);
 		context.throwIfError();
-		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)!.set(
-			target,
-			texture
-		);
+		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)!
+			.get(textureUnit)!
+			.set(target, texture);
 	}
 
 	/**
 	 * Unbinds the texture that is bound to the given binding point.
 	 * @param context The rendering context.
+	 * @param textureUnit The texture unit.
 	 * @param target The binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected static unbind(context: Context, target: TextureTarget): void;
+	protected static unbind(
+		context: Context,
+		textureUnit: number | undefined,
+		target: TextureTarget
+	): void;
 
 	/**
 	 * Unbinds the given texture from the given binding point.
 	 * @param context The rendering context.
+	 * @param textureUnit The texture unit, or `undefined` for all texture
+	 * units.
 	 * @param target The binding point.
 	 * @param texture The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -97,22 +115,33 @@ export default class Texture extends ContextDependent {
 	 */
 	protected static unbind(
 		context: Context,
+		textureUnit: number | undefined,
 		target: TextureTarget,
 		texture: WebGLTexture
 	): void;
 
 	protected static unbind(
 		context: Context,
+		textureUnit: number | undefined,
 		target: TextureTarget,
 		texture?: WebGLTexture
 	): void {
-		if (
-			typeof texture != "undefined" &&
-			Texture.getBound(context, target) != texture
-		) {
+		if (typeof textureUnit == "number") {
+			if (
+				typeof texture != "undefined" &&
+				Texture.getBound(context, textureUnit, target) != texture
+			) {
+				return;
+			}
+			Texture.bind(context, textureUnit, target, null);
 			return;
 		}
-		Texture.bind(context, target, null);
+
+		for (const textureUnit of Texture.bindingsCache
+			?.get((context as DangerousExposedContext).gl)
+			?.keys() ?? []) {
+			Texture.unbind(context, textureUnit, target, texture as WebGLTexture);
+		}
 	}
 
 	/**
@@ -165,37 +194,42 @@ export default class Texture extends ContextDependent {
 
 	/**
 	 * Binds this texture to its binding point.
+	 * @param textureUnit The texture unit.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected bind(): void {
-		Texture.bind(this.context, this.target, this.internal);
+	protected bind(textureUnit: number): void {
+		Texture.bind(this.context, textureUnit, this.target, this.internal);
 	}
 
 	/**
 	 * Unbinds this texture from its binding point.
+	 * @param textureUnit The texture unit, or `undefined` for all texture
+	 * units.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected unbind(): void {
-		Texture.unbind(this.context, this.target, this.internal);
+	protected unbind(textureUnit?: number): void {
+		Texture.unbind(this.context, textureUnit, this.target, this.internal);
 	}
 
 	/**
 	 * Executes the given function with this texture bound, then re-binds the
 	 * previously-bound texture.
+	 * @param textureUnit The texture unit.
 	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
 	 * @internal
 	 */
-	protected with<T>(funktion: (texture: this) => T): T {
+	protected with<T>(textureUnit: number, funktion: (texture: this) => T): T {
 		const previousBinding: WebGLTexture | null = Texture.getBound(
 			this.context,
+			textureUnit,
 			this.target
 		);
-		this.bind();
+		this.bind(textureUnit);
 		const out: T = funktion(this);
-		Texture.bind(this.context, this.target, previousBinding);
+		Texture.bind(this.context, textureUnit, this.target, previousBinding);
 		return out;
 	}
 }

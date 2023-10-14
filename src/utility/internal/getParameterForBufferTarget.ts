@@ -15,6 +15,7 @@ import {
  * buffer binding point.
  * @param target The buffer binding point.
  * @returns The constant value.
+ * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
  * @internal
  */
 export default function getParameterForBufferTarget(
