@@ -88,8 +88,8 @@ export default class Program extends ContextDependent {
 
 	/**
 	 * The API interface of this shader program.
-	 * @internal
 	 * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
+	 * @internal
 	 */
 	protected readonly internal: WebGLProgram;
 

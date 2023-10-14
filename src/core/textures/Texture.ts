@@ -16,7 +16,7 @@ export default class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
-		Context,
+		WebGL2RenderingContext,
 		Map<TextureTarget, WebGLTexture | null>
 	>;
 
@@ -35,11 +35,14 @@ export default class Texture extends ContextDependent {
 		if (typeof this.bindingsCache == "undefined") {
 			this.bindingsCache = new Map();
 		}
-		if (!this.bindingsCache.has(context)) {
-			this.bindingsCache.set(context, new Map());
+		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
+			this.bindingsCache.set(
+				(context as DangerousExposedContext).gl,
+				new Map()
+			);
 		}
 		const contextMap: Map<TextureTarget, WebGLTexture | null> =
-			this.bindingsCache.get(context)!;
+			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
 		if (!contextMap.has(target)) {
 			contextMap.set(
 				target,
@@ -69,7 +72,10 @@ export default class Texture extends ContextDependent {
 		}
 		(context as DangerousExposedContext).gl.bindTexture(target, texture);
 		context.throwIfError();
-		Texture.bindingsCache!.get(context)!.set(target, texture);
+		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)!.set(
+			target,
+			texture
+		);
 	}
 
 	/**
@@ -128,8 +134,8 @@ export default class Texture extends ContextDependent {
 
 	/**
 	 * The API interface of this texture.
-	 * @internal
 	 * @see [`WebGLTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture)
+	 * @internal
 	 */
 	protected readonly internal: WebGLTexture;
 
@@ -160,16 +166,18 @@ export default class Texture extends ContextDependent {
 	/**
 	 * Binds this texture to its binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+	 * @internal
 	 */
-	public bind(): void {
+	protected bind(): void {
 		Texture.bind(this.context, this.target, this.internal);
 	}
 
 	/**
 	 * Unbinds this texture from its binding point.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+	 * @internal
 	 */
-	public unbind(): void {
+	protected unbind(): void {
 		Texture.unbind(this.context, this.target, this.internal);
 	}
 
@@ -178,8 +186,9 @@ export default class Texture extends ContextDependent {
 	 * previously-bound texture.
 	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
+	 * @internal
 	 */
-	public with<T>(funktion: (texture: this) => T): T {
+	protected with<T>(funktion: (texture: this) => T): T {
 		const previousBinding: WebGLTexture | null = Texture.getBound(
 			this.context,
 			this.target

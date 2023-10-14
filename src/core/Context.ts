@@ -159,8 +159,6 @@ export default class Context extends ApiInterface {
 		this.unpackColorSpaceCache = value;
 	}
 
-	// TODO: Abstract away texture units.
-
 	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
@@ -171,8 +169,9 @@ export default class Context extends ApiInterface {
 	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @internal
 	 */
-	public get activeTexture(): number {
+	protected get activeTexture(): number {
 		if (typeof this.activeTextureCache == "undefined") {
 			this.activeTextureCache = this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0;
 		}
@@ -183,9 +182,9 @@ export default class Context extends ApiInterface {
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 * @throws {@link WebglError}
+	 * @internal
 	 */
-	public set activeTexture(value: number) {
-		// TODO: Ensure that this is between `0` and `MAX_COMBINED_TEXTURE_IMAGE_UNITS - 1`.
+	protected set activeTexture(value: number) {
 		if (this.activeTextureCache == value) {
 			return;
 		}

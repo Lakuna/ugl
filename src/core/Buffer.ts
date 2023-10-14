@@ -18,7 +18,7 @@ export default class Buffer extends ContextDependent {
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
-		Context,
+		WebGL2RenderingContext,
 		Map<BufferTarget, WebGLBuffer | null>
 	>;
 
@@ -37,11 +37,14 @@ export default class Buffer extends ContextDependent {
 		if (typeof this.bindingsCache == "undefined") {
 			this.bindingsCache = new Map();
 		}
-		if (!this.bindingsCache.has(context)) {
-			this.bindingsCache.set(context, new Map());
+		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
+			this.bindingsCache.set(
+				(context as DangerousExposedContext).gl,
+				new Map()
+			);
 		}
 		const contextMap: Map<BufferTarget, WebGLBuffer | null> =
-			this.bindingsCache.get(context)!;
+			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
 		if (!contextMap.has(target)) {
 			contextMap.set(
 				target,
@@ -72,7 +75,10 @@ export default class Buffer extends ContextDependent {
 		}
 		(context as DangerousExposedContext).gl.bindBuffer(target, buffer);
 		context.throwIfError();
-		Buffer.bindingsCache!.get(context)!.set(target, buffer);
+		Buffer.bindingsCache!.get((context as DangerousExposedContext).gl)!.set(
+			target,
+			buffer
+		);
 	}
 
 	/**
@@ -145,8 +151,8 @@ export default class Buffer extends ContextDependent {
 
 	/**
 	 * The API interface of this buffer.
-	 * @internal
 	 * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
+	 * @internal
 	 */
 	protected readonly internal: WebGLBuffer;
 
@@ -267,16 +273,18 @@ export default class Buffer extends ContextDependent {
 	 * Binds this buffer to its binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @throws {@link WebglError}
+	 * @internal
 	 */
-	public bind(): void {
+	protected bind(): void {
 		Buffer.bind(this.context, this.target, this.internal);
 	}
 
 	/**
 	 * Unbinds this buffer from its binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+	 * @internal
 	 */
-	public unbind(): void {
+	protected unbind(): void {
 		Buffer.unbind(this.context, this.target, this.internal);
 	}
 
@@ -286,8 +294,9 @@ export default class Buffer extends ContextDependent {
 	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
 	 * @throws {@link WebglError}
+	 * @internal
 	 */
-	public with<T>(funktion: (buffer: this) => T): T {
+	protected with<T>(funktion: (buffer: this) => T): T {
 		const previousBinding: WebGLBuffer | null = Buffer.getBound(
 			this.context,
 			this.target
