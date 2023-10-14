@@ -66,7 +66,8 @@ export default class Texture extends ContextDependent {
 	/**
 	 * Binds a texture to a binding point.
 	 * @param context The rendering context.
-	 * @param textureUnit The texture unit.
+	 * @param textureUnit The texture unit, or `undefined` for the current
+	 * texture unit.
 	 * @param target The binding point.
 	 * @param texture The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -74,10 +75,11 @@ export default class Texture extends ContextDependent {
 	 */
 	protected static override bind(
 		context: Context,
-		textureUnit: number,
+		textureUnit: number | undefined,
 		target: TextureTarget,
 		texture: WebGLTexture | null
 	): void {
+		textureUnit ??= (context as DangerousExposedContext).activeTexture;
 		if (Texture.getBound(context, textureUnit, target) == texture) {
 			return;
 		}
