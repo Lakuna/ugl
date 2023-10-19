@@ -101,7 +101,7 @@ export default class Texture extends ContextDependent {
 	 */
 	protected static unbind(
 		context: Context,
-		textureUnit: number | undefined,
+		textureUnit: number,
 		target: TextureTarget
 	): void;
 
