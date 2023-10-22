@@ -9,7 +9,7 @@ import getParameterForTextureTarget from "#getParameterForTextureTarget";
  * A randomly-accessible array.
  * @see [`WebGLTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture)
  */
-export default class Texture extends ContextDependent {
+export default abstract class Texture extends ContextDependent {
 	/**
 	 * The currently-bound texture cache.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -151,8 +151,9 @@ export default class Texture extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param target The target binding point of the texture.
 	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
+	 * @internal
 	 */
-	public constructor(context: Context, target: TextureTarget) {
+	protected constructor(context: Context, target: TextureTarget) {
 		super(context);
 
 		const texture: WebGLTexture | null = this.gl.createTexture();
@@ -180,16 +181,18 @@ export default class Texture extends ContextDependent {
 	/**
 	 * The binding point of this texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+	 * @internal
 	 */
-	public get target(): TextureTarget {
+	protected get target(): TextureTarget {
 		return this.targetCache;
 	}
 
 	/**
 	 * The binding point of this texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+	 * @internal
 	 */
-	public set target(value: TextureTarget) {
+	protected set target(value: TextureTarget) {
 		this.unbind();
 		this.targetCache = value;
 	}

@@ -11,7 +11,7 @@ import type { TypedArray } from "#TypedArray";
  * An array of binary data.
  * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
  */
-export default class Buffer extends ContextDependent {
+export default abstract class BufferParent extends ContextDependent {
 	/**
 	 * The currently-bound buffer cache.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
@@ -70,15 +70,14 @@ export default class Buffer extends ContextDependent {
 		target: BufferTarget,
 		buffer: WebGLBuffer | null
 	): void {
-		if (Buffer.getBound(context, target) == buffer) {
+		if (BufferParent.getBound(context, target) == buffer) {
 			return;
 		}
 		(context as DangerousExposedContext).gl.bindBuffer(target, buffer);
 		context.throwIfError();
-		Buffer.bindingsCache!.get((context as DangerousExposedContext).gl)!.set(
-			target,
-			buffer
-		);
+		BufferParent.bindingsCache!.get(
+			(context as DangerousExposedContext).gl
+		)!.set(target, buffer);
 	}
 
 	/**
@@ -111,29 +110,31 @@ export default class Buffer extends ContextDependent {
 	): void {
 		if (
 			typeof buffer != "undefined" &&
-			Buffer.getBound(context, target) != buffer
+			BufferParent.getBound(context, target) != buffer
 		) {
 			return;
 		}
-		Buffer.bind(context, target, null);
+		BufferParent.bind(context, target, null);
 	}
 
 	/**
 	 * Creates a buffer.
 	 * @param context The rendering context.
-	 * @param data The initial data in the buffer.
-	 * @param target The target binding point of the buffer.
+	 * @param data The initial data contained in this buffer or the size of
+	 * this buffer's data store in bytes.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
+	 * @param target The target binding point of the buffer.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
 	 * @throws {@link WebglError}
+	 * @internal
 	 */
-	public constructor(
+	protected constructor(
 		context: Context,
-		data: TypedArray,
-		target: BufferTarget = BufferTarget.ARRAY_BUFFER,
+		data: TypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset = 0
+		offset = 0,
+		target: BufferTarget = BufferTarget.ARRAY_BUFFER
 	) {
 		super(context);
 
@@ -166,16 +167,18 @@ export default class Buffer extends ContextDependent {
 	/**
 	 * The binding point of this buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+	 * @internal
 	 */
-	public get target(): BufferTarget {
+	protected get target(): BufferTarget {
 		return this.targetCache;
 	}
 
 	/**
 	 * The binding point of this buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+	 * @internal
 	 */
-	public set target(value: BufferTarget) {
+	protected set target(value: BufferTarget) {
 		this.unbind();
 		this.targetCache = value;
 	}
@@ -201,14 +204,14 @@ export default class Buffer extends ContextDependent {
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 * @internal
 	 */
-	private dataCache: TypedArray | null;
+	private dataCache: TypedArray | number | null;
 
 	/**
 	 * The data contained in this buffer or the size of this buffer's data
 	 * store in bytes.
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 */
-	public get data(): Readonly<TypedArray> | null {
+	public get data(): Readonly<TypedArray> | number | null {
 		return this.dataCache;
 	}
 
@@ -229,16 +232,21 @@ export default class Buffer extends ContextDependent {
 
 	/**
 	 * Sets the data in this buffer.
-	 * @param data The initial data in the buffer.
+	 * @param data The data to store in this buffer or the size to set this
+	 * buffer's data store to in bytes.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @throws {@link WebglError}
 	 */
-	public setData(data: TypedArray, usage?: BufferUsage, offset?: number): void;
+	public setData(
+		data: TypedArray | number,
+		usage?: BufferUsage,
+		offset?: number
+	): void;
 
 	/**
 	 * Updates a subset of the data in this buffer.
-	 * @param data The initial data in the buffer.
+	 * @param data The data to store in this buffer.
 	 * @param _ An ignored value.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @param replaceOffset The offset in bytes to start replacing data at.
@@ -252,20 +260,26 @@ export default class Buffer extends ContextDependent {
 	): void;
 
 	public setData(
-		data: TypedArray,
+		data: TypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		replaceOffset?: number
 	): void {
 		if (typeof replaceOffset == "number") {
-			this.gl.bufferSubData(this.target, replaceOffset, data, offset);
-			usage = this.usageCache;
+			this.gl.bufferSubData(
+				this.target,
+				replaceOffset,
+				data as TypedArray,
+				offset
+			);
+			this.context.throwIfError();
+			this.dataCache = null;
 		} else {
-			this.gl.bufferData(this.target, data, usage, offset);
+			this.gl.bufferData(this.target, data as TypedArray, usage, offset);
+			this.context.throwIfError();
+			this.dataCache = data;
+			this.usageCache = usage;
 		}
-		this.context.throwIfError();
-		this.dataCache = data;
-		this.usageCache = usage;
 		this.offsetCache = offset;
 	}
 
@@ -276,7 +290,7 @@ export default class Buffer extends ContextDependent {
 	 * @internal
 	 */
 	protected bind(): void {
-		Buffer.bind(this.context, this.target, this.internal);
+		BufferParent.bind(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -285,7 +299,7 @@ export default class Buffer extends ContextDependent {
 	 * @internal
 	 */
 	protected unbind(): void {
-		Buffer.unbind(this.context, this.target, this.internal);
+		BufferParent.unbind(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -297,13 +311,13 @@ export default class Buffer extends ContextDependent {
 	 * @internal
 	 */
 	protected with<T>(funktion: (buffer: this) => T): T {
-		const previousBinding: WebGLBuffer | null = Buffer.getBound(
+		const previousBinding: WebGLBuffer | null = BufferParent.getBound(
 			this.context,
 			this.target
 		);
 		this.bind();
 		const out: T = funktion(this);
-		Buffer.bind(this.context, this.target, previousBinding);
+		BufferParent.bind(this.context, this.target, previousBinding);
 		return out;
 	}
 }

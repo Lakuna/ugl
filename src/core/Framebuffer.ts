@@ -122,13 +122,9 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * Creates a framebuffer.
 	 * @param context The rendering context.
-	 * @param target The target binding point of the framebuffer.
 	 * @see [`createFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer)
 	 */
-	public constructor(
-		context: Context,
-		target: FramebufferTarget = FramebufferTarget.FRAMEBUFFER
-	) {
+	public constructor(context: Context) {
 		super(context);
 
 		const framebuffer: WebGLFramebuffer | null = this.gl.createFramebuffer();
@@ -136,7 +132,7 @@ export default class Framebuffer extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = framebuffer;
-		this.targetCache = target;
+		this.targetCache = FramebufferTarget.FRAMEBUFFER;
 	}
 
 	/**
@@ -156,16 +152,18 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * The binding point of this framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
+	 * @internal
 	 */
-	public get target(): FramebufferTarget {
+	protected get target(): FramebufferTarget {
 		return this.targetCache;
 	}
 
 	/**
 	 * The binding point of this framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
+	 * @internal
 	 */
-	public set target(value: FramebufferTarget) {
+	protected set target(value: FramebufferTarget) {
 		this.unbind();
 		this.targetCache = value;
 	}
