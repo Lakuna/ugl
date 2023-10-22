@@ -20,6 +20,7 @@ export { default as TransformFeedbackBufferMode } from "#TransformFeedbackBuffer
 export { default as UniformType } from "#UniformType";
 export { default as WindingOrientation } from "#WindingOrientation";
 export { default as Buffer } from "#Buffer";
+export { default as BufferParent } from "#BufferParent";
 export { default as ElementArrayBuffer } from "#ElementArrayBuffer";
 export { default as Mip } from "#Mip";
 export { default as Texture } from "#Texture";
