@@ -109,6 +109,8 @@
 		"#ApiInterface": "./dist/utility/internal/ApiInterface.js",
 		"#ContextDependent": "./dist/utility/internal/ContextDependent.js",
 		"#getErrorCodeMessage": "./dist/utility/internal/getErrorCodeMessage.js",
+		"#getExtensionForTextureFormat": "./dist/utility/internal/getExtensionForTextureFormat.js",
+		"#getExtensionForTextureInternalFormat": "./dist/utility/internal/getExtensionForTextureInternalFormat.js",
 		"#getParameterForBufferTarget": "./dist/utility/internal/getParameterForBufferTarget.js",
 		"#getParameterForFramebufferTarget": "./dist/utility/internal/getParameterForFramebufferTarget.js",
 		"#getParameterForTextureTarget": "./dist/utility/internal/getParameterForTextureTarget.js",
