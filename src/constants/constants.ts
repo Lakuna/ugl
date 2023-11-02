@@ -257,13 +257,13 @@ export const TEXTURE_MAG_FILTER = 0x2800;
 export const TEXTURE_MIN_FILTER = 0x2801;
 
 /**
- * The wrapping mode for a texture on the S axis.
+ * The wrapping mode for a texture on the S-axis.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
  */
 export const TEXTURE_WRAP_S = 0x2802;
 
 /**
- * The wrapping mode for a texture on the T axis.
+ * The wrapping mode for a texture on the T-axis.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
  */
 export const TEXTURE_WRAP_T = 0x2803;
@@ -507,3 +507,75 @@ export const DELETE_STATUS = 0x8b80;
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  */
 export const VERTEX_ARRAY_BINDING = 0x85b5;
+
+/**
+ * The desired maximum anisotropy of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @see [`EXT_texture_filter_anisotropic`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_texture_filter_anisotropic)
+ * @internal
+ */
+export const TEXTURE_MAX_ANISOTROPY_EXT = 0x84fe;
+
+/**
+ * The maximum maximum anisotropy of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @see [`EXT_texture_filter_anisotropic`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_texture_filter_anisotropic)
+ * @internal
+ */
+export const MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84ff;
+
+/**
+ * The base mipmap level of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_BASE_LEVEL = 0x813c;
+
+/**
+ * The comparison function of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_COMPARE_FUNC = 0x884d;
+
+/**
+ * The comparison mode of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_COMPARE_MODE = 0x884c;
+
+/**
+ * The maximum mipmap level of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_MAX_LEVEL = 0x813d;
+
+/**
+ * The maximum level of detail of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_MAX_LOD = 0x813b;
+
+/**
+ * The minimum level of detail of a texture.
+ * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @internal
+ */
+export const TEXTURE_MIN_LOD = 0x813a;
+
+/**
+ * The wrapping mode for a texture on the R-axis.
+ * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ */
+export const TEXTURE_WRAP_R = 0x8072;

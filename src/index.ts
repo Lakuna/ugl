@@ -10,6 +10,8 @@ export { default as PolygonDirection } from "#PolygonDirection";
 export { default as Primitive } from "#Primitive";
 export { default as RenderbufferFormat } from "#RenderbufferFormat";
 export { default as ShaderType } from "#ShaderType";
+export { default as TestFunction } from "#TestFunction";
+export { default as TextureCompareMode } from "#TextureCompareMode";
 export { default as TextureDataType } from "#TextureDataType";
 export { default as TextureFormat } from "#TextureFormat";
 export { default as TextureInternalFormat } from "#TextureInternalFormat";
