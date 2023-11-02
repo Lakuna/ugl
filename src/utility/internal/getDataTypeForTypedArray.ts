@@ -3,8 +3,9 @@ import BufferDataType from "#BufferDataType";
 
 /**
  * Returns a default buffer data type for the given typed array.
- * @param array
- * @returns
+ * @param array The typed array.
+ * @returns A default buffer data type for the given typed array.
+ * @internal
  */
 export default function getDataTypeForTypedArray(
 	array: TypedArray
