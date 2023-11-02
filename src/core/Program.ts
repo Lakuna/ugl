@@ -111,4 +111,12 @@ export default class Program extends ContextDependent {
 	public get infoLog(): string | null {
 		return this.gl.getProgramInfoLog(this.internal);
 	}
+
+	/**
+	 * Deletes this shader program.
+	 * @see [`deleteProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram)
+	 */
+	public delete(): void {
+		this.gl.deleteProgram(this.internal);
+	}
 }

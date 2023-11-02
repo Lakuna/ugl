@@ -155,4 +155,12 @@ export default class Renderbuffer extends ContextDependent {
 		Renderbuffer.bind(this.context, previousBinding);
 		return out;
 	}
+
+	/**
+	 * Deletes this renderbuffer.
+	 * @see [`deleteRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteRenderbuffer(this.internal);
+	}
 }

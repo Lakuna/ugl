@@ -29,4 +29,12 @@ export default class Buffer extends BufferParent {
 	) {
 		super(context, data, usage, offset, BufferTarget.ARRAY_BUFFER);
 	}
+
+	/**
+	 * Deletes this buffer.
+	 * @see [`deleteBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteBuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteBuffer(this.internal);
+	}
 }

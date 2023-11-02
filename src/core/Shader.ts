@@ -66,4 +66,12 @@ export default class Shader extends ContextDependent {
 	public get infoLog(): string | null {
 		return this.gl.getShaderInfoLog(this.internal);
 	}
+
+	/**
+	 * Deletes this shader.
+	 * @see [`deleteShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteShader)
+	 */
+	public delete(): void {
+		this.gl.deleteShader(this.internal);
+	}
 }

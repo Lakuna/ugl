@@ -662,6 +662,17 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
+	 * Generates a mipmap for this texture.
+	 * @see [`generateMipmap`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap)
+	 * @internal
+	 */
+	protected generateMipmap(): void {
+		this.with(undefined, (texture) =>
+			texture.gl.generateMipmap(texture.target)
+		);
+	}
+
+	/**
 	 * Binds this texture to its binding point.
 	 * @param textureUnit The texture unit, or `undefined` for the current
 	 * texture unit.
@@ -705,5 +716,13 @@ export default abstract class Texture extends ContextDependent {
 		const out: T = funktion(this);
 		Texture.bind(this.context, textureUnit, this.target, previousBinding);
 		return out;
+	}
+
+	/**
+	 * Deletes this texture.
+	 * @see [`deleteTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture)
+	 */
+	public delete(): void {
+		this.gl.deleteTexture(this.internal);
 	}
 }

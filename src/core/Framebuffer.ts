@@ -214,4 +214,12 @@ export default class Framebuffer extends ContextDependent {
 		Framebuffer.bind(this.context, this.target, previousBinding);
 		return out;
 	}
+
+	/**
+	 * Deletes this framebuffer.
+	 * @see [`deleteFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteFramebuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteFramebuffer(this.internal);
+	}
 }
