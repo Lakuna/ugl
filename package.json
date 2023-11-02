@@ -108,6 +108,7 @@
 		"#UintTypedArray": "./dist/types/UintTypedArray.js",
 		"#ApiInterface": "./dist/utility/internal/ApiInterface.js",
 		"#ContextDependent": "./dist/utility/internal/ContextDependent.js",
+		"#getDataTypeForTypedArray": "./dist/utility/internal/getDataTypeForTypedArray.js",
 		"#getErrorCodeMessage": "./dist/utility/internal/getErrorCodeMessage.js",
 		"#getExtensionForTextureFormat": "./dist/utility/internal/getExtensionForTextureFormat.js",
 		"#getExtensionForTextureInternalFormat": "./dist/utility/internal/getExtensionForTextureInternalFormat.js",
