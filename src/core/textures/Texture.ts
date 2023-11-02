@@ -17,7 +17,7 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private static bindingsCache?: Map<
 		WebGL2RenderingContext,
-		Map<number, Map<TextureTarget, WebGLTexture | null>>
+		Array<Map<TextureTarget, WebGLTexture | null>>
 	>;
 
 	/**
@@ -38,20 +38,15 @@ export default abstract class Texture extends ContextDependent {
 			this.bindingsCache = new Map();
 		}
 		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
-			this.bindingsCache.set(
-				(context as DangerousExposedContext).gl,
-				new Map()
-			);
+			this.bindingsCache.set((context as DangerousExposedContext).gl, []);
 		}
-		const contextMap: Map<
-			number,
-			Map<TextureTarget, WebGLTexture | null>
-		> = this.bindingsCache.get((context as DangerousExposedContext).gl)!;
-		if (!contextMap.has(textureUnit)) {
-			contextMap.set(textureUnit, new Map());
+		const contextArray: Array<Map<TextureTarget, WebGLTexture | null>> =
+			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
+		if (typeof contextArray[textureUnit] == "undefined") {
+			contextArray[textureUnit] = new Map();
 		}
 		const textureUnitMap: Map<TextureTarget, WebGLTexture | null> =
-			contextMap.get(textureUnit)!;
+			contextArray[textureUnit]!;
 		if (!textureUnitMap.has(target)) {
 			textureUnitMap.set(
 				target,
@@ -86,9 +81,9 @@ export default abstract class Texture extends ContextDependent {
 		(context as DangerousExposedContext).activeTexture = textureUnit;
 		(context as DangerousExposedContext).gl.bindTexture(target, texture);
 		context.throwIfError();
-		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)!
-			.get(textureUnit)!
-			.set(target, texture);
+		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)![
+			textureUnit
+		]!.set(target, texture);
 	}
 
 	/**
