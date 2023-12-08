@@ -177,7 +177,7 @@ export default abstract class Texture extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = texture;
-		this.targetCache = target;
+		this.target = target;
 	}
 
 	/**
@@ -192,26 +192,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	private targetCache: TextureTarget;
-
-	/**
-	 * The binding point of this texture.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @internal
-	 */
-	protected get target(): TextureTarget {
-		return this.targetCache;
-	}
-
-	/**
-	 * The binding point of this texture.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @internal
-	 */
-	protected set target(value: TextureTarget) {
-		this.unbind();
-		this.targetCache = value;
-	}
+	protected readonly target: TextureTarget;
 
 	/**
 	 * The magnification filter of this texture.
