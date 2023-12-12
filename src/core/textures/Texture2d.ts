@@ -20,13 +20,31 @@ export default class Texture2d extends Texture {
 	 * @param width The width of the texture.
 	 * @param height The height of the texture.
 	 */
-	public constructor(context: Context, levels: number, format: TextureInternalFormat, width: number, height: number);
-	
-	public constructor(context: Context, levels?: number, format?: TextureInternalFormat, width?: number, height?: number) {
+	public constructor(
+		context: Context,
+		levels: number,
+		format: TextureInternalFormat,
+		width: number,
+		height: number
+	);
+
+	public constructor(
+		context: Context,
+		levels?: number,
+		format?: TextureInternalFormat,
+		width?: number,
+		height?: number
+	) {
 		super(context, TextureTarget.TEXTURE_2D);
 
 		if (typeof levels == "number") {
-			this.gl.texStorage2D(TextureTarget.TEXTURE_2D, levels, format!, width!, height!);
+			this.gl.texStorage2D(
+				TextureTarget.TEXTURE_2D,
+				levels,
+				format!,
+				width!,
+				height!
+			);
 		}
 	}
 }
