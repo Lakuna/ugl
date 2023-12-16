@@ -21,7 +21,7 @@ export default class WebglError extends Error {
 	public constructor(
 		value: ErrorCode | string = "A WebGL error has occurred."
 	) {
-		super(typeof value == "string" ? value : getErrorCodeMessage(value));
+		super(typeof value === "string" ? value : getErrorCodeMessage(value));
 		this.name = "WebglError";
 	}
 }

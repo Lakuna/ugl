@@ -5,9 +5,14 @@ import type TextureInternalFormat from "#TextureInternalFormat";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
+	// TODO: `fromSource`.
+
+	// TODO: `fromUrl`.
+
 	/**
 	 * Creates a two-dimensional texture.
 	 * @param context The rendering context of the texture.
+	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(context: Context);
 
@@ -19,6 +24,7 @@ export default class Texture2d extends Texture {
 	 * @param format The internal format of the texture.
 	 * @param width The width of the texture.
 	 * @param height The height of the texture.
+	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(
 		context: Context,
@@ -37,7 +43,7 @@ export default class Texture2d extends Texture {
 	) {
 		super(context, TextureTarget.TEXTURE_2D);
 
-		if (typeof levels == "number") {
+		if (typeof levels === "number") {
 			this.gl.texStorage2D(
 				TextureTarget.TEXTURE_2D,
 				levels,

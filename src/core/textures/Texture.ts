@@ -54,29 +54,38 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit: number | undefined,
 		target: TextureTarget
 	): WebGLTexture | null {
+		// Default to the texture unit that is already active.
 		textureUnit ??= (context as DangerousExposedContext).activeTexture;
-		if (typeof this.bindingsCache == "undefined") {
-			this.bindingsCache = new Map();
+
+		// Get the full bindings cache.
+		if (typeof Texture.bindingsCache == "undefined") {
+			Texture.bindingsCache = new Map();
 		}
-		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
-			this.bindingsCache.set((context as DangerousExposedContext).gl, []);
+
+		// Get the context bindings cache.
+		if (!Texture.bindingsCache.has((context as DangerousExposedContext).gl)) {
+			Texture.bindingsCache.set((context as DangerousExposedContext).gl, []);
 		}
-		const contextArray: Array<Map<TextureTarget, WebGLTexture | null>> =
-			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
-		if (typeof contextArray[textureUnit] == "undefined") {
-			contextArray[textureUnit] = new Map();
+		const contextBindingsCache: Array<Map<TextureTarget, WebGLTexture | null>> =
+			Texture.bindingsCache.get((context as DangerousExposedContext).gl)!;
+
+		// Get the texture unit bindings cache.
+		if (typeof contextBindingsCache[textureUnit] == "undefined") {
+			contextBindingsCache[textureUnit] = new Map();
 		}
-		const textureUnitMap: Map<TextureTarget, WebGLTexture | null> =
-			contextArray[textureUnit]!;
-		if (!textureUnitMap.has(target)) {
-			textureUnitMap.set(
+		const textureUnitBindingsCache: Map<TextureTarget, WebGLTexture | null> =
+			contextBindingsCache[textureUnit]!;
+
+		// Get the bound texture.
+		if (!textureUnitBindingsCache.has(target)) {
+			textureUnitBindingsCache.set(
 				target,
 				(context as DangerousExposedContext).gl.getParameter(
 					getParameterForTextureTarget(target)
 				)
 			);
 		}
-		return textureUnitMap.get(target)!;
+		return textureUnitBindingsCache.get(target)!;
 	}
 
 	/**
@@ -95,13 +104,19 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		texture: WebGLTexture | null
 	): void {
+		// Default to the texture unit that is already active.
 		textureUnit ??= (context as DangerousExposedContext).activeTexture;
+
+		// Do nothing if the binding is already correct.
 		if (Texture.getBound(context, textureUnit, target) == texture) {
 			return;
 		}
+
+		// TODO: Check if a texture can be bound to multiple texture units at once. A texture should have no reason to be bound to multiple texture units at a time; changes may need to be made to facilitate passing texture units to uniforms if this would be the case.
+
+		// Bind the texture to the target.
 		(context as DangerousExposedContext).activeTexture = textureUnit;
-		(context as DangerousExposedContext).gl.bindTexture(target, texture);
-		context.throwIfError();
+		(context as DangerousExposedContext).gl.bindTexture(target, texture); // TODO: Check if it's possible for an error to be thrown here.
 		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)![
 			textureUnit
 		]!.set(target, texture);
@@ -144,6 +159,7 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		texture?: WebGLTexture
 	): void {
+		// If a specific texture unit is given, unbind the texture from only that texture unit.
 		if (typeof textureUnit == "number") {
 			if (
 				typeof texture != "undefined" &&
@@ -155,6 +171,7 @@ export default abstract class Texture extends ContextDependent {
 			return;
 		}
 
+		// Otherwise, unbind the texture from every texture unit.
 		for (const textureUnit of Texture.bindingsCache
 			?.get((context as DangerousExposedContext).gl)
 			?.keys() ?? []) {
@@ -167,6 +184,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param context The rendering context.
 	 * @param target The target binding point of the texture.
 	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
+	 * @throws {@link UnsupportedOperationError}
 	 * @internal
 	 */
 	protected constructor(context: Context, target: TextureTarget) {
@@ -192,7 +210,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected readonly target: TextureTarget;
+	protected readonly target: TextureTarget; // TODO: Check if a texture can be rebound to another target. If it is possible, changes will need to be made to make it easier to unbind from every target.
 
 	/**
 	 * The magnification filter of this texture.
@@ -208,6 +226,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get magFilter(): TextureMagFilter {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMagFilter => {
 			if (typeof texture.magFilterCache == "undefined") {
 				texture.magFilterCache = texture.gl.getTexParameter(
@@ -225,6 +244,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set magFilter(value: TextureMagFilter) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_MAG_FILTER, value);
 			texture.magFilterCache = value;
@@ -245,6 +265,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get minFilter(): TextureMinFilter {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMinFilter => {
 			if (typeof texture.minFilterCache == "undefined") {
 				texture.minFilterCache = texture.gl.getTexParameter(
@@ -262,6 +283,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set minFilter(value: TextureMinFilter) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_MIN_FILTER, value);
 			texture.minFilterCache = value;
@@ -282,6 +304,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get wrapSFunction(): TextureWrapFunction {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
 			if (typeof texture.wrapSFunctionCache == "undefined") {
 				texture.wrapSFunctionCache = texture.gl.getTexParameter(
@@ -299,6 +322,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapSFunction(value: TextureWrapFunction) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_WRAP_S, value);
 			texture.wrapSFunctionCache = value;
@@ -319,6 +343,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get wrapTFunction(): TextureWrapFunction {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
 			if (typeof texture.wrapTFunctionCache == "undefined") {
 				texture.wrapTFunctionCache = texture.gl.getTexParameter(
@@ -336,6 +361,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapTFunction(value: TextureWrapFunction) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_WRAP_T, value);
 			texture.wrapTFunctionCache = value;
@@ -356,6 +382,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get maxAnisotropy(): number {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
+		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
 		return this.with(undefined, (texture: this): number => {
 			if (typeof texture.maxAnisotropyCache == "undefined") {
 				texture.maxAnisotropyCache = texture.gl.getTexParameter(
@@ -373,6 +401,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxAnisotropy(value: number) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
+		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameterf(
 				texture.target,
@@ -397,6 +427,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get baseLevel(): number {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
 			if (typeof texture.baseLevelCache == "undefined") {
 				texture.baseLevelCache = texture.gl.getTexParameter(
@@ -414,6 +445,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set baseLevel(value: number) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_BASE_LEVEL, value);
 			texture.baseLevelCache = value;
@@ -434,6 +466,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get comparisonFunction(): TestFunction {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TestFunction => {
 			if (typeof texture.comparisonFunctionCache == "undefined") {
 				texture.comparisonFunctionCache = texture.gl.getTexParameter(
@@ -451,6 +484,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set comparisonFunction(value: TestFunction) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_COMPARE_FUNC, value);
 			texture.comparisonFunctionCache = value;
@@ -471,6 +505,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get comparisonMode(): TextureCompareMode {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureCompareMode => {
 			if (typeof texture.comparisonModeCache == "undefined") {
 				texture.comparisonModeCache = texture.gl.getTexParameter(
@@ -488,6 +523,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set comparisonMode(value: TextureCompareMode) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_COMPARE_MODE, value);
 			texture.comparisonModeCache = value;
@@ -508,6 +544,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get maxLevel(): number {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
 			if (typeof texture.maxLevelCache == "undefined") {
 				texture.maxLevelCache = texture.gl.getTexParameter(
@@ -525,6 +562,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxLevel(value: number) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_MAX_LEVEL, value);
 			texture.maxLevelCache = value;
@@ -545,6 +583,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get maxLod(): number {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
 			if (typeof texture.maxLodCache == "undefined") {
 				texture.maxLodCache = texture.gl.getTexParameter(
@@ -562,6 +601,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxLod(value: number) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameterf(texture.target, TEXTURE_MAX_LOD, value);
 			texture.maxLodCache = value;
@@ -582,6 +622,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get minLod(): number {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
 			if (typeof texture.minLodCache == "undefined") {
 				texture.minLodCache = texture.gl.getTexParameter(
@@ -599,6 +640,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set minLod(value: number) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameterf(texture.target, TEXTURE_MIN_LOD, value);
 			texture.minLodCache = value;
@@ -619,6 +661,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get wrapRFunction(): TextureWrapFunction {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
+		// TODO: Check if this does anything for 2D, cubemap, and/or 2D array textures.
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
 			if (typeof texture.wrapRFunctionCache == "undefined") {
 				texture.wrapRFunctionCache = texture.gl.getTexParameter(
@@ -636,6 +680,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapRFunction(value: TextureWrapFunction) {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
+		// TODO: Check if this does anything for 2D, cubemap, and/or 2D array textures.
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_WRAP_R, value);
 			texture.wrapRFunctionCache = value;
@@ -648,9 +694,18 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	protected generateMipmap(): void {
+		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture) =>
 			texture.gl.generateMipmap(texture.target)
 		);
+	}
+
+	/**
+	 * Deletes this texture.
+	 * @see [`deleteTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture)
+	 */
+	public delete(): void {
+		this.gl.deleteTexture(this.internal);
 	}
 
 	/**
@@ -688,6 +743,7 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit: number | undefined,
 		funktion: (texture: this) => T
 	): T {
+		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLTexture | null = Texture.getBound(
 			this.context,
 			textureUnit,
@@ -699,11 +755,23 @@ export default abstract class Texture extends ContextDependent {
 		return out;
 	}
 
-	/**
-	 * Deletes this texture.
-	 * @see [`deleteTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture)
-	 */
-	public delete(): void {
-		this.gl.deleteTexture(this.internal);
-	}
+	// TODO: Add mips and mipmaps as a map of mipmap targets to arrays of mips (mipmaps).
+
+	// TODO: Add a way to update the data in the texture.
+
+	// TODO: Check what happens when setting the data in a fixed-size texture to something with a different size.
+
+	// TODO: Add a function that calculates the expected size of the given mip.
+
+	// TODO: Check what happens when setting the data in a mip to something with a different size (maybe even bigger than the previous mip).
+
+	// TODO: Add a function that checks if the texture is texture complete.
+
+	// TODO: Check if generating a mipmap overwrites existing mips (if none are missing and/or if any are missing)
+
+	// TODO: Maybe save mip data as an array of modifications. Reset when full data is supplied and append when partial data is supplied. When the mip is updated, apply modifications in order. Save an index to prevent reapplying modifications.
+
+	// TODO: Add a method that updates the texture when needed and a method that forces the texture to update. Update the texture when it's created and when it's about to be used (i.e. passed to a uniform). This method should also generate a mipmap automatically if the texture is not texture complete and it wouldn't override given data. This method should automatically use the correct unpack alignment if possible.
+
+	// TODO: Check if different mipmaps and/or mips can have different formats, internal formats, and data types.
 }

@@ -2,6 +2,8 @@ import ErrorCode from "#ErrorCode";
 
 /**
  * Gets the message for an error code.
+ * @param code The error code.
+ * @returns The message.
  * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
  * @internal
  */

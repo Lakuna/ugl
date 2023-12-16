@@ -5,10 +5,10 @@ import BufferUsage from "#BufferUsage";
 import BufferTarget from "#BufferTarget";
 
 /**
- * An array of binary data to be used for an element array buffer.
+ * An array of binary data to be used as an element array buffer.
  * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
  */
-export default class Buffer extends BufferParent {
+export default class ElementArrayBuffer extends BufferParent {
 	/**
 	 * Creates a buffer to be used as an element array buffer.
 	 * @param context The rendering context.
@@ -17,7 +17,7 @@ export default class Buffer extends BufferParent {
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 * @throws {@link WebglError}
+	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(
 		context: Context,

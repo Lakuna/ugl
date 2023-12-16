@@ -20,6 +20,7 @@ export default class Program extends ContextDependent {
 	 * @returns The shader program.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ProgramLinkError}
+	 * @throws {@link ShaderCompileError}
 	 */
 	public static fromSource(
 		context: Context,
@@ -56,7 +57,7 @@ export default class Program extends ContextDependent {
 		super(context);
 
 		const program: WebGLProgram | null = this.gl.createProgram();
-		if (program == null) {
+		if (program === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = program;

@@ -112,6 +112,7 @@
 		"#ContextDependent": "./dist/utility/internal/ContextDependent.js",
 		"#getDataTypeForTypedArray": "./dist/utility/internal/getDataTypeForTypedArray.js",
 		"#getErrorCodeMessage": "./dist/utility/internal/getErrorCodeMessage.js",
+		"#getExtensionForRenderbufferFormat": "./dist/utility/internal/getExtensionForRenderbufferFormat.js",
 		"#getExtensionForTextureFormat": "./dist/utility/internal/getExtensionForTextureFormat.js",
 		"#getExtensionForTextureInternalFormat": "./dist/utility/internal/getExtensionForTextureInternalFormat.js",
 		"#getParameterForBufferTarget": "./dist/utility/internal/getParameterForBufferTarget.js",

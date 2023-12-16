@@ -34,26 +34,33 @@ export default abstract class BufferParent extends ContextDependent {
 		context: Context,
 		target: BufferTarget
 	): WebGLBuffer | null {
-		if (typeof this.bindingsCache == "undefined") {
-			this.bindingsCache = new Map();
+		// Get the full bindings cache.
+		if (typeof BufferParent.bindingsCache === "undefined") {
+			BufferParent.bindingsCache = new Map();
 		}
-		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
-			this.bindingsCache.set(
+
+		// Get the context bindings cache.
+		if (
+			!BufferParent.bindingsCache.has((context as DangerousExposedContext).gl)
+		) {
+			BufferParent.bindingsCache.set(
 				(context as DangerousExposedContext).gl,
 				new Map()
 			);
 		}
-		const contextMap: Map<BufferTarget, WebGLBuffer | null> =
-			this.bindingsCache.get((context as DangerousExposedContext).gl)!;
-		if (!contextMap.has(target)) {
-			contextMap.set(
+		const contextBindingsCache: Map<BufferTarget, WebGLBuffer | null> =
+			BufferParent.bindingsCache.get((context as DangerousExposedContext).gl)!;
+
+		// Get the bound buffer.
+		if (!contextBindingsCache.has(target)) {
+			contextBindingsCache.set(
 				target,
 				(context as DangerousExposedContext).gl.getParameter(
 					getParameterForBufferTarget(target)
 				)
 			);
 		}
-		return contextMap.get(target)!;
+		return contextBindingsCache.get(target)!;
 	}
 
 	/**
@@ -62,7 +69,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param target The binding point.
 	 * @param buffer The buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected static override bind(
@@ -70,14 +76,30 @@ export default abstract class BufferParent extends ContextDependent {
 		target: BufferTarget,
 		buffer: WebGLBuffer | null
 	): void {
-		if (BufferParent.getBound(context, target) == buffer) {
+		// Do nothing if the binding is already correct.
+		if (BufferParent.getBound(context, target) === buffer) {
 			return;
 		}
-		(context as DangerousExposedContext).gl.bindBuffer(target, buffer);
-		context.throwIfError();
-		BufferParent.bindingsCache!.get(
-			(context as DangerousExposedContext).gl
-		)!.set(target, buffer);
+
+		// Get the context bindings cache.
+		const contextBindingsCache: Map<BufferTarget, WebGLBuffer | null> =
+			BufferParent.bindingsCache!.get((context as DangerousExposedContext).gl)!;
+
+		// Unbind the buffer from all other targets.
+		if (buffer != null) {
+			for (const [otherTarget, otherBuffer] of contextBindingsCache) {
+				if (target === otherTarget || buffer != otherBuffer) {
+					continue;
+				}
+
+				(context as DangerousExposedContext).gl.bindBuffer(otherTarget, null);
+				contextBindingsCache.set(otherTarget, null);
+			}
+		}
+
+		// Bind the buffer to the target.
+		(context as DangerousExposedContext).gl.bindBuffer(target, buffer); // TODO: Check if it's possible for an error to be thrown here.
+		contextBindingsCache.set(target, buffer);
 	}
 
 	/**
@@ -108,12 +130,15 @@ export default abstract class BufferParent extends ContextDependent {
 		target: BufferTarget,
 		buffer?: WebGLBuffer
 	): void {
+		// Do nothing if the buffer is already unbound.
 		if (
 			typeof buffer != "undefined" &&
 			BufferParent.getBound(context, target) != buffer
 		) {
 			return;
 		}
+
+		// Unbind the buffer.
 		BufferParent.bind(context, target, null);
 	}
 
@@ -126,7 +151,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @param target The target binding point of the buffer.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 * @throws {@link WebglError}
+	 * @throws {@link UnsupportedOperationError}
 	 * @internal
 	 */
 	protected constructor(
@@ -179,7 +204,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @internal
 	 */
 	protected set target(value: BufferTarget) {
-		this.unbind();
+		this.unbind(); // TODO: Check if unbinding here is necessary.
 		this.targetCache = value;
 	}
 
@@ -204,7 +229,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 * @internal
 	 */
-	private dataCache: TypedArray | number | null;
+	private dataCache: TypedArray | number | null; // TODO: Maybe save data as an array of modifications. Reset when full data is supplied and append when partial data is supplied.
 
 	/**
 	 * The data contained in this buffer or the size of this buffer's data
@@ -236,7 +261,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * buffer's data store to in bytes.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
-	 * @throws {@link WebglError}
 	 */
 	public setData(
 		data: TypedArray | number,
@@ -250,7 +274,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param _ An ignored value.
 	 * @param offset The index of the element to start reading the buffer at.
 	 * @param replaceOffset The offset in bytes to start replacing data at.
-	 * @throws {@link WebglError}
 	 */
 	public setData(
 		data: TypedArray,
@@ -265,18 +288,16 @@ export default abstract class BufferParent extends ContextDependent {
 		offset = 0,
 		replaceOffset?: number
 	): void {
-		if (typeof replaceOffset == "number") {
+		if (typeof replaceOffset === "number") {
 			this.gl.bufferSubData(
 				this.target,
 				replaceOffset,
 				data as TypedArray,
 				offset
-			);
-			this.context.throwIfError();
-			this.dataCache = null;
+			); // TODO: Check if it's possible for an error to be thrown here.
+			this.dataCache = null; // TODO: Update a subset of the data cache.
 		} else {
-			this.gl.bufferData(this.target, data as TypedArray, usage, offset);
-			this.context.throwIfError();
+			this.gl.bufferData(this.target, data as TypedArray, usage, offset); // TODO: Check if it's possible for an error to be thrown here.
 			this.dataCache = data;
 			this.usageCache = usage;
 		}
@@ -284,9 +305,16 @@ export default abstract class BufferParent extends ContextDependent {
 	}
 
 	/**
+	 * Deletes this buffer.
+	 * @see [`deleteBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteBuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteBuffer(this.internal);
+	}
+
+	/**
 	 * Binds this buffer to its binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected bind(): void {
@@ -307,10 +335,10 @@ export default abstract class BufferParent extends ContextDependent {
 	 * previously-bound buffer.
 	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
-	 * @throws {@link WebglError}
 	 * @internal
 	 */
 	protected with<T>(funktion: (buffer: this) => T): T {
+		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLBuffer | null = BufferParent.getBound(
 			this.context,
 			this.target

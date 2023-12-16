@@ -1,3 +1,5 @@
+// TODO: Maybe remove extensions that are enabled by default in WebGL2. Other functions of the library already assume that a WebGL2 context is being used.
+
 /**
  * WebGL extensions.
  * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)
@@ -10,6 +12,7 @@ enum Extension {
 	 * type. The functionality of this extension is available in WebGL2 by
 	 * default.
 	 * @see [ANGLE_instanced_arrays](https://developer.mozilla.org/en-US/docs/Web/API/ANGLE_instanced_arrays)
+	 * @deprecated
 	 */
 	InstancedArrays = "ANGLE_instanced_arrays",
 
@@ -19,6 +22,7 @@ enum Extension {
 	 * colors. The functionality of this extension is available in WebGL2 by
 	 * default.
 	 * @see [EXT_blend_minmax](https://developer.mozilla.org/en-US/docs/Web/API/EXT_blend_minmax)
+	 * @deprecated
 	 */
 	BlendMinMax = "EXT_blend_minmax",
 
@@ -53,6 +57,7 @@ enum Extension {
 	 * fragment shader. The functionality of this extension is available in
 	 * WebGL2 by default.
 	 * @see [EXT_frag_depth](https://developer.mozilla.org/en-US/docs/Web/API/EXT_frag_depth)
+	 * @deprecated
 	 */
 	FragDepth = "EXT_frag_depth",
 
@@ -61,6 +66,7 @@ enum Extension {
 	 * provide the shader writer with explicit control of level of detail. The
 	 * functionality of this extension is available in WebGL2 by default.
 	 * @see [EXT_shader_texture_lod](https://developer.mozilla.org/en-US/docs/Web/API/EXT_shader_texture_lod)
+	 * @deprecated
 	 */
 	ShaderTextureLod = "EXT_shader_texture_lod",
 
@@ -68,6 +74,7 @@ enum Extension {
 	 * Adds sRGB support to textures and framebuffer objects. The functionality
 	 * of this extension is available in WebGL2 by default.
 	 * @see [EXT_sRGB](https://developer.mozilla.org/en-US/docs/Web/API/EXT_sRGB)
+	 * @deprecated
 	 */
 	Srgb = "EXT_sRGB",
 
@@ -116,6 +123,7 @@ enum Extension {
 	 * array buffer. The functionality of this extension is available in WebGL2
 	 * by default.
 	 * @see [OES_element_index_uint](https://developer.mozilla.org/en-US/docs/Web/API/OES_element_index_uint)
+	 * @deprecated
 	 */
 	ElementIndexUint = "OES_element_index_uint",
 
@@ -124,6 +132,7 @@ enum Extension {
 	 * object. The functionality of this extension is available in WebGL2 by
 	 * default.
 	 * @see [OES_fbo_render_mipmap](https://developer.mozilla.org/en-US/docs/Web/API/OES_fbo_render_mipmap)
+	 * @deprecated
 	 */
 	FboRenderMipmap = "OES_fbo_render_mipmap",
 
@@ -131,6 +140,7 @@ enum Extension {
 	 * Adds GLSL derivative functions. The functionality of this extension is
 	 * available in WebGL2 by default.
 	 * @see [OES_standard_derivatives](https://developer.mozilla.org/en-US/docs/Web/API/OES_standard_derivatives)
+	 * @deprecated
 	 */
 	StandardDerivatives = "OES_standard_derivatives",
 
@@ -138,6 +148,7 @@ enum Extension {
 	 * Exposes floating-point pixel types for textures. The functionality of
 	 * this extension is available in WebGL2 by default.
 	 * @see [OES_texture_float](https://developer.mozilla.org/en-US/docs/Web/API/OES_texture_float)
+	 * @deprecated
 	 */
 	TextureFloat = "OES_texture_float",
 
@@ -151,6 +162,7 @@ enum Extension {
 	 * Adds texture formats with 16- and 32-bit floating-point components. The
 	 * functionality of this extension is available in WebGL2 by default.
 	 * @see [OES_texture_half_float](https://developer.mozilla.org/en-US/docs/Web/API/OES_texture_half_float)
+	 * @deprecated
 	 */
 	TextureHalfFloat = "OES_texture_half_float",
 
@@ -165,6 +177,7 @@ enum Extension {
 	 * Provides vertex array objects that encapsulate vertex array states. The
 	 * functionality of this extension is available in WebGL2 by default.
 	 * @see [OES_vertex_array_object](https://developer.mozilla.org/en-US/docs/Web/API/OES_vertex_array_object)
+	 * @deprecated
 	 */
 	VertexArrayObject = "OES_vertex_array_object",
 
@@ -179,6 +192,7 @@ enum Extension {
 	 * Adds the ability to render to 32-bit floating-point color buffers. Use
 	 * `ExtColorBufferFloat` instead for WebGL2.
 	 * @see [WEBGL_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_color_buffer_float)
+	 * @deprecated
 	 */
 	WebglColorBufferFloat = "WEBGL_color_buffer_float",
 
@@ -240,6 +254,7 @@ enum Extension {
 	 * Defines 2D depth and depth-stencil textures. The functionality of this
 	 * extension is available in WebGL2 by default.
 	 * @see [WEBGL_depth_texture](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_depth_texture)
+	 * @deprecated
 	 */
 	DepthTexture = "WEBGL_depth_texture",
 
@@ -247,6 +262,7 @@ enum Extension {
 	 * Enables a fragment shader to write to several textures. The
 	 * functionality of this extension is available in WebGL2 by default.
 	 * @see [WEBGL_draw_buffers](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_draw_buffers)
+	 * @deprecated
 	 */
 	DrawBuffers = "WEBGL_draw_buffers",
 

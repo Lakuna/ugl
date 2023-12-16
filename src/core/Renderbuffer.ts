@@ -27,18 +27,25 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected static getBound(context: Context): WebGLRenderbuffer | null {
-		if (typeof this.bindingsCache == "undefined") {
-			this.bindingsCache = new Map();
+		// Get the full bindings cache.
+		if (typeof Renderbuffer.bindingsCache === "undefined") {
+			Renderbuffer.bindingsCache = new Map();
 		}
-		if (!this.bindingsCache.has((context as DangerousExposedContext).gl)) {
-			this.bindingsCache.set(
+
+		// Get the bound renderbuffer.
+		if (
+			!Renderbuffer.bindingsCache.has((context as DangerousExposedContext).gl)
+		) {
+			Renderbuffer.bindingsCache.set(
 				(context as DangerousExposedContext).gl,
 				(context as DangerousExposedContext).gl.getParameter(
 					RENDERBUFFER_BINDING
 				)
 			);
 		}
-		return this.bindingsCache.get((context as DangerousExposedContext).gl)!;
+		return Renderbuffer.bindingsCache.get(
+			(context as DangerousExposedContext).gl
+		)!;
 	}
 
 	/**
@@ -52,14 +59,16 @@ export default class Renderbuffer extends ContextDependent {
 		context: Context,
 		renderbuffer: WebGLRenderbuffer | null
 	): void {
-		if (Renderbuffer.getBound(context) == renderbuffer) {
+		// Do nothing if the binding is already correct.
+		if (Renderbuffer.getBound(context) === renderbuffer) {
 			return;
 		}
+
+		// Bind the renderbuffer to the target.
 		(context as DangerousExposedContext).gl.bindRenderbuffer(
 			RENDERBUFFER,
 			renderbuffer
-		);
-		context.throwIfError();
+		); // TODO: Check if this can throw an error.
 		Renderbuffer.bindingsCache!.set(
 			(context as DangerousExposedContext).gl,
 			renderbuffer
@@ -90,12 +99,15 @@ export default class Renderbuffer extends ContextDependent {
 		context: Context,
 		renderbuffer?: WebGLRenderbuffer
 	): void {
+		// Do nothing if the renderbuffer is already unbound.
 		if (
 			typeof renderbuffer != "undefined" &&
 			Renderbuffer.getBound(context) != renderbuffer
 		) {
 			return;
 		}
+
+		// Unbind the renderbuffer.
 		Renderbuffer.bind(context, null);
 	}
 
@@ -103,12 +115,13 @@ export default class Renderbuffer extends ContextDependent {
 	 * Creates a renderbuffer.
 	 * @param context The rendering context.
 	 * @see [`createRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer)
+	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(context: Context) {
 		super(context);
 
 		const renderbuffer: WebGLRenderbuffer | null = this.gl.createRenderbuffer();
-		if (renderbuffer == null) {
+		if (renderbuffer === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = renderbuffer;
@@ -120,6 +133,14 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected readonly internal: WebGLRenderbuffer;
+
+	/**
+	 * Deletes this renderbuffer.
+	 * @see [`deleteRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteRenderbuffer(this.internal);
+	}
 
 	/**
 	 * Binds this renderbuffer.
@@ -147,6 +168,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected with<T>(funktion: (renderbuffer: this) => T): T {
+		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBound(
 			this.context
 		);
@@ -154,13 +176,5 @@ export default class Renderbuffer extends ContextDependent {
 		const out: T = funktion(this);
 		Renderbuffer.bind(this.context, previousBinding);
 		return out;
-	}
-
-	/**
-	 * Deletes this renderbuffer.
-	 * @see [`deleteRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer)
-	 */
-	public delete(): void {
-		this.gl.deleteRenderbuffer(this.internal);
 	}
 }

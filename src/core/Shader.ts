@@ -25,7 +25,7 @@ export default class Shader extends ContextDependent {
 		super(context);
 
 		const shader: WebGLShader | null = this.gl.createShader(type);
-		if (shader == null) {
+		if (shader === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = shader;

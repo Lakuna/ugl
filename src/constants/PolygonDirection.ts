@@ -3,10 +3,10 @@
  * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
  */
 enum PolygonDirection {
-	/** A forward-facing polygon. */
+	/** A front-facing polygon. */
 	FRONT = 0x0404,
 
-	/** A backward-facing polygon. */
+	/** A back-facing polygon. */
 	BACK = 0x0405,
 
 	/** A polygon that is facing in any direction. */
