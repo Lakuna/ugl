@@ -1,8 +1,8 @@
 import BufferParent from "#BufferParent";
 import type Context from "#Context";
-import type { TypedArray } from "#TypedArray";
 import BufferUsage from "#BufferUsage";
 import BufferTarget from "#BufferTarget";
+import type { UintTypedArray } from "#UintTypedArray";
 
 /**
  * An array of binary data to be used as an element array buffer.
@@ -21,10 +21,17 @@ export default class ElementArrayBuffer extends BufferParent {
 	 */
 	public constructor(
 		context: Context,
-		data: TypedArray | number,
+		data: UintTypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0
 	) {
-		super(context, data, usage, offset, BufferTarget.ELEMENT_ARRAY_BUFFER);
+		super(
+			context,
+			data,
+			usage,
+			offset,
+			false,
+			BufferTarget.ELEMENT_ARRAY_BUFFER
+		);
 	}
 }

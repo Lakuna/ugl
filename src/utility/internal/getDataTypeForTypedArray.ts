@@ -64,25 +64,43 @@ export default function getDataTypeForTypedArray(
 /**
  * Returns a default buffer data type for the given typed array.
  * @param array The typed array.
+ * @param half Whether the array contains 16-bit floating-point data.
  * @returns A default buffer data type for the given typed array.
  * @internal
  */
 export default function getDataTypeForTypedArray(
-	array: Float32Array | Float64Array | BigInt64Array | BigUint64Array
+	array: Float32Array,
+	half: true
+): BufferDataType.HALF_FLOAT;
+
+/**
+ * Returns a default buffer data type for the given typed array.
+ * @param array The typed array.
+ * @param half Whether the array contains 16-bit floating-point data.
+ * @returns A default buffer data type for the given typed array.
+ * @internal
+ */
+export default function getDataTypeForTypedArray(
+	array: Float32Array,
+	half: false
 ): BufferDataType.FLOAT;
 
 /**
  * Returns a default buffer data type for the given typed array.
  * @param array The typed array.
+ * @param half Whether the array contains 16-bit floating-point data if it
+ * contains floating-point data.
  * @returns A default buffer data type for the given typed array.
  * @internal
  */
 export default function getDataTypeForTypedArray(
-	array: TypedArray
+	array: TypedArray,
+	half?: boolean
 ): BufferDataType;
 
 export default function getDataTypeForTypedArray(
-	array: TypedArray
+	array: TypedArray,
+	half = false
 ): BufferDataType {
 	return array instanceof Int8Array
 		? BufferDataType.BYTE
@@ -96,5 +114,7 @@ export default function getDataTypeForTypedArray(
 		? BufferDataType.INT
 		: array instanceof Uint32Array
 		? BufferDataType.UNSIGNED_INT
-		: BufferDataType.FLOAT; // `Float32Array`, `Float64Array`, `BigInt64Array`, and `BigUInt64Array.
+		: half // `Float32Array`.
+		? BufferDataType.HALF_FLOAT
+		: BufferDataType.FLOAT;
 }

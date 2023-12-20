@@ -61,7 +61,7 @@ export default class Context extends ApiInterface {
 				"webgl2",
 				options
 			) as WebGL2RenderingContext | null;
-			if (gl == null) {
+			if (gl === null) {
 				throw new UnsupportedOperationError(
 					"The environment does not support WebGL2."
 				);

@@ -19,10 +19,13 @@ import {
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
 } from "#constants";
-import type TextureMinFilter from "#TextureMinFilter";
+import TextureMinFilter from "#TextureMinFilter";
 import type TextureWrapFunction from "#TextureWrapFunction";
 import type TestFunction from "#TestFunction";
 import type TextureCompareMode from "#TextureCompareMode";
+import type MipmapTarget from "#MipmapTarget";
+import type Mip from "#Mip";
+import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 
 /**
  * A randomly-accessible array.
@@ -58,7 +61,7 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit ??= (context as DangerousExposedContext).activeTexture;
 
 		// Get the full bindings cache.
-		if (typeof Texture.bindingsCache == "undefined") {
+		if (typeof Texture.bindingsCache === "undefined") {
 			Texture.bindingsCache = new Map();
 		}
 
@@ -70,7 +73,7 @@ export default abstract class Texture extends ContextDependent {
 			Texture.bindingsCache.get((context as DangerousExposedContext).gl)!;
 
 		// Get the texture unit bindings cache.
-		if (typeof contextBindingsCache[textureUnit] == "undefined") {
+		if (typeof contextBindingsCache[textureUnit] === "undefined") {
 			contextBindingsCache[textureUnit] = new Map();
 		}
 		const textureUnitBindingsCache: Map<TextureTarget, WebGLTexture | null> =
@@ -108,7 +111,7 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit ??= (context as DangerousExposedContext).activeTexture;
 
 		// Do nothing if the binding is already correct.
-		if (Texture.getBound(context, textureUnit, target) == texture) {
+		if (Texture.getBound(context, textureUnit, target) === texture) {
 			return;
 		}
 
@@ -160,7 +163,7 @@ export default abstract class Texture extends ContextDependent {
 		texture?: WebGLTexture
 	): void {
 		// If a specific texture unit is given, unbind the texture from only that texture unit.
-		if (typeof textureUnit == "number") {
+		if (typeof textureUnit === "number") {
 			if (
 				typeof texture != "undefined" &&
 				Texture.getBound(context, textureUnit, target) != texture
@@ -187,15 +190,47 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link UnsupportedOperationError}
 	 * @internal
 	 */
-	protected constructor(context: Context, target: TextureTarget) {
+	protected constructor(context: Context, target: TextureTarget);
+
+	/**
+	 * Creates an immutable-format texture.
+	 * @param context The rendering context.
+	 * @param target The target binding point of the texture.
+	 * @param levels The number of levels in the texture.
+	 * @param format The internal format of the texture.
+	 * @param dims The dimensions of the texture.
+	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
+	 * @throws {@link UnsupportedOperationError}
+	 * @internal
+	 */
+	protected constructor(
+		context: Context,
+		target: TextureTarget,
+		levels: number,
+		format: TextureSizedInternalFormat,
+		dims: Array<number>
+	);
+
+	protected constructor(
+		context: Context,
+		target: TextureTarget,
+		levels?: number,
+		format?: TextureSizedInternalFormat,
+		dims?: Array<number>
+	) {
 		super(context);
 
 		const texture: WebGLTexture | null = this.gl.createTexture();
-		if (texture == null) {
+		if (texture === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = texture;
 		this.target = target;
+		this.mips = new Map();
+		this.isImmutableFormatCache = false;
+		if (typeof levels === "number") {
+			this.makeImmutableFormat(levels, format!, dims!);
+		}
 	}
 
 	/**
@@ -213,6 +248,56 @@ export default abstract class Texture extends ContextDependent {
 	protected readonly target: TextureTarget; // TODO: Check if a texture can be rebound to another target. If it is possible, changes will need to be made to make it easier to unbind from every target.
 
 	/**
+	 * The mips in this texture.
+	 * @internal
+	 */
+	protected readonly mips: ReadonlyMap<MipmapTarget, Array<Mip>>;
+
+	/** Whether this is an immutable-format texture. */
+	private isImmutableFormatCache: boolean;
+
+	/** Whether this is an immutable-format texture. */
+	public get isImmutableFormat(): boolean {
+		return this.isImmutableFormatCache;
+	}
+
+	/**
+	 * Makes this into an immutable-format texture.
+	 * @param levels The number of levels in the texture.
+	 * @param format The internal format of the texture.
+	 * @param dims The dimensions of the texture.
+	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
+	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
+	 */
+	public makeImmutableFormat(
+		levels: number,
+		format: TextureSizedInternalFormat,
+		dims: Array<number>
+	): void {
+		if (this.isImmutableFormat) {
+			return;
+		}
+
+		this.makeImmutableFormatInternal(levels, format, dims);
+		this.isImmutableFormatCache = true;
+	}
+
+	/**
+	 * Makes this into an immutable-format texture.
+	 * @param levels The number of levels in the texture.
+	 * @param format The internal format of the texture.
+	 * @param dims The dimensions of the texture.
+	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
+	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
+	 * @internal
+	 */
+	protected abstract makeImmutableFormatInternal(
+		levels: number,
+		format: TextureSizedInternalFormat,
+		dims: Array<number>
+	): void;
+
+	/**
 	 * The magnification filter of this texture.
 	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
@@ -228,7 +313,7 @@ export default abstract class Texture extends ContextDependent {
 	public get magFilter(): TextureMagFilter {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMagFilter => {
-			if (typeof texture.magFilterCache == "undefined") {
+			if (typeof texture.magFilterCache === "undefined") {
 				texture.magFilterCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MAG_FILTER
@@ -267,7 +352,7 @@ export default abstract class Texture extends ContextDependent {
 	public get minFilter(): TextureMinFilter {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMinFilter => {
-			if (typeof texture.minFilterCache == "undefined") {
+			if (typeof texture.minFilterCache === "undefined") {
 				texture.minFilterCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MIN_FILTER
@@ -306,7 +391,7 @@ export default abstract class Texture extends ContextDependent {
 	public get wrapSFunction(): TextureWrapFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapSFunctionCache == "undefined") {
+			if (typeof texture.wrapSFunctionCache === "undefined") {
 				texture.wrapSFunctionCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_WRAP_S
@@ -345,7 +430,7 @@ export default abstract class Texture extends ContextDependent {
 	public get wrapTFunction(): TextureWrapFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapTFunctionCache == "undefined") {
+			if (typeof texture.wrapTFunctionCache === "undefined") {
 				texture.wrapTFunctionCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_WRAP_T
@@ -385,7 +470,7 @@ export default abstract class Texture extends ContextDependent {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxAnisotropyCache == "undefined") {
+			if (typeof texture.maxAnisotropyCache === "undefined") {
 				texture.maxAnisotropyCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MAX_ANISOTROPY_EXT
@@ -429,7 +514,7 @@ export default abstract class Texture extends ContextDependent {
 	public get baseLevel(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.baseLevelCache == "undefined") {
+			if (typeof texture.baseLevelCache === "undefined") {
 				texture.baseLevelCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_BASE_LEVEL
@@ -468,7 +553,7 @@ export default abstract class Texture extends ContextDependent {
 	public get comparisonFunction(): TestFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TestFunction => {
-			if (typeof texture.comparisonFunctionCache == "undefined") {
+			if (typeof texture.comparisonFunctionCache === "undefined") {
 				texture.comparisonFunctionCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_COMPARE_FUNC
@@ -507,7 +592,7 @@ export default abstract class Texture extends ContextDependent {
 	public get comparisonMode(): TextureCompareMode {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureCompareMode => {
-			if (typeof texture.comparisonModeCache == "undefined") {
+			if (typeof texture.comparisonModeCache === "undefined") {
 				texture.comparisonModeCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_COMPARE_MODE
@@ -546,7 +631,7 @@ export default abstract class Texture extends ContextDependent {
 	public get maxLevel(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxLevelCache == "undefined") {
+			if (typeof texture.maxLevelCache === "undefined") {
 				texture.maxLevelCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MAX_LEVEL
@@ -585,7 +670,7 @@ export default abstract class Texture extends ContextDependent {
 	public get maxLod(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxLodCache == "undefined") {
+			if (typeof texture.maxLodCache === "undefined") {
 				texture.maxLodCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MAX_LOD
@@ -624,7 +709,7 @@ export default abstract class Texture extends ContextDependent {
 	public get minLod(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.minLodCache == "undefined") {
+			if (typeof texture.minLodCache === "undefined") {
 				texture.minLodCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_MIN_LOD
@@ -664,7 +749,7 @@ export default abstract class Texture extends ContextDependent {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		// TODO: Check if this does anything for 2D, cubemap, and/or 2D array textures.
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapRFunctionCache == "undefined") {
+			if (typeof texture.wrapRFunctionCache === "undefined") {
 				texture.wrapRFunctionCache = texture.gl.getTexParameter(
 					texture.target,
 					TEXTURE_WRAP_R
@@ -689,11 +774,37 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Generates a mipmap for this texture.
+	 * Whether this texture is texture complete.
+	 */
+	public get isTextureComplete(): boolean {
+		if (this.isImmutableFormat) {
+			return true;
+		}
+
+		if (
+			this.minFilter === TextureMinFilter.LINEAR ||
+			this.minFilter == TextureMinFilter.NEAREST
+		) {
+			return true;
+		}
+
+		// TODO: Ensure that all mips have data.
+
+		return false;
+	}
+
+	/**
+	 * Generates a mipmap for this texture. Overwrites all mips except those at
+	 * the top level. Does nothing for immutable-format textures.
 	 * @see [`generateMipmap`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap)
 	 * @internal
 	 */
 	protected generateMipmap(): void {
+		// Does nothing for immutable-format textures anyway.
+		if (this.isImmutableFormat) {
+			return;
+		}
+
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		this.with(undefined, (texture) =>
 			texture.gl.generateMipmap(texture.target)

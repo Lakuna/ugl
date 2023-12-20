@@ -149,6 +149,8 @@ export default abstract class BufferParent extends ContextDependent {
 	 * this buffer's data store in bytes.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
+	 * @param isHalf Whether the data contains half floats if it contains
+	 * floats.
 	 * @param target The target binding point of the buffer.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
 	 * @throws {@link UnsupportedOperationError}
@@ -159,12 +161,13 @@ export default abstract class BufferParent extends ContextDependent {
 		data: TypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
+		isHalf = false,
 		target: BufferTarget = BufferTarget.ARRAY_BUFFER
 	) {
 		super(context);
 
 		const buffer: WebGLBuffer | null = this.gl.createBuffer();
-		if (buffer == null) {
+		if (buffer === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = buffer;
@@ -172,7 +175,8 @@ export default abstract class BufferParent extends ContextDependent {
 		this.targetCache = target;
 		this.usageCache = usage;
 		this.offsetCache = offset;
-		this.setData(data, usage, offset);
+		this.isHalfCache = isHalf;
+		this.setData(data, usage, offset, isHalf);
 	}
 
 	/**
@@ -204,7 +208,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @internal
 	 */
 	protected set target(value: BufferTarget) {
-		this.unbind(); // TODO: Check if unbinding here is necessary.
+		this.unbind();
 		this.targetCache = value;
 	}
 
@@ -256,29 +260,51 @@ export default abstract class BufferParent extends ContextDependent {
 	}
 
 	/**
+	 * Whether this buffer contains 16-bit floating-point data if it contains
+	 * floating-point data.
+	 * @internal
+	 */
+	private isHalfCache: boolean;
+
+	/**
+	 * Whether this buffer contains 16-bit floating-point data if it contains
+	 * floating-point data.
+	 */
+	public isHalf(): boolean {
+		return this.isHalfCache;
+	}
+
+	/**
 	 * Sets the data in this buffer.
 	 * @param data The data to store in this buffer or the size to set this
 	 * buffer's data store to in bytes.
 	 * @param usage The intended usage of the buffer.
-	 * @param offset The index of the element to start reading the buffer at.
+	 * @param offset The index of the element to start reading the supplied
+	 * data at.
+	 * @param isHalf Whether the data contains 16-bit floating-point data if it
+	 * contains floating-point data.
 	 */
 	public setData(
 		data: TypedArray | number,
 		usage?: BufferUsage,
-		offset?: number
+		offset?: number,
+		isHalf?: boolean
 	): void;
 
 	/**
 	 * Updates a subset of the data in this buffer.
 	 * @param data The data to store in this buffer.
 	 * @param _ An ignored value.
-	 * @param offset The index of the element to start reading the buffer at.
+	 * @param offset The index of the element to start reading the supplied
+	 * data at.
+	 * @param __ An ignored value.
 	 * @param replaceOffset The offset in bytes to start replacing data at.
 	 */
 	public setData(
 		data: TypedArray,
 		_: never,
 		offset: number,
+		__: never,
 		replaceOffset: number
 	): void;
 
@@ -286,6 +312,7 @@ export default abstract class BufferParent extends ContextDependent {
 		data: TypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
+		isHalf = false,
 		replaceOffset?: number
 	): void {
 		if (typeof replaceOffset === "number") {
@@ -300,6 +327,7 @@ export default abstract class BufferParent extends ContextDependent {
 			this.gl.bufferData(this.target, data as TypedArray, usage, offset); // TODO: Check if it's possible for an error to be thrown here.
 			this.dataCache = data;
 			this.usageCache = usage;
+			this.isHalfCache = isHalf;
 		}
 		this.offsetCache = offset;
 	}

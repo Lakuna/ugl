@@ -1,5 +1,3 @@
-// TODO: `getExtensionForRenderbufferFormat`.
-
 /**
  * Formats for a renderbuffer.
  * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)

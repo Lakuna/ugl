@@ -143,7 +143,7 @@ export default class Framebuffer extends ContextDependent {
 		super(context);
 
 		const framebuffer: WebGLFramebuffer | null = this.gl.createFramebuffer();
-		if (framebuffer == null) {
+		if (framebuffer === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = framebuffer;
@@ -179,7 +179,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected set target(value: FramebufferTarget) {
-		this.unbind(); // TODO: Check if unbinding here is necessary.
+		this.unbind();
 		this.targetCache = value;
 	}
 

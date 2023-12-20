@@ -1,5 +1,3 @@
-// TODO: Maybe remove extensions that are enabled by default in WebGL2. Other functions of the library already assume that a WebGL2 context is being used.
-
 /**
  * WebGL extensions.
  * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)

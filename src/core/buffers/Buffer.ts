@@ -18,6 +18,8 @@ export default class Buffer extends BufferParent {
 	 * this buffer's data store in bytes.
 	 * @param usage The intended usage of the buffer.
 	 * @param offset The index of the element to start reading the buffer at.
+	 * @param isHalf Whether the data contains half floats if it contains
+	 * floats.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
 	 * @throws {@link UnsupportedOperationError}
 	 */
@@ -25,8 +27,9 @@ export default class Buffer extends BufferParent {
 		context: Context,
 		data: TypedArray | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset = 0
+		offset = 0,
+		isHalf = false
 	) {
-		super(context, data, usage, offset, BufferTarget.ARRAY_BUFFER);
+		super(context, data, usage, offset, isHalf, BufferTarget.ARRAY_BUFFER);
 	}
 }
