@@ -35,9 +35,7 @@ export default class Framebuffer extends ContextDependent {
 		target: FramebufferTarget
 	): WebGLFramebuffer | null {
 		// Get the full bindings cache.
-		if (typeof Framebuffer.bindingsCache === "undefined") {
-			Framebuffer.bindingsCache = new Map();
-		}
+		Framebuffer.bindingsCache ??= new Map();
 
 		// Get the context bindings cache.
 		if (
@@ -179,6 +177,10 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected set target(value: FramebufferTarget) {
+		if (this.targetCache === value) {
+			return;
+		}
+
 		this.unbind();
 		this.targetCache = value;
 	}

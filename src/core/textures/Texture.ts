@@ -61,9 +61,7 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit ??= (context as DangerousExposedContext).activeTexture;
 
 		// Get the full bindings cache.
-		if (typeof Texture.bindingsCache === "undefined") {
-			Texture.bindingsCache = new Map();
-		}
+		Texture.bindingsCache ??= new Map();
 
 		// Get the context bindings cache.
 		if (!Texture.bindingsCache.has((context as DangerousExposedContext).gl)) {
@@ -73,9 +71,7 @@ export default abstract class Texture extends ContextDependent {
 			Texture.bindingsCache.get((context as DangerousExposedContext).gl)!;
 
 		// Get the texture unit bindings cache.
-		if (typeof contextBindingsCache[textureUnit] === "undefined") {
-			contextBindingsCache[textureUnit] = new Map();
-		}
+		contextBindingsCache[textureUnit] ??= new Map();
 		const textureUnitBindingsCache: Map<TextureTarget, WebGLTexture | null> =
 			contextBindingsCache[textureUnit]!;
 
@@ -114,8 +110,6 @@ export default abstract class Texture extends ContextDependent {
 		if (Texture.getBound(context, textureUnit, target) === texture) {
 			return;
 		}
-
-		// TODO: Check if a texture can be bound to multiple texture units at once. A texture should have no reason to be bound to multiple texture units at a time; changes may need to be made to facilitate passing texture units to uniforms if this would be the case.
 
 		// Bind the texture to the target.
 		(context as DangerousExposedContext).activeTexture = textureUnit;
@@ -245,7 +239,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected readonly target: TextureTarget; // TODO: Check if a texture can be rebound to another target. If it is possible, changes will need to be made to make it easier to unbind from every target.
+	protected readonly target: TextureTarget;
 
 	/**
 	 * The mips in this texture.
@@ -313,13 +307,10 @@ export default abstract class Texture extends ContextDependent {
 	public get magFilter(): TextureMagFilter {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMagFilter => {
-			if (typeof texture.magFilterCache === "undefined") {
-				texture.magFilterCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MAG_FILTER
-				);
-			}
-			return texture.magFilterCache!;
+			return (texture.magFilterCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MAG_FILTER
+			));
 		});
 	}
 
@@ -352,13 +343,10 @@ export default abstract class Texture extends ContextDependent {
 	public get minFilter(): TextureMinFilter {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureMinFilter => {
-			if (typeof texture.minFilterCache === "undefined") {
-				texture.minFilterCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MIN_FILTER
-				);
-			}
-			return texture.minFilterCache!;
+			return (texture.minFilterCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MIN_FILTER
+			));
 		});
 	}
 
@@ -391,13 +379,10 @@ export default abstract class Texture extends ContextDependent {
 	public get wrapSFunction(): TextureWrapFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapSFunctionCache === "undefined") {
-				texture.wrapSFunctionCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_WRAP_S
-				);
-			}
-			return texture.wrapSFunctionCache!;
+			return (texture.wrapSFunctionCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_WRAP_S
+			));
 		});
 	}
 
@@ -430,13 +415,10 @@ export default abstract class Texture extends ContextDependent {
 	public get wrapTFunction(): TextureWrapFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapTFunctionCache === "undefined") {
-				texture.wrapTFunctionCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_WRAP_T
-				);
-			}
-			return texture.wrapTFunctionCache!;
+			return (texture.wrapTFunctionCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_WRAP_T
+			));
 		});
 	}
 
@@ -470,13 +452,10 @@ export default abstract class Texture extends ContextDependent {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxAnisotropyCache === "undefined") {
-				texture.maxAnisotropyCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MAX_ANISOTROPY_EXT
-				);
-			}
-			return texture.maxAnisotropyCache!;
+			return (texture.maxAnisotropyCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MAX_ANISOTROPY_EXT
+			));
 		});
 	}
 
@@ -514,13 +493,10 @@ export default abstract class Texture extends ContextDependent {
 	public get baseLevel(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.baseLevelCache === "undefined") {
-				texture.baseLevelCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_BASE_LEVEL
-				);
-			}
-			return texture.baseLevelCache!;
+			return (texture.baseLevelCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_BASE_LEVEL
+			));
 		});
 	}
 
@@ -553,13 +529,10 @@ export default abstract class Texture extends ContextDependent {
 	public get comparisonFunction(): TestFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TestFunction => {
-			if (typeof texture.comparisonFunctionCache === "undefined") {
-				texture.comparisonFunctionCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_COMPARE_FUNC
-				);
-			}
-			return texture.comparisonFunctionCache!;
+			return (texture.comparisonFunctionCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_COMPARE_FUNC
+			));
 		});
 	}
 
@@ -592,13 +565,10 @@ export default abstract class Texture extends ContextDependent {
 	public get comparisonMode(): TextureCompareMode {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): TextureCompareMode => {
-			if (typeof texture.comparisonModeCache === "undefined") {
-				texture.comparisonModeCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_COMPARE_MODE
-				);
-			}
-			return texture.comparisonModeCache!;
+			return (texture.comparisonModeCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_COMPARE_MODE
+			));
 		});
 	}
 
@@ -631,13 +601,10 @@ export default abstract class Texture extends ContextDependent {
 	public get maxLevel(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxLevelCache === "undefined") {
-				texture.maxLevelCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MAX_LEVEL
-				);
-			}
-			return texture.maxLevelCache!;
+			return (texture.maxLevelCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MAX_LEVEL
+			));
 		});
 	}
 
@@ -670,13 +637,10 @@ export default abstract class Texture extends ContextDependent {
 	public get maxLod(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.maxLodCache === "undefined") {
-				texture.maxLodCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MAX_LOD
-				);
-			}
-			return texture.maxLodCache!;
+			return (texture.maxLodCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MAX_LOD
+			));
 		});
 	}
 
@@ -709,13 +673,10 @@ export default abstract class Texture extends ContextDependent {
 	public get minLod(): number {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
 		return this.with(undefined, (texture: this): number => {
-			if (typeof texture.minLodCache === "undefined") {
-				texture.minLodCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_MIN_LOD
-				);
-			}
-			return texture.minLodCache!;
+			return (texture.minLodCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_MIN_LOD
+			));
 		});
 	}
 
@@ -747,15 +708,11 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public get wrapRFunction(): TextureWrapFunction {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
-		// TODO: Check if this does anything for 2D, cubemap, and/or 2D array textures.
 		return this.with(undefined, (texture: this): TextureWrapFunction => {
-			if (typeof texture.wrapRFunctionCache === "undefined") {
-				texture.wrapRFunctionCache = texture.gl.getTexParameter(
-					texture.target,
-					TEXTURE_WRAP_R
-				);
-			}
-			return texture.wrapRFunctionCache!;
+			return (texture.wrapRFunctionCache ??= texture.gl.getTexParameter(
+				texture.target,
+				TEXTURE_WRAP_R
+			));
 		});
 	}
 
@@ -766,7 +723,6 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public set wrapRFunction(value: TextureWrapFunction) {
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
-		// TODO: Check if this does anything for 2D, cubemap, and/or 2D array textures.
 		this.with(undefined, (texture: this): void => {
 			texture.gl.texParameteri(texture.target, TEXTURE_WRAP_R, value);
 			texture.wrapRFunctionCache = value;
@@ -788,7 +744,7 @@ export default abstract class Texture extends ContextDependent {
 			return true;
 		}
 
-		// TODO: Ensure that all mips have data.
+		// TODO: Return `true` if all mips have data.
 
 		return false;
 	}
@@ -806,8 +762,9 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// TODO: Prefer `bind` to `with`. Changing this will require a way to bind to an unused texture unit (or to use an existing binding if one exists).
-		this.with(undefined, (texture) =>
-			texture.gl.generateMipmap(texture.target)
+		this.with(
+			undefined,
+			(texture) => texture.gl.generateMipmap(texture.target) // TODO: Also overwrite cached mip data.
 		);
 	}
 
@@ -866,23 +823,11 @@ export default abstract class Texture extends ContextDependent {
 		return out;
 	}
 
-	// TODO: Add mips and mipmaps as a map of mipmap targets to arrays of mips (mipmaps).
-
 	// TODO: Add a way to update the data in the texture.
 
-	// TODO: Check what happens when setting the data in a fixed-size texture to something with a different size.
-
 	// TODO: Add a function that calculates the expected size of the given mip.
-
-	// TODO: Check what happens when setting the data in a mip to something with a different size (maybe even bigger than the previous mip).
-
-	// TODO: Add a function that checks if the texture is texture complete.
-
-	// TODO: Check if generating a mipmap overwrites existing mips (if none are missing and/or if any are missing)
 
 	// TODO: Maybe save mip data as an array of modifications. Reset when full data is supplied and append when partial data is supplied. When the mip is updated, apply modifications in order. Save an index to prevent reapplying modifications.
 
 	// TODO: Add a method that updates the texture when needed and a method that forces the texture to update. Update the texture when it's created and when it's about to be used (i.e. passed to a uniform). This method should also generate a mipmap automatically if the texture is not texture complete and it wouldn't override given data. This method should automatically use the correct unpack alignment if possible.
-
-	// TODO: Check if different mipmaps and/or mips can have different formats, internal formats, and data types.
 }

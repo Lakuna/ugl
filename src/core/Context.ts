@@ -90,10 +90,8 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 */
 	public get drawingBufferColorSpace(): PredefinedColorSpace {
-		if (typeof this.drawingBufferColorSpaceCache === "undefined") {
-			this.drawingBufferColorSpaceCache = this.gl.drawingBufferColorSpace;
-		}
-		return this.drawingBufferColorSpaceCache;
+		return (this.drawingBufferColorSpaceCache ??=
+			this.gl.drawingBufferColorSpace);
 	}
 
 	/**
@@ -104,6 +102,7 @@ export default class Context extends ApiInterface {
 		if (this.drawingBufferColorSpaceCache === value) {
 			return;
 		}
+
 		this.gl.drawingBufferColorSpace = value;
 		this.drawingBufferColorSpaceCache = value;
 	}
@@ -138,12 +137,9 @@ export default class Context extends ApiInterface {
 	 * @experimental
 	 */
 	public get unpackColorSpace(): PredefinedColorSpace {
-		if (typeof this.unpackColorSpaceCache === "undefined") {
-			this.unpackColorSpaceCache = (
-				this.gl as ExperimentalRawContext
-			).unpackColorSpace;
-		}
-		return this.unpackColorSpaceCache;
+		return (this.unpackColorSpaceCache ??= (
+			this.gl as ExperimentalRawContext
+		).unpackColorSpace);
 	}
 
 	/**
@@ -155,6 +151,7 @@ export default class Context extends ApiInterface {
 		if (this.unpackColorSpaceCache === value) {
 			return;
 		}
+
 		(this.gl as ExperimentalRawContext).unpackColorSpace = value;
 		this.unpackColorSpaceCache = value;
 	}
@@ -172,10 +169,8 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	protected get activeTexture(): number {
-		if (typeof this.activeTextureCache === "undefined") {
-			this.activeTextureCache = this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0;
-		}
-		return this.activeTextureCache;
+		return (this.activeTextureCache ??=
+			this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
 	}
 
 	/**
@@ -187,7 +182,9 @@ export default class Context extends ApiInterface {
 		if (this.activeTextureCache === value) {
 			return;
 		}
+
 		// TODO: Throw an error if the given value is above `MAX_COMBINED_TEXTURE_IMAGE_UNITS` (normalized) or negative.
+
 		this.gl.activeTexture(value + TEXTURE0); // TODO: Check if an error is possible here.
 		this.activeTextureCache = value;
 	}
@@ -204,10 +201,9 @@ export default class Context extends ApiInterface {
 	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
 	 */
 	public get blendColor(): Color {
-		if (typeof this.blendColorCache === "undefined") {
-			this.blendColorCache = this.gl.getParameter(BLEND_COLOR) as Color;
-		}
-		return this.blendColorCache;
+		return (this.blendColorCache ??= this.gl.getParameter(
+			BLEND_COLOR
+		) as Color);
 	}
 
 	/**
@@ -241,12 +237,10 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private setBlendEquationCache(): void {
-		if (typeof this.blendEquationCache === "undefined") {
-			this.blendEquationCache = new Uint8Array([
-				this.gl.getParameter(BLEND_EQUATION_RGB),
-				this.gl.getParameter(BLEND_EQUATION_ALPHA)
-			]) as unknown as BlendEquationSet;
-		}
+		this.blendEquationCache ??= new Uint8Array([
+			this.gl.getParameter(BLEND_EQUATION_RGB),
+			this.gl.getParameter(BLEND_EQUATION_ALPHA)
+		]) as unknown as BlendEquationSet;
 	}
 
 	/**
@@ -273,11 +267,13 @@ export default class Context extends ApiInterface {
 		) {
 			return;
 		}
+
 		if (rgb === alpha) {
 			this.gl.blendEquation(rgb); // TODO: Check if an error is possible here.
 		} else {
 			this.gl.blendEquationSeparate(rgb, alpha); // TODO: Check if an error is possible here.
 		}
+
 		this.blendEquationCache = new Uint8Array([
 			rgb,
 			alpha
@@ -315,14 +311,12 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private setBlendFunctionCache(): void {
-		if (typeof this.blendFunctionCache === "undefined") {
-			this.blendFunctionCache = new Uint8Array([
-				this.gl.getParameter(BLEND_SRC_RGB),
-				this.gl.getParameter(BLEND_DST_RGB),
-				this.gl.getParameter(BLEND_SRC_ALPHA),
-				this.gl.getParameter(BLEND_DST_ALPHA)
-			]) as unknown as BlendFunctionFullSet;
-		}
+		this.blendFunctionCache ??= new Uint8Array([
+			this.gl.getParameter(BLEND_SRC_RGB),
+			this.gl.getParameter(BLEND_DST_RGB),
+			this.gl.getParameter(BLEND_SRC_ALPHA),
+			this.gl.getParameter(BLEND_DST_ALPHA)
+		]) as unknown as BlendFunctionFullSet;
 	}
 
 	/**
@@ -345,6 +339,7 @@ export default class Context extends ApiInterface {
 		const destinationRgb: BlendFunction = value[1];
 		const sourceAlpha: BlendFunction = 2 in value ? value[2] : value[0];
 		const destinationAlpha: BlendFunction = 3 in value ? value[3] : value[1];
+
 		if (
 			typeof this.blendFunctionCache != "undefined" &&
 			this.blendFunctionCache[0] === sourceRgb &&
@@ -354,6 +349,7 @@ export default class Context extends ApiInterface {
 		) {
 			return;
 		}
+
 		if (sourceRgb === sourceAlpha && destinationRgb === destinationAlpha) {
 			this.gl.blendFunc(sourceRgb, destinationRgb); // TODO: Check if an error is possible here.
 		} else {
@@ -364,6 +360,7 @@ export default class Context extends ApiInterface {
 				destinationAlpha
 			); // TODO: Check if an error is possible here.
 		}
+
 		this.blendFunctionCache = new Uint8Array([
 			sourceRgb,
 			destinationRgb,
@@ -476,10 +473,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 */
 	public get clearColor(): Color {
-		if (typeof this.clearColorCache === "undefined") {
-			this.clearColorCache = this.gl.getParameter(COLOR_CLEAR_VALUE);
-		}
-		return this.clearColorCache!;
+		return (this.clearColorCache ??= this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
 	/**
@@ -503,10 +497,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
 	public get clearDepth(): number {
-		if (typeof this.clearDepthCache === "undefined") {
-			this.clearDepthCache = this.gl.getParameter(DEPTH_CLEAR_VALUE);
-		}
-		return this.clearDepthCache!;
+		return (this.clearDepthCache ??= this.gl.getParameter(DEPTH_CLEAR_VALUE));
 	}
 
 	/**
@@ -530,10 +521,8 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public get clearStencil(): number {
-		if (typeof this.clearStencilCache === "undefined") {
-			this.clearStencilCache = this.gl.getParameter(STENCIL_CLEAR_VALUE);
-		}
-		return this.clearStencilCache!;
+		return (this.clearStencilCache ??=
+			this.gl.getParameter(STENCIL_CLEAR_VALUE));
 	}
 
 	/**
@@ -559,11 +548,7 @@ export default class Context extends ApiInterface {
 	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 */
 	public get colorMask(): ColorMask {
-		if (typeof this.colorMaskCache === "undefined") {
-			this.colorMaskCache = this.gl.getParameter(COLOR_WRITEMASK);
-		}
-
-		return this.colorMaskCache!;
+		return (this.colorMaskCache ??= this.gl.getParameter(COLOR_WRITEMASK));
 	}
 
 	/**

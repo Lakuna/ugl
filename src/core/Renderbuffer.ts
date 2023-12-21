@@ -28,9 +28,7 @@ export default class Renderbuffer extends ContextDependent {
 	 */
 	protected static getBound(context: Context): WebGLRenderbuffer | null {
 		// Get the full bindings cache.
-		if (typeof Renderbuffer.bindingsCache === "undefined") {
-			Renderbuffer.bindingsCache = new Map();
-		}
+		Renderbuffer.bindingsCache ??= new Map();
 
 		// Get the bound renderbuffer.
 		if (

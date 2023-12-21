@@ -35,9 +35,7 @@ export default abstract class BufferParent extends ContextDependent {
 		target: BufferTarget
 	): WebGLBuffer | null {
 		// Get the full bindings cache.
-		if (typeof BufferParent.bindingsCache === "undefined") {
-			BufferParent.bindingsCache = new Map();
-		}
+		BufferParent.bindingsCache ??= new Map();
 
 		// Get the context bindings cache.
 		if (
@@ -208,6 +206,10 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @internal
 	 */
 	protected set target(value: BufferTarget) {
+		if (this.targetCache === value) {
+			return;
+		}
+
 		this.unbind();
 		this.targetCache = value;
 	}
