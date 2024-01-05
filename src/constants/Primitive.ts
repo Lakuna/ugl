@@ -1,4 +1,11 @@
-/** Types of primitives that can be rasterized. */
+/**
+ * Types of primitives that can be rasterized.
+ * @see [`drawArrays`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays)
+ * @see [`drawElements`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements)
+ * @see [`drawArraysInstanced`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawArraysInstanced)
+ * @see [`drawElementsInstanced`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawElementsInstanced)
+ * @see [`drawRangeElements`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawRangeElements)
+ */
 enum Primitive {
 	/** Draws a dot at each vertex. */
 	POINTS = 0x0000,

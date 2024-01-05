@@ -1,9 +1,16 @@
-/** Binding points for buffers. */
+/**
+ * Binding points for buffers.
+ * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+ * @internal
+ */
 enum BufferTarget {
 	/** A buffer containing vertex attributes. */
 	ARRAY_BUFFER = 0x8892,
 
-	/** A buffer containing element indices. */
+	/**
+	 * A buffer containing element indices. Not compatible with the rest of the
+	 * buffer targets.
+	 */
 	ELEMENT_ARRAY_BUFFER = 0x8893,
 
 	/** A buffer for copying from one buffer to another. */

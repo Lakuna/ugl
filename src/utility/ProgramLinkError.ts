@@ -1,10 +1,11 @@
-/** An error resulting from a shader program failing to link. */
+/** An error that occurs when attempting to link a shader program. */
 export default class ProgramLinkError extends Error {
 	/**
-	 * Creates an error resulting from a shader program failing to link.
+	 * Creates a program link error.
 	 * @param message The message of the error.
+	 * @see [`linkProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram)
 	 */
-	public constructor(message = "The shader program failed to link.") {
+	public constructor(message = "Failed to link the shader program.") {
 		super(message);
 		this.name = "ProgramLinkError";
 	}

@@ -1,122 +1,178 @@
+import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
-import { RENDERBUFFER, RENDERBUFFER_BINDING } from "#constants";
-import type RenderbufferFormat from "#RenderbufferFormat";
 import UnsupportedOperationError from "#UnsupportedOperationError";
+import { RENDERBUFFER, RENDERBUFFER_BINDING } from "#constants";
+import type { DangerousExposedContext } from "#DangerousExposedContext";
 
 /**
- * A buffer that can contain an image or be the source or target of a rendering
- * operation.
- * @see [Framebuffers](https://www.lakuna.pw/a/webgl/framebuffers)
+ * An object that contains an image and is optimized as a rendering target.
+ * @see [`WebGLRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer)
  */
-export default class Renderbuffer {
+export default class Renderbuffer extends ContextDependent {
 	/**
-	 * Unbinds all renderbuffers from the given rendering context.
-	 * @param context The rendering context.
+	 * The currently-bound renderbuffer cache.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
 	 */
-	public static unbind(context: Context): void {
-		// TODO: Optional caching.
-		Renderbuffer.bind(context, null);
-	}
-
-	/**
-	 * Binds the given renderbuffer.
-	 * @param context The rendering context.
-	 * @param renderbuffer The renderbuffer.
-	 */
-	private static bind(
-		context: Context,
-		renderbuffer: WebGLRenderbuffer | null
-	): void {
-		// TODO: Optional caching.
-		context.internal.bindRenderbuffer(RENDERBUFFER, renderbuffer);
-	}
+	private static bindingsCache?: Map<
+		WebGL2RenderingContext,
+		WebGLRenderbuffer | null
+	>;
 
 	/**
 	 * Gets the currently-bound renderbuffer.
 	 * @param context The rendering context.
 	 * @returns The renderbuffer.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
 	 */
-	private static getBoundRenderbuffer(
-		context: Context
-	): WebGLRenderbuffer | null {
-		// TODO: Optional caching.
-		return context.internal.getParameter(RENDERBUFFER_BINDING);
+	protected static getBound(context: Context): WebGLRenderbuffer | null {
+		// Get the full bindings cache.
+		Renderbuffer.bindingsCache ??= new Map();
+
+		// Get the bound renderbuffer.
+		if (
+			!Renderbuffer.bindingsCache.has((context as DangerousExposedContext).gl)
+		) {
+			Renderbuffer.bindingsCache.set(
+				(context as DangerousExposedContext).gl,
+				(context as DangerousExposedContext).gl.getParameter(
+					RENDERBUFFER_BINDING
+				)
+			);
+		}
+		return Renderbuffer.bindingsCache.get(
+			(context as DangerousExposedContext).gl
+		)!;
+	}
+
+	/**
+	 * Binds a renderbuffer.
+	 * @param context The rendering context.
+	 * @param renderbuffer The renderbuffer.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
+	 */
+	protected static override bind(
+		context: Context,
+		renderbuffer: WebGLRenderbuffer | null
+	): void {
+		// Do nothing if the binding is already correct.
+		if (Renderbuffer.getBound(context) === renderbuffer) {
+			return;
+		}
+
+		// Bind the renderbuffer to the target.
+		(context as DangerousExposedContext).gl.bindRenderbuffer(
+			RENDERBUFFER,
+			renderbuffer
+		); // TODO: Check if this can throw an error.
+		Renderbuffer.bindingsCache!.set(
+			(context as DangerousExposedContext).gl,
+			renderbuffer
+		);
+	}
+
+	/**
+	 * Unbinds the renderbuffer that is bound.
+	 * @param context The rendering context.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
+	 */
+	protected static unbind(context: Context): void;
+
+	/**
+	 * Unbinds the given renderbuffer.
+	 * @param context The rendering context.
+	 * @param renderbuffer The renderbuffer.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
+	 */
+	protected static unbind(
+		context: Context,
+		renderbuffer: WebGLRenderbuffer
+	): void;
+
+	protected static unbind(
+		context: Context,
+		renderbuffer?: WebGLRenderbuffer
+	): void {
+		// Do nothing if the renderbuffer is already unbound.
+		if (
+			typeof renderbuffer != "undefined" &&
+			Renderbuffer.getBound(context) != renderbuffer
+		) {
+			return;
+		}
+
+		// Unbind the renderbuffer.
+		Renderbuffer.bind(context, null);
 	}
 
 	/**
 	 * Creates a renderbuffer.
-	 * @param context The rendering context of the renderbuffer.
-	 * @param format The format of the renderbuffer.
-	 * @param width The width of the renderbuffer.
-	 * @param height The height of the renderbuffer.
+	 * @param context The rendering context.
+	 * @see [`createRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer)
+	 * @throws {@link UnsupportedOperationError}
 	 */
-	public constructor(
-		context: Context,
-		format: RenderbufferFormat,
-		width: number,
-		height: number
-	) {
-		this.context = context;
-		this.format = format;
-		this.width = width;
-		this.height = height;
+	public constructor(context: Context) {
+		super(context);
 
-		const renderbuffer: WebGLRenderbuffer | null =
-			context.internal.createRenderbuffer();
-		if (!renderbuffer) {
+		const renderbuffer: WebGLRenderbuffer | null = this.gl.createRenderbuffer();
+		if (renderbuffer === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = renderbuffer;
-
-		this.with((renderbuffer: this): void => {
-			renderbuffer.context.internal.renderbufferStorage(
-				RENDERBUFFER,
-				renderbuffer.format,
-				renderbuffer.width,
-				renderbuffer.height
-			);
-		});
 	}
 
-	/** The rendering context of this renderbuffer. */
-	public readonly context: Context;
+	/**
+	 * The API interface of this renderbuffer.
+	 * @see [`WebGLRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer)
+	 * @internal
+	 */
+	protected readonly internal: WebGLRenderbuffer;
 
-	/** The WebGL API interface of this renderbuffer. */
-	public readonly internal: WebGLRenderbuffer;
+	/**
+	 * Deletes this renderbuffer.
+	 * @see [`deleteRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer)
+	 */
+	public delete(): void {
+		this.gl.deleteRenderbuffer(this.internal);
+	}
 
-	/** The format of this renderbuffer. */
-	public readonly format: RenderbufferFormat;
-
-	/** The width of this renderbuffer. */
-	public readonly width: number;
-
-	/** The height of this renderbuffer. */
-	public readonly height: number;
-
-	/** Binds this renderbuffer. */
-	public bind(): void {
-		// TODO: Optional caching.
+	/**
+	 * Binds this renderbuffer.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
+	 */
+	protected bind(): void {
 		Renderbuffer.bind(this.context, this.internal);
+	}
+
+	/**
+	 * Unbinds this renderbuffer.
+	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @internal
+	 */
+	protected unbind(): void {
+		Renderbuffer.unbind(this.context, this.internal);
 	}
 
 	/**
 	 * Executes the given function with this renderbuffer bound, then re-binds
 	 * the previously-bound renderbuffer.
-	 * @param f The function to execute.
+	 * @param funktion The function to execute.
 	 * @returns The return value of the executed function.
+	 * @internal
 	 */
-	public with<T>(f: (renderbuffer: this) => T): T {
-		// TODO: Optional caching.
-		const previousBinding: WebGLRenderbuffer | null =
-			Renderbuffer.getBoundRenderbuffer(this.context);
+	protected with<T>(funktion: (renderbuffer: this) => T): T {
+		// TODO: Use an existing binding if one exists.
+		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBound(
+			this.context
+		);
 		this.bind();
-		const out: T = f(this);
+		const out: T = funktion(this);
 		Renderbuffer.bind(this.context, previousBinding);
 		return out;
-	}
-
-	/** Deletes this renderbuffer. */
-	public delete(): void {
-		this.context.internal.deleteRenderbuffer(this.internal);
 	}
 }

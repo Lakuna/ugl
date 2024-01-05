@@ -1,658 +1,563 @@
-import HeadlessEnvironmentError from "#HeadlessEnvironmentError";
-import type { Canvas } from "#Canvas";
-import type PowerPreference from "#PowerPreference";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import type BlendFunctionSet from "#BlendFunctionSet";
 import {
-	BLEND,
+	ACTIVE_TEXTURE,
+	TEXTURE0,
+	BLEND_COLOR,
+	BLEND_EQUATION_RGB,
+	BLEND_EQUATION_ALPHA,
 	BLEND_SRC_RGB,
 	BLEND_SRC_ALPHA,
 	BLEND_DST_RGB,
 	BLEND_DST_ALPHA,
-	CULL_FACE,
-	CULL_FACE_MODE,
-	DITHER,
-	DEPTH_TEST,
-	DEPTH_FUNC,
-	POLYGON_OFFSET_FILL,
-	POLYGON_OFFSET_FACTOR,
-	POLYGON_OFFSET_UNITS,
-	SAMPLE_ALPHA_TO_COVERAGE,
-	SAMPLE_COVERAGE,
-	SAMPLE_COVERAGE_VALUE,
-	SAMPLE_COVERAGE_INVERT,
-	SCISSOR_TEST,
-	SCISSOR_BOX,
-	VIEWPORT,
-	STENCIL_TEST,
-	STENCIL_FUNC,
-	STENCIL_REF,
-	STENCIL_VALUE_MASK,
-	STENCIL_BACK_FUNC,
-	STENCIL_BACK_REF,
-	STENCIL_BACK_VALUE_MASK,
-	RASTERIZER_DISCARD,
-	FRONT_FACE,
+	COLOR_CLEAR_VALUE,
+	DEPTH_CLEAR_VALUE,
+	STENCIL_CLEAR_VALUE,
 	COLOR_BUFFER_BIT,
 	DEPTH_BUFFER_BIT,
-	STENCIL_BUFFER_BIT
+	STENCIL_BUFFER_BIT,
+	COLOR_WRITEMASK
 } from "#constants";
-import FaceDirection from "#FaceDirection";
-import type TestFunction from "#TestFunction";
-import type PolygonOffset from "#PolygonOffset";
-import type MultiSampleCoverageParameters from "#MultiSampleCoverageParameters";
-import type Box from "#Box";
-import type StencilTestSet from "#StencilTestSet";
-import type WindingOrientation from "#WindingOrientation";
-import type Extension from "#Extension";
-import type { ExtensionObject } from "#ExtensionObject";
-import type { ColorLike } from "#ColorLike";
+import ApiInterface from "#ApiInterface";
+import type { Canvas } from "#Canvas";
+import UnsupportedOperationError from "#UnsupportedOperationError";
+import type { ExperimentalRawContext } from "#ExperimentalRawContext";
+import type Color from "#Color";
+import BlendEquation from "#BlendEquation";
+import type BlendEquationSet from "#BlendEquationSet";
+import type BlendFunctionSet from "#BlendFunctionSet";
+import type BlendFunctionFullSet from "#BlendFunctionFullSet";
+import type BlendFunction from "#BlendFunction";
+import ErrorCode from "#ErrorCode";
+import WebglError from "#WebglError";
+import type ColorMask from "#ColorMask";
 
-/** A WebGL2 rendering context. */
-export default class Context {
+/**
+ * A WebGL2 rendering context.
+ * @see [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
+ */
+export default class Context extends ApiInterface {
 	/**
-	 * Creates a rendering context.
+	 * Creates a wrapper for a WebGL2 rendering context.
 	 * @param gl The rendering context.
 	 */
 	public constructor(gl: WebGL2RenderingContext);
 
 	/**
-	 * Creates a rendering context.
+	 * Creates a WebGL2 rendering context.
 	 * @param canvas The canvas of the rendering context.
-	 * @param alpha Whether the canvas contains an alpha buffer.
-	 * @param depth Whether the drawing buffer should have a depth buffer of at
-	 * least 16 bits.
-	 * @param stencil Whether the drawing buffer should have a stencil buffer
-	 * of at least 8 bits.
-	 * @param desynchronized Whether the user agent should reduce latency by
-	 * desynchronizing the canvas paint cycle from the event loop.
-	 * @param antialias Whether or not to perform anti-aliasing if possible.
-	 * @param failIfMajorPerformanceCaveat Whether the context will fail to be
-	 * created if the system performance is low or if no hardware GPU is
-	 * available.
-	 * @param powerPreference Which configuration of GPU is suitable for the
-	 * context.
-	 * @param premultipliedAlpha Whether the page compositor will assume that
-	 * the drawing buffer contains colors with pre-multiplied alpha.
-	 * @param preserveDrawingBuffer Whether the buffers will preserve their
-	 * values until cleared or overwritten by the author.
+	 * @throws {@link UnsupportedOperationError} if the environment does not
+	 * support WebGL2.
+	 * @see [`getContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
 	 */
-	public constructor(
-		canvas: Canvas,
-		alpha?: boolean,
-		depth?: boolean,
-		stencil?: boolean,
-		desynchronized?: boolean,
-		antialias?: boolean,
-		failIfMajorPerformanceCaveat?: boolean,
-		powerPreference?: PowerPreference,
-		premultipliedAlpha?: boolean,
-		preserveDrawingBuffer?: boolean
-	);
+	public constructor(canvas: Canvas, options?: WebGLContextAttributes);
 
 	public constructor(
-		src: WebGL2RenderingContext | Canvas,
-		alpha?: boolean,
-		depth?: boolean,
-		stencil?: boolean,
-		desynchronized?: boolean,
-		antialias?: boolean,
-		failIfMajorPerformanceCaveat?: boolean,
-		powerPreference?: PowerPreference,
-		premultipliedAlpha?: boolean,
-		preserveDrawingBuffer?: boolean
+		source: WebGL2RenderingContext | Canvas,
+		options?: WebGLContextAttributes
 	) {
-		if (typeof document == "undefined") {
-			throw new HeadlessEnvironmentError();
-		}
-		if (typeof WebGL2RenderingContext == "undefined") {
-			throw new UnsupportedOperationError();
-		}
-
-		if (src instanceof WebGL2RenderingContext) {
-			this.internal = src;
-			this.canvas = src.canvas;
+		if (source instanceof WebGL2RenderingContext) {
+			super(source);
 		} else {
-			this.canvas = src;
-			const gl: WebGL2RenderingContext | null = src.getContext("webgl2", {
-				alpha,
-				depth,
-				stencil,
-				desynchronized,
-				antialias,
-				failIfMajorPerformanceCaveat,
-				powerPreference,
-				premultipliedAlpha,
-				preserveDrawingBuffer
-			}) as WebGL2RenderingContext | null;
-			if (!gl) {
-				throw new UnsupportedOperationError();
+			const gl: WebGL2RenderingContext | null = source.getContext(
+				"webgl2",
+				options
+			) as WebGL2RenderingContext | null;
+			if (gl === null) {
+				throw new UnsupportedOperationError(
+					"The environment does not support WebGL2."
+				);
 			}
-			this.internal = gl;
+			super(gl);
 		}
 
-		this.extensions = new Map();
+		this.canvas = this.gl.canvas;
 	}
 
-	/** This rendering context. */
-	public readonly internal: WebGL2RenderingContext;
-
-	/** The canvas of this rendering context. */
+	/**
+	 * The canvas of this rendering context.
+	 * @see [`canvas`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/canvas)
+	 */
 	public readonly canvas: Canvas;
 
 	/**
-	 * The blending functions. Disables blending if not defined.
+	 * The color space of the drawing buffer of this rendering context.
+	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
+	 * @internal
+	 */
+	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
+
+	/**
+	 * The color space of the drawing buffer of this rendering context.
+	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
+	 */
+	public get drawingBufferColorSpace(): PredefinedColorSpace {
+		return (this.drawingBufferColorSpaceCache ??=
+			this.gl.drawingBufferColorSpace);
+	}
+
+	/**
+	 * The color space of the drawing buffer of this rendering context.
+	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
+	 */
+	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
+		if (this.drawingBufferColorSpaceCache === value) {
+			return;
+		}
+
+		this.gl.drawingBufferColorSpace = value;
+		this.drawingBufferColorSpaceCache = value;
+	}
+
+	/**
+	 * The actual height of the drawing buffer of this rendering context.
+	 * @see [`drawingBufferHeight`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight)
+	 */
+	public get drawingBufferHeight(): number {
+		return this.gl.drawingBufferHeight;
+	}
+
+	/**
+	 * The actual width of the drawing buffer of this rendering context.
+	 * @see [`drawingBufferWidth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth)
+	 */
+	public get drawingBufferWidth(): number {
+		return this.gl.drawingBufferWidth;
+	}
+
+	/**
+	 * The color space to convert to when importing textures.
+	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
+	 * @experimental
+	 * @internal
+	 */
+	private unpackColorSpaceCache?: PredefinedColorSpace;
+
+	/**
+	 * The color space to convert to when importing textures.
+	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
+	 * @experimental
+	 */
+	public get unpackColorSpace(): PredefinedColorSpace {
+		return (this.unpackColorSpaceCache ??= (
+			this.gl as ExperimentalRawContext
+		).unpackColorSpace);
+	}
+
+	/**
+	 * The color space to convert to when importing textures.
+	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
+	 * @experimental
+	 */
+	public set unpackColorSpace(value: PredefinedColorSpace) {
+		if (this.unpackColorSpaceCache === value) {
+			return;
+		}
+
+		(this.gl as ExperimentalRawContext).unpackColorSpace = value;
+		this.unpackColorSpaceCache = value;
+	}
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @internal
+	 */
+	private activeTextureCache?: number;
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @internal
+	 */
+	protected get activeTexture(): number {
+		return (this.activeTextureCache ??=
+			this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
+	}
+
+	/**
+	 * The active texture unit.
+	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @internal
+	 */
+	protected set activeTexture(value: number) {
+		if (this.activeTextureCache === value) {
+			return;
+		}
+
+		// TODO: Throw an error if the given value is above `MAX_COMBINED_TEXTURE_IMAGE_UNITS` (normalized) or negative.
+
+		this.gl.activeTexture(value + TEXTURE0); // TODO: Check if an error is possible here.
+		this.activeTextureCache = value;
+	}
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 * @internal
+	 */
+	private blendColorCache?: Color;
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 */
+	public get blendColor(): Color {
+		return (this.blendColorCache ??= this.gl.getParameter(
+			BLEND_COLOR
+		) as Color);
+	}
+
+	/**
+	 * The blend color.
+	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 */
+	public set blendColor(value: Color) {
+		if (
+			typeof this.blendColorCache != "undefined" &&
+			this.blendColorCache[0] === value[0] &&
+			this.blendColorCache[1] === value[1] &&
+			this.blendColorCache[2] === value[2] &&
+			this.blendColorCache[3] === value[3]
+		) {
+			return;
+		}
+		this.gl.blendColor(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.blendColorCache = value;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 * @internal
+	 */
+	private blendEquationCache?: BlendEquationSet;
+
+	/**
+	 * Initializes the blend equation cache.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 * @internal
+	 */
+	private setBlendEquationCache(): void {
+		this.blendEquationCache ??= new Uint8Array([
+			this.gl.getParameter(BLEND_EQUATION_RGB),
+			this.gl.getParameter(BLEND_EQUATION_ALPHA)
+		]) as unknown as BlendEquationSet;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 */
+	public get blendEquation(): BlendEquationSet {
+		this.setBlendEquationCache();
+		return this.blendEquationCache!;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 */
+	public set blendEquation(value: BlendEquation | BlendEquationSet) {
+		// TODO: Act differently for `BlendEquation` and `BlendEquationSet` rather than unifying them.
+		const rgb: BlendEquation = (value as BlendEquationSet)?.[0] ?? value;
+		const alpha: BlendEquation = (value as BlendEquationSet)?.[1] ?? value;
+		if (
+			typeof this.blendEquationCache != "undefined" &&
+			this.blendEquationCache[0] === rgb &&
+			this.blendEquationCache[1] === alpha
+		) {
+			return;
+		}
+
+		if (rgb === alpha) {
+			this.gl.blendEquation(rgb); // TODO: Check if an error is possible here.
+		} else {
+			this.gl.blendEquationSeparate(rgb, alpha); // TODO: Check if an error is possible here.
+		}
+
+		this.blendEquationCache = new Uint8Array([
+			rgb,
+			alpha
+		]) as unknown as BlendEquationSet;
+	}
+
+	/**
+	 * The RGB blend equation.
+	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+	 */
+	public get blendEquationRgb(): BlendEquation {
+		this.setBlendEquationCache();
+		return this.blendEquationCache![0];
+	}
+
+	/**
+	 * The alpha blend equation.
+	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
+	 */
+	public get blendEquationAlpha(): BlendEquation {
+		this.setBlendEquationCache();
+		return this.blendEquationCache![1];
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @internal
+	 */
+	private blendFunctionCache?: BlendFunctionFullSet;
+
+	/**
+	 * Initializes the blend function cache.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @internal
+	 */
+	private setBlendFunctionCache(): void {
+		this.blendFunctionCache ??= new Uint8Array([
+			this.gl.getParameter(BLEND_SRC_RGB),
+			this.gl.getParameter(BLEND_DST_RGB),
+			this.gl.getParameter(BLEND_SRC_ALPHA),
+			this.gl.getParameter(BLEND_DST_ALPHA)
+		]) as unknown as BlendFunctionFullSet;
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
-	public get blendFunctions(): BlendFunctionSet | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(BLEND)) {
-			return undefined;
-		}
-
-		return {
-			srcRgb: this.internal.getParameter(BLEND_SRC_RGB),
-			srcAlpha: this.internal.getParameter(BLEND_SRC_ALPHA),
-			dstRgb: this.internal.getParameter(BLEND_DST_RGB),
-			dstAlpha: this.internal.getParameter(BLEND_DST_ALPHA)
-		};
+	public get blendFunction(): BlendFunctionFullSet {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache!;
 	}
 
 	/**
-	 * The blending functions. Disables blending if not defined.
+	 * The source and destination RGB and alpha blend functions.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @throws {@link WebglError}
 	 */
-	public set blendFunctions(value: BlendFunctionSet | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(BLEND);
+	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
+		// TODO: Act differently for `BlendFunctionSet` and `BlendFunctionFullSet` rather than unifying them.
+		const sourceRgb: BlendFunction = value[0];
+		const destinationRgb: BlendFunction = value[1];
+		const sourceAlpha: BlendFunction = 2 in value ? value[2] : value[0];
+		const destinationAlpha: BlendFunction = 3 in value ? value[3] : value[1];
+
+		if (
+			typeof this.blendFunctionCache != "undefined" &&
+			this.blendFunctionCache[0] === sourceRgb &&
+			this.blendFunctionCache[1] === destinationRgb &&
+			this.blendFunctionCache[2] === sourceAlpha &&
+			this.blendFunctionCache[3] === destinationAlpha
+		) {
+			return;
+		}
+
+		if (sourceRgb === sourceAlpha && destinationRgb === destinationAlpha) {
+			this.gl.blendFunc(sourceRgb, destinationRgb); // TODO: Check if an error is possible here.
 		} else {
-			this.internal.enable(BLEND);
-			this.internal.blendFuncSeparate(
-				value.srcRgb,
-				value.dstRgb,
-				value.srcAlpha,
-				value.dstAlpha
-			);
+			this.gl.blendFuncSeparate(
+				sourceRgb,
+				destinationRgb,
+				sourceAlpha,
+				destinationAlpha
+			); // TODO: Check if an error is possible here.
+		}
+
+		this.blendFunctionCache = new Uint8Array([
+			sourceRgb,
+			destinationRgb,
+			sourceAlpha,
+			destinationAlpha
+		]) as unknown as BlendFunctionFullSet;
+	}
+
+	/**
+	 * The source RGB blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionSourceRgb(): BlendFunction {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache![0];
+	}
+
+	/**
+	 * The destination RGB blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionDestinationRgb(): BlendFunction {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache![1];
+	}
+
+	/**
+	 * The source alpha blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionSourceAlpha(): BlendFunction {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache![2];
+	}
+
+	/**
+	 * The destination alpha blend function.
+	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
+	 */
+	public get blendFunctionDestinationAlpha(): BlendFunction {
+		this.setBlendFunctionCache();
+		return this.blendFunctionCache![3];
+	}
+
+	/**
+	 * The most recent WebGL error that has occurred in this context.
+	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+	 */
+	public get error(): ErrorCode {
+		return this.gl.getError();
+	}
+
+	/**
+	 * Throws a JavaScript error if a WebGL error has occurred.
+	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+	 * @throws {@link WebglError}
+	 */
+	public throwIfError(): void {
+		const code: ErrorCode = this.error;
+		if (code != ErrorCode.NO_ERROR) {
+			throw new WebglError(code);
 		}
 	}
 
 	/**
-	 * The direction that polygons face to be culled. Disables polygon culling
-	 * if not defined.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * Clears buffers to their specified preset values.
+	 * @param color Whether to clear the color buffer.
+	 * @param depth Whether to clear the depth buffer.
+	 * @param stencil Whether to clear the stencil buffer.
 	 */
-	public get cullFace(): FaceDirection | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(CULL_FACE)) {
-			return undefined;
-		}
-
-		return this.internal.getParameter(CULL_FACE_MODE);
-	}
+	public clear(color?: boolean, depth?: boolean, stencil?: boolean): void;
 
 	/**
-	 * The direction that polygons face to be culled. Disables polygon culling
-	 * if not defined.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * Clears buffers to the specified values.
+	 * @param color The value to clear the color buffer to.
+	 * @param depth The value to clear the depth buffer to.
+	 * @param stencil The value to clear the stencil buffer to.
 	 */
-	public set cullFace(value: FaceDirection | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(CULL_FACE);
-		} else {
-			this.internal.enable(CULL_FACE);
-			this.internal.cullFace(value);
-		}
-	}
+	public clear(color: Color, depth: number, stencil: number): void;
 
-	/**
-	 * Whether color components are dithered before they get written to the
-	 * color buffer.
-	 */
-	public get doDither(): boolean {
-		// TODO: Optional caching.
-		return this.internal.isEnabled(DITHER);
-	}
-
-	/**
-	 * Whether color components are dithered before they get written to the
-	 * color buffer.
-	 */
-	public set doDither(value: boolean) {
-		// TODO: Optional caching.
-		if (value) {
-			this.internal.enable(DITHER);
-		} else {
-			this.internal.disable(DITHER);
-		}
-	}
-
-	/**
-	 * The depth comparison function in use. Disables the depth test if not
-	 * defined.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
-	 */
-	public get depthFunction(): TestFunction | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(DEPTH_TEST)) {
-			return undefined;
-		}
-
-		return this.internal.getParameter(DEPTH_FUNC);
-	}
-
-	/**
-	 * The depth comparison function in use. Disables the depth test if not
-	 * defined.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
-	 */
-	public set depthFunction(value: TestFunction | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(DEPTH_TEST);
-		} else {
-			this.internal.enable(DEPTH_TEST);
-			this.internal.depthFunc(value);
-		}
-	}
-
-	/**
-	 * The scale factor and units used to calculate depth values. Disables
-	 * polygon offset fill if not defined.
-	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
-	 */
-	public get polygonOffset(): PolygonOffset | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(POLYGON_OFFSET_FILL)) {
-			return undefined;
-		}
-
-		return {
-			factor: this.internal.getParameter(POLYGON_OFFSET_FACTOR),
-			units: this.internal.getParameter(POLYGON_OFFSET_UNITS)
-		};
-	}
-
-	/**
-	 * The scale factor and units used to calculate depth values. Disables
-	 * polygon offset fill if not defined.
-	 * @see [`polygonOffset`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset)
-	 */
-	public set polygonOffset(value: PolygonOffset | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(POLYGON_OFFSET_FILL);
-		} else {
-			this.internal.enable(POLYGON_OFFSET_FILL);
-			this.internal.polygonOffset(value.factor, value.units);
-		}
-	}
-
-	/**
-	 * Whether a temporary coverage value is computed based on the alpha value.
-	 */
-	public get doSampleAlphaToCoverage(): boolean {
-		// TODO: Optional caching.
-		return this.internal.isEnabled(SAMPLE_ALPHA_TO_COVERAGE);
-	}
-
-	/**
-	 * Whether a temporary coverage value is computed based on the alpha value.
-	 */
-	public set doSampleAlphaToCoverage(value: boolean) {
-		// TODO: Optional caching.
-		if (value) {
-			this.internal.enable(SAMPLE_ALPHA_TO_COVERAGE);
-		} else {
-			this.internal.disable(SAMPLE_ALPHA_TO_COVERAGE);
-		}
-	}
-
-	/**
-	 * Whether fragments should be combined with the temporary coverage value.
-	 * Disabled if not defined.
-	 */
-	public get sampleCoverage(): MultiSampleCoverageParameters | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(SAMPLE_COVERAGE)) {
-			return undefined;
-		}
-
-		return {
-			value: this.internal.getParameter(SAMPLE_COVERAGE_VALUE),
-			invert: this.internal.getParameter(SAMPLE_COVERAGE_INVERT)
-		};
-	}
-
-	/**
-	 * Whether fragments should be combined with the temporary coverage value.
-	 * Disabled if not defined.
-	 */
-	public set sampleCoverage(value: MultiSampleCoverageParameters | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(SAMPLE_COVERAGE);
-		} else {
-			this.internal.enable(SAMPLE_COVERAGE);
-			this.internal.sampleCoverage(value.value, value.invert);
-		}
-	}
-
-	/**
-	 * The scissor box, which limits drawing to a specified rectangle. Disabled
-	 * if not defined.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
-	 */
-	public get scissorBox(): Box | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(SCISSOR_TEST)) {
-			return undefined;
-		}
-
-		const raw: Int32Array = this.internal.getParameter(SCISSOR_BOX);
-		return {
-			x: raw[0] as number,
-			y: raw[1] as number,
-			width: raw[2] as number,
-			height: raw[3] as number
-		};
-	}
-
-	/**
-	 * The scissor box, which limits drawing to a specified rectangle. Disabled
-	 * if not defined.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
-	 */
-	public set scissorBox(value: Box | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(SCISSOR_TEST);
-		} else {
-			this.internal.enable(SCISSOR_TEST);
-			this.internal.scissor(value.x, value.y, value.width, value.height);
-		}
-	}
-
-	/**
-	 * The viewport box, which specifies the affine transformation of
-	 * coordinates from normalized device coordinates to window coordinates.
-	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
-	 */
-	public get viewport(): Box {
-		// TODO: Optional caching.
-		const raw: Int32Array = this.internal.getParameter(VIEWPORT);
-		return {
-			x: raw[0] as number,
-			y: raw[1] as number,
-			width: raw[2] as number,
-			height: raw[3] as number
-		};
-	}
-
-	/**
-	 * The viewport box, which specifies the affine transformation of
-	 * coordinates from normalized device coordinates to window coordinates.
-	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
-	 */
-	public set viewport(value: Box) {
-		// TODO: Optional caching.
-		this.internal.viewport(value.x, value.y, value.width, value.height);
-	}
-
-	/**
-	 * The stencil test function and reference value. The stencil test is
-	 * disabled if not defined.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 */
-	public get stencilFunctions(): StencilTestSet | undefined {
-		// TODO: Optional caching.
-		if (!this.internal.isEnabled(STENCIL_TEST)) {
-			return undefined;
-		}
-
-		return {
-			front: {
-				func: this.internal.getParameter(STENCIL_FUNC),
-				ref: this.internal.getParameter(STENCIL_REF),
-				mask: this.internal.getParameter(STENCIL_VALUE_MASK)
-			},
-			back: {
-				func: this.internal.getParameter(STENCIL_BACK_FUNC),
-				ref: this.internal.getParameter(STENCIL_BACK_REF),
-				mask: this.internal.getParameter(STENCIL_BACK_VALUE_MASK)
-			}
-		};
-	}
-
-	/**
-	 * The stencil test function and reference value. The stencil test is
-	 * disabled if not defined.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 */
-	public set stencilFunctions(value: StencilTestSet | undefined) {
-		// TODO: Optional caching.
-		if (typeof value == "undefined") {
-			this.internal.disable(STENCIL_TEST);
-		} else {
-			this.internal.enable(STENCIL_TEST);
-			this.internal.stencilFuncSeparate(
-				FaceDirection.FRONT,
-				value.front.func,
-				value.front.ref,
-				value.front.mask
-			);
-			this.internal.stencilFuncSeparate(
-				FaceDirection.BACK,
-				value.back.func,
-				value.back.ref,
-				value.back.mask
-			);
-		}
-	}
-
-	/**
-	 * Whether primitives are discarded immediately before the rasterization
-	 * stage.
-	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
-	 */
-	public get doRasterizerDiscard(): boolean {
-		// TODO: Optional caching.
-		return this.internal.isEnabled(RASTERIZER_DISCARD);
-	}
-
-	/**
-	 * Whether primitives are discarded immediately before the rasterization
-	 * stage.
-	 * @see [GPGPU](https://www.lakuna.pw/a/webgl/gpgpu)
-	 */
-	public set doRasterizerDiscard(value: boolean) {
-		// TODO: Optional caching.
-		if (value) {
-			this.internal.enable(RASTERIZER_DISCARD);
-		} else {
-			this.internal.disable(RASTERIZER_DISCARD);
-		}
-	}
-
-	/**
-	 * The winding orientation of front-facing polygons.
-	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
-	 */
-	public get frontFace(): WindingOrientation {
-		// TODO: Optional caching.
-		return this.internal.getParameter(FRONT_FACE);
-	}
-
-	/**
-	 * The winding orientation of front-facing polygons.
-	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
-	 */
-	public set frontFace(value: WindingOrientation) {
-		// TODO: Optional caching.
-		this.internal.frontFace(value);
-	}
-
-	/**
-	 * Makes this context XR-compatible.
-	 * @returns A promise that resolves once the WebGL context is ready to be
-	 * used for rendering WebXR content.
-	 * @see [WebXR Device API](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
-	 */
-	public async makeXrCompatible(): Promise<void> {
-		return this.internal.makeXRCompatible().catch(() => {
-			throw new UnsupportedOperationError();
-		});
-	}
-
-	/**
-	 * Gets a list of all of the supported extensions.
-	 * @returns A list of all of the supported extensions.
-	 */
-	public getSupportedExtensions(): Array<Extension> {
-		return (this.internal.getSupportedExtensions() ?? []) as Array<Extension>;
-	}
-
-	/** A map of enabled extensions to their names. */
-	private extensions: Map<Extension, ExtensionObject>;
-
-	/**
-	 * Gets the requested extension.
-	 * @param extension The extension's name.
-	 * @returns The extension.
-	 */
-	public getExtension(extension: Extension): ExtensionObject | undefined {
-		if (!this.extensions.has(extension)) {
-			this.extensions.set(extension, this.internal.getExtension(extension));
-		}
-
-		return this.extensions.get(extension);
-	}
-
-	/**
-	 * Clears the specified buffers to the specified values.
-	 * @param gl The rendering context to clear.
-	 * @param color The color to clear the color buffer to, if any.
-	 * @param depth The value to clear the depth buffer to, if any.
-	 * @param stencil The value to clear the stencil buffer to, if any.
-	 */
 	public clear(
-		color?: ColorLike | undefined,
-		depth?: number | undefined,
-		stencil?: number | undefined
+		color: boolean | Color = true,
+		depth: boolean | number = true,
+		stencil: boolean | number = true
 	): void {
-		let colorBit = 0;
-		if (color) {
-			this.internal.clearColor(
-				color[0] ?? 0,
-				color[1] ?? 0,
-				color[2] ?? 0,
-				color[3] ?? 0
+		if (typeof color === "boolean") {
+			this.gl.clear(
+				(color ? COLOR_BUFFER_BIT : 0) |
+					(depth ? DEPTH_BUFFER_BIT : 0) |
+					(stencil ? STENCIL_BUFFER_BIT : 0)
 			);
-			colorBit = COLOR_BUFFER_BIT;
+			return;
 		}
 
-		let depthBit = 0;
-		if (typeof depth == "number") {
-			this.internal.enable(DEPTH_TEST);
-			this.internal.clearDepth(depth);
-			depthBit = DEPTH_BUFFER_BIT;
-		}
-
-		let stencilBit = 0;
-		if (typeof stencil == "number") {
-			this.internal.enable(STENCIL_TEST);
-			this.internal.clearStencil(stencil);
-			stencilBit = STENCIL_BUFFER_BIT;
-		}
-
-		this.internal.clear(colorBit | depthBit | stencilBit);
+		this.clearColor = color;
+		this.clearDepth = depth as number;
+		this.clearStencil = stencil as number;
+		this.gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT | STENCIL_BUFFER_BIT);
 	}
 
 	/**
-	 * Resizes this context's canvas' drawing buffer to match its physical size.
-	 * @returns Whether the drawing buffer was resized.
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 * @internal
 	 */
-	public fitDrawingBuffer(): boolean {
-		if (this.canvas instanceof OffscreenCanvas) {
-			return false;
-		}
+	private clearColorCache?: Color;
 
-		// Physical size.
-		const displayWidth: number = this.canvas.clientWidth;
-		const displayHeight: number = this.canvas.clientHeight;
-
-		if (
-			this.canvas.width != displayWidth ||
-			this.canvas.height != displayHeight
-		) {
-			this.canvas.width = displayWidth;
-			this.canvas.height = displayHeight;
-
-			return true;
-		}
-
-		return false;
+	/**
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 */
+	public get clearColor(): Color {
+		return (this.clearColorCache ??= this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
 	/**
-	 * Resizes this context's viewport to match the size of its current drawing
-	 * buffer.
+	 * The value to store in the color buffer when clearing it.
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 */
-	public fitViewport(): void {
-		this.viewport = {
-			x: 0,
-			y: 0,
-			width: this.canvas.width,
-			height: this.canvas.height
-		};
+	public set clearColor(value: Color) {
+		this.gl.clearColor(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.clearColorCache = value;
 	}
 
 	/**
-	 * Resizes this context's canvas' drawing buffer to match its physical
-	 * size, a viewport to match the drawing buffer, and disables the scissor
-	 * test.
-	 * @returns Whether the drawing buffer was resized.
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 * @internal
 	 */
-	public resize(): boolean;
+	private clearDepthCache?: number;
 
 	/**
-	 * Resizes this context's canvas' drawing buffer to match its physical
-	 * size, the context's viewport and scissor box to match the given size,
-	 * and enables the scissor test.
-	 * @param x The horizontal offset of the viewport and scissor box.
-	 * @param y The vertical offset of the viewport and scissor box.
-	 * @param width The horizontal size of the viewport and scissor box.
-	 * @param height The vertical size of the viewport and scissor box.
-	 * @returns Whether the drawing buffer was resized.
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
-	public resize(x: number, y: number, width: number, height: number): boolean;
+	public get clearDepth(): number {
+		return (this.clearDepthCache ??= this.gl.getParameter(DEPTH_CLEAR_VALUE));
+	}
 
-	public resize(
-		x?: number,
-		y?: number,
-		width?: number,
-		height?: number
-	): boolean {
-		if (this.internal.canvas instanceof OffscreenCanvas) {
-			throw new HeadlessEnvironmentError();
-		}
+	/**
+	 * The value to store in the depth buffer when clearing it.
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 */
+	public set clearDepth(value: number) {
+		this.gl.clearDepth(value); // TODO: Check if an error is possible here.
+		this.clearDepthCache = value;
+	}
 
-		const out: boolean = this.fitDrawingBuffer();
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 * @internal
+	 */
+	private clearStencilCache?: number;
 
-		if (
-			typeof x == "number" &&
-			typeof y == "number" &&
-			typeof width == "number" &&
-			typeof height == "number"
-		) {
-			this.viewport = { x, y, width, height };
-			this.scissorBox = { x, y, width, height };
-		} else {
-			this.fitViewport();
-			this.scissorBox = undefined;
-		}
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 */
+	public get clearStencil(): number {
+		return (this.clearStencilCache ??=
+			this.gl.getParameter(STENCIL_CLEAR_VALUE));
+	}
 
-		return out;
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 */
+	public set clearStencil(value: number) {
+		this.gl.clearStencil(value); // TODO: Check if an error is possible here.
+		this.clearStencilCache = value;
+	}
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 * @internal
+	 */
+	private colorMaskCache?: ColorMask;
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 */
+	public get colorMask(): ColorMask {
+		return (this.colorMaskCache ??= this.gl.getParameter(COLOR_WRITEMASK));
+	}
+
+	/**
+	 * The mask that specifies which components to enable or disable when
+	 * rendering to a framebuffer.
+	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 */
+	public set colorMask(value: ColorMask) {
+		this.gl.colorMask(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.colorMaskCache = value;
 	}
 }

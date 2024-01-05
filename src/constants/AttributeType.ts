@@ -1,4 +1,7 @@
-/** Possible variable types for attributes. */
+/**
+ * Possible variable types for attributes.
+ * @see [`getActiveAttrib`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib)
+ */
 enum AttributeType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,

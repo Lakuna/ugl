@@ -1,4 +1,11 @@
-/** Binding points for textures. */
+/**
+ * Binding points for textures.
+ * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+ * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D)
+ * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
+ * @see [`generateMipmap`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap)
+ * @internal
+ */
 enum TextureTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0de1,

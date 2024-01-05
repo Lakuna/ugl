@@ -1,10 +1,11 @@
-/** An error resulting from a shader failing to compile. */
+/** An error that occurs when attempting to compile a shader. */
 export default class ShaderCompileError extends Error {
 	/**
-	 * Creates an error resulting from a shader failing to compile.
+	 * Creates a shader compile error.
 	 * @param message The message of the error.
+	 * @see [`compileShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader)
 	 */
-	public constructor(message = "The shader failed to compile.") {
+	public constructor(message = "Failed to compile the shader.") {
 		super(message);
 		this.name = "ShaderCompileError";
 	}

@@ -1,4 +1,7 @@
-/** Possible variable types for uniforms. */
+/**
+ * Possible variable types for uniforms.
+ * @see [`getActiveUniform`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform)
+ */
 enum UniformType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,

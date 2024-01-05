@@ -1,4 +1,9 @@
-/** Test functions. */
+/**
+ * Test functions.
+ * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+ * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+ * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+ */
 enum TestFunction {
 	/** Never passes. */
 	NEVER = 0x0200,

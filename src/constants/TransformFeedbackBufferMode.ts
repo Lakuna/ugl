@@ -1,4 +1,7 @@
-/** Modes for capturing transform feedback varyings. */
+/**
+ * Modes for capturing transform feedback varyings.
+ * @see [`transformFeedbackVaryings`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/transformFeedbackVaryings)
+ */
 enum TransformFeedbackBufferMode {
 	/**
 	 * All of the varyings will be written to the same buffer, interleaved in

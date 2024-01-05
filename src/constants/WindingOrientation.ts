@@ -1,4 +1,7 @@
-/** Winding orientations. */
+/**
+ * Winding orientations.
+ * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+ */
 enum WindingOrientation {
 	/** Clockwise. */
 	CW = 0x0900,

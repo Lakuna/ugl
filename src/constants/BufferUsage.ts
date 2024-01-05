@@ -1,4 +1,7 @@
-/** Usage patterns of a buffer's data store for optimization purposes. */
+/**
+ * Usage patterns of a buffer's data store for optimization purposes.
+ * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+ */
 enum BufferUsage {
 	/**
 	 * The contents are intended to be specified once by the application, and

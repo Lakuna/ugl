@@ -1,11 +1,15 @@
-/** An error resulting from attempting to use an unsupported function. */
+/**
+ * An error resulting from attempting to use a feature that is not supported by
+ * the current environment.
+ */
 export default class UnsupportedOperationError extends Error {
 	/**
-	 * Creates an error resulting from attempting to use an unsupported
-	 * function.
+	 * Creates an unsupported operation error.
 	 * @param message The message of the error.
 	 */
-	public constructor(message = "Attempted to use an unsupported function.") {
+	public constructor(
+		message = "Attempted to use a feature that is not supported by the current environment."
+	) {
 		super(message);
 		this.name = "UnsupportedOperationError";
 	}

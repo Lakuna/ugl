@@ -1,4 +1,7 @@
-/** Magnification filters for textures. */
+/**
+ * Magnification filters for textures.
+ * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ */
 enum TextureMagFilter {
 	/** Chooses one pixel from the largest mip. */
 	NEAREST = 0x2600,

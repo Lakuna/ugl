@@ -1,4 +1,7 @@
-/** Wrapping functions for textures. */
+/**
+ * Wrapping functions for textures.
+ * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ */
 enum TextureWrapFunction {
 	/** The texture repeats after it ends. */
 	REPEAT = 0x2901,

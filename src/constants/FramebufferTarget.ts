@@ -1,4 +1,8 @@
-/** Binding points for framebuffers. */
+/**
+ * Binding points for framebuffers.
+ * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
+ * @internal
+ */
 enum FramebufferTarget {
 	/**
 	 * A collection buffer data storage of color, alpha, depth, and stencil

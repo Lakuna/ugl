@@ -1,43 +1,34 @@
+import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
+import UnsupportedOperationError from "#UnsupportedOperationError";
 import Shader from "#Shader";
 import ShaderType from "#ShaderType";
-import TransformFeedbackBufferMode from "#TransformFeedbackBufferMode";
 import ProgramLinkError from "#ProgramLinkError";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import type Uniform from "#Uniform";
-import SamplerUniform from "#SamplerUniform";
-import {
-	ACTIVE_UNIFORMS,
-	ACTIVE_ATTRIBUTES,
-	TRANSFORM_FEEDBACK_VARYINGS,
-	DELETE_STATUS,
-	LINK_STATUS,
-	VALIDATE_STATUS
-} from "#constants";
-import Attribute from "#Attribute";
-import Varying from "#Varying";
-import UniformFactory from "#UniformFactory";
-import AttributeFactory from "#AttributeFactory";
+import type { DangerousExposedShader } from "#DangerousExposedShader";
+import { LINK_STATUS } from "#constants";
 
 /**
- * A vertex shader and a fragment shader which are used together to rasterize
- * primitives.
- * @see [Shaders](https://www.lakuna.pw/a/webgl/shaders)
+ * A WebGL2 shader program.
+ * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
  */
-export default class Program {
+export default class Program extends ContextDependent {
 	/**
-	 * Creates a shader program from source code.
-	 * @param context The rendering context of the shader program.
-	 * @param vertexShaderSource The source code of the vertex shader.
-	 * @param fragmentShaderSource The source code of the fragment shader.
-	 * @returns A shader program.
+	 * Creates a shader program from the given shader source code.
+	 * @param context The rendering context.
+	 * @param vertexShaderSource The vertex shader's source code.
+	 * @param fragmentShaderSource The fragment shader's source code.
+	 * @returns The shader program.
+	 * @throws {@link UnsupportedOperationError}
+	 * @throws {@link ProgramLinkError}
+	 * @throws {@link ShaderCompileError}
 	 */
 	public static fromSource(
 		context: Context,
 		vertexShaderSource: string,
 		fragmentShaderSource: string
-	): Program {
+	) {
 		return new Program(
+			context,
 			new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource),
 			new Shader(context, ShaderType.FRAGMENT_SHADER, fragmentShaderSource)
 		);
@@ -45,100 +36,63 @@ export default class Program {
 
 	/**
 	 * Creates a shader program.
+	 * @param context The rendering context.
 	 * @param vertexShader The vertex shader.
 	 * @param fragmentShader The fragment shader.
-	 * @param transformFeedbackVaryingNames The names of the varyings which
-	 * should be tracked for transform feedback.
-	 * @param transformFeedbackBufferMode The mode to use when capturing
-	 * transform feedback varyings.
+	 * @param attributeLocations A map of attribute names to their desired
+	 * locations.
+	 * @throws {@link UnsupportedOperationError}
+	 * @throws {@link ProgramLinkError}
+	 * @see [`createProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram)
+	 * @see [`attachShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader)
+	 * @see [`bindAttribLocation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation)
+	 * @see [`linkProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram)
 	 */
 	public constructor(
+		context: Context,
 		vertexShader: Shader,
 		fragmentShader: Shader,
-		transformFeedbackVaryingNames: Array<string> = [],
-		transformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS
+		attributeLocations?: Map<string, number>
 	) {
-		if (vertexShader.context != fragmentShader.context) {
-			throw new ProgramLinkError("The shaders have different contexts.");
-		}
-		if (vertexShader.type != ShaderType.VERTEX_SHADER) {
-			throw new ProgramLinkError("The vertex shader is of the wrong type.");
-		}
-		if (fragmentShader.type != ShaderType.FRAGMENT_SHADER) {
-			throw new ProgramLinkError("The fragment shader is of the wrong type.");
-		}
+		super(context);
 
-		this.vertexShader = vertexShader;
-		this.fragmentShader = fragmentShader;
-		this.transformFeedbackBufferMode = transformFeedbackBufferMode;
-
-		this.context = vertexShader.context;
-
-		const program: WebGLProgram | null = this.context.internal.createProgram();
-		if (!program) {
+		const program: WebGLProgram | null = this.gl.createProgram();
+		if (program === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = program;
 
-		this.context.internal.attachShader(program, vertexShader.internal);
-		this.context.internal.attachShader(program, fragmentShader.internal);
-		this.context.internal.transformFeedbackVaryings(
+		this.gl.attachShader(
 			program,
-			transformFeedbackVaryingNames,
-			transformFeedbackBufferMode
+			(vertexShader as DangerousExposedShader).internal
 		);
-		this.context.internal.linkProgram(program);
+		this.vertexShader = vertexShader;
 
-		if (!this.linkStatus) {
-			const message: string = this.infoLog;
-			this.delete();
-			throw new ProgramLinkError(message);
-		}
-
-		const uniforms: Map<string, Uniform> = new Map();
-		let nextTextureUnit = 0;
-		const numUniforms: number = this.context.internal.getProgramParameter(
+		this.gl.attachShader(
 			program,
-			ACTIVE_UNIFORMS
+			(fragmentShader as DangerousExposedShader).internal
 		);
-		for (let i = 0; i < numUniforms; i++) {
-			const uniform: Uniform = UniformFactory.create(this, i, nextTextureUnit);
-			uniforms.set(uniform.name, uniform);
-			if (uniform instanceof SamplerUniform) {
-				nextTextureUnit++; // Increment texture unit if it gets used.
+		this.fragmentShader = fragmentShader;
+
+		if (typeof attributeLocations != "undefined") {
+			for (const [name, location] of attributeLocations) {
+				this.gl.bindAttribLocation(program, location, name);
 			}
 		}
-		this.uniforms = uniforms;
 
-		const attributes: Map<string, Attribute> = new Map();
-		const numAttributes: number = this.context.internal.getProgramParameter(
-			program,
-			ACTIVE_ATTRIBUTES
-		);
-		for (let i = 0; i < numAttributes; i++) {
-			const attribute: Attribute = AttributeFactory.create(this, i);
-			attributes.set(attribute.name, attribute);
+		this.gl.linkProgram(program);
+
+		if (!this.linkStatus) {
+			throw new ProgramLinkError(this.infoLog ?? undefined);
 		}
-		this.attributes = attributes;
-
-		const transformFeedbackVaryings: Map<string, Varying> = new Map();
-		const numTransformFeedbackVaryings: number =
-			this.context.internal.getProgramParameter(
-				program,
-				TRANSFORM_FEEDBACK_VARYINGS
-			);
-		for (let i = 0; i < numTransformFeedbackVaryings; i++) {
-			const transformFeedbackVarying: Varying = new Varying(this, i);
-			transformFeedbackVaryings.set(
-				transformFeedbackVarying.name,
-				transformFeedbackVarying
-			);
-		}
-		this.varyings = transformFeedbackVaryings;
-
-		this.allowTransparent = true;
-		this.allowDepth = true;
 	}
+
+	/**
+	 * The API interface of this shader program.
+	 * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
+	 * @internal
+	 */
+	protected readonly internal: WebGLProgram;
 
 	/** The vertex shader of this shader program. */
 	public readonly vertexShader: Shader;
@@ -146,78 +100,24 @@ export default class Program {
 	/** The fragment shader of this shader program. */
 	public readonly fragmentShader: Shader;
 
-	/**
-	 * The mode this program uses when capturing transform feedback varyings.
-	 */
-	public readonly transformFeedbackBufferMode: TransformFeedbackBufferMode;
-
-	/** The rendering context of this shader program. */
-	public readonly context: Context;
-
-	/** The WebGL API interface of this shader program. */
-	public readonly internal: WebGLProgram;
-
-	/** A map of uniform names to uniforms. */
-	public readonly uniforms: ReadonlyMap<string, Uniform>;
-
-	/** A map of attribute names to attributes. */
-	public readonly attributes: ReadonlyMap<string, Attribute>;
-
-	/**
-	 * A map of varying names to varyings. Only includes varyings that are used
-	 * for transform feedback.
-	 */
-	public readonly varyings: ReadonlyMap<string, Varying>;
-
-	/**
-	 * Whether this program is allowed to draw transparent objects. Used for
-	 * optimization only.
-	 */
-	public allowTransparent: boolean;
-
-	/**
-	 * Whether this program is allowed to draw with depth. Used for
-	 * optimization only.
-	 */
-	public allowDepth: boolean;
-
-	/** Whether this program is flagged for deletion. */
-	public get deleteStatus(): boolean {
-		return this.context.internal.getProgramParameter(
-			this.internal,
-			DELETE_STATUS
-		);
-	}
-
-	/** Whether the last link operation was successful. */
+	/** The linking status of this shader program. */
 	public get linkStatus(): boolean {
-		return this.context.internal.getProgramParameter(
-			this.internal,
-			LINK_STATUS
-		);
+		return this.gl.getProgramParameter(this.internal, LINK_STATUS);
 	}
 
-	/** Whether the last validation operation was successful. */
-	public get validateStatus(): boolean {
-		return this.context.internal.getProgramParameter(
-			this.internal,
-			VALIDATE_STATUS
-		);
+	/**
+	 * The information log of this shader program.
+	 * @see [`getProgramInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog)
+	 */
+	public get infoLog(): string | null {
+		return this.gl.getProgramInfoLog(this.internal);
 	}
 
-	/** The information log for this shader program. */
-	public get infoLog(): string {
-		return this.context.internal.getProgramInfoLog(this.internal) ?? "";
-	}
-
-	/** Deletes this shader program. */
+	/**
+	 * Deletes this shader program.
+	 * @see [`deleteProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram)
+	 */
 	public delete(): void {
-		this.context.internal.deleteProgram(this.internal);
-	}
-
-	/** Sets this as the active shader program. */
-	public use(): void {
-		// TODO: Optional caching.
-		this.context.internal.useProgram(this.internal);
+		this.gl.deleteProgram(this.internal);
 	}
 }

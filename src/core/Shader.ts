@@ -1,42 +1,52 @@
+import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
 import type ShaderType from "#ShaderType";
 import UnsupportedOperationError from "#UnsupportedOperationError";
+import { COMPILE_STATUS } from "#constants";
 import ShaderCompileError from "#ShaderCompileError";
-import { DELETE_STATUS, COMPILE_STATUS } from "#constants";
 
 /**
- * A function which runs on the GPU.
- * @see [Shaders](https://www.lakuna.pw/a/webgl/shaders)
+ * A WebGL2 shader.
+ * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
  */
-export default class Shader {
+export default class Shader extends ContextDependent {
 	/**
-	 * Creates a shader from source code.
-	 * @param type The type of the shader.
-	 * @param source The source code of the shader.
+	 * Creates a shader.
+	 * @param context The rendering context.
+	 * @param type The type.
+	 * @param source The source code.
+	 * @throws {@link UnsupportedOperationError}
+	 * @throws {@link ShaderCompileError}
+	 * @see [`createShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader)
+	 * @see [`shaderSource`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource)
+	 * @see [`compileShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader)
 	 */
 	public constructor(context: Context, type: ShaderType, source: string) {
-		this.context = context;
-		this.type = type;
-		this.source = source;
+		super(context);
 
-		const shader: WebGLShader | null = context.internal.createShader(type);
-		if (!shader) {
+		const shader: WebGLShader | null = this.gl.createShader(type);
+		if (shader === null) {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = shader;
+		this.type = type;
 
-		context.internal.shaderSource(shader, source);
-		context.internal.compileShader(shader);
+		this.gl.shaderSource(shader, source);
+		this.source = source;
+
+		this.gl.compileShader(shader);
 
 		if (!this.compileStatus) {
-			const message: string = this.infoLog;
-			this.delete();
-			throw new ShaderCompileError(message);
+			throw new ShaderCompileError(this.infoLog ?? undefined);
 		}
 	}
 
-	/** The rendering context of this shader. */
-	public readonly context: Context;
+	/**
+	 * The API interface of this shader.
+	 * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+	 * @internal
+	 */
+	protected readonly internal: WebGLShader;
 
 	/** The type of this shader. */
 	public readonly type: ShaderType;
@@ -44,32 +54,24 @@ export default class Shader {
 	/** The source code of this shader. */
 	public readonly source: string;
 
-	/** The WebGL API interface of this shader. */
-	public readonly internal: WebGLShader;
-
-	/** Whether this shader is flagged for deletion. */
-	public get deleteStatus(): boolean {
-		return this.context.internal.getShaderParameter(
-			this.internal,
-			DELETE_STATUS
-		);
-	}
-
-	/** Whether the last shader compilation was successful. */
+	/** The compilation status of this shader. */
 	public get compileStatus(): boolean {
-		return this.context.internal.getShaderParameter(
-			this.internal,
-			COMPILE_STATUS
-		);
+		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS);
 	}
 
-	/** The information log for this shader. */
-	public get infoLog(): string {
-		return this.context.internal.getShaderInfoLog(this.internal) ?? "";
+	/**
+	 * The information log of this shader.
+	 * @see [`getShaderInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog)
+	 */
+	public get infoLog(): string | null {
+		return this.gl.getShaderInfoLog(this.internal);
 	}
 
-	/** Deletes this shader. */
+	/**
+	 * Deletes this shader.
+	 * @see [`deleteShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteShader)
+	 */
 	public delete(): void {
-		this.context.internal.deleteShader(this.internal);
+		this.gl.deleteShader(this.internal);
 	}
 }
