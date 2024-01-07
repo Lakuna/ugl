@@ -247,60 +247,70 @@ export const COLOR_WRITEMASK = 0x0c23;
 /**
  * The magnification filter for a texture.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const TEXTURE_MAG_FILTER = 0x2800;
 
 /**
  * The minification filter for a texture.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const TEXTURE_MIN_FILTER = 0x2801;
 
 /**
  * The wrapping mode for a texture on the S-axis.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const TEXTURE_WRAP_S = 0x2802;
 
 /**
  * The wrapping mode for a texture on the T-axis.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const TEXTURE_WRAP_T = 0x2803;
 
 /**
  * The number of texels to unpack at a time in each row of a texture.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const UNPACK_ALIGNMENT = 0x0cf5;
 
 /**
  * The depth test.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const DEPTH_TEST = 0x0b71;
 
 /**
  * The stencil test.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_TEST = 0x0b90;
 
 /**
  * The scissor test.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SCISSOR_TEST = 0x0c11;
 
 /**
  * Whether blending of the computed fragment color values is enabled.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const BLEND = 0x0be2;
 
 /**
  * Whether polygons culling is enabled.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const CULL_FACE = 0x0b44;
 
@@ -308,12 +318,14 @@ export const CULL_FACE = 0x0b44;
  * Whether color components are dithered before they get written to the color
  * buffer.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const DITHER = 0x0bd0;
 
 /**
  * Whether an offset is added to depth values of polygons' fragments.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const POLYGON_OFFSET_FILL = 0x8037;
 
@@ -321,108 +333,126 @@ export const POLYGON_OFFSET_FILL = 0x8037;
  * Whether a temporary coverage value determined by the alpha value is
  * generated.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SAMPLE_ALPHA_TO_COVERAGE = 0x809e;
 
 /**
  * Whether fragments' coverages are combined with the temporary coverage value.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SAMPLE_COVERAGE = 0x80a0;
 
 /**
  * Whether primitives are discarded immediately before the rasterization stage.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const RASTERIZER_DISCARD = 0x8c89;
 
 /**
  * The face direction that polygons will be culled in.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const CULL_FACE_MODE = 0x0b45;
 
 /**
  * The depth comparison function in use.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const DEPTH_FUNC = 0x0b74;
 
 /**
  * The polygon offset units.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const POLYGON_OFFSET_UNITS = 0x2a00;
 
 /**
  * The polygon offset factor.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const POLYGON_OFFSET_FACTOR = 0x8038;
 
 /**
  * The sample coverage value.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SAMPLE_COVERAGE_VALUE = 0x80aa;
 
 /**
  * Whether the sample coverage is inverted.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SAMPLE_COVERAGE_INVERT = 0x80ab;
 
 /**
  * The scissor box.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const SCISSOR_BOX = 0x0c10;
 
 /**
  * The front stencil function.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_FUNC = 0x0b92;
 
 /**
  * The front stencil reference value.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_REF = 0x0b97;
 
 /**
  * The front stencil mask.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_VALUE_MASK = 0x0b93;
 
 /**
  * The back stencil function.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_BACK_FUNC = 0x8800;
 
 /**
  * The back stencil reference value.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_BACK_REF = 0x8ca3;
 
 /**
  * The back stencil mask.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const STENCIL_BACK_VALUE_MASK = 0x8ca4;
 
 /**
  * The winding orientation that is considered the front face of a polygon.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const FRONT_FACE = 0x0b46;
 
 /**
  * The viewport box.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const VIEWPORT = 0x0ba2;
 
@@ -431,6 +461,7 @@ export const VIEWPORT = 0x0ba2;
  * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
  * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
  * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+ * @internal
  */
 export const COLOR_ATTACHMENT0 = 0x8ce0;
 
@@ -439,6 +470,7 @@ export const COLOR_ATTACHMENT0 = 0x8ce0;
  * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
  * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
  * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+ * @internal
  */
 export const DEPTH_ATTACHMENT = 0x8d00;
 
@@ -447,6 +479,7 @@ export const DEPTH_ATTACHMENT = 0x8d00;
  * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
  * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
  * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+ * @internal
  */
 export const STENCIL_ATTACHMENT = 0x8d20;
 
@@ -455,36 +488,42 @@ export const STENCIL_ATTACHMENT = 0x8d20;
  * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
  * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
  * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+ * @internal
  */
 export const DEPTH_STENCIL_ATTACHMENT = 0x821a;
 
 /**
  * Indicates that the back framebuffer (canvas) should be drawn to.
  * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+ * @internal
  */
 export const BACK = 0x0405;
 
 /**
  * Indicates that no framebuffers should be drawn to.
  * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+ * @internal
  */
 export const NONE = 0;
 
 /**
  * The validation status of a shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
+ * @internal
  */
 export const VALIDATE_STATUS = 0x8b83;
 
 /**
  * The number of active attributes in a shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
+ * @internal
  */
 export const ACTIVE_ATTRIBUTES = 0x8b89;
 
 /**
  * The number of active uniforms in a shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
+ * @internal
  */
 export const ACTIVE_UNIFORMS = 0x8b86;
 
@@ -492,6 +531,7 @@ export const ACTIVE_UNIFORMS = 0x8b86;
  * The number of active varyings that are used for transform feedback in a
  * shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
+ * @internal
  */
 export const TRANSFORM_FEEDBACK_VARYINGS = 0x8c83;
 
@@ -499,12 +539,14 @@ export const TRANSFORM_FEEDBACK_VARYINGS = 0x8c83;
  * The deletion status of a shader or shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
  * @see [`getShaderParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderParameter)
+ * @internal
  */
 export const DELETE_STATUS = 0x8b80;
 
 /**
  * The currently-bound vertex array object.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
  */
 export const VERTEX_ARRAY_BINDING = 0x85b5;
 
@@ -577,5 +619,13 @@ export const TEXTURE_MIN_LOD = 0x813a;
 /**
  * The wrapping mode for a texture on the R-axis.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @internal
  */
 export const TEXTURE_WRAP_R = 0x8072;
+
+/**
+ * The maximum number of texture units that can be used.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const MAX_COMBINED_TEXTURE_IMAGE_UNITS = 0x8b4d;

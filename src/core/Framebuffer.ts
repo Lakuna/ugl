@@ -85,7 +85,7 @@ export default class Framebuffer extends ContextDependent {
 		(context as DangerousExposedContext).gl.bindFramebuffer(
 			target,
 			framebuffer
-		); // TODO: Check if this can throw an error.
+		);
 		Framebuffer.bindingsCache!.get(
 			(context as DangerousExposedContext).gl
 		)!.set(target, framebuffer);
@@ -190,11 +190,8 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`checkFramebufferStatus`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/checkFramebufferStatus)
 	 */
 	public get status(): FramebufferStatus {
-		// TODO: Prefer `bind` to `with`.
-		return this.with(
-			(framebuffer: this): FramebufferStatus =>
-				framebuffer.gl.checkFramebufferStatus(framebuffer.target)
-		);
+		this.bind();
+		return this.gl.checkFramebufferStatus(this.target);
 	}
 
 	/**
@@ -231,7 +228,6 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected with<T>(funktion: (framebuffer: this) => T): T {
-		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBound(
 			this.context,
 			this.target

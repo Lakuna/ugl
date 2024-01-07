@@ -96,7 +96,7 @@ export default abstract class BufferParent extends ContextDependent {
 		}
 
 		// Bind the buffer to the target.
-		(context as DangerousExposedContext).gl.bindBuffer(target, buffer); // TODO: Check if it's possible for an error to be thrown here.
+		(context as DangerousExposedContext).gl.bindBuffer(target, buffer);
 		contextBindingsCache.set(target, buffer);
 	}
 
@@ -235,7 +235,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 * @internal
 	 */
-	private dataCache: TypedArray | number | null; // TODO: Maybe save data as an array of modifications. Reset when full data is supplied and append when partial data is supplied.
+	private dataCache: TypedArray | number | null;
 
 	/**
 	 * The data contained in this buffer or the size of this buffer's data
@@ -323,14 +323,15 @@ export default abstract class BufferParent extends ContextDependent {
 				replaceOffset,
 				data as TypedArray,
 				offset
-			); // TODO: Check if it's possible for an error to be thrown here.
-			this.dataCache = null; // TODO: Update a subset of the data cache.
+			);
+			this.dataCache = null;
 		} else {
-			this.gl.bufferData(this.target, data as TypedArray, usage, offset); // TODO: Check if it's possible for an error to be thrown here.
+			this.gl.bufferData(this.target, data as TypedArray, usage, offset);
 			this.dataCache = data;
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
 		}
+		this.context.throwIfError();
 		this.offsetCache = offset;
 	}
 
@@ -368,7 +369,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @internal
 	 */
 	protected with<T>(funktion: (buffer: this) => T): T {
-		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLBuffer | null = BufferParent.getBound(
 			this.context,
 			this.target

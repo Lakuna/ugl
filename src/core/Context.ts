@@ -14,7 +14,8 @@ import {
 	COLOR_BUFFER_BIT,
 	DEPTH_BUFFER_BIT,
 	STENCIL_BUFFER_BIT,
-	COLOR_WRITEMASK
+	COLOR_WRITEMASK,
+	MAX_COMBINED_TEXTURE_IMAGE_UNITS
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -29,6 +30,7 @@ import type BlendFunction from "#BlendFunction";
 import ErrorCode from "#ErrorCode";
 import WebglError from "#WebglError";
 import type ColorMask from "#ColorMask";
+import BadValueError from "#BadValueError";
 
 /**
  * A WebGL2 rendering context.
@@ -183,9 +185,11 @@ export default class Context extends ApiInterface {
 			return;
 		}
 
-		// TODO: Throw an error if the given value is above `MAX_COMBINED_TEXTURE_IMAGE_UNITS` (normalized) or negative.
+		if (value < 0 || value >= this.maxCombinedTextureImageUnits) {
+			throw new BadValueError();
+		}
 
-		this.gl.activeTexture(value + TEXTURE0); // TODO: Check if an error is possible here.
+		this.gl.activeTexture(value + TEXTURE0);
 		this.activeTextureCache = value;
 	}
 
@@ -220,7 +224,7 @@ export default class Context extends ApiInterface {
 		) {
 			return;
 		}
-		this.gl.blendColor(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.gl.blendColor(value[0], value[1], value[2], value[3]);
 		this.blendColorCache = value;
 	}
 
@@ -257,26 +261,38 @@ export default class Context extends ApiInterface {
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 */
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
-		// TODO: Act differently for `BlendEquation` and `BlendEquationSet` rather than unifying them.
-		const rgb: BlendEquation = (value as BlendEquationSet)?.[0] ?? value;
-		const alpha: BlendEquation = (value as BlendEquationSet)?.[1] ?? value;
+		if (typeof value === "number") {
+			if (
+				typeof this.blendEquationCache != "undefined" &&
+				this.blendEquationCache[0] === value &&
+				this.blendEquationCache[1] === value
+			) {
+				return;
+			}
+
+			this.gl.blendEquation(value);
+
+			this.blendEquationCache = new Uint8Array([
+				value,
+				value
+			]) as unknown as BlendEquationSet;
+
+			return;
+		}
+
 		if (
 			typeof this.blendEquationCache != "undefined" &&
-			this.blendEquationCache[0] === rgb &&
-			this.blendEquationCache[1] === alpha
+			this.blendEquationCache[0] === value[0] &&
+			this.blendEquationCache[1] === value[1]
 		) {
 			return;
 		}
 
-		if (rgb === alpha) {
-			this.gl.blendEquation(rgb); // TODO: Check if an error is possible here.
-		} else {
-			this.gl.blendEquationSeparate(rgb, alpha); // TODO: Check if an error is possible here.
-		}
+		this.gl.blendEquationSeparate(value[0], value[1]);
 
 		this.blendEquationCache = new Uint8Array([
-			rgb,
-			alpha
+			value[0],
+			value[1]
 		]) as unknown as BlendEquationSet;
 	}
 
@@ -334,38 +350,46 @@ export default class Context extends ApiInterface {
 	 * @throws {@link WebglError}
 	 */
 	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
-		// TODO: Act differently for `BlendFunctionSet` and `BlendFunctionFullSet` rather than unifying them.
-		const sourceRgb: BlendFunction = value[0];
-		const destinationRgb: BlendFunction = value[1];
-		const sourceAlpha: BlendFunction = 2 in value ? value[2] : value[0];
-		const destinationAlpha: BlendFunction = 3 in value ? value[3] : value[1];
+		if (2 in value) {
+			if (
+				typeof this.blendFunctionCache != "undefined" &&
+				this.blendFunctionCache[0] === value[0] &&
+				this.blendFunctionCache[1] === value[1] &&
+				this.blendFunctionCache[2] === value[2] &&
+				this.blendFunctionCache[3] === value[3]
+			) {
+				return;
+			}
+
+			this.gl.blendFuncSeparate(value[0], value[1], value[2], value[3]);
+
+			this.blendFunctionCache = new Uint8Array([
+				value[0],
+				value[1],
+				value[2],
+				value[3]
+			]) as unknown as BlendFunctionFullSet;
+
+			return;
+		}
 
 		if (
 			typeof this.blendFunctionCache != "undefined" &&
-			this.blendFunctionCache[0] === sourceRgb &&
-			this.blendFunctionCache[1] === destinationRgb &&
-			this.blendFunctionCache[2] === sourceAlpha &&
-			this.blendFunctionCache[3] === destinationAlpha
+			this.blendFunctionCache[0] === value[0] &&
+			this.blendFunctionCache[1] === value[1] &&
+			this.blendFunctionCache[2] === value[0] &&
+			this.blendFunctionCache[3] === value[1]
 		) {
 			return;
 		}
 
-		if (sourceRgb === sourceAlpha && destinationRgb === destinationAlpha) {
-			this.gl.blendFunc(sourceRgb, destinationRgb); // TODO: Check if an error is possible here.
-		} else {
-			this.gl.blendFuncSeparate(
-				sourceRgb,
-				destinationRgb,
-				sourceAlpha,
-				destinationAlpha
-			); // TODO: Check if an error is possible here.
-		}
+		this.gl.blendFunc(value[0], value[1]);
 
 		this.blendFunctionCache = new Uint8Array([
-			sourceRgb,
-			destinationRgb,
-			sourceAlpha,
-			destinationAlpha
+			value[0],
+			value[1],
+			value[0],
+			value[1]
 		]) as unknown as BlendFunctionFullSet;
 	}
 
@@ -481,7 +505,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 */
 	public set clearColor(value: Color) {
-		this.gl.clearColor(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.gl.clearColor(value[0], value[1], value[2], value[3]);
 		this.clearColorCache = value;
 	}
 
@@ -505,7 +529,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
 	public set clearDepth(value: number) {
-		this.gl.clearDepth(value); // TODO: Check if an error is possible here.
+		this.gl.clearDepth(value);
 		this.clearDepthCache = value;
 	}
 
@@ -530,7 +554,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public set clearStencil(value: number) {
-		this.gl.clearStencil(value); // TODO: Check if an error is possible here.
+		this.gl.clearStencil(value);
 		this.clearStencilCache = value;
 	}
 
@@ -557,7 +581,20 @@ export default class Context extends ApiInterface {
 	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 */
 	public set colorMask(value: ColorMask) {
-		this.gl.colorMask(value[0], value[1], value[2], value[3]); // TODO: Check if an error is possible here.
+		this.gl.colorMask(value[0], value[1], value[2], value[3]);
 		this.colorMaskCache = value;
+	}
+
+	/**
+	 * The maximum number of texture units that can be used.
+	 * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+	 * @internal
+	 */
+	private maxCombinedTextureImageUnitsCache?: number;
+
+	public get maxCombinedTextureImageUnits(): number {
+		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
+			MAX_COMBINED_TEXTURE_IMAGE_UNITS
+		));
 	}
 }

@@ -113,7 +113,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Bind the texture to the target.
 		(context as DangerousExposedContext).activeTexture = textureUnit;
-		(context as DangerousExposedContext).gl.bindTexture(target, texture); // TODO: Check if it's possible for an error to be thrown here.
+		(context as DangerousExposedContext).gl.bindTexture(target, texture);
 		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)![
 			textureUnit
 		]!.set(target, texture);

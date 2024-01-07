@@ -5,10 +5,6 @@ import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
-	// TODO: `fromSource`.
-
-	// TODO: `fromUrl`.
-
 	/**
 	 * Creates a two-dimensional texture.
 	 * @param context The rendering context of the texture.

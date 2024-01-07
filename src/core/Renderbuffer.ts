@@ -66,7 +66,7 @@ export default class Renderbuffer extends ContextDependent {
 		(context as DangerousExposedContext).gl.bindRenderbuffer(
 			RENDERBUFFER,
 			renderbuffer
-		); // TODO: Check if this can throw an error.
+		);
 		Renderbuffer.bindingsCache!.set(
 			(context as DangerousExposedContext).gl,
 			renderbuffer
@@ -166,7 +166,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	protected with<T>(funktion: (renderbuffer: this) => T): T {
-		// TODO: Use an existing binding if one exists.
 		const previousBinding: WebGLRenderbuffer | null = Renderbuffer.getBound(
 			this.context
 		);

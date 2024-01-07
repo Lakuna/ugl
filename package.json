@@ -125,6 +125,7 @@
 		"#getParameterForBufferTarget": "./dist/utility/internal/getParameterForBufferTarget.js",
 		"#getParameterForFramebufferTarget": "./dist/utility/internal/getParameterForFramebufferTarget.js",
 		"#getParameterForTextureTarget": "./dist/utility/internal/getParameterForTextureTarget.js",
+		"#BadValueError": "./dist/utility/BadValueError.js",
 		"#ProgramLinkError": "./dist/utility/ProgramLinkError.js",
 		"#ShaderCompileError": "./dist/utility/ShaderCompileError.js",
 		"#UnsupportedOperationError": "./dist/utility/UnsupportedOperationError.js",
