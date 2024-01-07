@@ -99,8 +99,8 @@ export default class Renderbuffer extends ContextDependent {
 	): void {
 		// Do nothing if the renderbuffer is already unbound.
 		if (
-			typeof renderbuffer != "undefined" &&
-			Renderbuffer.getBound(context) != renderbuffer
+			typeof renderbuffer !== "undefined" &&
+			Renderbuffer.getBound(context) !== renderbuffer
 		) {
 			return;
 		}

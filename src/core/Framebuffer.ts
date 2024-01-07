@@ -121,8 +121,8 @@ export default class Framebuffer extends ContextDependent {
 	): void {
 		// Do nothing if the framebuffer is already unbound.
 		if (
-			typeof framebuffer != "undefined" &&
-			Framebuffer.getBound(context, target) != framebuffer
+			typeof framebuffer !== "undefined" &&
+			Framebuffer.getBound(context, target) !== framebuffer
 		) {
 			return;
 		}

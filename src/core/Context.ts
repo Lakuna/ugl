@@ -216,7 +216,7 @@ export default class Context extends ApiInterface {
 	 */
 	public set blendColor(value: Color) {
 		if (
-			typeof this.blendColorCache != "undefined" &&
+			typeof this.blendColorCache !== "undefined" &&
 			this.blendColorCache[0] === value[0] &&
 			this.blendColorCache[1] === value[1] &&
 			this.blendColorCache[2] === value[2] &&
@@ -263,7 +263,7 @@ export default class Context extends ApiInterface {
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
 		if (typeof value === "number") {
 			if (
-				typeof this.blendEquationCache != "undefined" &&
+				typeof this.blendEquationCache !== "undefined" &&
 				this.blendEquationCache[0] === value &&
 				this.blendEquationCache[1] === value
 			) {
@@ -281,7 +281,7 @@ export default class Context extends ApiInterface {
 		}
 
 		if (
-			typeof this.blendEquationCache != "undefined" &&
+			typeof this.blendEquationCache !== "undefined" &&
 			this.blendEquationCache[0] === value[0] &&
 			this.blendEquationCache[1] === value[1]
 		) {
@@ -352,7 +352,7 @@ export default class Context extends ApiInterface {
 	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
 		if (2 in value) {
 			if (
-				typeof this.blendFunctionCache != "undefined" &&
+				typeof this.blendFunctionCache !== "undefined" &&
 				this.blendFunctionCache[0] === value[0] &&
 				this.blendFunctionCache[1] === value[1] &&
 				this.blendFunctionCache[2] === value[2] &&
@@ -374,7 +374,7 @@ export default class Context extends ApiInterface {
 		}
 
 		if (
-			typeof this.blendFunctionCache != "undefined" &&
+			typeof this.blendFunctionCache !== "undefined" &&
 			this.blendFunctionCache[0] === value[0] &&
 			this.blendFunctionCache[1] === value[1] &&
 			this.blendFunctionCache[2] === value[0] &&
@@ -444,7 +444,7 @@ export default class Context extends ApiInterface {
 	 */
 	public throwIfError(): void {
 		const code: ErrorCode = this.error;
-		if (code != ErrorCode.NO_ERROR) {
+		if (code !== ErrorCode.NO_ERROR) {
 			throw new WebglError(code);
 		}
 	}

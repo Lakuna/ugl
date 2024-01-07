@@ -84,9 +84,9 @@ export default abstract class BufferParent extends ContextDependent {
 			BufferParent.bindingsCache!.get((context as DangerousExposedContext).gl)!;
 
 		// Unbind the buffer from all other targets.
-		if (buffer != null) {
+		if (buffer !== null) {
 			for (const [otherTarget, otherBuffer] of contextBindingsCache) {
-				if (target === otherTarget || buffer != otherBuffer) {
+				if (target === otherTarget || buffer !== otherBuffer) {
 					continue;
 				}
 
@@ -130,8 +130,8 @@ export default abstract class BufferParent extends ContextDependent {
 	): void {
 		// Do nothing if the buffer is already unbound.
 		if (
-			typeof buffer != "undefined" &&
-			BufferParent.getBound(context, target) != buffer
+			typeof buffer !== "undefined" &&
+			BufferParent.getBound(context, target) !== buffer
 		) {
 			return;
 		}

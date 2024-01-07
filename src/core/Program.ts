@@ -74,7 +74,7 @@ export default class Program extends ContextDependent {
 		);
 		this.fragmentShader = fragmentShader;
 
-		if (typeof attributeLocations != "undefined") {
+		if (typeof attributeLocations !== "undefined") {
 			for (const [name, location] of attributeLocations) {
 				this.gl.bindAttribLocation(program, location, name);
 			}
