@@ -56,7 +56,7 @@ export default class Shader extends ContextDependent {
 
 	/** The compilation status of this shader. */
 	public get compileStatus(): boolean {
-		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS);
+		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
 	}
 
 	/**

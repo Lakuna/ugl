@@ -8,16 +8,8 @@ import getErrorCodeMessage from "#getErrorCodeMessage";
 export default class WebglError extends Error {
 	/**
 	 * Creates a WebGL error.
-	 * @param code The code of the error.
+	 * @param value The code or message of the error.
 	 */
-	public constructor(code: ErrorCode);
-
-	/**
-	 * Creates a WebGL error.
-	 * @param message The message of the error.
-	 */
-	public constructor(message: string);
-
 	public constructor(
 		value: ErrorCode | string = "A WebGL error has occurred."
 	) {

@@ -36,20 +36,20 @@
 		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.3.6",
-		"@types/mocha": "^10.0.2",
-		"@types/offscreencanvas": "^2019.7.1",
-		"@types/webgl2": "^0.0.8",
-		"@types/webxr": "^0.5.5",
-		"@typescript-eslint/eslint-plugin": "^6.7.4",
-		"@typescript-eslint/parser": "^6.7.4",
-		"chai": "^4.3.10",
-		"eslint": "^8.51.0",
-		"eslint-config-prettier": "^9.0.0",
+		"@types/chai": "^4.3.11",
+		"@types/mocha": "^10.0.6",
+		"@types/offscreencanvas": "^2019.7.3",
+		"@types/webgl2": "^0.0.10",
+		"@types/webxr": "^0.5.10",
+		"@typescript-eslint/eslint-plugin": "^6.18.1",
+		"@typescript-eslint/parser": "^6.18.1",
+		"chai": "^5.0.0",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
 		"mocha": "^10.2.0",
-		"prettier": "^3.0.3",
-		"typedoc": "^0.25.2",
-		"typescript": "^5.2.2"
+		"prettier": "^3.2.1",
+		"typedoc": "^0.25.7",
+		"typescript": "^5.3.3"
 	},
 	"exports": {
 		".": "./dist/index.js"
@@ -89,7 +89,6 @@
 		"#Buffer": "./dist/core/buffers/Buffer.js",
 		"#BufferParent": "./dist/core/buffers/BufferParent.js",
 		"#ElementArrayBuffer": "./dist/core/buffers/ElementArrayBuffer.js",
-		"#Mip": "./dist/core/textures/Mip.js",
 		"#Texture": "./dist/core/textures/Texture.js",
 		"#Texture2d": "./dist/core/textures/Texture2d.js",
 		"#Context": "./dist/core/Context.js",

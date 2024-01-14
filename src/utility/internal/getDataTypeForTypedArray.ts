@@ -105,16 +105,16 @@ export default function getDataTypeForTypedArray(
 	return array instanceof Int8Array
 		? BufferDataType.BYTE
 		: array instanceof Uint8Array || array instanceof Uint8ClampedArray
-		? BufferDataType.UNSIGNED_BYTE
-		: array instanceof Int16Array
-		? BufferDataType.SHORT
-		: array instanceof Uint16Array
-		? BufferDataType.UNSIGNED_SHORT
-		: array instanceof Int32Array
-		? BufferDataType.INT
-		: array instanceof Uint32Array
-		? BufferDataType.UNSIGNED_INT
-		: half // `Float32Array`.
-		? BufferDataType.HALF_FLOAT
-		: BufferDataType.FLOAT;
+			? BufferDataType.UNSIGNED_BYTE
+			: array instanceof Int16Array
+				? BufferDataType.SHORT
+				: array instanceof Uint16Array
+					? BufferDataType.UNSIGNED_SHORT
+					: array instanceof Int32Array
+						? BufferDataType.INT
+						: array instanceof Uint32Array
+							? BufferDataType.UNSIGNED_INT
+							: half // `Float32Array`.
+								? BufferDataType.HALF_FLOAT
+								: BufferDataType.FLOAT;
 }

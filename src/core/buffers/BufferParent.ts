@@ -17,10 +17,54 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache:
+		| Map<WebGL2RenderingContext, Map<BufferTarget, WebGLBuffer | null>>
+		| undefined;
+
+	/**
+	 * Gets the buffer bindings cache.
+	 * @returns The buffer bindings cache.
+	 * @internal
+	 */
+	private static getBindingsCache(): Map<
 		WebGL2RenderingContext,
 		Map<BufferTarget, WebGLBuffer | null>
-	>;
+	> {
+		return (BufferParent.bindingsCache ??= new Map() as Map<
+			WebGL2RenderingContext,
+			Map<BufferTarget, WebGLBuffer | null>
+		>);
+	}
+
+	/**
+	 * Gets the buffer bindings cache for a rendering context.
+	 * @param context The rendering context.
+	 * @returns The buffer bindings cache.
+	 * @internal
+	 */
+	private static getContextBindingsCache(
+		context: Context
+	): Map<BufferTarget, WebGLBuffer | null> {
+		// Get the full bindings cache.
+		const bindingsCache: Map<
+			WebGL2RenderingContext,
+			Map<BufferTarget, WebGLBuffer | null>
+		> = BufferParent.getBindingsCache();
+
+		// Get the context bindings cache.
+		let contextBindingsCache:
+			| Map<BufferTarget, WebGLBuffer | null>
+			| undefined = bindingsCache.get((context as DangerousExposedContext).gl);
+		if (typeof contextBindingsCache === "undefined") {
+			contextBindingsCache = new Map();
+			bindingsCache.set(
+				(context as DangerousExposedContext).gl,
+				contextBindingsCache
+			);
+		}
+
+		return contextBindingsCache;
+	}
 
 	/**
 	 * Gets the currently-bound buffer for a binding point.
@@ -34,31 +78,20 @@ export default abstract class BufferParent extends ContextDependent {
 		context: Context,
 		target: BufferTarget
 	): WebGLBuffer | null {
-		// Get the full bindings cache.
-		BufferParent.bindingsCache ??= new Map();
-
 		// Get the context bindings cache.
-		if (
-			!BufferParent.bindingsCache.has((context as DangerousExposedContext).gl)
-		) {
-			BufferParent.bindingsCache.set(
-				(context as DangerousExposedContext).gl,
-				new Map()
-			);
-		}
 		const contextBindingsCache: Map<BufferTarget, WebGLBuffer | null> =
-			BufferParent.bindingsCache.get((context as DangerousExposedContext).gl)!;
+			BufferParent.getContextBindingsCache(context);
 
 		// Get the bound buffer.
-		if (!contextBindingsCache.has(target)) {
-			contextBindingsCache.set(
-				target,
-				(context as DangerousExposedContext).gl.getParameter(
-					getParameterForBufferTarget(target)
-				)
-			);
+		let boundBuffer: WebGLBuffer | null | undefined =
+			contextBindingsCache.get(target);
+		if (typeof boundBuffer === "undefined") {
+			boundBuffer = (context as DangerousExposedContext).gl.getParameter(
+				getParameterForBufferTarget(target)
+			) as WebGLBuffer | null;
+			contextBindingsCache.set(target, boundBuffer);
 		}
-		return contextBindingsCache.get(target)!;
+		return boundBuffer;
 	}
 
 	/**
@@ -81,7 +114,7 @@ export default abstract class BufferParent extends ContextDependent {
 
 		// Get the context bindings cache.
 		const contextBindingsCache: Map<BufferTarget, WebGLBuffer | null> =
-			BufferParent.bindingsCache!.get((context as DangerousExposedContext).gl)!;
+			BufferParent.getContextBindingsCache(context);
 
 		// Unbind the buffer from all other targets.
 		if (buffer !== null) {
@@ -104,25 +137,10 @@ export default abstract class BufferParent extends ContextDependent {
 	 * Unbinds the buffer that is bound to the given binding point.
 	 * @param context The rendering context.
 	 * @param target The binding point.
+	 * @param buffer The buffer to unbind, or `undefined` for any buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	protected static unbind(context: Context, target: BufferTarget): void;
-
-	/**
-	 * Unbinds the given buffer from the given binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param buffer The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @internal
-	 */
-	protected static unbind(
-		context: Context,
-		target: BufferTarget,
-		buffer: WebGLBuffer
-	): void;
-
 	protected static unbind(
 		context: Context,
 		target: BufferTarget,

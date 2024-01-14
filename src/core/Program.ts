@@ -102,7 +102,7 @@ export default class Program extends ContextDependent {
 
 	/** The linking status of this shader program. */
 	public get linkStatus(): boolean {
-		return this.gl.getProgramParameter(this.internal, LINK_STATUS);
+		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
 	}
 
 	/**

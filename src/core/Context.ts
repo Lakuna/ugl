@@ -59,14 +59,15 @@ export default class Context extends ApiInterface {
 		if (source instanceof WebGL2RenderingContext) {
 			super(source);
 		} else {
-			const gl: WebGL2RenderingContext | null = source.getContext(
-				"webgl2",
-				options
-			) as WebGL2RenderingContext | null;
+			const gl: RenderingContext | null = source.getContext("webgl2", options);
 			if (gl === null) {
 				throw new UnsupportedOperationError(
 					"The environment does not support WebGL2."
 				);
+			}
+			// This is necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`.
+			if (!(gl instanceof WebGL2RenderingContext)) {
+				throw new UnsupportedOperationError();
 			}
 			super(gl);
 		}
@@ -85,7 +86,7 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 * @internal
 	 */
-	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
+	private drawingBufferColorSpaceCache: PredefinedColorSpace | undefined;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
@@ -131,7 +132,7 @@ export default class Context extends ApiInterface {
 	 * @experimental
 	 * @internal
 	 */
-	private unpackColorSpaceCache?: PredefinedColorSpace;
+	private unpackColorSpaceCache: PredefinedColorSpace | undefined;
 
 	/**
 	 * The color space to convert to when importing textures.
@@ -163,7 +164,7 @@ export default class Context extends ApiInterface {
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 * @internal
 	 */
-	private activeTextureCache?: number;
+	private activeTextureCache: number | undefined;
 
 	/**
 	 * The active texture unit.
@@ -198,7 +199,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
 	 * @internal
 	 */
-	private blendColorCache?: Color;
+	private blendColorCache: Color | undefined;
 
 	/**
 	 * The blend color.
@@ -233,15 +234,16 @@ export default class Context extends ApiInterface {
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 * @internal
 	 */
-	private blendEquationCache?: BlendEquationSet;
+	private blendEquationCache: BlendEquationSet | undefined;
 
 	/**
-	 * Initializes the blend equation cache.
+	 * Creates the blend equation cache.
+	 * @returns The blend equation cache.
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 * @internal
 	 */
-	private setBlendEquationCache(): void {
-		this.blendEquationCache ??= new Uint8Array([
+	private makeBlendEquationCache(): BlendEquationSet {
+		return new Uint8Array([
 			this.gl.getParameter(BLEND_EQUATION_RGB),
 			this.gl.getParameter(BLEND_EQUATION_ALPHA)
 		]) as unknown as BlendEquationSet;
@@ -252,8 +254,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 */
 	public get blendEquation(): BlendEquationSet {
-		this.setBlendEquationCache();
-		return this.blendEquationCache!;
+		return (this.blendEquationCache ??= this.makeBlendEquationCache());
 	}
 
 	/**
@@ -301,8 +302,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
 	 */
 	public get blendEquationRgb(): BlendEquation {
-		this.setBlendEquationCache();
-		return this.blendEquationCache![0];
+		return (this.blendEquationCache ??= this.makeBlendEquationCache())[0];
 	}
 
 	/**
@@ -310,8 +310,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
 	 */
 	public get blendEquationAlpha(): BlendEquation {
-		this.setBlendEquationCache();
-		return this.blendEquationCache![1];
+		return (this.blendEquationCache ??= this.makeBlendEquationCache())[1];
 	}
 
 	/**
@@ -319,15 +318,16 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @internal
 	 */
-	private blendFunctionCache?: BlendFunctionFullSet;
+	private blendFunctionCache: BlendFunctionFullSet | undefined;
 
 	/**
-	 * Initializes the blend function cache.
+	 * Creates the blend function cache.
+	 * @returns The blend function cache.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @internal
 	 */
-	private setBlendFunctionCache(): void {
-		this.blendFunctionCache ??= new Uint8Array([
+	private makeBlendFunctionCache(): BlendFunctionFullSet {
+		return new Uint8Array([
 			this.gl.getParameter(BLEND_SRC_RGB),
 			this.gl.getParameter(BLEND_DST_RGB),
 			this.gl.getParameter(BLEND_SRC_ALPHA),
@@ -340,8 +340,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
 	public get blendFunction(): BlendFunctionFullSet {
-		this.setBlendFunctionCache();
-		return this.blendFunctionCache!;
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache());
 	}
 
 	/**
@@ -398,8 +397,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
 	 */
 	public get blendFunctionSourceRgb(): BlendFunction {
-		this.setBlendFunctionCache();
-		return this.blendFunctionCache![0];
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[0];
 	}
 
 	/**
@@ -407,8 +405,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
 	 */
 	public get blendFunctionDestinationRgb(): BlendFunction {
-		this.setBlendFunctionCache();
-		return this.blendFunctionCache![1];
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[1];
 	}
 
 	/**
@@ -416,8 +413,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
 	 */
 	public get blendFunctionSourceAlpha(): BlendFunction {
-		this.setBlendFunctionCache();
-		return this.blendFunctionCache![2];
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[2];
 	}
 
 	/**
@@ -425,8 +421,7 @@ export default class Context extends ApiInterface {
 	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
 	 */
 	public get blendFunctionDestinationAlpha(): BlendFunction {
-		this.setBlendFunctionCache();
-		return this.blendFunctionCache![3];
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[3];
 	}
 
 	/**
@@ -490,14 +485,16 @@ export default class Context extends ApiInterface {
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 * @internal
 	 */
-	private clearColorCache?: Color;
+	private clearColorCache: Color | undefined;
 
 	/**
 	 * The value to store in the color buffer when clearing it.
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 */
 	public get clearColor(): Color {
-		return (this.clearColorCache ??= this.gl.getParameter(COLOR_CLEAR_VALUE));
+		return (this.clearColorCache ??= this.gl.getParameter(
+			COLOR_CLEAR_VALUE
+		) as Color);
 	}
 
 	/**
@@ -514,14 +511,16 @@ export default class Context extends ApiInterface {
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 * @internal
 	 */
-	private clearDepthCache?: number;
+	private clearDepthCache: number | undefined;
 
 	/**
 	 * The value to store in the depth buffer when clearing it.
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
 	public get clearDepth(): number {
-		return (this.clearDepthCache ??= this.gl.getParameter(DEPTH_CLEAR_VALUE));
+		return (this.clearDepthCache ??= this.gl.getParameter(
+			DEPTH_CLEAR_VALUE
+		) as number);
 	}
 
 	/**
@@ -538,15 +537,16 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 * @internal
 	 */
-	private clearStencilCache?: number;
+	private clearStencilCache: number | undefined;
 
 	/**
 	 * The value to store in the stencil buffer when clearing it.
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public get clearStencil(): number {
-		return (this.clearStencilCache ??=
-			this.gl.getParameter(STENCIL_CLEAR_VALUE));
+		return (this.clearStencilCache ??= this.gl.getParameter(
+			STENCIL_CLEAR_VALUE
+		) as number);
 	}
 
 	/**
@@ -564,7 +564,7 @@ export default class Context extends ApiInterface {
 	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 * @internal
 	 */
-	private colorMaskCache?: ColorMask;
+	private colorMaskCache: ColorMask | undefined;
 
 	/**
 	 * The mask that specifies which components to enable or disable when
@@ -572,7 +572,9 @@ export default class Context extends ApiInterface {
 	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 */
 	public get colorMask(): ColorMask {
-		return (this.colorMaskCache ??= this.gl.getParameter(COLOR_WRITEMASK));
+		return (this.colorMaskCache ??= this.gl.getParameter(
+			COLOR_WRITEMASK
+		) as ColorMask);
 	}
 
 	/**
@@ -590,11 +592,11 @@ export default class Context extends ApiInterface {
 	 * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
 	 * @internal
 	 */
-	private maxCombinedTextureImageUnitsCache?: number;
+	private maxCombinedTextureImageUnitsCache: number | undefined;
 
 	public get maxCombinedTextureImageUnits(): number {
 		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
 			MAX_COMBINED_TEXTURE_IMAGE_UNITS
-		));
+		) as number);
 	}
 }

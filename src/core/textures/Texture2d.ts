@@ -37,10 +37,18 @@ export default class Texture2d extends Texture {
 		width?: number,
 		height?: number
 	) {
-		super(context, TextureTarget.TEXTURE_2D, levels!, format!, [
-			width!,
-			height!
-		]);
+		if (
+			typeof levels === "undefined" ||
+			typeof format === "undefined" ||
+			typeof width === "undefined" ||
+			typeof height === "undefined"
+		) {
+			super(context, TextureTarget.TEXTURE_2D);
+			return;
+		}
+
+		// Immutable-format.
+		super(context, TextureTarget.TEXTURE_2D, levels, format, [width, height]);
 	}
 
 	/**
@@ -55,8 +63,8 @@ export default class Texture2d extends Texture {
 	protected makeImmutableFormatInternal(
 		levels: number,
 		format: TextureSizedInternalFormat,
-		dims: Array<number>
+		dims: [number, number]
 	): void {
-		this.gl.texStorage2D(this.target, levels, format, dims[0]!, dims[1]!);
+		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
 	}
 }

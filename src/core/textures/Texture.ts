@@ -23,8 +23,6 @@ import TextureMinFilter from "#TextureMinFilter";
 import type TextureWrapFunction from "#TextureWrapFunction";
 import type TestFunction from "#TestFunction";
 import type TextureCompareMode from "#TextureCompareMode";
-import type MipmapTarget from "#MipmapTarget";
-import type Mip from "#Mip";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 
 /**
@@ -37,69 +35,197 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache:
+		| Map<WebGL2RenderingContext, Map<TextureTarget, WebGLTexture | null>[]>
+		| undefined;
+
+	/**
+	 * Gets the texture bindings cache.
+	 * @returns The texture bindings cache.
+	 * @internal
+	 */
+	private static getBindingsCache(): Map<
 		WebGL2RenderingContext,
-		Array<Map<TextureTarget, WebGLTexture | null>>
-	>;
+		Map<TextureTarget, WebGLTexture | null>[]
+	> {
+		return (Texture.bindingsCache ??= new Map() as Map<
+			WebGL2RenderingContext,
+			Map<TextureTarget, WebGLTexture | null>[]
+		>);
+	}
+
+	/**
+	 * Gets the texture bindings cache for a rendering context.
+	 * @param context The rendering context.
+	 * @returns The texture bindings cache.
+	 * @internal
+	 */
+	private static getContextBindingsCache(
+		context: Context
+	): Map<TextureTarget, WebGLTexture | null>[] {
+		// Get the full bindings cache.
+		const bindingsCache: Map<
+			WebGL2RenderingContext,
+			Map<TextureTarget, WebGLTexture | null>[]
+		> = Texture.getBindingsCache();
+
+		// Get the context bindings cache.
+		let contextBindingsCache:
+			| Map<TextureTarget, WebGLTexture | null>[]
+			| undefined = bindingsCache.get((context as DangerousExposedContext).gl);
+		if (typeof contextBindingsCache === "undefined") {
+			contextBindingsCache = [];
+			bindingsCache.set(
+				(context as DangerousExposedContext).gl,
+				contextBindingsCache
+			);
+		}
+
+		return contextBindingsCache;
+	}
+
+	/**
+	 * Gets the texture bindings cache for a texture unit.
+	 * @param context The rendering context.
+	 * @param textureUnit The texture unit.
+	 * @returns The texture bindings cache.
+	 * @internal
+	 */
+	private static getTextureUnitBindingsCache(
+		context: Context,
+		textureUnit: number
+	): Map<TextureTarget, WebGLTexture | null> {
+		// Get the context bindings cache.
+		const contextBindingsCache: Map<TextureTarget, WebGLTexture | null>[] =
+			Texture.getContextBindingsCache(context);
+
+		// Get the texture unit bindings cache.
+		let textureUnitBindingsCache:
+			| Map<TextureTarget, WebGLTexture | null>
+			| undefined = contextBindingsCache[textureUnit];
+		if (typeof textureUnitBindingsCache === "undefined") {
+			textureUnitBindingsCache = new Map();
+			contextBindingsCache[textureUnit] = textureUnitBindingsCache;
+		}
+
+		return textureUnitBindingsCache;
+	}
 
 	/**
 	 * The order that texture units should be overwritten in if necessary.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	private static bindingOverwriteOrder?: Map<
+	private static bindingOverwriteOrder:
+		| Map<WebGL2RenderingContext, Map<TextureTarget, number[]>>
+		| undefined;
+
+	/**
+	 * Gets the texture binding overwrite order.
+	 * @returns The texture binding overwrite order.
+	 * @internal
+	 */
+	private static getBindingOverwriteOrder(): Map<
 		WebGL2RenderingContext,
-		Map<TextureTarget, Array<number>>
-	>;
+		Map<TextureTarget, number[]>
+	> {
+		return (Texture.bindingOverwriteOrder ??= new Map() as Map<
+			WebGL2RenderingContext,
+			Map<TextureTarget, number[]>
+		>);
+	}
+
+	/**
+	 * Gets the texture binding overwrite order for a rendering context.
+	 * @param context The rendering context.
+	 * @returns The texture binding overwrite order.
+	 * @internal
+	 */
+	private static getContextBindingOverwriteOrder(
+		context: Context
+	): Map<TextureTarget, number[]> {
+		// Get the full texture binding overwrite order.
+		const bindingOverwriteOrder: Map<
+			WebGL2RenderingContext,
+			Map<TextureTarget, number[]>
+		> = Texture.getBindingOverwriteOrder();
+
+		// Get the context binding overwrite order.
+		let contextBindingOverwriteOrder: Map<TextureTarget, number[]> | undefined =
+			bindingOverwriteOrder.get((context as DangerousExposedContext).gl);
+		if (typeof contextBindingOverwriteOrder === "undefined") {
+			contextBindingOverwriteOrder = new Map();
+			bindingOverwriteOrder.set(
+				(context as DangerousExposedContext).gl,
+				contextBindingOverwriteOrder
+			);
+		}
+
+		return contextBindingOverwriteOrder;
+	}
+
+	/**
+	 * Gets the texture binding overwrite order for a binding point.
+	 * @param context The rendering context.
+	 * @param target The binding point.
+	 * @returns The texture binding overwrite order.
+	 * @internal
+	 */
+	private static getTargetBindingOverwriteOrder(
+		context: Context,
+		target: TextureTarget
+	): number[] {
+		// Get the context binding overwrite order.
+		const contextBindingOverwriteOrder:
+			| Map<TextureTarget, number[]>
+			| undefined = Texture.getContextBindingOverwriteOrder(context);
+
+		// Get the binding point binding overwrite order.
+		let targetBindingOverwriteOrder: number[] | undefined =
+			contextBindingOverwriteOrder.get(target);
+		if (typeof targetBindingOverwriteOrder === "undefined") {
+			targetBindingOverwriteOrder = [];
+			contextBindingOverwriteOrder.set(target, targetBindingOverwriteOrder);
+		}
+
+		return targetBindingOverwriteOrder;
+	}
 
 	/**
 	 * Determines the most desirable texture unit to bind to.
 	 * @param context The rendering context.
 	 * @param target The binding point.
+	 * @param texture The texture to be bound.
 	 * @returns The most desirable texture unit to bind to.
 	 * @internal
 	 */
 	private static getBestTextureUnit(
 		context: Context,
-		target: TextureTarget
+		target: TextureTarget,
+		texture?: WebGLTexture | null
 	): number {
-		// Get the full binding overwrite order.
-		Texture.bindingOverwriteOrder ??= new Map();
-
-		// Get the context binding overwrite order.
-		if (
-			!Texture.bindingOverwriteOrder.has(
-				(context as DangerousExposedContext).gl
-			)
-		) {
-			Texture.bindingOverwriteOrder.set(
-				(context as DangerousExposedContext).gl,
-				new Map()
-			);
+		// Check if the texture is already bound.
+		if (typeof texture !== "undefined" && texture !== null) {
+			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
+				if (Texture.getBound(context, i, target) === texture) {
+					return i;
+				}
+			}
 		}
-		const contextBindingOverwriteOrder: Map<
-			TextureTarget,
-			Array<number>
-		> = Texture.bindingOverwriteOrder.get(
-			(context as DangerousExposedContext).gl
-		)!;
 
 		// Get the texture target binding overwrite order.
-		if (!contextBindingOverwriteOrder.has(target)) {
-			contextBindingOverwriteOrder.set(target, []);
-		}
-		const targetBindingOverwriteOrder: Array<number> =
-			contextBindingOverwriteOrder.get(target)!;
+		const targetBindingOverwriteOrder: number[] =
+			Texture.getTargetBindingOverwriteOrder(context, target);
 
 		// Check for any unused texture units.
 		for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
-			if (!targetBindingOverwriteOrder!.includes(i)) {
+			if (!targetBindingOverwriteOrder.includes(i)) {
 				return i;
 			}
 		}
 
 		// Return the least recently used texture unit.
-		return targetBindingOverwriteOrder[0]!;
+		return (targetBindingOverwriteOrder[0] ??= 0);
 	}
 
 	/**
@@ -120,32 +246,21 @@ export default abstract class Texture extends ContextDependent {
 		// Default to the most desirable texture unit.
 		textureUnit ??= Texture.getBestTextureUnit(context, target);
 
-		// Get the full bindings cache.
-		Texture.bindingsCache ??= new Map();
-
-		// Get the context bindings cache.
-		if (!Texture.bindingsCache.has((context as DangerousExposedContext).gl)) {
-			Texture.bindingsCache.set((context as DangerousExposedContext).gl, []);
-		}
-		const contextBindingsCache: Array<Map<TextureTarget, WebGLTexture | null>> =
-			Texture.bindingsCache.get((context as DangerousExposedContext).gl)!;
-
 		// Get the texture unit bindings cache.
-		contextBindingsCache[textureUnit] ??= new Map();
 		const textureUnitBindingsCache: Map<TextureTarget, WebGLTexture | null> =
-			contextBindingsCache[textureUnit]!;
+			Texture.getTextureUnitBindingsCache(context, textureUnit);
 
 		// Get the bound texture.
-		if (!textureUnitBindingsCache.has(target)) {
-			textureUnitBindingsCache.set(
-				target,
-				(context as DangerousExposedContext).gl.getParameter(
-					getParameterForTextureTarget(target)
-				)
-			);
+		let boundTexture: WebGLTexture | null | undefined =
+			textureUnitBindingsCache.get(target);
+		if (typeof boundTexture === "undefined") {
+			boundTexture = (context as DangerousExposedContext).gl.getParameter(
+				getParameterForTextureTarget(target)
+			) as WebGLTexture | null;
+			textureUnitBindingsCache.set(target, boundTexture);
 		}
 
-		return textureUnitBindingsCache.get(target)!;
+		return boundTexture;
 	}
 
 	/**
@@ -165,17 +280,19 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		texture: WebGLTexture | null
 	): number {
-		// Return the texture unit that the texture is already bound to, if any.
-		if (texture !== null) {
-			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
-				if (Texture.getBound(context, i, target) === texture) {
-					return i;
-				}
-			}
-		}
-
 		// Default to the most desirable texture unit.
-		textureUnit ??= Texture.getBestTextureUnit(context, target);
+		textureUnit ??= Texture.getBestTextureUnit(context, target, texture);
+
+		// Update the texture overwrite order.
+		const targetBindingOverwriteOrder: number[] =
+			Texture.getTargetBindingOverwriteOrder(context, target);
+		if (targetBindingOverwriteOrder.includes(textureUnit)) {
+			targetBindingOverwriteOrder.splice(
+				targetBindingOverwriteOrder.indexOf(textureUnit),
+				1
+			);
+		}
+		targetBindingOverwriteOrder.push(textureUnit);
 
 		// Do nothing if the binding is already correct.
 		if (Texture.getBound(context, textureUnit, target) === texture) {
@@ -185,60 +302,23 @@ export default abstract class Texture extends ContextDependent {
 		// Bind the texture to the target.
 		(context as DangerousExposedContext).activeTexture = textureUnit;
 		(context as DangerousExposedContext).gl.bindTexture(target, texture);
-		Texture.bindingsCache!.get((context as DangerousExposedContext).gl)![
-			textureUnit
-		]!.set(target, texture);
-
-		// Update the texture overwrite order.
-		if (typeof Texture.bindingOverwriteOrder === "undefined") {
-			Texture.getBestTextureUnit(context, target);
-		}
-		const targetBindingOverwriteOrder: Array<number> =
-			Texture.bindingOverwriteOrder!.get(
-				(context as DangerousExposedContext).gl
-			)!.get(target)!;
-		if (targetBindingOverwriteOrder.includes(textureUnit)) {
-			targetBindingOverwriteOrder.splice(
-				targetBindingOverwriteOrder.indexOf(textureUnit),
-				1
-			);
-		}
-		targetBindingOverwriteOrder.push(textureUnit);
+		Texture.getTextureUnitBindingsCache(context, textureUnit).set(
+			target,
+			texture
+		);
 
 		return textureUnit;
 	}
 
 	/**
-	 * Unbinds the texture that is bound to the given binding point.
-	 * @param context The rendering context.
-	 * @param textureUnit The texture unit.
-	 * @param target The binding point.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
-	 * @internal
-	 */
-	protected static unbind(
-		context: Context,
-		textureUnit: number,
-		target: TextureTarget
-	): void;
-
-	/**
 	 * Unbinds the given texture from the given binding point.
 	 * @param context The rendering context.
-	 * @param textureUnit The texture unit, or `undefined` for all texture
-	 * units.
+	 * @param textureUnit The texture unit, or `undefined` for all texture units.
 	 * @param target The binding point.
-	 * @param texture The texture.
+	 * @param texture The texture, or `undefined` for any texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected static unbind(
-		context: Context,
-		textureUnit: number | undefined,
-		target: TextureTarget,
-		texture: WebGLTexture
-	): void;
-
 	protected static unbind(
 		context: Context,
 		textureUnit: number | undefined,
@@ -247,21 +327,22 @@ export default abstract class Texture extends ContextDependent {
 	): void {
 		// If a specific texture unit is given, unbind the texture from only that texture unit.
 		if (typeof textureUnit === "number") {
+			// If a specific texture is given, only unbind that texture.
 			if (
 				typeof texture !== "undefined" &&
 				Texture.getBound(context, textureUnit, target) !== texture
 			) {
 				return;
 			}
+
+			// Unbind the texture.
 			Texture.bind(context, textureUnit, target, null);
 			return;
 		}
 
 		// Otherwise, unbind the texture from every texture unit.
-		for (const textureUnit of Texture.bindingsCache
-			?.get((context as DangerousExposedContext).gl)
-			?.keys() ?? []) {
-			Texture.unbind(context, textureUnit, target, texture as WebGLTexture);
+		for (const textureUnit of Texture.getContextBindingsCache(context).keys()) {
+			Texture.unbind(context, textureUnit, target, texture);
 		}
 	}
 
@@ -291,7 +372,7 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		levels: number,
 		format: TextureSizedInternalFormat,
-		dims: Array<number>
+		dims: number[]
 	);
 
 	protected constructor(
@@ -299,7 +380,7 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		levels?: number,
 		format?: TextureSizedInternalFormat,
-		dims?: Array<number>
+		dims?: number[]
 	) {
 		super(context);
 
@@ -309,10 +390,13 @@ export default abstract class Texture extends ContextDependent {
 		}
 		this.internal = texture;
 		this.target = target;
-		this.mips = new Map();
 		this.isImmutableFormatCache = false;
-		if (typeof levels === "number") {
-			this.makeImmutableFormat(levels, format!, dims!);
+		if (
+			typeof levels !== "undefined" &&
+			typeof format !== "undefined" &&
+			typeof dims !== "undefined"
+		) {
+			this.makeImmutableFormat(levels, format, dims);
 		}
 	}
 
@@ -329,12 +413,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	protected readonly target: TextureTarget;
-
-	/**
-	 * The mips in this texture.
-	 * @internal
-	 */
-	protected readonly mips: ReadonlyMap<MipmapTarget, Array<Mip>>;
 
 	/** Whether this is an immutable-format texture. */
 	private isImmutableFormatCache: boolean;
@@ -355,7 +433,7 @@ export default abstract class Texture extends ContextDependent {
 	public makeImmutableFormat(
 		levels: number,
 		format: TextureSizedInternalFormat,
-		dims: Array<number>
+		dims: number[]
 	): void {
 		if (this.isImmutableFormat) {
 			return;
@@ -377,7 +455,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract makeImmutableFormatInternal(
 		levels: number,
 		format: TextureSizedInternalFormat,
-		dims: Array<number>
+		dims: number[]
 	): void;
 
 	/**
@@ -386,7 +464,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private magFilterCache?: TextureMagFilter;
+	private magFilterCache: TextureMagFilter | undefined;
 
 	/**
 	 * The magnification filter of this texture.
@@ -398,7 +476,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.magFilterCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAG_FILTER
-		));
+		) as TextureMagFilter);
 	}
 
 	/**
@@ -418,7 +496,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private minFilterCache?: TextureMinFilter;
+	private minFilterCache: TextureMinFilter | undefined;
 
 	/**
 	 * The minification filter of this texture.
@@ -430,7 +508,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.minFilterCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MIN_FILTER
-		));
+		) as TextureMinFilter);
 	}
 
 	/**
@@ -450,7 +528,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private wrapSFunctionCache?: TextureWrapFunction;
+	private wrapSFunctionCache: TextureWrapFunction | undefined;
 
 	/**
 	 * The wrap function on the S-axis of this texture.
@@ -462,7 +540,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.wrapSFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_S
-		));
+		) as TextureWrapFunction);
 	}
 
 	/**
@@ -482,7 +560,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private wrapTFunctionCache?: TextureWrapFunction;
+	private wrapTFunctionCache: TextureWrapFunction | undefined;
 
 	/**
 	 * The wrap function on the T-axis of this texture.
@@ -494,7 +572,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.wrapTFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_T
-		));
+		) as TextureWrapFunction);
 	}
 
 	/**
@@ -514,7 +592,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private maxAnisotropyCache?: number;
+	private maxAnisotropyCache: number | undefined;
 
 	/**
 	 * The preferred anisotropy of this texture.
@@ -527,7 +605,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.maxAnisotropyCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_ANISOTROPY_EXT
-		));
+		) as number);
 	}
 
 	/**
@@ -548,7 +626,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private baseLevelCache?: number;
+	private baseLevelCache: number | undefined;
 
 	/**
 	 * The base mipmap level of this texture.
@@ -560,7 +638,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.baseLevelCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_BASE_LEVEL
-		));
+		) as number);
 	}
 
 	/**
@@ -580,7 +658,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private comparisonFunctionCache?: TestFunction;
+	private comparisonFunctionCache: TestFunction | undefined;
 
 	/**
 	 * The comparison function of this texture.
@@ -592,7 +670,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.comparisonFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_COMPARE_FUNC
-		));
+		) as TestFunction);
 	}
 
 	/**
@@ -612,7 +690,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private comparisonModeCache?: TextureCompareMode;
+	private comparisonModeCache: TextureCompareMode | undefined;
 
 	/**
 	 * The comparison mode of this texture.
@@ -624,7 +702,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.comparisonModeCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_COMPARE_MODE
-		));
+		) as TextureCompareMode);
 	}
 
 	/**
@@ -644,7 +722,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private maxLevelCache?: number;
+	private maxLevelCache: number | undefined;
 
 	/**
 	 * The maximum mipmap level of this texture.
@@ -656,7 +734,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.maxLevelCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_LEVEL
-		));
+		) as number);
 	}
 
 	/**
@@ -676,7 +754,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private maxLodCache?: number;
+	private maxLodCache: number | undefined;
 
 	/**
 	 * The maximum level of detail of this texture.
@@ -688,7 +766,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.maxLodCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_LOD
-		));
+		) as number);
 	}
 
 	/**
@@ -708,7 +786,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private minLodCache?: number;
+	private minLodCache: number | undefined;
 
 	/**
 	 * The minimum level of detail of this texture.
@@ -720,7 +798,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.minLodCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MIN_LOD
-		));
+		) as number);
 	}
 
 	/**
@@ -740,7 +818,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private wrapRFunctionCache?: TextureWrapFunction;
+	private wrapRFunctionCache: TextureWrapFunction | undefined;
 
 	/**
 	 * The wrap function on the R-axis of this texture.
@@ -752,7 +830,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.wrapRFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_R
-		));
+		) as TextureWrapFunction);
 	}
 
 	/**

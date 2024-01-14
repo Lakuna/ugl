@@ -14,10 +14,24 @@ export default class Renderbuffer extends ContextDependent {
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache:
+		| Map<WebGL2RenderingContext, WebGLRenderbuffer | null>
+		| undefined;
+
+	/**
+	 * Gets the renderbuffer bindings cache.
+	 * @returns The renderbuffer bindings cache.
+	 * @internal
+	 */
+	private static getBindingsCache(): Map<
 		WebGL2RenderingContext,
 		WebGLRenderbuffer | null
-	>;
+	> {
+		return (Renderbuffer.bindingsCache ??= new Map() as Map<
+			WebGL2RenderingContext,
+			WebGLRenderbuffer | null
+		>);
+	}
 
 	/**
 	 * Gets the currently-bound renderbuffer.
@@ -28,22 +42,22 @@ export default class Renderbuffer extends ContextDependent {
 	 */
 	protected static getBound(context: Context): WebGLRenderbuffer | null {
 		// Get the full bindings cache.
-		Renderbuffer.bindingsCache ??= new Map();
+		const bindingsCache: Map<WebGL2RenderingContext, WebGLRenderbuffer | null> =
+			Renderbuffer.getBindingsCache();
 
 		// Get the bound renderbuffer.
-		if (
-			!Renderbuffer.bindingsCache.has((context as DangerousExposedContext).gl)
-		) {
-			Renderbuffer.bindingsCache.set(
+		let boundRenderbuffer: WebGLRenderbuffer | null | undefined =
+			bindingsCache.get((context as DangerousExposedContext).gl);
+		if (typeof boundRenderbuffer === "undefined") {
+			boundRenderbuffer = (context as DangerousExposedContext).gl.getParameter(
+				RENDERBUFFER_BINDING
+			) as WebGLRenderbuffer | null;
+			bindingsCache.set(
 				(context as DangerousExposedContext).gl,
-				(context as DangerousExposedContext).gl.getParameter(
-					RENDERBUFFER_BINDING
-				)
+				boundRenderbuffer
 			);
 		}
-		return Renderbuffer.bindingsCache.get(
-			(context as DangerousExposedContext).gl
-		)!;
+		return boundRenderbuffer;
 	}
 
 	/**
@@ -67,7 +81,7 @@ export default class Renderbuffer extends ContextDependent {
 			RENDERBUFFER,
 			renderbuffer
 		);
-		Renderbuffer.bindingsCache!.set(
+		Renderbuffer.getBindingsCache().set(
 			(context as DangerousExposedContext).gl,
 			renderbuffer
 		);
@@ -76,23 +90,10 @@ export default class Renderbuffer extends ContextDependent {
 	/**
 	 * Unbinds the renderbuffer that is bound.
 	 * @param context The rendering context.
+	 * @param renderbuffer The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
-	protected static unbind(context: Context): void;
-
-	/**
-	 * Unbinds the given renderbuffer.
-	 * @param context The rendering context.
-	 * @param renderbuffer The renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
-	 * @internal
-	 */
-	protected static unbind(
-		context: Context,
-		renderbuffer: WebGLRenderbuffer
-	): void;
-
 	protected static unbind(
 		context: Context,
 		renderbuffer?: WebGLRenderbuffer
