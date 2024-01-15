@@ -1,4 +1,6 @@
 {
+	"include": ["src"],
+	"exclude": [],
 	"compilerOptions": {
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
@@ -55,10 +57,6 @@
 		"isolatedModules": true,
 		"preserveSymlinks": false,
 		"verbatimModuleSyntax": true,
-		"noImplicitUseStrict": false,
-		"noStrictGenericChecks": false,
-		"suppressExcessPropertyErrors": false,
-		"suppressImplicitAnyIndexErrors": false,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"jsx": "react-native",

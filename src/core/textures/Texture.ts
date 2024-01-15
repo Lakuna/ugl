@@ -864,6 +864,14 @@ export default abstract class Texture extends ContextDependent {
 		return false;
 	}
 
+	// TODO: Add a way to update the data in the texture.
+
+	// TODO: Add a function that calculates the expected size of the given mip.
+
+	// TODO: Maybe save mip data as an array of modifications. Reset when full data is supplied and append when partial data is supplied. When the mip is updated, apply modifications in order. Save an index to prevent reapplying modifications.
+
+	// TODO: Add a method that updates the texture when needed and a method that forces the texture to update. Update the texture when it's created and when it's about to be used (i.e. passed to a uniform). This method should also generate a mipmap automatically if the texture is not texture complete and it wouldn't override given data. This method should automatically use the correct unpack alignment if possible.
+
 	/**
 	 * Generates a mipmap for this texture. Overwrites all mips except those at
 	 * the top level. Does nothing for immutable-format textures.
@@ -934,12 +942,4 @@ export default abstract class Texture extends ContextDependent {
 		Texture.bind(this.context, textureUnit, this.target, previousBinding);
 		return out;
 	}
-
-	// TODO: Add a way to update the data in the texture.
-
-	// TODO: Add a function that calculates the expected size of the given mip.
-
-	// TODO: Maybe save mip data as an array of modifications. Reset when full data is supplied and append when partial data is supplied. When the mip is updated, apply modifications in order. Save an index to prevent reapplying modifications.
-
-	// TODO: Add a method that updates the texture when needed and a method that forces the texture to update. Update the texture when it's created and when it's about to be used (i.e. passed to a uniform). This method should also generate a mipmap automatically if the texture is not texture complete and it wouldn't override given data. This method should automatically use the correct unpack alignment if possible.
 }
