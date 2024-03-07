@@ -2,6 +2,13 @@ import Texture from "#Texture";
 import TextureTarget from "#TextureTarget";
 import type Context from "#Context";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
+import type MipmapTarget from "#MipmapTarget";
+import type {
+	TextureFormat,
+	TextureDataType,
+	MipData,
+	Box
+} from "../../index.js";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
@@ -66,5 +73,29 @@ export default class Texture2d extends Texture {
 		dims: [number, number]
 	): void {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
+	}
+
+	/**
+	 * Sets the data in a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param format The format of the given data. Must be compatible with the
+	 * format of the texture.
+	 * @param type The type of the given data. Must be compatible with the
+	 * format of the given data.
+	 * @param data The data to fill the mip with.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 */
+	protected override setMipInternal(
+		target: MipmapTarget,
+		level: number,
+		format: TextureFormat,
+		type: TextureDataType,
+		data: MipData,
+		bounds?: Box | undefined
+	): void {
+		throw new Error(
+			`Method not implemented: Texture2d.setMipInternal(${target}, ${level}, ${format}, ${type}, ${typeof data}, ${typeof bounds})`
+		);
 	}
 }

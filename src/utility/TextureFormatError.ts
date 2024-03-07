@@ -1,0 +1,16 @@
+/**
+ * An error resulting from attempting to use a data format that is not
+ * compatible with a texture format.
+ */
+export default class TextureFormatError extends Error {
+	/**
+	 * Creates a texture format error.
+	 * @param message The message of the error.
+	 */
+	public constructor(
+		message = "Attempted to use a data format that is not compatible with a texture format."
+	) {
+		super(message);
+		this.name = "TextureFormatError";
+	}
+}
