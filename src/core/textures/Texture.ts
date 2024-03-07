@@ -32,6 +32,8 @@ import type TextureFormat from "#TextureFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 import ImmutableError from "#ImmutableError";
+import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
+import TextureFormatError from "#TextureFormatError";
 
 /**
  * A randomly-accessible array.
@@ -531,6 +533,16 @@ export default abstract class Texture extends ContextDependent {
 		bounds?: Box
 	): void {
 		// TODO: Ensure that format, internal format, and data type are compatible.
+		const expectedFormat: TextureFormat | null =
+			getTextureFormatForTextureInternalFormat(this.format);
+
+		if (expectedFormat !== format) {
+			if (this.isImmutableFormat || level > 0) {
+				throw new TextureFormatError();
+			}
+
+			// TODO: Use a new default internal format if using an incompatible format for the top mip(?)
+		}
 
 		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
 
