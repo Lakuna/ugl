@@ -53,6 +53,7 @@ export type { TextureUnsizedInternalFormat } from "#TextureUnsizedInternalFormat
 export type { TypedArray } from "#TypedArray";
 export type { UintTypedArray } from "#UintTypedArray";
 export { default as BadValueError } from "#BadValueError";
+export { default as ImmutableError } from "#ImmutableError";
 export { default as ProgramLinkError } from "#ProgramLinkError";
 export { default as ShaderCompileError } from "#ShaderCompileError";
 export { default as TextureFormatError } from "#TextureFormatError";

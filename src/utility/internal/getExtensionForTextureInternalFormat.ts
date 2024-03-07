@@ -3,6 +3,7 @@ import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInte
 import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
 import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
 import Extension from "#Extension";
+import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 
 /**
  * Gets the extension that is associated with the given texture internal format.
@@ -11,116 +12,8 @@ import Extension from "#Extension";
  * @internal
  */
 export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_S3TC_DXT1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_S3TC_DXT1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_S3TC_DXT3_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_S3TC_DXT5_EXT
-): Extension.CompressedTextureS3tc;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT
-): Extension.CompressedTextureS3tcSrgb;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format: TextureCompressedSizedInternalFormat
-): Extension.CompressedTextureEtc;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_PVRTC_4BPPV1_IMG
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_PVRTC_2BPPV1_IMG
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
-): Extension.CompressedTexturePvrtc;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_4x4_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_5x4_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_5x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_6x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_6x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_8x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_8x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_8x8_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_10x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_10x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_10x8_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_10x10_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_12x10_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_ASTC_12x12_KHR
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR
-): Extension.CompressedTextureAstc;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_BPTC_UNORM_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT
-): Extension.TextureCompressionBptc;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format:
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RED_RGTC1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SIGNED_RED_RGTC1_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_RED_GREEN_RGTC2_EXT
-		| TextureCompressedUnsizedInternalFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT
-): Extension.TextureCompressionRgtc;
+	format: TextureCompressedInternalFormat
+): Extension;
 
 /**
  * Gets the extension that is associated with the given texture internal format.

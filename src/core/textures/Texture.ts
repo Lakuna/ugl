@@ -30,6 +30,8 @@ import type { MipData } from "#MipData";
 import type TextureDataType from "#TextureDataType";
 import type TextureFormat from "#TextureFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
+import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
+import ImmutableError from "#ImmutableError";
 
 /**
  * A randomly-accessible array.
@@ -431,7 +433,29 @@ export default abstract class Texture extends ContextDependent {
 	protected readonly mipmaps: ReadonlyMap<MipmapTarget, Map<number, boolean>>;
 
 	/** The format of this texture. */
-	protected format?: TextureInternalFormat;
+	private formatCache?: TextureInternalFormat;
+
+	/** The format of this texture. */
+	public get format(): TextureInternalFormat {
+		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
+		if (typeof this.formatCache === "undefined") {
+			this.formatCache = TextureUncompressedUnsizedInternalFormat.RGBA;
+		}
+
+		return this.formatCache;
+	}
+
+	/**
+	 * The format of this texture.
+	 * @throws {@link ImmutableError} if this is an immutable-format texture.
+	 */
+	public set format(value: TextureInternalFormat) {
+		if (this.isImmutableFormat) {
+			throw new ImmutableError();
+		}
+
+		this.formatCache = value;
+	}
 
 	/**
 	 * The width, height (if applicable), and depth (if applicable) of this
@@ -465,7 +489,10 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		this.makeImmutableFormatInternal(levels, format, dims);
-		// TODO: Set `format` and `dims`.
+		this.format = format;
+		for (let i = 0; i < dims.length; i++) {
+			this.dims[i] = dims[i] ?? 0;
+		}
 		this.isImmutableFormatCache = true;
 	}
 
@@ -504,6 +531,10 @@ export default abstract class Texture extends ContextDependent {
 		bounds?: Box
 	): void {
 		// TODO: Ensure that format, internal format, and data type are compatible.
+
+		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
+
+		// TODO: Unpack alignment.
 
 		this.setMipInternal(target, level, format, type, data, bounds);
 	}
@@ -928,20 +959,19 @@ export default abstract class Texture extends ContextDependent {
 			return true;
 		}
 
-		// TODO: Return `true` if all mips have data.
+		// Return `false` if any mip doesn't have data.
+		for (const mipmap of this.mipmaps.values()) {
+			for (const mip of mipmap.values()) {
+				if (!mip) {
+					return false;
+				}
+			}
+		}
 
-		return false;
+		// Return `true` if all mips have data.
+
+		return true;
 	}
-
-	// TODO: Add a way to update the data in the texture.
-
-	// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
-
-	// TODO: Add a function that calculates the expected size of the given mip.
-
-	// TODO: Maybe save mip data as an array of modifications. Reset when full data is supplied and append when partial data is supplied. When the mip is updated, apply modifications in order. Save an index to prevent reapplying modifications.
-
-	// TODO: Add a method that updates the texture when needed and a method that forces the texture to update. Update the texture when it's created and when it's about to be used (i.e. passed to a uniform). This method should also generate a mipmap automatically if the texture is not texture complete and it wouldn't override given data. This method should automatically use the correct unpack alignment if possible.
 
 	/**
 	 * Get the dimensions of the mip at the given level.
