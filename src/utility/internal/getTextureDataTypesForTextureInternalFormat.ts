@@ -9,7 +9,9 @@ import type { TextureCompressedInternalFormat } from "#TextureCompressedInternal
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
  * @param internalFormat The texture internal format.
- * @returns A list of data types.
+ * @returns A list of data types. If the return value is not null, it is
+ * guaranteed to contain at least one data type. The first data type in the
+ * list is a sensible default.
  * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal
  */
@@ -21,7 +23,9 @@ export default function getTextureDataTypesForTextureInternalFormat(
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
  * @param internalFormat The texture internal format.
- * @returns A list of data types.
+ * @returns A list of data types. If the return value is not null, it is
+ * guaranteed to contain at least one data type. The first data type in the
+ * list is a sensible default.
  * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal
  */
@@ -33,7 +37,9 @@ export default function getTextureDataTypesForTextureInternalFormat(
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
  * @param internalFormat The texture internal format.
- * @returns A list of data types.
+ * @returns A list of data types. If the return value is not null, it is
+ * guaranteed to contain at least one data type. The first data type in the
+ * list is a sensible default.
  * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal
  */
@@ -84,7 +90,7 @@ export default function getTextureDataTypesForTextureInternalFormat(
 		case TextureUncompressedSizedInternalFormat.RG16F:
 		case TextureUncompressedSizedInternalFormat.RGB16F:
 		case TextureUncompressedSizedInternalFormat.RGBA16F:
-			return [TextureDataType.HALF_FLOAT, TextureDataType.FLOAT];
+			return [TextureDataType.FLOAT, TextureDataType.HALF_FLOAT];
 		case TextureUncompressedSizedInternalFormat.R32F:
 		case TextureUncompressedSizedInternalFormat.RG32F:
 		case TextureUncompressedSizedInternalFormat.RGB32F:
@@ -114,15 +120,15 @@ export default function getTextureDataTypesForTextureInternalFormat(
 			return [TextureDataType.INT];
 		case TextureUncompressedSizedInternalFormat.R11F_G11F_B10F:
 			return [
+				TextureDataType.FLOAT,
 				TextureDataType.UNSIGNED_INT_10F_11F_11F_REV,
-				TextureDataType.HALF_FLOAT,
-				TextureDataType.FLOAT
+				TextureDataType.HALF_FLOAT
 			];
 		case TextureUncompressedSizedInternalFormat.RGB9_E5:
 			return [
+				TextureDataType.FLOAT,
 				TextureDataType.UNSIGNED_INT_5_9_9_9_REV,
-				TextureDataType.HALF_FLOAT,
-				TextureDataType.FLOAT
+				TextureDataType.HALF_FLOAT
 			];
 		case TextureUncompressedSizedInternalFormat.RGB5_A1:
 			return [

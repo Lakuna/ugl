@@ -27,13 +27,14 @@ import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type MipmapTarget from "#MipmapTarget";
 import type Box from "#Box";
 import type { MipData } from "#MipData";
-import type TextureDataType from "#TextureDataType";
-import type TextureFormat from "#TextureFormat";
+import TextureDataType from "#TextureDataType";
+import TextureFormat from "#TextureFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 import ImmutableError from "#ImmutableError";
 import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
 import TextureFormatError from "#TextureFormatError";
+import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
 
 /**
  * A randomly-accessible array.
@@ -517,58 +518,90 @@ export default abstract class Texture extends ContextDependent {
 	 * Sets the data in a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
+	 * @param data The data to fill the mip with.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
 	 * @param format The format of the given data. Must be compatible with the
 	 * format of the texture.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param data The data to fill the mip with.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @internal
 	 */
 	public setMip(
 		target: MipmapTarget,
 		level: number,
-		format: TextureFormat,
-		type: TextureDataType,
 		data: MipData,
-		bounds?: Box
+		bounds?: Box,
+		format?: TextureFormat,
+		type?: TextureDataType
 	): void {
-		// TODO: Ensure that format, internal format, and data type are compatible.
+		// Ensure that the format and internal format are compatible.
 		const expectedFormat: TextureFormat | null =
 			getTextureFormatForTextureInternalFormat(this.format);
+		format ??= expectedFormat ?? TextureFormat.RGBA;
+		if (expectedFormat !== null && format !== expectedFormat) {
+			throw new TextureFormatError();
+		}
 
-		if (expectedFormat !== format) {
-			if (this.isImmutableFormat || level > 0) {
-				throw new TextureFormatError();
+		// Ensure that the data type and internal format are compatible.
+		const expectedDataTypes: TextureDataType[] | null =
+			getTextureDataTypesForTextureInternalFormat(this.format);
+		type ??= expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
+		if (expectedDataTypes !== null && !expectedDataTypes.includes(type)) {
+			throw new TextureFormatError();
+		}
+
+		// Ensure that the specified bounds (if any) are no bigger than the mip.
+		const mipDims: number[] = this.getSizeOfMip(level);
+		if (typeof bounds === "undefined") {
+			// Default to the entire mip for immutable-format textures.
+			if (this.isImmutableFormat) {
+				bounds = {
+					x: 0,
+					y: 0,
+					z: 0,
+					width: mipDims[0] ?? 0,
+					height: mipDims[1] ?? 0,
+					depth: mipDims[2] ?? 0
+				};
 			}
-
-			// TODO: Use a new default internal format if using an incompatible format for the top mip(?)
+		} else {
+			// Throw an error if the specified bounding box (if any) is larger than the specified mip.
+			if (
+				bounds.x + bounds.width > (mipDims[0] ?? 0) ||
+				bounds.y + bounds.height > (mipDims[1] ?? 0) ||
+				(bounds.z ?? 0) + (bounds.depth ?? 0) > (mipDims[2] ?? 0)
+			) {
+				throw new RangeError();
+			}
 		}
 
 		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
 
 		// TODO: Unpack alignment.
 
-		this.setMipInternal(target, level, format, type, data, bounds);
+		this.setMipInternal(target, level, data, format, type, bounds);
 	}
 
 	/**
 	 * Sets the data in a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
+	 * @param data The data to fill the mip with.
 	 * @param format The format of the given data. Must be compatible with the
 	 * format of the texture.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param data The data to fill the mip with.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
 	 * @internal
 	 */
 	protected abstract setMipInternal(
 		target: MipmapTarget,
 		level: number,
+		data: MipData,
 		format: TextureFormat,
 		type: TextureDataType,
-		data: MipData,
 		bounds?: Box
 	): void;
 

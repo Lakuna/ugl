@@ -79,23 +79,25 @@ export default class Texture2d extends Texture {
 	 * Sets the data in a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
+	 * @param data The data to fill the mip with.
 	 * @param format The format of the given data. Must be compatible with the
 	 * format of the texture.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param data The data to fill the mip with.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @internal
 	 */
 	protected override setMipInternal(
 		target: MipmapTarget,
 		level: number,
+		data: MipData,
 		format: TextureFormat,
 		type: TextureDataType,
-		data: MipData,
-		bounds?: Box | undefined
+		bounds?: Box
 	): void {
 		throw new Error(
-			`Method not implemented: Texture2d.setMipInternal(${target}, ${level}, ${format}, ${type}, ${typeof data}, ${typeof bounds})`
+			`Method not implemented: Texture2d.setMipInternal(${target}, ${level}, ${typeof data}, ${format}, ${type}, ${typeof bounds})`
 		);
 	}
 }
