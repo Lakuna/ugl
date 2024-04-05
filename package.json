@@ -36,20 +36,20 @@
 		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.3.12",
+		"@types/chai": "^4.3.14",
 		"@types/mocha": "^10.0.6",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.11",
-		"@types/webxr": "^0.5.14",
-		"@typescript-eslint/eslint-plugin": "^7.1.0",
-		"@typescript-eslint/parser": "^7.1.0",
+		"@types/webxr": "^0.5.15",
+		"@typescript-eslint/eslint-plugin": "^7.5.0",
+		"@typescript-eslint/parser": "^7.5.0",
 		"chai": "^5.1.0",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
-		"mocha": "^10.3.0",
+		"mocha": "^10.4.0",
 		"prettier": "^3.2.5",
-		"typedoc": "^0.25.9",
-		"typescript": "^5.3.3"
+		"typedoc": "^0.25.12",
+		"typescript": "^5.4.4"
 	},
 	"engines": {
 		"node": ">=12.19.0"
