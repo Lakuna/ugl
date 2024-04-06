@@ -580,16 +580,13 @@ export default abstract class Texture extends ContextDependent {
 			}
 		}
 
-		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
-
 		// Update the unpack alignment.
 		if (typeof unpackAlignment === "undefined") {
 			if (typeof bounds === "undefined") {
 				unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
 			} else {
-				if (bounds.height <= 1) {
-					unpackAlignment = 8; // Unpack alignment doesn't matter if there is only one row of data.
-				} else {
+				// Unpack alignment doesn't matter if there is only one row of data.
+				if (bounds.height > 1 || (bounds.depth ?? 1) > 1) {
 					for (const alignment of [8, 4, 2, 1] as const) {
 						if (bounds.width % alignment == 0) {
 							unpackAlignment = alignment;
@@ -599,7 +596,9 @@ export default abstract class Texture extends ContextDependent {
 				}
 			}
 		}
-		// TODO: Set unpack alignment.
+		if (typeof unpackAlignment === "number") {
+			// TODO: Set unpack alignment.
+		}
 
 		this.setMipInternal(target, level, data, format, type, bounds);
 
@@ -610,6 +609,8 @@ export default abstract class Texture extends ContextDependent {
 			this.mipmaps.set(target, mipmap);
 		}
 		mipmap.set(level, true);
+
+		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
 	}
 
 	/**
@@ -1034,16 +1035,22 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Return `false` if any mip doesn't have data.
-		for (const mipmap of this.mipmaps.values()) {
-			for (const mip of mipmap.values()) {
-				if (!mip) {
+		let i = 0;
+		let mipDims: number[] = this.getSizeOfMip(i);
+		while (
+			(mipDims[0] ?? 0) > 0 ||
+			(mipDims[1] ?? 0) > 0 ||
+			(mipDims[2] ?? 0) > 0
+		) {
+			for (const mipmap of this.mipmaps.values()) {
+				if (!mipmap.get(i)) {
 					return false;
 				}
 			}
+			mipDims = this.getSizeOfMip(++i);
 		}
 
-		// TODO: Return `true` if all mips have data.
-
+		// Return `true` if all mips have data.
 		return true;
 	}
 
