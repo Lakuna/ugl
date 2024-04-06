@@ -3,12 +3,10 @@ import TextureTarget from "#TextureTarget";
 import type Context from "#Context";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type MipmapTarget from "#MipmapTarget";
-import type {
-	TextureFormat,
-	TextureDataType,
-	MipData,
-	Box
-} from "../../index.js";
+import type { MipData } from "#MipData";
+import type TextureFormat from "#TextureFormat";
+import type TextureDataType from "#TextureDataType";
+import type Box from "#Box";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
