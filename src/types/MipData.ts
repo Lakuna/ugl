@@ -1,3 +1,4 @@
+import type Framebuffer from "#Framebuffer";
 import type { TypedArray } from "#TypedArray";
 
 export type MipData =
@@ -7,5 +8,6 @@ export type MipData =
 	| HTMLCanvasElement
 	| HTMLVideoElement
 	| ImageBitmap
+	| Framebuffer
 	| undefined
 	| null;

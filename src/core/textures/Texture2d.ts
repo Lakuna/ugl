@@ -95,7 +95,7 @@ export default class Texture2d extends Texture {
 		bounds?: Box
 	): void {
 		throw new Error(
-			`Method not implemented: Texture2d.setMipInternal(${target}, ${level}, ${typeof data}, ${format}, ${type}, ${typeof bounds})`
+			`Method not implemented: Texture2d.setMipInternal(${typeof target}, ${typeof level}, ${typeof data}, ${typeof format}, ${typeof type}, ${typeof bounds})`
 		);
 	}
 }
