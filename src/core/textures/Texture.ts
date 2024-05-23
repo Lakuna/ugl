@@ -559,6 +559,7 @@ export default abstract class Texture extends ContextDependent {
 		const mipDims: number[] = this.getSizeOfMip(level);
 		if (typeof bounds === "undefined") {
 			// Default to the entire mip for immutable-format textures.
+			// For mutable-format textures, `texImage[23]D` can be used (no bounds needed).
 			if (this.isImmutableFormat) {
 				bounds = {
 					x: 0,
@@ -569,14 +570,17 @@ export default abstract class Texture extends ContextDependent {
 					depth: mipDims[2] ?? 0
 				};
 			}
-		} else {
+		} else if (this.isImmutableFormat || level > 0) {
 			// Throw an error if the specified bounding box (if any) is larger than the specified mip.
+			// For mutable-format textures, resizing the largest mip is okay.
 			if (
 				bounds.x + bounds.width > (mipDims[0] ?? 0) ||
 				bounds.y + bounds.height > (mipDims[1] ?? 0) ||
 				(bounds.z ?? 0) + (bounds.depth ?? 0) > (mipDims[2] ?? 0)
 			) {
-				throw new RangeError();
+				throw new RangeError(
+					"The specified bounding box is larger than the specified mip."
+				);
 			}
 		}
 
