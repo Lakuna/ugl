@@ -44,6 +44,8 @@ export type { default as Color } from "#Color";
 export type { default as ColorMask } from "#ColorMask";
 export type { FloatTypedArray } from "#FloatTypedArray";
 export type { IntTypedArray } from "#IntTypedArray";
+export type { default as OffsetBuffer } from "#OffsetBuffer";
+export type { default as OffsetFramebuffer } from "#OffsetFramebuffer";
 export type { MipData } from "#MipData";
 export type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 export type { TextureInternalFormat } from "#TextureInternalFormat";

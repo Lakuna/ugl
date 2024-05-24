@@ -191,6 +191,7 @@ export default abstract class BufferParent extends ContextDependent {
 		this.targetCache = target;
 		this.usageCache = usage;
 		this.offsetCache = offset;
+		this.sizeCache = 0;
 		this.isHalfCache = isHalf;
 		this.setData(data, usage, offset, isHalf);
 	}
@@ -280,6 +281,17 @@ export default abstract class BufferParent extends ContextDependent {
 	}
 
 	/**
+	 * The size of the data in this buffer in bytes.
+	 * @internal
+	 */
+	private sizeCache: number;
+
+	/** The size of the data in this buffer in bytes. */
+	public get size(): number {
+		return this.sizeCache;
+	}
+
+	/**
 	 * Whether this buffer contains 16-bit floating-point data if it contains
 	 * floating-point data.
 	 * @internal
@@ -290,7 +302,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * Whether this buffer contains 16-bit floating-point data if it contains
 	 * floating-point data.
 	 */
-	public isHalf(): boolean {
+	public get isHalf(): boolean {
 		return this.isHalfCache;
 	}
 
@@ -346,6 +358,7 @@ export default abstract class BufferParent extends ContextDependent {
 		} else {
 			this.gl.bufferData(this.target, data as TypedArray, usage, offset);
 			this.dataCache = data;
+			this.sizeCache = typeof data === "number" ? data : data.byteLength;
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
 		}

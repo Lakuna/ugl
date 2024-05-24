@@ -7,6 +7,13 @@ import type { MipData } from "#MipData";
 import type TextureFormat from "#TextureFormat";
 import type TextureDataType from "#TextureDataType";
 import type Box from "#Box";
+import Framebuffer from "#Framebuffer";
+import type { DangerousExposedFramebuffer } from "#DangerousExposedFramebuffer";
+import FramebufferTarget from "#FramebufferTarget";
+import isTextureFormatCompressed from "#isTextureFormatCompressed";
+import Buffer from "#Buffer";
+import type { DangerousExposedBuffer } from "#DangerousExposedBuffer";
+import BufferTarget from "#BufferTarget";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
@@ -94,8 +101,102 @@ export default class Texture2d extends Texture {
 		type: TextureDataType,
 		bounds?: Box
 	): void {
+		const x: number = bounds?.x ?? 0;
+		const y: number = bounds?.y ?? 0;
+		const width: number = bounds?.width ?? 0;
+		const height: number = bounds?.height ?? 0;
+
+		// Immutable-format or bounds exist and fall within the current dimensions.
+		if (
+			this.isImmutableFormat ||
+			(typeof bounds !== "undefined" &&
+				x + width <= (this.dims[0] ?? 0) &&
+				y + height <= (this.dims[1] ?? 0))
+		) {
+			// Copy from framebuffer.
+			const dataIsFramebuffer = data instanceof Framebuffer;
+			if (dataIsFramebuffer || (data && "framebuffer" in data)) {
+				let framebuffer: DangerousExposedFramebuffer | undefined;
+				let xOffset = 0;
+				let yOffset = 0;
+				if (dataIsFramebuffer) {
+					framebuffer = data as DangerousExposedFramebuffer;
+				} else {
+					framebuffer = data.framebuffer as DangerousExposedFramebuffer;
+					xOffset = data.x;
+					yOffset = data.y;
+				}
+
+				framebuffer.target = FramebufferTarget.READ_FRAMEBUFFER;
+				framebuffer.bind();
+				this.gl.copyTexSubImage2D(
+					target,
+					level,
+					xOffset,
+					yOffset,
+					x,
+					y,
+					width,
+					height
+				);
+				return;
+			}
+
+			// Compressed-format.
+			const dataIsBuffer = data instanceof Buffer;
+			if (isTextureFormatCompressed(format)) {
+				if (dataIsBuffer || (data && "buffer" in data && "offset" in data)) {
+					let buffer: DangerousExposedBuffer | undefined;
+					let offset = 0;
+					let size = 0;
+					if (dataIsBuffer) {
+						buffer = data as DangerousExposedBuffer;
+						size = buffer.size; // If not specified, copy the entire buffer.
+					} else {
+						buffer = data.buffer as DangerousExposedBuffer;
+						offset = data.offset;
+						size = data.size;
+					}
+
+					buffer.target = BufferTarget.PIXEL_UNPACK_BUFFER;
+					buffer.bind();
+
+					this.gl.compressedTexSubImage2D(
+						target,
+						level,
+						x,
+						y,
+						width,
+						height,
+						format,
+						size,
+						offset
+					);
+				}
+
+				// TODO: Parameters for `srcOffset` and `srcLengthOverride`. Consider expanding `OffsetBuffer` to include `TypedArray` (etc.) sources or just add more parameters.
+				this.gl.compressedTexSubImage2D(
+					target,
+					level,
+					x,
+					y,
+					width,
+					height,
+					format,
+					data as ArrayBufferView
+				);
+			}
+
+			// Uncompressed-format.
+			// TODO
+			return;
+		}
+
+		// Mutable-format.
+		// TODO
+
 		throw new Error(
-			`Method not implemented: Texture2d.setMipInternal(${typeof target}, ${typeof level}, ${typeof data}, ${typeof format}, ${typeof type}, ${typeof bounds})`
+			`${typeof target} ${typeof level} ${typeof format} ${typeof type} ${typeof bounds}}`
 		);
 	}
 }

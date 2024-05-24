@@ -521,8 +521,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param data The data to fill the mip with.
 	 * @param bounds The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param format The format of the given data. Must be compatible with the
-	 * format of the texture.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
 	 * @param unpackAlignment The alignment to use when unpacking the data, or
@@ -535,17 +533,13 @@ export default abstract class Texture extends ContextDependent {
 		level: number,
 		data: MipData,
 		bounds?: Box,
-		format?: TextureFormat,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
 	): void {
 		// Ensure that the format and internal format are compatible.
-		const expectedFormat: TextureFormat | null =
-			getTextureFormatForTextureInternalFormat(this.format);
-		format ??= expectedFormat ?? TextureFormat.RGBA;
-		if (expectedFormat !== null && format !== expectedFormat) {
-			throw new TextureFormatError();
-		}
+		const format: TextureFormat = getTextureFormatForTextureInternalFormat(
+			this.format
+		);
 
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes: TextureDataType[] | null =

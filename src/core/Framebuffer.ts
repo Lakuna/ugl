@@ -72,7 +72,8 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * Gets the currently-bound framebuffer for a binding point.
 	 * @param context The rendering context.
-	 * @param target The binding point.
+	 * @param target The binding point. Note that `FRAMEBUFFER` will return the
+	 * same value as `DRAW_FRAMEBUFFER`.
 	 * @returns The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
@@ -122,7 +123,26 @@ export default class Framebuffer extends ContextDependent {
 			target,
 			framebuffer
 		);
-		Framebuffer.getContextBindingsCache(context).set(target, framebuffer);
+
+		// Update the bindings cache.
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(context);
+		contextBindingsCache.set(target, framebuffer);
+		switch (target) {
+			case FramebufferTarget.FRAMEBUFFER:
+				// For `FRAMEBUFFER`, update all binding points.
+				contextBindingsCache.set(
+					FramebufferTarget.READ_FRAMEBUFFER,
+					framebuffer
+				);
+				contextBindingsCache.set(
+					FramebufferTarget.DRAW_FRAMEBUFFER,
+					framebuffer
+				);
+				break;
+			case FramebufferTarget.DRAW_FRAMEBUFFER:
+				// For `DRAW_FRAMEBUFFER`, update `FRAMEBUFFER` too (`FRAMEBUFFER_BINDING` always returns `DRAW_FRAMEBUFFER_BINDING`).
+				contextBindingsCache.set(FramebufferTarget.FRAMEBUFFER, framebuffer);
+		}
 	}
 
 	/**
