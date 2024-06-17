@@ -15,7 +15,8 @@ import {
 	DEPTH_BUFFER_BIT,
 	STENCIL_BUFFER_BIT,
 	COLOR_WRITEMASK,
-	MAX_COMBINED_TEXTURE_IMAGE_UNITS
+	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+	UNPACK_ALIGNMENT
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -598,5 +599,31 @@ export default class Context extends ApiInterface {
 		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
 			MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		) as number);
+	}
+
+	/**
+	 * The alignment to use when unpacking pixel data from memory.
+	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
+	 * @internal
+	 */
+	private unpackAlignmentCache: 1 | 2 | 4 | 8 | undefined;
+
+	/**
+	 * The alignment to use when unpacking pixel data from memory.
+	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
+	 */
+	public get unpackAlignment(): 1 | 2 | 4 | 8 {
+		return (this.unpackAlignmentCache ??= this.gl.getParameter(
+			UNPACK_ALIGNMENT
+		) as 1 | 2 | 4 | 8);
+	}
+
+	/**
+	 * The alignment to use when unpacking pixel data from memory.
+	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
+	 */
+	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
+		this.gl.pixelStorei(UNPACK_ALIGNMENT, value);
+		this.unpackAlignmentCache = value;
 	}
 }

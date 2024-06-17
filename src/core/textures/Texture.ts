@@ -26,7 +26,6 @@ import type TextureCompareMode from "#TextureCompareMode";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type MipmapTarget from "#MipmapTarget";
 import type Box from "#Box";
-import type { MipData } from "#MipData";
 import TextureDataType from "#TextureDataType";
 import TextureFormat from "#TextureFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
@@ -35,6 +34,8 @@ import ImmutableError from "#ImmutableError";
 import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
 import TextureFormatError from "#TextureFormatError";
 import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
+import Framebuffer from "#Framebuffer";
+import Buffer from "#Buffer";
 
 /**
  * A randomly-accessible array.
@@ -515,32 +516,116 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	/**
-	 * Sets the data in a mip.
+	 * Copies the data in a framebuffer into a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
-	 * @param data The data to fill the mip with.
+	 * @param framebuffer The framebuffer to copy into the mip, or `undefined`
+	 * for the default framebuffer.
 	 * @param bounds The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
 	 * @param unpackAlignment The alignment to use when unpacking the data, or
 	 * `undefined` to let this be automatically determined.
-	 * @internal
+	 * @param area The area of the framebuffer to copy into the mip.
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
 		target: MipmapTarget,
 		level: number,
-		data: MipData,
+		framebuffer: Framebuffer | undefined,
+		bounds?: Box,
+		type?: TextureDataType,
+		unpackAlignment?: 1 | 2 | 4 | 8,
+		area?: Box
+	): void;
+
+	/**
+	 * Copies the data in a buffer into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param buffer The buffer to copy into the mip.
+	 * @param bounds The bounds of the mip to be updated.
+	 * @param type The type of the given data. Must be compatible with the
+	 * format of the given data.
+	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * `undefined` to let this be automatically determined.
+	 * @param size The number of bytes of data to copy from the buffer.
+	 * @param offset The offset in bytes from the start of the buffer to start
+	 * copying at.
+	 * @throws {@link TextureFormatError}
+	 */
+	public setMip(
+		target: MipmapTarget,
+		level: number,
+		buffer: Buffer,
+		bounds: Box,
+		type: TextureDataType | undefined,
+		unpackAlignment: 1 | 2 | 4 | 8 | undefined,
+		size: number,
+		offset: number
+	): void;
+
+	/**
+	 * Copies data into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param data The data to copy into the mip.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @param type The type of the given data. Must be compatible with the
+	 * format of the given data.
+	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * `undefined` to let this be automatically determined.
+	 * @throws {@link TextureFormatError}
+	 */
+	public setMip(
+		target: MipmapTarget,
+		level: number,
+		data: TexImageSource,
 		bounds?: Box,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
-	): void {
-		// Ensure that the format and internal format are compatible.
-		const format: TextureFormat = getTextureFormatForTextureInternalFormat(
-			this.format
-		);
+	): void;
 
+	/**
+	 * Copies the data in an array into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param array The array to copy into the mip.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @param type The type of the given data. Must be compatible with the
+	 * format of the given data.
+	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * `undefined` to let this be automatically determined.
+	 * @param offset The offset from the start of the array to start copying
+	 * at, or `undefined` for the start of the array.
+	 * @param length The number of elements to copy from the array, or
+	 * `undefined` for the entire array.
+	 * @throws {@link TextureFormatError}
+	 */
+	public setMip(
+		target: MipmapTarget,
+		level: number,
+		array: ArrayBufferView,
+		bounds?: Box,
+		type?: TextureDataType,
+		unpackAlignment?: 1 | 2 | 4 | 8,
+		offset?: number,
+		length?: number
+	): void;
+
+	public setMip(
+		target: MipmapTarget,
+		level: number,
+		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
+		bounds?: Box,
+		type?: TextureDataType,
+		unpackAlignment?: 1 | 2 | 4 | 8,
+		shape1?: Box | number,
+		shape2?: number
+	): void {
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes: TextureDataType[] | null =
 			getTextureDataTypesForTextureInternalFormat(this.format);
@@ -579,26 +664,69 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Update the unpack alignment.
-		if (typeof unpackAlignment === "undefined") {
-			if (typeof bounds === "undefined") {
-				unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
-			} else {
-				// Unpack alignment doesn't matter if there is only one row of data.
-				if (bounds.height > 1 || (bounds.depth ?? 1) > 1) {
-					for (const alignment of [8, 4, 2, 1] as const) {
-						if (bounds.width % alignment == 0) {
-							unpackAlignment = alignment;
-							break;
-						}
-					}
+		if (typeof unpackAlignment == "number") {
+			this.context.unpackAlignment = unpackAlignment;
+		} else if (typeof bounds === "undefined") {
+			this.context.unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
+		} else if (bounds.height > 1 || (bounds.depth ?? 0) > 1) {
+			// Unpack alignment doesn't matter if there is only one row of data.
+			for (const alignment of [8, 4, 2, 1] as const) {
+				if (bounds.width % alignment == 0) {
+					this.context.unpackAlignment = alignment;
+					break;
 				}
 			}
 		}
-		if (typeof unpackAlignment === "number") {
-			// TODO: Set unpack alignment.
-		}
 
-		this.setMipInternal(target, level, data, format, type, bounds);
+		// Determine the compatible data format.
+		const format: TextureFormat = getTextureFormatForTextureInternalFormat(
+			this.format
+		);
+
+		// Update the mip data.
+		if (typeof data === "undefined" || data instanceof Framebuffer) {
+			if (typeof shape1 === "number") {
+				throw new TypeError();
+			}
+
+			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
+		} else if (data instanceof Buffer) {
+			if (
+				typeof bounds === "undefined" ||
+				typeof shape1 !== "number" ||
+				typeof shape2 !== "number"
+			) {
+				throw new TypeError();
+			}
+
+			this.setMipFromBuffer(
+				target,
+				level,
+				bounds,
+				format,
+				type,
+				data,
+				shape1,
+				shape2
+			);
+		} else if ("buffer" in data) {
+			if (typeof shape1 !== "number" && typeof shape1 !== "undefined") {
+				throw new TypeError();
+			}
+
+			this.setMipFromArray(
+				target,
+				level,
+				bounds,
+				format,
+				type,
+				data,
+				shape1,
+				shape2
+			);
+		} else {
+			this.setMipFromData(target, level, bounds, format, type, data);
+		}
 
 		// Mark the mip as having data.
 		let mipmap: Map<number, boolean> | undefined = this.mipmaps.get(target);
@@ -612,25 +740,93 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Sets the data in a mip.
+	 * Copies the data in a framebuffer into a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
-	 * @param data The data to fill the mip with.
-	 * @param format The format of the given data. Must be compatible with the
-	 * format of the texture.
-	 * @param type The type of the given data. Must be compatible with the
-	 * format of the given data.
 	 * @param bounds The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
+	 * @param framebuffer The framebuffer to copy into the mip, or `undefined`
+	 * for the default framebuffer.
+	 * @param area The area of the framebuffer to copy into the mip.
 	 * @internal
 	 */
-	protected abstract setMipInternal(
+	protected abstract setMipFromFramebuffer(
 		target: MipmapTarget,
 		level: number,
-		data: MipData,
+		bounds: Box | undefined,
+		framebuffer: Framebuffer | undefined,
+		area: Box | undefined
+	): void;
+
+	/**
+	 * Copies the data in a buffer into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @param format The format of the data in the buffer.
+	 * @param type The type of the data in the buffer.
+	 * @param buffer The buffer to copy into the mip.
+	 * @param size The number of bytes of data to copy from the buffer.
+	 * @param offset The offset in bytes from the start of the buffer to start
+	 * copying at.
+	 * @internal
+	 */
+	protected abstract setMipFromBuffer(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box,
 		format: TextureFormat,
 		type: TextureDataType,
-		bounds?: Box
+		buffer: Buffer,
+		size: number,
+		offset: number
+	): void;
+
+	/**
+	 * Copies data into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @param format The format of the data.
+	 * @param type The type of the data.
+	 * @param data The data to copy into the mip.
+	 * @internal
+	 */
+	protected abstract setMipFromData(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box | undefined,
+		format: TextureFormat,
+		type: TextureDataType,
+		buffer: TexImageSource
+	): void;
+
+	/**
+	 * Copies the data in an array into a mip.
+	 * @param target The mipmap that the mip belongs to.
+	 * @param level The level of the mip within its mipmap.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
+	 * @param format The format of the data in the array.
+	 * @param type The type of the data in the array.
+	 * @param array The array to copy into the mip.
+	 * @param offset The offset from the start of the array to start copying
+	 * at, or `undefined` for the start of the array.
+	 * @param length The number of elements to copy from the array, or
+	 * `undefined` for the entire array.
+	 * @internal
+	 */
+	protected abstract setMipFromArray(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box | undefined,
+		format: TextureFormat,
+		type: TextureDataType,
+		array: ArrayBufferView,
+		offset?: number,
+		length?: number
 	): void;
 
 	/**

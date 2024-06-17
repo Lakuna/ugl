@@ -243,10 +243,16 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Binds this framebuffer to its binding point.
+	 * @param target The new binding point to bind to, or `undefined` for the
+	 * previous binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected bind(): void {
+	protected bind(target?: FramebufferTarget): void {
+		if (typeof target !== "undefined") {
+			this.target = target;
+		}
+
 		Framebuffer.bind(this.context, this.target, this.internal);
 	}
 

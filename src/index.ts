@@ -44,9 +44,6 @@ export type { default as Color } from "#Color";
 export type { default as ColorMask } from "#ColorMask";
 export type { FloatTypedArray } from "#FloatTypedArray";
 export type { IntTypedArray } from "#IntTypedArray";
-export type { default as OffsetBuffer } from "#OffsetBuffer";
-export type { default as OffsetFramebuffer } from "#OffsetFramebuffer";
-export type { MipData } from "#MipData";
 export type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 export type { TextureInternalFormat } from "#TextureInternalFormat";
 export type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
@@ -54,6 +51,7 @@ export type { TextureUncompressedInternalFormat } from "#TextureUncompressedInte
 export type { TextureUnsizedInternalFormat } from "#TextureUnsizedInternalFormat";
 export type { TypedArray } from "#TypedArray";
 export type { UintTypedArray } from "#UintTypedArray";
+export type { default as Vector } from "#Vector";
 export { default as BadValueError } from "#BadValueError";
 export { default as ImmutableError } from "#ImmutableError";
 export { default as ProgramLinkError } from "#ProgramLinkError";

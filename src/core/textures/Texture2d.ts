@@ -2,18 +2,17 @@ import Texture from "#Texture";
 import TextureTarget from "#TextureTarget";
 import type Context from "#Context";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
-import type MipmapTarget from "#MipmapTarget";
-import type { MipData } from "#MipData";
-import type TextureFormat from "#TextureFormat";
-import type TextureDataType from "#TextureDataType";
 import type Box from "#Box";
-import Framebuffer from "#Framebuffer";
+import type Buffer from "#Buffer";
+import type Framebuffer from "#Framebuffer";
+import type MipmapTarget from "#MipmapTarget";
+import type TextureFormat from "#TextureFormat";
 import type { DangerousExposedFramebuffer } from "#DangerousExposedFramebuffer";
 import FramebufferTarget from "#FramebufferTarget";
 import isTextureFormatCompressed from "#isTextureFormatCompressed";
-import Buffer from "#Buffer";
 import type { DangerousExposedBuffer } from "#DangerousExposedBuffer";
 import BufferTarget from "#BufferTarget";
+import type TextureDataType from "#TextureDataType";
 
 /** A two-dimensional texture. */
 export default class Texture2d extends Texture {
@@ -80,123 +79,169 @@ export default class Texture2d extends Texture {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
 	}
 
-	/**
-	 * Sets the data in a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param data The data to fill the mip with.
-	 * @param format The format of the given data. Must be compatible with the
-	 * format of the texture.
-	 * @param type The type of the given data. Must be compatible with the
-	 * format of the given data.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
-	 * entire mip if not set.
-	 * @internal
-	 */
-	protected override setMipInternal(
+	protected override setMipFromFramebuffer(
 		target: MipmapTarget,
 		level: number,
-		data: MipData,
-		format: TextureFormat,
-		type: TextureDataType,
-		bounds?: Box
+		bounds: Box | undefined,
+		framebuffer: Framebuffer | undefined,
+		area: Box | undefined
 	): void {
+		const mipDims: number[] = this.getSizeOfMip(level);
+
 		const x: number = bounds?.x ?? 0;
 		const y: number = bounds?.y ?? 0;
-		const width: number = bounds?.width ?? 0;
-		const height: number = bounds?.height ?? 0;
+		const width: number = bounds?.width ?? mipDims[0] ?? 0;
+		const height: number = bounds?.height ?? mipDims[1] ?? 0;
 
-		// Immutable-format or bounds exist and fall within the current dimensions.
-		if (
-			this.isImmutableFormat ||
-			(typeof bounds !== "undefined" &&
-				x + width <= (this.dims[0] ?? 0) &&
-				y + height <= (this.dims[1] ?? 0))
-		) {
-			// Copy from framebuffer.
-			const dataIsFramebuffer = data instanceof Framebuffer;
-			if (dataIsFramebuffer || (data && "framebuffer" in data)) {
-				let framebuffer: DangerousExposedFramebuffer | undefined;
-				let xOffset = 0;
-				let yOffset = 0;
-				if (dataIsFramebuffer) {
-					framebuffer = data as DangerousExposedFramebuffer;
-				} else {
-					framebuffer = data.framebuffer as DangerousExposedFramebuffer;
-					xOffset = data.x;
-					yOffset = data.y;
-				}
+		const frameX: number = area?.x ?? 0;
+		const frameY: number = area?.y ?? 0;
+		const frameWidth: number = area?.width ?? width;
+		const frameHeight: number = area?.height ?? height;
 
-				framebuffer.target = FramebufferTarget.READ_FRAMEBUFFER;
-				framebuffer.bind();
-				this.gl.copyTexSubImage2D(
+		// Ensure that the area being copied is no larger than the area being written to.
+		if (frameWidth > width || frameHeight > height) {
+			throw new RangeError("Bounds are too small.");
+		}
+
+		// Bind the framebuffer.
+		(framebuffer as DangerousExposedFramebuffer).bind(
+			FramebufferTarget.READ_FRAMEBUFFER
+		);
+
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
+		if (this.isImmutableFormat || level > 0) {
+			this.gl.copyTexSubImage2D(
+				target,
+				level,
+				x,
+				y,
+				frameX,
+				frameY,
+				frameWidth,
+				frameHeight
+			);
+			return;
+		}
+
+		// Mutable-format and top mip.
+		this.gl.copyTexImage2D(
+			target,
+			level,
+			this.format,
+			frameX,
+			frameY,
+			frameWidth,
+			frameHeight,
+			0
+		);
+
+		// Update dimensions.
+		this.dims[0] = frameWidth;
+		this.dims[1] = frameHeight;
+	}
+
+	protected override setMipFromBuffer(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box,
+		format: TextureFormat,
+		type: TextureDataType,
+		buffer: Buffer,
+		size: number,
+		offset: number
+	): void {
+		const isCompressed: boolean = isTextureFormatCompressed(format);
+
+		// Bind the buffer.
+		(buffer as DangerousExposedBuffer).bind(BufferTarget.PIXEL_UNPACK_BUFFER);
+
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
+		if (this.isImmutableFormat || level > 0) {
+			// Compressed format.
+			if (isCompressed) {
+				this.gl.compressedTexSubImage2D(
 					target,
 					level,
-					xOffset,
-					yOffset,
-					x,
-					y,
-					width,
-					height
+					bounds.x,
+					bounds.y,
+					bounds.width,
+					bounds.height,
+					format,
+					size,
+					offset
 				);
 				return;
 			}
 
-			// Compressed-format.
-			const dataIsBuffer = data instanceof Buffer;
-			if (isTextureFormatCompressed(format)) {
-				if (dataIsBuffer || (data && "buffer" in data && "offset" in data)) {
-					let buffer: DangerousExposedBuffer | undefined;
-					let offset = 0;
-					let size = 0;
-					if (dataIsBuffer) {
-						buffer = data as DangerousExposedBuffer;
-						size = buffer.size; // If not specified, copy the entire buffer.
-					} else {
-						buffer = data.buffer as DangerousExposedBuffer;
-						offset = data.offset;
-						size = data.size;
-					}
-
-					buffer.target = BufferTarget.PIXEL_UNPACK_BUFFER;
-					buffer.bind();
-
-					this.gl.compressedTexSubImage2D(
-						target,
-						level,
-						x,
-						y,
-						width,
-						height,
-						format,
-						size,
-						offset
-					);
-				}
-
-				// TODO: Parameters for `srcOffset` and `srcLengthOverride`. Consider expanding `OffsetBuffer` to include `TypedArray` (etc.) sources or just add more parameters.
-				this.gl.compressedTexSubImage2D(
-					target,
-					level,
-					x,
-					y,
-					width,
-					height,
-					format,
-					data as ArrayBufferView
-				);
-			}
-
-			// Uncompressed-format.
-			// TODO
+			// Uncompressed format.
+			this.gl.texSubImage2D(
+				target,
+				level,
+				bounds.x,
+				bounds.y,
+				bounds.width,
+				bounds.height,
+				format,
+				type,
+				offset
+			);
 			return;
 		}
 
 		// Mutable-format.
-		// TODO
+		if (isCompressed) {
+			// Compressed format.
+			this.gl.compressedTexImage2D(
+				target,
+				level,
+				this.format,
+				bounds.width,
+				bounds.height,
+				0,
+				size,
+				offset
+			);
+		} else {
+			// Uncompressed format.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				bounds.width,
+				bounds.height,
+				0,
+				format,
+				type,
+				offset
+			);
+		}
 
-		throw new Error(
-			`${typeof target} ${typeof level} ${typeof format} ${typeof type} ${typeof bounds}}`
-		);
+		// Update dimensions.
+		this.dims[0] = bounds.width;
+		this.dims[1] = bounds.height;
+	}
+
+	protected override setMipFromData(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box | undefined,
+		format: TextureFormat,
+		type: TextureDataType,
+		buffer: TexImageSource
+	): void {
+		throw new Error("Method not implemented."); // TODO
+	}
+
+	protected override setMipFromArray(
+		target: MipmapTarget,
+		level: number,
+		bounds: Box | undefined,
+		format: TextureFormat,
+		type: TextureDataType,
+		array: ArrayBufferView,
+		offset?: number,
+		length?: number
+	): void {
+		throw new Error("Method not implemented."); // TODO
 	}
 }

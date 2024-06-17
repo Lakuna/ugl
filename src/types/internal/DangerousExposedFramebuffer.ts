@@ -17,8 +17,10 @@ export type DangerousExposedFramebuffer = Framebuffer & {
 
 	/**
 	 * Binds this framebuffer to its binding point.
+	 * @param target The new binding point to bind to, or `undefined` for the
+	 * previous binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	bind(): void;
+	bind(target?: FramebufferTarget): void;
 };

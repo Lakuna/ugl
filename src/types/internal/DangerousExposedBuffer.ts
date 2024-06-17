@@ -17,8 +17,10 @@ export type DangerousExposedBuffer = BufferParent & {
 
 	/**
 	 * Binds this buffer to its binding point.
+	 * @param target The new binding point to bind to, or `undefined` for the
+	 * previous binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	bind(): void;
+	bind(target?: BufferTarget): void;
 };
