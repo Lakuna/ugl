@@ -16,7 +16,9 @@ import {
 	STENCIL_BUFFER_BIT,
 	COLOR_WRITEMASK,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-	UNPACK_ALIGNMENT
+	UNPACK_ALIGNMENT,
+	CULL_FACE,
+	CULL_FACE_MODE
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -31,6 +33,7 @@ import ErrorCode from "#ErrorCode";
 import WebglError from "#WebglError";
 import type ColorMask from "#ColorMask";
 import BadValueError from "#BadValueError";
+import type PolygonDirection from "#PolygonDirection";
 
 /**
  * A WebGL2 rendering context.
@@ -565,6 +568,56 @@ export default class Context extends ApiInterface {
 		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
 			MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		) as number);
+	}
+
+	/**
+	 * The direction that polygons should face if they are to be culled.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * @internal
+	 */
+	private cullFaceCache: PolygonDirection | undefined;
+
+	/**
+	 * Whether polygon culling is enabled.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * @internal
+	 */
+	private doCullFaceCache: boolean | undefined;
+
+	/**
+	 * The direction that polygons should face if they are to be culled, or
+	 * `false` if polygon culling is disabled.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 */
+	public get cullFace(): PolygonDirection | false {
+		if (!(this.doCullFaceCache ??= this.gl.isEnabled(CULL_FACE))) {
+			return false;
+		}
+
+		return (this.cullFaceCache ??= this.gl.getParameter(
+			CULL_FACE_MODE
+		) as PolygonDirection);
+	}
+
+	/**
+	 * The direction that polygons should face if they are to be culled, or
+	 * `false` if polygon culling is disabled.
+	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 */
+	public set cullFace(value: PolygonDirection | boolean) {
+		if (value === false) {
+			this.gl.disable(CULL_FACE);
+			this.doCullFaceCache = false;
+			return;
+		}
+
+		this.gl.enable(CULL_FACE);
+		this.doCullFaceCache = true;
+
+		if (typeof value !== "boolean") {
+			this.gl.cullFace(value);
+			this.cullFaceCache = value;
+		}
 	}
 
 	/**
