@@ -18,7 +18,9 @@ import {
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 	UNPACK_ALIGNMENT,
 	CULL_FACE,
-	CULL_FACE_MODE
+	CULL_FACE_MODE,
+	DEPTH_TEST,
+	DEPTH_FUNC
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -34,6 +36,7 @@ import WebglError from "#WebglError";
 import type ColorMask from "#ColorMask";
 import BadValueError from "#BadValueError";
 import type PolygonDirection from "#PolygonDirection";
+import type TestFunction from "#TestFunction";
 
 /**
  * A WebGL2 rendering context.
@@ -617,6 +620,54 @@ export default class Context extends ApiInterface {
 		if (typeof value !== "boolean") {
 			this.gl.cullFace(value);
 			this.cullFaceCache = value;
+		}
+	}
+
+	/**
+	 * The depth comparison function to use.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 * @internal
+	 */
+	private depthFunctionCache: TestFunction | undefined;
+
+	/**
+	 * Whether depth testing is enabled.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 * @internal
+	 */
+	private doDepthTestCache: boolean | undefined;
+
+	/**
+	 * The depth comparison function to use, or `false` if depth testing is disabled.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 */
+	public get depthFunction(): TestFunction | false {
+		if (!(this.doDepthTestCache ??= this.gl.isEnabled(DEPTH_TEST))) {
+			return false;
+		}
+
+		return (this.depthFunctionCache ??= this.gl.getParameter(
+			DEPTH_FUNC
+		) as TestFunction);
+	}
+
+	/**
+	 * The depth comparison function to use, or `false` if depth testing is disabled.
+	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 */
+	public set depthFunction(value: TestFunction | boolean) {
+		if (value === false) {
+			this.gl.disable(DEPTH_TEST);
+			this.doDepthTestCache = false;
+			return;
+		}
+
+		this.gl.enable(DEPTH_TEST);
+		this.doDepthTestCache = true;
+
+		if (typeof value !== "boolean") {
+			this.gl.depthFunc(value);
+			this.depthFunctionCache = value;
 		}
 	}
 
