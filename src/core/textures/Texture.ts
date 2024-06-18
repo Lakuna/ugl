@@ -649,7 +649,7 @@ export default abstract class Texture extends ContextDependent {
 			if (
 				bounds.x + bounds.width > (mipDims[0] ?? 0) ||
 				bounds.y + bounds.height > (mipDims[1] ?? 0) ||
-				(bounds.z ?? 0) + (bounds.depth ?? 0) > (mipDims[2] ?? 0)
+				(bounds.z ?? 0) + (bounds.depth ?? 1) > (mipDims[2] ?? 1)
 			) {
 				throw new RangeError(
 					"The specified bounding box is larger than the specified mip."
@@ -662,7 +662,7 @@ export default abstract class Texture extends ContextDependent {
 			this.context.unpackAlignment = unpackAlignment;
 		} else if (typeof bounds === "undefined") {
 			this.context.unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
-		} else if (bounds.height > 1 || (bounds.depth ?? 0) > 1) {
+		} else if (bounds.height > 1 || (bounds.depth ?? 1) > 1) {
 			// Unpack alignment doesn't matter if there is only one row of data.
 			for (const alignment of [8, 4, 2, 1] as const) {
 				if (bounds.width % alignment == 0) {
@@ -746,7 +746,21 @@ export default abstract class Texture extends ContextDependent {
 		}
 		mipmap.set(level, true);
 
-		// TODO: May need to clear certain cache values when updating data? i.e. dims, max level, max/min LOD, etc.
+		// Clear cached values.
+		// TODO: Determine which of these cached values actually need to be cleared.
+		this.baseLevelCache = undefined;
+		this.comparisonFunctionCache = undefined;
+		this.comparisonModeCache = undefined;
+		delete this.formatCache;
+		this.magFilterCache = undefined;
+		this.maxAnisotropyCache = undefined;
+		this.maxLevelCache = undefined;
+		this.maxLodCache = undefined;
+		this.minFilterCache = undefined;
+		this.minLodCache = undefined;
+		this.wrapRFunctionCache = undefined;
+		this.wrapSFunctionCache = undefined;
+		this.wrapTFunctionCache = undefined;
 	}
 
 	/**

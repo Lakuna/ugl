@@ -96,6 +96,7 @@
 		"#ContextDependent": "./dist/core/internal/ContextDependent.js",
 		"#Texture": "./dist/core/textures/Texture.js",
 		"#Texture2d": "./dist/core/textures/Texture2d.js",
+		"#Texture3d": "./dist/core/textures/Texture3d.js",
 		"#Context": "./dist/core/Context.js",
 		"#Framebuffer": "./dist/core/Framebuffer.js",
 		"#Program": "./dist/core/Program.js",

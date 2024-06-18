@@ -30,6 +30,7 @@ export { default as BufferParent } from "#BufferParent";
 export { default as ElementArrayBuffer } from "#ElementArrayBuffer";
 export { default as Texture } from "#Texture";
 export { default as Texture2d } from "#Texture2d";
+export { default as Texture3d } from "#Texture3d";
 export { default as Context } from "#Context";
 export { default as Framebuffer } from "#Framebuffer";
 export { default as Program } from "#Program";
