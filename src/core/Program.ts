@@ -4,7 +4,6 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
 import Shader from "#Shader";
 import ShaderType from "#ShaderType";
 import ProgramLinkError from "#ProgramLinkError";
-import type { DangerousExposedShader } from "#DangerousExposedShader";
 import { LINK_STATUS } from "#constants";
 
 /**
@@ -64,13 +63,13 @@ export default class Program extends ContextDependent {
 
 		this.gl.attachShader(
 			program,
-			(vertexShader as DangerousExposedShader).internal
+			(vertexShader as unknown as { internal: WebGLShader }).internal
 		);
 		this.vertexShader = vertexShader;
 
 		this.gl.attachShader(
 			program,
-			(fragmentShader as DangerousExposedShader).internal
+			(fragmentShader as unknown as { internal: WebGLShader }).internal
 		);
 		this.fragmentShader = fragmentShader;
 

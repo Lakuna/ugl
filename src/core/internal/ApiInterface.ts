@@ -17,5 +17,5 @@ export default abstract class ApiInterface {
 	 * @internal
 	 * @see [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
 	 */
-	protected gl: WebGL2RenderingContext;
+	public gl: WebGL2RenderingContext;
 }

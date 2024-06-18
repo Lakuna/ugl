@@ -4,13 +4,11 @@ import type Context from "#Context";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type Box from "#Box";
 import type Buffer from "#Buffer";
-import type Framebuffer from "#Framebuffer";
+import Framebuffer from "#Framebuffer";
 import type MipmapTarget from "#MipmapTarget";
 import type TextureFormat from "#TextureFormat";
-import type { DangerousExposedFramebuffer } from "#DangerousExposedFramebuffer";
 import FramebufferTarget from "#FramebufferTarget";
 import isTextureFormatCompressed from "#isTextureFormatCompressed";
-import type { DangerousExposedBuffer } from "#DangerousExposedBuffer";
 import BufferTarget from "#BufferTarget";
 import type TextureDataType from "#TextureDataType";
 
@@ -99,14 +97,16 @@ export default class Texture2d extends Texture {
 		const frameHeight: number = area?.height ?? height;
 
 		// Ensure that the area being copied is no larger than the area being written to.
-		if (frameWidth > width || frameHeight > height) {
+		if (frameWidth * frameHeight > width * height) {
 			throw new RangeError("Bounds are too small.");
 		}
 
 		// Bind the framebuffer.
-		(framebuffer as DangerousExposedFramebuffer).bind(
-			FramebufferTarget.READ_FRAMEBUFFER
-		);
+		if (typeof framebuffer === "undefined") {
+			Framebuffer.unbind(this.context, FramebufferTarget.READ_FRAMEBUFFER);
+		} else {
+			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		}
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
 		if (this.isImmutableFormat || level > 0) {
@@ -136,8 +136,8 @@ export default class Texture2d extends Texture {
 		);
 
 		// Update dimensions.
-		this.dims[0] = frameWidth;
-		this.dims[1] = frameHeight;
+		this.dims[0] = frameWidth - frameX;
+		this.dims[1] = frameHeight - frameY;
 	}
 
 	protected override setMipFromBuffer(
@@ -153,9 +153,9 @@ export default class Texture2d extends Texture {
 		const isCompressed: boolean = isTextureFormatCompressed(format);
 
 		// Bind the buffer.
-		(buffer as DangerousExposedBuffer).bind(BufferTarget.PIXEL_UNPACK_BUFFER);
+		buffer.bind(BufferTarget.PIXEL_UNPACK_BUFFER);
 
-		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {
 			// Compressed format.
 			if (isCompressed) {
@@ -227,21 +227,143 @@ export default class Texture2d extends Texture {
 		bounds: Box | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
-		buffer: TexImageSource
+		data: TexImageSource
 	): void {
-		throw new Error("Method not implemented."); // TODO
+		const x: number = bounds?.x ?? 0;
+		const y: number = bounds?.y ?? 0;
+		const width: number =
+			bounds?.width ??
+			(data instanceof VideoFrame ? data.codedWidth : data.width);
+		const height: number =
+			bounds?.height ??
+			(data instanceof VideoFrame ? data.codedHeight : data.height);
+
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
+		if (this.isImmutableFormat || level > 0) {
+			this.gl.texSubImage2D(
+				target,
+				level,
+				x,
+				y,
+				width,
+				height,
+				format,
+				type,
+				data
+			);
+			return;
+		}
+
+		// Mutable-format.
+		this.gl.texImage2D(
+			target,
+			level,
+			this.format,
+			width,
+			height,
+			0,
+			format,
+			type,
+			data
+		);
+
+		// Update dimensions.
+		this.dims[0] = width;
+		this.dims[1] = height;
 	}
 
 	protected override setMipFromArray(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Box,
 		format: TextureFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
 	): void {
-		throw new Error("Method not implemented."); // TODO
+		const isCompressed: boolean = isTextureFormatCompressed(format);
+
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
+		if (this.isImmutableFormat || level > 0) {
+			// Compressed format.
+			if (isCompressed) {
+				this.gl.compressedTexSubImage2D(
+					target,
+					level,
+					bounds.x,
+					bounds.y,
+					bounds.width,
+					bounds.height,
+					format,
+					array,
+					offset,
+					length
+				);
+				return;
+			}
+
+			// Uncompressed format.
+			this.gl.texSubImage2D(
+				target,
+				level,
+				bounds.x,
+				bounds.y,
+				bounds.width,
+				bounds.height,
+				format,
+				type,
+				array
+			);
+			return;
+		}
+
+		// Mutable-format.
+		if (isCompressed) {
+			// Compressed format.
+			this.gl.compressedTexImage2D(
+				target,
+				level,
+				this.format,
+				bounds.width,
+				bounds.height,
+				0,
+				array,
+				offset,
+				length
+			);
+		} else {
+			// Uncompressed format.
+			if (typeof offset === "undefined") {
+				this.gl.texImage2D(
+					target,
+					level,
+					this.format,
+					bounds.width,
+					bounds.height,
+					0,
+					format,
+					type,
+					array
+				);
+			} else {
+				this.gl.texImage2D(
+					target,
+					level,
+					this.format,
+					bounds.width,
+					bounds.height,
+					0,
+					format,
+					type,
+					array,
+					offset
+				);
+			}
+		}
+
+		// Update dimensions.
+		this.dims[0] = bounds.width;
+		this.dims[1] = bounds.height;
 	}
 }

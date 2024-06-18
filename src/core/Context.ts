@@ -21,7 +21,6 @@ import {
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
 import UnsupportedOperationError from "#UnsupportedOperationError";
-import type { ExperimentalRawContext } from "#ExperimentalRawContext";
 import type Color from "#Color";
 import BlendEquation from "#BlendEquation";
 import type BlendEquationSet from "#BlendEquationSet";
@@ -128,39 +127,6 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * The color space to convert to when importing textures.
-	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
-	 * @experimental
-	 * @internal
-	 */
-	private unpackColorSpaceCache: PredefinedColorSpace | undefined;
-
-	/**
-	 * The color space to convert to when importing textures.
-	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
-	 * @experimental
-	 */
-	public get unpackColorSpace(): PredefinedColorSpace {
-		return (this.unpackColorSpaceCache ??= (
-			this.gl as ExperimentalRawContext
-		).unpackColorSpace);
-	}
-
-	/**
-	 * The color space to convert to when importing textures.
-	 * @see [`unpackColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/unpackColorSpace)
-	 * @experimental
-	 */
-	public set unpackColorSpace(value: PredefinedColorSpace) {
-		if (this.unpackColorSpaceCache === value) {
-			return;
-		}
-
-		(this.gl as ExperimentalRawContext).unpackColorSpace = value;
-		this.unpackColorSpaceCache = value;
-	}
-
-	/**
 	 * The active texture unit.
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 * @internal
@@ -172,7 +138,7 @@ export default class Context extends ApiInterface {
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 * @internal
 	 */
-	protected get activeTexture(): number {
+	public get activeTexture(): number {
 		return (this.activeTextureCache ??=
 			this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
 	}
@@ -182,7 +148,7 @@ export default class Context extends ApiInterface {
 	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
 	 * @internal
 	 */
-	protected set activeTexture(value: number) {
+	public set activeTexture(value: number) {
 		if (this.activeTextureCache === value) {
 			return;
 		}

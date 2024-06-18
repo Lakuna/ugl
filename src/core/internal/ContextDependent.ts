@@ -1,6 +1,5 @@
 import ApiInterface from "#ApiInterface";
 import type Context from "#Context";
-import type { DangerousExposedContext } from "#DangerousExposedContext";
 
 /**
  * An object with direct access to the WebGL2 API that requires an existing
@@ -14,7 +13,7 @@ export default abstract class ContextDependent extends ApiInterface {
 	 * @internal
 	 */
 	protected constructor(context: Context) {
-		super((context as DangerousExposedContext).gl);
+		super(context.gl);
 		this.context = context;
 	}
 
@@ -22,5 +21,5 @@ export default abstract class ContextDependent extends ApiInterface {
 	 * The rendering context.
 	 * @internal
 	 */
-	protected context: Context;
+	public context: Context;
 }

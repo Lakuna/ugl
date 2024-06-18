@@ -2,7 +2,6 @@ import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import FramebufferTarget from "#FramebufferTarget";
-import type { DangerousExposedContext } from "#DangerousExposedContext";
 import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
 import FramebufferStatus from "#FramebufferStatus";
 
@@ -57,13 +56,10 @@ export default class Framebuffer extends ContextDependent {
 		// Get the context bindings cache.
 		let contextBindingsCache:
 			| Map<FramebufferTarget, WebGLFramebuffer | null>
-			| undefined = bindingsCache.get((context as DangerousExposedContext).gl);
+			| undefined = bindingsCache.get(context.gl);
 		if (typeof contextBindingsCache === "undefined") {
 			contextBindingsCache = new Map();
-			bindingsCache.set(
-				(context as DangerousExposedContext).gl,
-				contextBindingsCache
-			);
+			bindingsCache.set(context.gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
@@ -78,7 +74,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected static getBound(
+	public static getBound(
 		context: Context,
 		target: FramebufferTarget
 	): WebGLFramebuffer | null {
@@ -92,7 +88,7 @@ export default class Framebuffer extends ContextDependent {
 		let boundFramebuffer: WebGLFramebuffer | null | undefined =
 			contextBindingsCache.get(target);
 		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer = (context as DangerousExposedContext).gl.getParameter(
+			boundFramebuffer = context.gl.getParameter(
 				getParameterForFramebufferTarget(target)
 			) as WebGLFramebuffer | null;
 			contextBindingsCache.set(target, boundFramebuffer);
@@ -108,7 +104,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected static override bind(
+	public static override bind(
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer: WebGLFramebuffer | null
@@ -119,10 +115,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		// Bind the framebuffer to the target.
-		(context as DangerousExposedContext).gl.bindFramebuffer(
-			target,
-			framebuffer
-		);
+		context.gl.bindFramebuffer(target, framebuffer);
 
 		// Update the bindings cache.
 		const contextBindingsCache = Framebuffer.getContextBindingsCache(context);
@@ -153,7 +146,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected static unbind(
+	public static unbind(
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer?: WebGLFramebuffer
@@ -206,7 +199,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected get target(): FramebufferTarget {
+	public get target(): FramebufferTarget {
 		return this.targetCache;
 	}
 
@@ -215,7 +208,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected set target(value: FramebufferTarget) {
+	public set target(value: FramebufferTarget) {
 		if (this.targetCache === value) {
 			return;
 		}
@@ -248,7 +241,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected bind(target?: FramebufferTarget): void {
+	public bind(target?: FramebufferTarget): void {
 		if (typeof target !== "undefined") {
 			this.target = target;
 		}
@@ -261,25 +254,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	protected unbind(): void {
+	public unbind(): void {
 		Framebuffer.unbind(this.context, this.target, this.internal);
-	}
-
-	/**
-	 * Executes the given function with this framebuffer bound, then re-binds
-	 * the previously-bound framebuffer.
-	 * @param funktion The function to execute.
-	 * @returns The return value of the executed function.
-	 * @internal
-	 */
-	protected with<T>(funktion: (framebuffer: this) => T): T {
-		const previousBinding: WebGLFramebuffer | null = Framebuffer.getBound(
-			this.context,
-			this.target
-		);
-		this.bind();
-		const out: T = funktion(this);
-		Framebuffer.bind(this.context, this.target, previousBinding);
-		return out;
 	}
 }

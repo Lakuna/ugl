@@ -2,7 +2,6 @@ import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import type TextureTarget from "#TextureTarget";
-import type { DangerousExposedContext } from "#DangerousExposedContext";
 import getParameterForTextureTarget from "#getParameterForTextureTarget";
 import type TextureMagFilter from "#TextureMagFilter";
 import {
@@ -84,13 +83,10 @@ export default abstract class Texture extends ContextDependent {
 		// Get the context bindings cache.
 		let contextBindingsCache:
 			| Map<TextureTarget, WebGLTexture | null>[]
-			| undefined = bindingsCache.get((context as DangerousExposedContext).gl);
+			| undefined = bindingsCache.get(context.gl);
 		if (typeof contextBindingsCache === "undefined") {
 			contextBindingsCache = [];
-			bindingsCache.set(
-				(context as DangerousExposedContext).gl,
-				contextBindingsCache
-			);
+			bindingsCache.set(context.gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
@@ -164,13 +160,10 @@ export default abstract class Texture extends ContextDependent {
 
 		// Get the context binding overwrite order.
 		let contextBindingOverwriteOrder: Map<TextureTarget, number[]> | undefined =
-			bindingOverwriteOrder.get((context as DangerousExposedContext).gl);
+			bindingOverwriteOrder.get(context.gl);
 		if (typeof contextBindingOverwriteOrder === "undefined") {
 			contextBindingOverwriteOrder = new Map();
-			bindingOverwriteOrder.set(
-				(context as DangerousExposedContext).gl,
-				contextBindingOverwriteOrder
-			);
+			bindingOverwriteOrder.set(context.gl, contextBindingOverwriteOrder);
 		}
 
 		return contextBindingOverwriteOrder;
@@ -250,7 +243,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected static getBound(
+	public static getBound(
 		context: Context,
 		textureUnit: number | undefined,
 		target: TextureTarget
@@ -266,7 +259,7 @@ export default abstract class Texture extends ContextDependent {
 		let boundTexture: WebGLTexture | null | undefined =
 			textureUnitBindingsCache.get(target);
 		if (typeof boundTexture === "undefined") {
-			boundTexture = (context as DangerousExposedContext).gl.getParameter(
+			boundTexture = context.gl.getParameter(
 				getParameterForTextureTarget(target)
 			) as WebGLTexture | null;
 			textureUnitBindingsCache.set(target, boundTexture);
@@ -286,7 +279,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected static override bind(
+	public static override bind(
 		context: Context,
 		textureUnit: number | undefined,
 		target: TextureTarget,
@@ -312,8 +305,8 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Bind the texture to the target.
-		(context as DangerousExposedContext).activeTexture = textureUnit;
-		(context as DangerousExposedContext).gl.bindTexture(target, texture);
+		context.activeTexture = textureUnit;
+		context.gl.bindTexture(target, texture);
 		Texture.getTextureUnitBindingsCache(context, textureUnit).set(
 			target,
 			texture
@@ -331,7 +324,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected static unbind(
+	public static unbind(
 		context: Context,
 		textureUnit: number | undefined,
 		target: TextureTarget,
@@ -426,7 +419,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected readonly target: TextureTarget;
+	public readonly target: TextureTarget;
 
 	/**
 	 * The mipmaps in this texture. Most textures will have only one mipmap,
@@ -434,7 +427,7 @@ export default abstract class Texture extends ContextDependent {
 	 * levels to boolean values representing whether the corresponding mip has
 	 * been given texture data.
 	 */
-	protected readonly mipmaps: Map<MipmapTarget, Map<number, boolean>>;
+	private readonly mipmaps: Map<MipmapTarget, Map<number, boolean>>;
 
 	/** The format of this texture. */
 	private formatCache?: TextureInternalFormat;
@@ -545,7 +538,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
 	 * @param buffer The buffer to copy into the mip.
-	 * @param bounds The bounds of the mip to be updated.
+	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * entire mip if not set.
 	 * @param type The type of the given data. Must be compatible with the
 	 * format of the given data.
 	 * @param unpackAlignment The alignment to use when unpacking the data, or
@@ -559,7 +553,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		buffer: Buffer,
-		bounds: Box,
+		bounds: Box | undefined,
 		type: TextureDataType | undefined,
 		unpackAlignment: 1 | 2 | 4 | 8 | undefined,
 		size: number,
@@ -623,8 +617,8 @@ export default abstract class Texture extends ContextDependent {
 		bounds?: Box,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
-		shape1?: Box | number,
-		shape2?: number
+		shape1?: Box | number, // Meaning depends on data type; see overloads.
+		shape2?: number // Meaning depends on data type; see overloads.
 	): void {
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes: TextureDataType[] | null =
@@ -691,13 +685,19 @@ export default abstract class Texture extends ContextDependent {
 
 			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
 		} else if (data instanceof Buffer) {
-			if (
-				typeof bounds === "undefined" ||
-				typeof shape1 !== "number" ||
-				typeof shape2 !== "number"
-			) {
+			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
 				throw new TypeError();
 			}
+
+			// Automatically set bounds to entire mip if they don't exist.
+			bounds ??= {
+				x: 0,
+				y: 0,
+				z: 0,
+				width: mipDims[0] ?? 0,
+				height: mipDims[1] ?? 0,
+				depth: mipDims[2] ?? 0
+			};
 
 			this.setMipFromBuffer(
 				target,
@@ -713,6 +713,16 @@ export default abstract class Texture extends ContextDependent {
 			if (typeof shape1 !== "number" && typeof shape1 !== "undefined") {
 				throw new TypeError();
 			}
+
+			// Automatically set bounds to entire mip if they don't exist.
+			bounds ??= {
+				x: 0,
+				y: 0,
+				z: 0,
+				width: mipDims[0] ?? 0,
+				height: mipDims[1] ?? 0,
+				depth: mipDims[2] ?? 0
+			};
 
 			this.setMipFromArray(
 				target,
@@ -762,8 +772,7 @@ export default abstract class Texture extends ContextDependent {
 	 * Copies the data in a buffer into a mip.
 	 * @param target The mipmap that the mip belongs to.
 	 * @param level The level of the mip within its mipmap.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
-	 * entire mip if not set.
+	 * @param bounds The bounds of the mip to be updated.
 	 * @param format The format of the data in the buffer.
 	 * @param type The type of the data in the buffer.
 	 * @param buffer The buffer to copy into the mip.
@@ -800,7 +809,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Box | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
-		buffer: TexImageSource
+		data: TexImageSource
 	): void;
 
 	/**
@@ -821,7 +830,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract setMipFromArray(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Box,
 		format: TextureFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
@@ -1269,7 +1278,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`generateMipmap`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap)
 	 * @internal
 	 */
-	protected generateMipmap(): void {
+	public generateMipmap(): void {
 		// Does nothing for immutable-format textures anyway.
 		if (this.isImmutableFormat) {
 			return;
@@ -1303,7 +1312,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected bind(textureUnit?: number): number {
+	public bind(textureUnit?: number): number {
 		return Texture.bind(this.context, textureUnit, this.target, this.internal);
 	}
 
@@ -1314,31 +1323,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
-	protected unbind(textureUnit?: number): void {
+	public unbind(textureUnit?: number): void {
 		Texture.unbind(this.context, textureUnit, this.target, this.internal);
-	}
-
-	/**
-	 * Executes the given function with this texture bound, then re-binds the
-	 * previously-bound texture.
-	 * @param textureUnit The texture unit, or `undefined` for the default
-	 * texture unit.
-	 * @param funktion The function to execute.
-	 * @returns The return value of the executed function.
-	 * @internal
-	 */
-	protected with<T>(
-		textureUnit: number | undefined,
-		funktion: (texture: this) => T
-	): T {
-		const previousBinding: WebGLTexture | null = Texture.getBound(
-			this.context,
-			textureUnit,
-			this.target
-		);
-		this.bind(textureUnit);
-		const out: T = funktion(this);
-		Texture.bind(this.context, textureUnit, this.target, previousBinding);
-		return out;
 	}
 }
