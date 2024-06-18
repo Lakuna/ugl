@@ -93,7 +93,7 @@ export default class Texture3d extends Texture {
 	}
 
 	protected override setMipFromFramebuffer(
-		target: MipmapTarget,
+		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds: Box | undefined,
 		framebuffer: Framebuffer | undefined,
@@ -140,7 +140,7 @@ export default class Texture3d extends Texture {
 	}
 
 	protected override setMipFromBuffer(
-		target: MipmapTarget,
+		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds: Box,
 		format: TextureFormat,
@@ -228,7 +228,7 @@ export default class Texture3d extends Texture {
 	}
 
 	protected override setMipFromData(
-		target: MipmapTarget,
+		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds: Box | undefined,
 		format: TextureFormat,
@@ -285,7 +285,7 @@ export default class Texture3d extends Texture {
 	}
 
 	protected override setMipFromArray(
-		target: MipmapTarget,
+		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds: Box,
 		format: TextureFormat,

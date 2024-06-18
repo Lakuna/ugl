@@ -12,80 +12,116 @@ import isTextureFormatCompressed from "#isTextureFormatCompressed";
 import BufferTarget from "#BufferTarget";
 import type TextureDataType from "#TextureDataType";
 
-/** A two-dimensional texture. */
-export default class Texture2d extends Texture {
+/** A cube mapped texture. */
+export default class TextureCubemap extends Texture {
 	/**
-	 * Creates a two-dimensional texture from the data in the image at the given URL.
+	 * Creates a cube mapped texture from the data in the images at the given URLs.
 	 * @param context - The rendering context of the texture.
-	 * @param url - The URL of the image.
+	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
+	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
+	 * @param py - The URL of the image for the face on the Y-axis in the positive direction.
+	 * @param ny - The URL of the image for the face on the Y-axis in the negative direction.
+	 * @param pz - The URL of the image for the face on the Z-axis in the positive direction.
+	 * @param nz - The URL of the image for the face on the Z-axis in the negative direction.
 	 * @returns The texture.
 	 */
-	public static fromImageUrl(context: Context, url: string): Texture2d {
-		// Create a new 2D texture.
-		const out: Texture2d = new Texture2d(context);
+	public static fromImageUrls(
+		context: Context,
+		px: string,
+		nx: string,
+		py: string,
+		ny: string,
+		pz: string,
+		nz: string
+	): TextureCubemap {
+		// Create a new cube mapped texture.
+		const out: TextureCubemap = new TextureCubemap(context);
 
-		// Fill it with one magenta texel until the image loads.
-		out.setMip(
-			MipmapTarget.TEXTURE_2D,
-			0,
-			new Uint8Array([0xff, 0x00, 0xff, 0xff])
-		);
-
-		// Load the image.
-		const image: HTMLImageElement = new Image();
-		image.addEventListener("load", () => {
-			out.setMip(MipmapTarget.TEXTURE_2D, 0, image);
+		// Fill each face with one magenta texel until the image loads.
+		const magenta: Uint8Array = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, 0, magenta, {
+			x: 0,
+			y: 0,
+			width: 1,
+			height: 1
 		});
-		image.crossOrigin = ""; // CORS
-		image.src = url;
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, magenta);
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, magenta);
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, magenta);
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, magenta);
+		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, magenta);
+
+		// Load the images.
+		const loadedImages: Map<MipmapTarget, HTMLImageElement> = new Map<
+			MipmapTarget,
+			HTMLImageElement
+		>();
+		for (const [target, url] of [
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, px],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nx],
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, py],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, ny],
+			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pz],
+			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nz]
+		] as [MipmapTarget, string][]) {
+			const image: HTMLImageElement = new Image();
+			image.addEventListener("load", () => {
+				loadedImages.set(target, image);
+
+				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
+				if (loadedImages.size >= 6) {
+					for (const [target, image] of loadedImages) {
+						out.setMip(target, 0, image);
+					}
+				}
+			});
+			image.crossOrigin = ""; // CORS
+			image.src = url;
+		}
 
 		return out;
 	}
 
 	/**
-	 * Creates a two-dimensional texture.
+	 * Creates a cube mapped texture.
 	 * @param context - The rendering context of the texture.
 	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(context: Context);
 
 	/**
-	 * Creates a two-dimensional texture with a fixed size. This has better
+	 * Creates a cube mapped texture with a fixed size. This has better
 	 * performance than a variable-sized texture.
 	 * @param context - The rendering context of the texture.
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
-	 * @param width - The width of the texture.
-	 * @param height - The height of the texture.
+	 * @param dim - The width and height of the texture.
 	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(
 		context: Context,
 		levels: number,
 		format: TextureSizedInternalFormat,
-		width: number,
-		height: number
+		dim: number
 	);
 
 	public constructor(
 		context: Context,
 		levels?: number,
 		format?: TextureSizedInternalFormat,
-		width?: number,
-		height?: number
+		dim?: number
 	) {
 		if (
 			typeof levels === "undefined" ||
 			typeof format === "undefined" ||
-			typeof width === "undefined" ||
-			typeof height === "undefined"
+			typeof dim === "undefined"
 		) {
-			super(context, TextureTarget.TEXTURE_2D);
+			super(context, TextureTarget.TEXTURE_CUBE_MAP);
 			return;
 		}
 
 		// Immutable-format.
-		super(context, TextureTarget.TEXTURE_2D, levels, format, [width, height]);
+		super(context, TextureTarget.TEXTURE_CUBE_MAP, levels, format, [dim]);
 	}
 
 	/**
@@ -100,13 +136,19 @@ export default class Texture2d extends Texture {
 	protected makeImmutableFormatInternal(
 		levels: number,
 		format: TextureSizedInternalFormat,
-		dims: [number, number]
+		dims: [number]
 	): void {
-		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
+		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[0]);
 	}
 
 	protected override setMipFromFramebuffer(
-		target: MipmapTarget.TEXTURE_2D,
+		target:
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		level: number,
 		bounds: Box | undefined,
 		framebuffer: Framebuffer | undefined,
@@ -116,16 +158,14 @@ export default class Texture2d extends Texture {
 
 		const x: number = bounds?.x ?? 0;
 		const y: number = bounds?.y ?? 0;
-		const width: number = bounds?.width ?? mipDims[0] ?? 1;
-		const height: number = bounds?.height ?? mipDims[1] ?? 1;
+		const dim: number = bounds?.width ?? mipDims[0] ?? 1;
 
 		const frameX: number = area?.x ?? 0;
 		const frameY: number = area?.y ?? 0;
-		const frameWidth: number = area?.width ?? width;
-		const frameHeight: number = area?.height ?? height;
+		const frameDim: number = area?.width ?? dim;
 
 		// Ensure that the area being copied is no larger than the area being written to.
-		if (frameWidth * frameHeight > width * height) {
+		if (frameDim > dim) {
 			throw new RangeError("Bounds are too small.");
 		}
 
@@ -145,8 +185,8 @@ export default class Texture2d extends Texture {
 				y,
 				frameX,
 				frameY,
-				frameWidth,
-				frameHeight
+				frameDim,
+				frameDim
 			);
 			return;
 		}
@@ -158,18 +198,17 @@ export default class Texture2d extends Texture {
 			this.format,
 			frameX,
 			frameY,
-			frameWidth,
-			frameHeight,
+			frameDim,
+			frameDim,
 			0
 		);
 
 		// Update dimensions.
-		this.dims[0] = frameWidth;
-		this.dims[1] = frameHeight;
+		this.dims[0] = frameDim;
 	}
 
 	protected override setMipFromBuffer(
-		target: MipmapTarget.TEXTURE_2D,
+		target: MipmapTarget,
 		level: number,
 		bounds: Box,
 		format: TextureFormat,
@@ -217,14 +256,15 @@ export default class Texture2d extends Texture {
 		}
 
 		// Mutable-format.
+		const dim: number = Math.max(bounds.width, bounds.height);
 		if (isCompressed) {
 			// Compressed format.
 			this.gl.compressedTexImage2D(
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
+				dim,
+				dim,
 				0,
 				size,
 				offset
@@ -235,8 +275,8 @@ export default class Texture2d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
+				dim,
+				dim,
 				0,
 				format,
 				type,
@@ -245,12 +285,11 @@ export default class Texture2d extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = bounds.width;
-		this.dims[1] = bounds.height;
+		this.dims[0] = dim;
 	}
 
 	protected override setMipFromData(
-		target: MipmapTarget.TEXTURE_2D,
+		target: MipmapTarget,
 		level: number,
 		bounds: Box | undefined,
 		format: TextureFormat,
@@ -283,12 +322,13 @@ export default class Texture2d extends Texture {
 		}
 
 		// Mutable-format.
+		const dim: number = Math.max(width, height);
 		this.gl.texImage2D(
 			target,
 			level,
 			this.format,
-			width,
-			height,
+			dim,
+			dim,
 			0,
 			format,
 			type,
@@ -296,12 +336,11 @@ export default class Texture2d extends Texture {
 		);
 
 		// Update dimensions.
-		this.dims[0] = width;
-		this.dims[1] = height;
+		this.dims[0] = dim;
 	}
 
 	protected override setMipFromArray(
-		target: MipmapTarget.TEXTURE_2D,
+		target: MipmapTarget,
 		level: number,
 		bounds: Box,
 		format: TextureFormat,
@@ -347,14 +386,15 @@ export default class Texture2d extends Texture {
 		}
 
 		// Mutable-format.
+		const dim: number = Math.max(bounds.width, bounds.height);
 		if (isCompressed) {
 			// Compressed format.
 			this.gl.compressedTexImage2D(
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
+				dim,
+				dim,
 				0,
 				array,
 				offset,
@@ -367,8 +407,8 @@ export default class Texture2d extends Texture {
 					target,
 					level,
 					this.format,
-					bounds.width,
-					bounds.height,
+					dim,
+					dim,
 					0,
 					format,
 					type,
@@ -379,8 +419,8 @@ export default class Texture2d extends Texture {
 					target,
 					level,
 					this.format,
-					bounds.width,
-					bounds.height,
+					dim,
+					dim,
 					0,
 					format,
 					type,
@@ -391,7 +431,6 @@ export default class Texture2d extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = bounds.width;
-		this.dims[1] = bounds.height;
+		this.dims[0] = dim;
 	}
 }
