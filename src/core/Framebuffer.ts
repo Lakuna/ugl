@@ -40,7 +40,7 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Gets the framebuffer bindings cache for a rendering context.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The framebuffer bindings cache.
 	 * @internal
 	 */
@@ -67,8 +67,8 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Gets the currently-bound framebuffer for a binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point. Note that `FRAMEBUFFER` will return the
+	 * @param context - The rendering context.
+	 * @param target - The binding point. Note that `FRAMEBUFFER` will return the
 	 * same value as `DRAW_FRAMEBUFFER`.
 	 * @returns The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
@@ -98,9 +98,9 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Binds a framebuffer to a binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param framebuffer The framebuffer.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param framebuffer - The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
@@ -140,9 +140,9 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Unbinds the given framebuffer from the given binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param framebuffer The framebuffer, or `undefined` for any framebuffer.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param framebuffer - The framebuffer, or `undefined` for any framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
@@ -165,7 +165,7 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Creates a framebuffer.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @see [`createFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer)
 	 * @throws {@link UnsupportedOperationError}
 	 */
@@ -236,7 +236,7 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Binds this framebuffer to its binding point.
-	 * @param target The new binding point to bind to, or `undefined` for the
+	 * @param target - The new binding point to bind to, or `undefined` for the
 	 * previous binding point.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal

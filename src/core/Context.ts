@@ -39,13 +39,13 @@ import BadValueError from "#BadValueError";
 export default class Context extends ApiInterface {
 	/**
 	 * Creates a wrapper for a WebGL2 rendering context.
-	 * @param gl The rendering context.
+	 * @param gl - The rendering context.
 	 */
 	public constructor(gl: WebGL2RenderingContext);
 
 	/**
 	 * Creates a WebGL2 rendering context.
-	 * @param canvas The canvas of the rendering context.
+	 * @param canvas - The canvas of the rendering context.
 	 * @throws {@link UnsupportedOperationError} if the environment does not
 	 * support WebGL2.
 	 * @see [`getContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
@@ -413,17 +413,17 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * Clears buffers to their specified preset values.
-	 * @param color Whether to clear the color buffer.
-	 * @param depth Whether to clear the depth buffer.
-	 * @param stencil Whether to clear the stencil buffer.
+	 * @param color - Whether to clear the color buffer.
+	 * @param depth - Whether to clear the depth buffer.
+	 * @param stencil - Whether to clear the stencil buffer.
 	 */
 	public clear(color?: boolean, depth?: boolean, stencil?: boolean): void;
 
 	/**
 	 * Clears buffers to the specified values.
-	 * @param color The value to clear the color buffer to.
-	 * @param depth The value to clear the depth buffer to.
-	 * @param stencil The value to clear the stencil buffer to.
+	 * @param color - The value to clear the color buffer to.
+	 * @param depth - The value to clear the depth buffer to.
+	 * @param stencil - The value to clear the stencil buffer to.
 	 */
 	public clear(color: Color, depth: number, stencil: number): void;
 

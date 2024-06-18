@@ -13,9 +13,9 @@ import { LINK_STATUS } from "#constants";
 export default class Program extends ContextDependent {
 	/**
 	 * Creates a shader program from the given shader source code.
-	 * @param context The rendering context.
-	 * @param vertexShaderSource The vertex shader's source code.
-	 * @param fragmentShaderSource The fragment shader's source code.
+	 * @param context - The rendering context.
+	 * @param vertexShaderSource - The vertex shader's source code.
+	 * @param fragmentShaderSource - The fragment shader's source code.
 	 * @returns The shader program.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ProgramLinkError}
@@ -35,10 +35,10 @@ export default class Program extends ContextDependent {
 
 	/**
 	 * Creates a shader program.
-	 * @param context The rendering context.
-	 * @param vertexShader The vertex shader.
-	 * @param fragmentShader The fragment shader.
-	 * @param attributeLocations A map of attribute names to their desired
+	 * @param context - The rendering context.
+	 * @param vertexShader - The vertex shader.
+	 * @param fragmentShader - The fragment shader.
+	 * @param attributeLocations - A map of attribute names to their desired
 	 * locations.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ProgramLinkError}

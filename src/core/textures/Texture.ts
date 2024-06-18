@@ -67,7 +67,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Gets the texture bindings cache for a rendering context.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The texture bindings cache.
 	 * @internal
 	 */
@@ -94,8 +94,8 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Gets the texture bindings cache for a texture unit.
-	 * @param context The rendering context.
-	 * @param textureUnit The texture unit.
+	 * @param context - The rendering context.
+	 * @param textureUnit - The texture unit.
 	 * @returns The texture bindings cache.
 	 * @internal
 	 */
@@ -145,7 +145,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Gets the texture binding overwrite order for a rendering context.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The texture binding overwrite order.
 	 * @internal
 	 */
@@ -171,8 +171,8 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Gets the texture binding overwrite order for a binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
 	 * @returns The texture binding overwrite order.
 	 * @internal
 	 */
@@ -198,9 +198,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Determines the most desirable texture unit to bind to.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param texture The texture to be bound.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param texture - The texture to be bound.
 	 * @returns The most desirable texture unit to bind to.
 	 * @internal
 	 */
@@ -235,10 +235,10 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Gets the currently-bound texture for a binding point.
-	 * @param context The rendering context.
-	 * @param textureUnit The texture unit, or `undefined` for the current
+	 * @param context - The rendering context.
+	 * @param textureUnit - The texture unit, or `undefined` for the current
 	 * texture unit.
-	 * @param target The binding point.
+	 * @param target - The binding point.
 	 * @returns The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
@@ -270,11 +270,11 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Binds a texture to a binding point.
-	 * @param context The rendering context.
-	 * @param textureUnit The texture unit, or `undefined` for the current
+	 * @param context - The rendering context.
+	 * @param textureUnit - The texture unit, or `undefined` for the current
 	 * texture unit.
-	 * @param target The binding point.
-	 * @param texture The texture.
+	 * @param target - The binding point.
+	 * @param texture - The texture.
 	 * @returns The used texture unit.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
@@ -317,10 +317,10 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Unbinds the given texture from the given binding point.
-	 * @param context The rendering context.
-	 * @param textureUnit The texture unit, or `undefined` for all texture units.
-	 * @param target The binding point.
-	 * @param texture The texture, or `undefined` for any texture.
+	 * @param context - The rendering context.
+	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
+	 * @param target - The binding point.
+	 * @param texture - The texture, or `undefined` for any texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
@@ -353,8 +353,8 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Creates a texture.
-	 * @param context The rendering context.
-	 * @param target The target binding point of the texture.
+	 * @param context - The rendering context.
+	 * @param target - The target binding point of the texture.
 	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
 	 * @throws {@link UnsupportedOperationError}
 	 * @internal
@@ -363,11 +363,11 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Creates an immutable-format texture.
-	 * @param context The rendering context.
-	 * @param target The target binding point of the texture.
-	 * @param levels The number of levels in the texture.
-	 * @param format The internal format of the texture.
-	 * @param dims The dimensions of the texture.
+	 * @param context - The rendering context.
+	 * @param target - The target binding point of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
 	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
 	 * @throws {@link UnsupportedOperationError}
 	 * @internal
@@ -470,9 +470,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Makes this into an immutable-format texture.
-	 * @param levels The number of levels in the texture.
-	 * @param format The internal format of the texture.
-	 * @param dims The dimensions of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
 	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
 	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 */
@@ -495,9 +495,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Makes this into an immutable-format texture.
-	 * @param levels The number of levels in the texture.
-	 * @param format The internal format of the texture.
-	 * @param dims The dimensions of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
 	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
 	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 * @internal
@@ -510,17 +510,17 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in a framebuffer into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param framebuffer The framebuffer to copy into the mip, or `undefined`
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined`
 	 * for the default framebuffer.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param type The type of the given data. Must be compatible with the
+	 * @param type - The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * @param unpackAlignment - The alignment to use when unpacking the data, or
 	 * `undefined` to let this be automatically determined.
-	 * @param area The area of the framebuffer to copy into the mip.
+	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
@@ -535,17 +535,17 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in a buffer into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param buffer The buffer to copy into the mip.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param buffer - The buffer to copy into the mip.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param type The type of the given data. Must be compatible with the
+	 * @param type - The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * @param unpackAlignment - The alignment to use when unpacking the data, or
 	 * `undefined` to let this be automatically determined.
-	 * @param size The number of bytes of data to copy from the buffer.
-	 * @param offset The offset in bytes from the start of the buffer to start
+	 * @param size - The number of bytes of data to copy from the buffer.
+	 * @param offset - The offset in bytes from the start of the buffer to start
 	 * copying at.
 	 * @throws {@link TextureFormatError}
 	 */
@@ -562,14 +562,14 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies data into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param data The data to copy into the mip.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param data - The data to copy into the mip.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param type The type of the given data. Must be compatible with the
+	 * @param type - The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * @param unpackAlignment - The alignment to use when unpacking the data, or
 	 * `undefined` to let this be automatically determined.
 	 * @throws {@link TextureFormatError}
 	 */
@@ -584,18 +584,18 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in an array into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param array The array to copy into the mip.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param array - The array to copy into the mip.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param type The type of the given data. Must be compatible with the
+	 * @param type - The type of the given data. Must be compatible with the
 	 * format of the given data.
-	 * @param unpackAlignment The alignment to use when unpacking the data, or
+	 * @param unpackAlignment - The alignment to use when unpacking the data, or
 	 * `undefined` to let this be automatically determined.
-	 * @param offset The offset from the start of the array to start copying
+	 * @param offset - The offset from the start of the array to start copying
 	 * at, or `undefined` for the start of the array.
-	 * @param length The number of elements to copy from the array, or
+	 * @param length - The number of elements to copy from the array, or
 	 * `undefined` for the entire array.
 	 * @throws {@link TextureFormatError}
 	 */
@@ -658,14 +658,14 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Update the unpack alignment.
-		if (typeof unpackAlignment == "number") {
+		if (typeof unpackAlignment === "number") {
 			this.context.unpackAlignment = unpackAlignment;
 		} else if (typeof bounds === "undefined") {
 			this.context.unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
 		} else if (bounds.height > 1 || (bounds.depth ?? 1) > 1) {
 			// Unpack alignment doesn't matter if there is only one row of data.
 			for (const alignment of [8, 4, 2, 1] as const) {
-				if (bounds.width % alignment == 0) {
+				if (bounds.width % alignment === 0) {
 					this.context.unpackAlignment = alignment;
 					break;
 				}
@@ -765,13 +765,13 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in a framebuffer into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param framebuffer The framebuffer to copy into the mip, or `undefined`
+	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined`
 	 * for the default framebuffer.
-	 * @param area The area of the framebuffer to copy into the mip.
+	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @internal
 	 */
 	protected abstract setMipFromFramebuffer(
@@ -784,14 +784,14 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in a buffer into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param bounds The bounds of the mip to be updated.
-	 * @param format The format of the data in the buffer.
-	 * @param type The type of the data in the buffer.
-	 * @param buffer The buffer to copy into the mip.
-	 * @param size The number of bytes of data to copy from the buffer.
-	 * @param offset The offset in bytes from the start of the buffer to start
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated.
+	 * @param format - The format of the data in the buffer.
+	 * @param type - The type of the data in the buffer.
+	 * @param buffer - The buffer to copy into the mip.
+	 * @param size - The number of bytes of data to copy from the buffer.
+	 * @param offset - The offset in bytes from the start of the buffer to start
 	 * copying at.
 	 * @internal
 	 */
@@ -808,13 +808,13 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies data into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param format The format of the data.
-	 * @param type The type of the data.
-	 * @param data The data to copy into the mip.
+	 * @param format - The format of the data.
+	 * @param type - The type of the data.
+	 * @param data - The data to copy into the mip.
 	 * @internal
 	 */
 	protected abstract setMipFromData(
@@ -828,16 +828,16 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copies the data in an array into a mip.
-	 * @param target The mipmap that the mip belongs to.
-	 * @param level The level of the mip within its mipmap.
-	 * @param bounds The bounds of the mip to be updated. Defaults to the
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the
 	 * entire mip if not set.
-	 * @param format The format of the data in the array.
-	 * @param type The type of the data in the array.
-	 * @param array The array to copy into the mip.
-	 * @param offset The offset from the start of the array to start copying
+	 * @param format - The format of the data in the array.
+	 * @param type - The type of the data in the array.
+	 * @param array - The array to copy into the mip.
+	 * @param offset - The offset from the start of the array to start copying
 	 * at, or `undefined` for the start of the array.
-	 * @param length The number of elements to copy from the array, or
+	 * @param length - The number of elements to copy from the array, or
 	 * `undefined` for the entire array.
 	 * @internal
 	 */
@@ -1273,7 +1273,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Get the dimensions of the mip at the given level.
-	 * @param level The level of the mip.
+	 * @param level - The level of the mip.
 	 * @returns The width, height (if applicable), and depth (if applicable) of the mip, in that order.
 	 */
 	public getSizeOfMip(level: number): number[] {
@@ -1320,7 +1320,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Binds this texture to its binding point.
-	 * @param textureUnit The texture unit, or `undefined` for the default
+	 * @param textureUnit - The texture unit, or `undefined` for the default
 	 * texture unit.
 	 * @returns The used texture unit.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -1332,7 +1332,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Unbinds this texture from its binding point.
-	 * @param textureUnit The texture unit, or `undefined` for all texture
+	 * @param textureUnit - The texture unit, or `undefined` for all texture
 	 * units.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal

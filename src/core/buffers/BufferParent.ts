@@ -37,7 +37,7 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Gets the buffer bindings cache for a rendering context.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The buffer bindings cache.
 	 * @internal
 	 */
@@ -64,8 +64,8 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Gets the currently-bound buffer for a binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
 	 * @returns The buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
@@ -92,9 +92,9 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Binds a buffer to a binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param buffer The buffer.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param buffer - The buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
@@ -131,9 +131,9 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Unbinds the buffer that is bound to the given binding point.
-	 * @param context The rendering context.
-	 * @param target The binding point.
-	 * @param buffer The buffer to unbind, or `undefined` for any buffer.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
@@ -156,14 +156,12 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Creates a buffer.
-	 * @param context The rendering context.
-	 * @param data The initial data contained in this buffer or the size of
-	 * this buffer's data store in bytes.
-	 * @param usage The intended usage of the buffer.
-	 * @param offset The index of the element to start reading the buffer at.
-	 * @param isHalf Whether the data contains half floats if it contains
-	 * floats.
-	 * @param target The target binding point of the buffer.
+	 * @param context - The rendering context.
+	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the buffer at.
+	 * @param isHalf - Whether the data contains half floats if it contains floats.
+	 * @param target - The target binding point of the buffer.
 	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
 	 * @throws {@link UnsupportedOperationError}
 	 * @internal
@@ -304,12 +302,12 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Sets the data in this buffer.
-	 * @param data The data to store in this buffer or the size to set this
+	 * @param data - The data to store in this buffer or the size to set this
 	 * buffer's data store to in bytes.
-	 * @param usage The intended usage of the buffer.
-	 * @param offset The index of the element to start reading the supplied
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the supplied
 	 * data at.
-	 * @param isHalf Whether the data contains 16-bit floating-point data if it
+	 * @param isHalf - Whether the data contains 16-bit floating-point data if it
 	 * contains floating-point data.
 	 */
 	public setData(
@@ -321,12 +319,12 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Updates a subset of the data in this buffer.
-	 * @param data The data to store in this buffer.
-	 * @param _ An ignored value.
-	 * @param offset The index of the element to start reading the supplied
+	 * @param data - The data to store in this buffer.
+	 * @param _ - An ignored value.
+	 * @param offset - The index of the element to start reading the supplied
 	 * data at.
-	 * @param __ An ignored value.
-	 * @param replaceOffset The offset in bytes to start replacing data at.
+	 * @param __ - An ignored value.
+	 * @param replaceOffset - The offset in bytes to start replacing data at.
 	 */
 	public setData(
 		data: TypedArray,
@@ -372,7 +370,7 @@ export default abstract class BufferParent extends ContextDependent {
 
 	/**
 	 * Binds this buffer to its binding point.
-	 * @param target The new binding point to bind to, or `undefined` for the
+	 * @param target - The new binding point to bind to, or `undefined` for the
 	 * previous binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal

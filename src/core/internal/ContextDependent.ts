@@ -9,7 +9,7 @@ import type Context from "#Context";
 export default abstract class ContextDependent extends ApiInterface {
 	/**
 	 * Initializes the context-dependent API interface.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @internal
 	 */
 	protected constructor(context: Context) {

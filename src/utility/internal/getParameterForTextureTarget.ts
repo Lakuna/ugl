@@ -9,7 +9,7 @@ import {
 /**
  * Gets the constant value representing the context property of the given
  * texture binding point.
- * @param target The texture binding point.
+ * @param target - The texture binding point.
  * @returns The constant value.
  * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
  * @internal

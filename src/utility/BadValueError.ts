@@ -5,7 +5,7 @@
 export default class BadValueError extends Error {
 	/**
 	 * Creates a bad value error.
-	 * @param message The message of the error.
+	 * @param message - The message of the error.
 	 */
 	public constructor(message = "Attempted to use an invalid value.") {
 		super(message);

@@ -8,7 +8,7 @@ import type { TextureCompressedInternalFormat } from "#TextureCompressedInternal
 /**
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
- * @param internalFormat The texture internal format.
+ * @param internalFormat - The texture internal format.
  * @returns A list of data types. If the return value is not null, it is
  * guaranteed to contain at least one data type. The first data type in the
  * list is a sensible default.
@@ -22,7 +22,7 @@ export default function getTextureDataTypesForTextureInternalFormat(
 /**
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
- * @param internalFormat The texture internal format.
+ * @param internalFormat - The texture internal format.
  * @returns A list of data types. If the return value is not null, it is
  * guaranteed to contain at least one data type. The first data type in the
  * list is a sensible default.
@@ -36,7 +36,7 @@ export default function getTextureDataTypesForTextureInternalFormat(
 /**
  * Gets a list of data types that can be supplied to the given texture internal
  * format.
- * @param internalFormat The texture internal format.
+ * @param internalFormat - The texture internal format.
  * @returns A list of data types. If the return value is not null, it is
  * guaranteed to contain at least one data type. The first data type in the
  * list is a sensible default.

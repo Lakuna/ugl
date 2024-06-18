@@ -7,7 +7,7 @@ import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInt
 
 /**
  * Gets the corresponding texture format for an internal format.
- * @param internalFormat The internal format.
+ * @param internalFormat - The internal format.
  * @returns The texture format.
  * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal

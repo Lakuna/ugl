@@ -34,7 +34,7 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Gets the currently-bound renderbuffer.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
@@ -58,8 +58,8 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Binds a renderbuffer.
-	 * @param context The rendering context.
-	 * @param renderbuffer The renderbuffer.
+	 * @param context - The rendering context.
+	 * @param renderbuffer - The renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
@@ -79,8 +79,8 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Unbinds the renderbuffer that is bound.
-	 * @param context The rendering context.
-	 * @param renderbuffer The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
+	 * @param context - The rendering context.
+	 * @param renderbuffer - The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
 	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
@@ -102,7 +102,7 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Creates a renderbuffer.
-	 * @param context The rendering context.
+	 * @param context - The rendering context.
 	 * @see [`createRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer)
 	 * @throws {@link UnsupportedOperationError}
 	 */

@@ -5,7 +5,7 @@
 export default abstract class ApiInterface {
 	/**
 	 * Initializes the API interface.
-	 * @param gl The API interface object.
+	 * @param gl - The API interface object.
 	 * @internal
 	 */
 	protected constructor(gl: WebGL2RenderingContext) {

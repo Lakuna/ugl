@@ -1,5 +1,5 @@
 {
-	"include": ["src"],
+	"include": ["eslint.config.js", "src"],
 	"exclude": [],
 	"compilerOptions": {
 		"allowUnreachableCode": false,

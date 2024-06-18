@@ -3,7 +3,7 @@ import Extension from "#Extension";
 
 /**
  * Gets the extension that is associated with the given texture format.
- * @param format The texture format.
+ * @param format - The texture format.
  * @returns The extension that is associated with the texture format.
  * @internal
  */

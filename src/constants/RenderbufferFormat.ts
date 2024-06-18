@@ -117,7 +117,7 @@ enum RenderbufferFormat {
 	/**
 	 * A 32-bit floating-point number each for red, green, and blue.
 	 * @see [WEBGL_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_color_buffer_float)
-	 * @deprecated
+	 * @deprecated Use `EXT_color_buffer_float` instead.
 	 */
 	RGB32F_EXT = 0x8815,
 

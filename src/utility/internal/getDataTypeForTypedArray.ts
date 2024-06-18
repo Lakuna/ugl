@@ -3,8 +3,8 @@ import BufferDataType from "#BufferDataType";
 
 /**
  * Returns a default buffer data type for the given typed array.
- * @param array The typed array.
- * @param half Whether the array contains 16-bit floating-point data if it
+ * @param array - The typed array.
+ * @param half - Whether the array contains 16-bit floating-point data if it
  * contains floating-point data.
  * @returns A default buffer data type for the given typed array.
  * @internal

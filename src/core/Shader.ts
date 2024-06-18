@@ -12,9 +12,9 @@ import ShaderCompileError from "#ShaderCompileError";
 export default class Shader extends ContextDependent {
 	/**
 	 * Creates a shader.
-	 * @param context The rendering context.
-	 * @param type The type.
-	 * @param source The source code.
+	 * @param context - The rendering context.
+	 * @param type - The type.
+	 * @param source - The source code.
 	 * @throws {@link UnsupportedOperationError}
 	 * @throws {@link ShaderCompileError}
 	 * @see [`createShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader)

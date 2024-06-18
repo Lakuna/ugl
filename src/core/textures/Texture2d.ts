@@ -16,7 +16,7 @@ import type TextureDataType from "#TextureDataType";
 export default class Texture2d extends Texture {
 	/**
 	 * Creates a two-dimensional texture.
-	 * @param context The rendering context of the texture.
+	 * @param context - The rendering context of the texture.
 	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(context: Context);
@@ -24,11 +24,11 @@ export default class Texture2d extends Texture {
 	/**
 	 * Creates a two-dimensional texture with a fixed size. This has better
 	 * performance than a variable-sized texture.
-	 * @param context The rendering context of the texture.
-	 * @param levels The number of levels in the texture.
-	 * @param format The internal format of the texture.
-	 * @param width The width of the texture.
-	 * @param height The height of the texture.
+	 * @param context - The rendering context of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param width - The width of the texture.
+	 * @param height - The height of the texture.
 	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(
@@ -62,9 +62,9 @@ export default class Texture2d extends Texture {
 
 	/**
 	 * Makes this into an immutable-format texture.
-	 * @param levels The number of levels in the texture.
-	 * @param format The internal format of the texture.
-	 * @param dims The dimensions of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
 	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
 	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 * @internal

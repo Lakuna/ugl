@@ -3,7 +3,7 @@ import Extension from "#Extension";
 
 /**
  * Gets the extension that is associated with the given renderbuffer format.
- * @param format The renderbuffer format.
+ * @param format - The renderbuffer format.
  * @returns The extension that is associated with the renderbuffer format.
  * @internal
  */

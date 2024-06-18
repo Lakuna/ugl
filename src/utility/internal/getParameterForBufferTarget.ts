@@ -13,7 +13,7 @@ import {
 /**
  * Gets the constant value representing the context property of the given
  * buffer binding point.
- * @param target The buffer binding point.
+ * @param target - The buffer binding point.
  * @returns The constant value.
  * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
  * @internal

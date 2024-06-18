@@ -5,7 +5,7 @@
 export default class TextureFormatError extends Error {
 	/**
 	 * Creates a texture format error.
-	 * @param message The message of the error.
+	 * @param message - The message of the error.
 	 */
 	public constructor(
 		message = "Attempted to use a data format or type that is not compatible with a texture format."

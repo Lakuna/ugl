@@ -4,7 +4,7 @@
 export default class ImmutableError extends Error {
 	/**
 	 * Creates a texture format error.
-	 * @param message The message of the error.
+	 * @param message - The message of the error.
 	 */
 	public constructor(message = "Attempted to modify an immutable value.") {
 		super(message);

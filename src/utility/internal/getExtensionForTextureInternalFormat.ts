@@ -7,7 +7,7 @@ import type { TextureCompressedInternalFormat } from "#TextureCompressedInternal
 
 /**
  * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
+ * @param format - The texture internal format.
  * @returns The extension that is associated with the texture internal format.
  * @internal
  */
@@ -17,7 +17,7 @@ export default function getExtensionForTextureInternalFormat(
 
 /**
  * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
+ * @param format - The texture internal format.
  * @returns The extension that is associated with the texture internal format.
  * @internal
  */
@@ -27,7 +27,7 @@ export default function getExtensionForTextureInternalFormat(
 
 /**
  * Gets the extension that is associated with the given texture internal format.
- * @param format The texture internal format.
+ * @param format - The texture internal format.
  * @returns The extension that is associated with the texture internal format.
  * @internal
  */
