@@ -20,7 +20,8 @@ import {
 	CULL_FACE,
 	CULL_FACE_MODE,
 	DEPTH_TEST,
-	DEPTH_FUNC
+	DEPTH_FUNC,
+	BLEND
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import type { Canvas } from "#Canvas";
@@ -295,6 +296,13 @@ export default class Context extends ApiInterface {
 	private blendFunctionCache: BlendFunctionFullSet | undefined;
 
 	/**
+	 * Whether blending is enabled.
+	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * @internal
+	 */
+	private doBlendCache: boolean | undefined;
+
+	/**
 	 * Creates the blend function cache.
 	 * @returns The blend function cache.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
@@ -310,19 +318,36 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * The source and destination RGB and alpha blend functions.
+	 * The source and destination RGB and alpha blend functions, or `false` if blending is disabled.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 */
-	public get blendFunction(): BlendFunctionFullSet {
+	public get blendFunction(): BlendFunctionFullSet | false {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache());
 	}
 
 	/**
-	 * The source and destination RGB and alpha blend functions.
+	 * The source and destination RGB and alpha blend functions, or `false` if blending is disabled.
 	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @throws {@link WebglError}
 	 */
-	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
+	public set blendFunction(
+		value: BlendFunctionSet | BlendFunctionFullSet | boolean
+	) {
+		if (typeof value === "boolean") {
+			if (this.doBlendCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(BLEND);
+			} else {
+				this.gl.disable(BLEND);
+			}
+			this.doBlendCache = value;
+
+			return;
+		}
+
 		if (2 in value) {
 			if (
 				typeof this.blendFunctionCache !== "undefined" &&
