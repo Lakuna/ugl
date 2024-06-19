@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<script>
+  // `umath`.
+  const epsilon = 0.000001;
+
+  function perspective(fov, aspect, near, far, out) {
+    const f = 1 / Math.tan(fov / 2);
+
+    out[0] = f / aspect;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = f;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[15] = 0;
+
+    if (far != null && far != Infinity) {
+      const nf = 1 / (near - far);
+      out[10] = (far + near) * nf;
+      out[14] = 2 * far * near * nf;
+    } else {
+      out[10] = -1;
+      out[14] = -2 * near;
+    }
+
+    return out;
+  }
+
+  function fromXRotation(radians, out) {
+    const s = Math.sin(radians);
+    const c = Math.cos(radians);
+
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = c;
+    out[6] = s;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = -s;
+    out[10] = c;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
+  }
+
+  function lookAt(eye, center, up, out) {
+    const eyex = eye[0];
+    const eyey = eye[1];
+    const eyez = eye[2];
+
+    const upx = up[0];
+    const upy = up[1];
+    const upz = up[2];
+
+    const centerx = center[0];
+    const centery = center[1];
+    const centerz = center[2];
+
+    if (
+      Math.abs(eyex - centerx) < epsilon &&
+      Math.abs(eyey - centery) < epsilon &&
+      Math.abs(eyez - centerz) < epsilon
+    ) {
+      return identity(out);
+    }
+
+    let z0 = eyex - centerx;
+    let z1 = eyey - centery;
+    let z2 = eyez - centerz;
+    let len = 1 / Math.hypot(z0, z1, z2);
+    z0 *= len;
+    z1 *= len;
+    z2 *= len;
+
+    let x0 = upy * z2 - upz * z1;
+    let x1 = upz * z0 - upx * z2;
+    let x2 = upx * z1 - upy * z0;
+    len = Math.hypot(x0, x1, x2);
+    if (!len) {
+      x0 = 0;
+      x1 = 0;
+      x2 = 0;
+    } else {
+      len = 1 / len;
+      x0 *= len;
+      x1 *= len;
+      x2 *= len;
+    }
+
+    let y0 = z1 * x2 - z2 * x1;
+    let y1 = z2 * x0 - z0 * x2;
+    let y2 = z0 * x1 - z1 * x0;
+    len = Math.hypot(y0, y1, y2);
+    if (!len) {
+      y0 = 0;
+      y1 = 0;
+      y2 = 0;
+    } else {
+      len = 1 / len;
+      y0 *= len;
+      y1 *= len;
+      y2 *= len;
+    }
+
+    out[0] = x0;
+    out[1] = y0;
+    out[2] = z0;
+    out[3] = 0;
+    out[4] = x1;
+    out[5] = y1;
+    out[6] = z1;
+    out[7] = 0;
+    out[8] = x2;
+    out[9] = y2;
+    out[10] = z2;
+    out[11] = 0;
+    out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+    out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+    out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+    out[15] = 1;
+    return out;
+  }
+
+  function invert(matrix, out) {
+    const a00 = matrix[0];
+    const a01 = matrix[1];
+    const a02 = matrix[2];
+    const a03 = matrix[3];
+    const a10 = matrix[4];
+    const a11 = matrix[5];
+    const a12 = matrix[6];
+    const a13 = matrix[7];
+    const a20 = matrix[8];
+    const a21 = matrix[9];
+    const a22 = matrix[10];
+    const a23 = matrix[11];
+    const a30 = matrix[12];
+    const a31 = matrix[13];
+    const a32 = matrix[14];
+    const a33 = matrix[15];
+
+    const b00 = a00 * a11 - a01 * a10;
+    const b01 = a00 * a12 - a02 * a10;
+    const b02 = a00 * a13 - a03 * a10;
+    const b03 = a01 * a12 - a02 * a11;
+    const b04 = a01 * a13 - a03 * a11;
+    const b05 = a02 * a13 - a03 * a12;
+    const b06 = a20 * a31 - a21 * a30;
+    const b07 = a20 * a32 - a22 * a30;
+    const b08 = a20 * a33 - a23 * a30;
+    const b09 = a21 * a32 - a22 * a31;
+    const b10 = a21 * a33 - a23 * a31;
+    const b11 = a22 * a33 - a23 * a32;
+
+    let det =
+      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    if (!det) {
+      throw new SingularMatrixError();
+    }
+    det = 1 / det;
+
+    out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+    out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+    out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+    out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+    out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+    out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+    out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+    out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+    out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+    out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+    out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+    out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+    out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+    out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+    return out;
+  }
+
+  function multiply(a, b, out) {
+    const a00 = a[0];
+    const a01 = a[1];
+    const a02 = a[2];
+    const a03 = a[3];
+    const a10 = a[4];
+    const a11 = a[5];
+    const a12 = a[6];
+    const a13 = a[7];
+    const a20 = a[8];
+    const a21 = a[9];
+    const a22 = a[10];
+    const a23 = a[11];
+    const a30 = a[12];
+    const a31 = a[13];
+    const a32 = a[14];
+    const a33 = a[15];
+
+    let b0 = b[0];
+    let b1 = b[1];
+    let b2 = b[2];
+    let b3 = b[3];
+    out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[4];
+    b1 = b[5];
+    b2 = b[6];
+    b3 = b[7];
+    out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[8];
+    b1 = b[9];
+    b2 = b[10];
+    b3 = b[11];
+    out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[12];
+    b1 = b[13];
+    b2 = b[14];
+    b3 = b[15];
+    out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    return out;
+  }
+
+  function translate(matrix, vector, out) {
+    const x = vector[0];
+    const y = vector[1];
+    const z = vector[2];
+
+    if (out == matrix) {
+      out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+      out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+      out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+      out[15] = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
+    } else {
+      const a00 = matrix[0];
+      const a01 = matrix[1];
+      const a02 = matrix[2];
+      const a03 = matrix[3];
+      const a10 = matrix[4];
+      const a11 = matrix[5];
+      const a12 = matrix[6];
+      const a13 = matrix[7];
+      const a20 = matrix[8];
+      const a21 = matrix[9];
+      const a22 = matrix[10];
+      const a23 = matrix[11];
+
+      out[0] = a00;
+      out[1] = a01;
+      out[2] = a02;
+      out[3] = a03;
+      out[4] = a10;
+      out[5] = a11;
+      out[6] = a12;
+      out[7] = a13;
+      out[8] = a20;
+      out[9] = a21;
+      out[10] = a22;
+      out[11] = a23;
+      out[12] = a00 * x + a10 * y + a20 * z + matrix[12];
+      out[13] = a01 * x + a11 * y + a21 * z + matrix[13];
+      out[14] = a02 * x + a12 * y + a22 * z + matrix[14];
+      out[15] = a03 * x + a13 * y + a23 * z + matrix[15];
+    }
+
+    return out;
+  }
+
+  function rotateZ(matrix, radians, out) {
+    const s = Math.sin(radians);
+    const c = Math.cos(radians);
+
+    const a00 = matrix[0];
+    const a01 = matrix[1];
+    const a02 = matrix[2];
+    const a03 = matrix[3];
+    const a10 = matrix[4];
+    const a11 = matrix[5];
+    const a12 = matrix[6];
+    const a13 = matrix[7];
+
+    if (out != matrix) {
+      out[8] = matrix[8];
+      out[9] = matrix[9];
+      out[10] = matrix[10];
+      out[11] = matrix[11];
+      out[12] = matrix[12];
+      out[13] = matrix[13];
+      out[14] = matrix[14];
+      out[15] = matrix[15];
+    }
+
+    out[0] = a00 * c + a10 * s;
+    out[1] = a01 * c + a11 * s;
+    out[2] = a02 * c + a12 * s;
+    out[3] = a03 * c + a13 * s;
+    out[4] = a10 * c - a00 * s;
+    out[5] = a11 * c - a01 * s;
+    out[6] = a12 * c - a02 * s;
+    out[7] = a13 * c - a03 * s;
+    return out;
+  }
+
+  function scale(matrix, vector, out) {
+    const x = vector[0];
+    const y = vector[1];
+    const z = vector[2];
+
+    out[0] = matrix[0] * x;
+    out[1] = matrix[1] * x;
+    out[2] = matrix[2] * x;
+    out[3] = matrix[3] * x;
+    out[4] = matrix[4] * y;
+    out[5] = matrix[5] * y;
+    out[6] = matrix[6] * y;
+    out[7] = matrix[7] * y;
+    out[8] = matrix[8] * z;
+    out[9] = matrix[9] * z;
+    out[10] = matrix[10] * z;
+    out[11] = matrix[11] * z;
+    out[12] = matrix[12];
+    out[13] = matrix[13];
+    out[14] = matrix[14];
+    out[15] = matrix[15];
+    return out;
+  }
+
+  function identity(out) {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
+  }
+
+  // `ugl`.
+  function makeFullscreenCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.style.touchAction = "none";
+
+    document.body = document.createElement("body");
+    document.body.appendChild(canvas);
+
+    function recursiveFullscreen(element) {
+      element.style.width = "100%";
+      element.style.height = "100%";
+      element.style.margin = "0px";
+      element.style.padding = "0px";
+      element.style.display = "block";
+
+      if (element.parentElement) {
+        recursiveFullscreen(element.parentElement);
+      }
+    }
+    recursiveFullscreen(canvas);
+
+    return canvas;
+  }
+
+  // Other functions.
+  function generateMipData(color, dim) {
+    if (dim == 1) {
+      return color;
+    }
+
+    const white = [];
+    for (let i = 0; i < color.length; i++) {
+      white.push(0xff);
+    }
+
+    const out = [];
+    for (let x = 0; x < dim; x++) {
+      for (let y = 0; y < dim; y++) {
+        out.push(
+          (x < dim / 2 && y < dim / 2) || (x >= dim / 2 && y >= dim / 2)
+            ? color
+            : white
+        );
+      }
+    }
+    return out.flat();
+  }
+
+  function supplyMip(gl, r, g, b, dim, level) {
+    /*
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      level,
+      gl.RGB,
+      1,
+      1,
+      0,
+      gl.RGB,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array([0xff, 0xff, 0x00])
+    );
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      level,
+      0,
+      0,
+      dim,
+      dim,
+      gl.RGB,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array(generateMipData([r, g, b], dim))
+    );
+    */
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      level,
+      gl.RGB,
+      dim,
+      dim,
+      0,
+      gl.RGB,
+      gl.UNSIGNED_BYTE,
+      new Uint8Array(generateMipData([r, g, b], dim))
+    );
+  }
+
+  // Constants.
+  const vss = `\
+#version 300 es
+
+in vec4 a_position;
+in vec2 a_texcoord;
+
+uniform mat4 u_matrix;
+
+out vec2 v_texcoord;
+
+void main() {
+	gl_Position = u_matrix * a_position;
+	v_texcoord = a_texcoord;
+}`;
+
+  const fss = `\
+#version 300 es
+
+precision highp float;
+
+in vec2 v_texcoord;
+
+uniform sampler2D u_texture;
+
+out vec4 outColor;
+
+void main() {
+	outColor = texture(u_texture, v_texcoord);
+}`;
+
+  const depth = 50;
+  const fov = Math.PI / 3;
+  const near = 1;
+  const far = 2000;
+  const camPos = new Float32Array([0, 0, 2]);
+  const up = new Float32Array([0, 1, 0]);
+  const camTarget = new Float32Array([0, 0, 0]);
+  const translation = new Float32Array([0, -0.7, -depth / 2]);
+  const rotation = Math.PI;
+  const scaling = new Float32Array([1, 1, depth]);
+
+  const posData = new Float32Array([
+    -10, 0.5, -0.5, -10, 0.5, 0.5, 10, 0.5, 0.5, 10, 0.5, -0.5,
+  ]);
+
+  const texcoordData = new Float32Array([0, 0, 0, depth, 20, depth, 20, 0]);
+
+  const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+  // Initialization step.
+  window.addEventListener("load", () => {
+    const canvas = makeFullscreenCanvas();
+    const gl = canvas.getContext("webgl2", { antialias: false });
+
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, vss);
+    gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(vs));
+    }
+
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fss);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(fs));
+    }
+
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(program));
+    }
+
+    const posLoc = gl.getAttribLocation(program, "a_position");
+    const texcoordLoc = gl.getAttribLocation(program, "a_texcoord");
+    const matLoc = gl.getUniformLocation(program, "u_matrix");
+    const texLoc = gl.getUniformLocation(program, "u_texture");
+
+    const posBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, posData, gl.STATIC_DRAW);
+
+    const texcoordBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, texcoordData, gl.STATIC_DRAW);
+
+    const indexBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
+
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    gl.enableVertexAttribArray(posLoc);
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    gl.enableVertexAttribArray(texcoordLoc);
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuf);
+    gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, true, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuf);
+
+    const projMat = new Float32Array(16);
+    const camMat = new Float32Array(16);
+    const viewMat = new Float32Array(16);
+    const viewProjMat = new Float32Array(16);
+    const mat = new Float32Array(16);
+
+    const texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);
+    /*
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R8, 4, 4);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, 4, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array([
+      0xFF, 0x00, 0x00, 0x00,
+      0x00, 0xFF, 0x00, 0x00,
+      0x00, 0x00, 0xFF, 0x00,
+      0x00, 0x00, 0x00, 0xFF
+    ]));
+    */
+    // gl.texImage2D(gl.TEXTURE_2D, 11, gl.RGB8, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array(generateMipData([0xFF, 0x00, 0x00], 1)));
+    supplyMip(gl, 0xff, 0x00, 0x00, 1, 11);
+    supplyMip(gl, 0xff, 0x80, 0x00, 2, 10);
+    supplyMip(gl, 0xff, 0xff, 0x00, 4, 9);
+    supplyMip(gl, 0x80, 0xff, 0x00, 8, 8);
+    supplyMip(gl, 0x00, 0xff, 0x00, 16, 7);
+    supplyMip(gl, 0x00, 0xff, 0x80, 32, 6);
+    supplyMip(gl, 0x00, 0xff, 0xff, 64, 5);
+    supplyMip(gl, 0x00, 0x80, 0xff, 128, 4);
+    supplyMip(gl, 0x00, 0x00, 0xff, 256, 3);
+    supplyMip(gl, 0x80, 0x00, 0xff, 512, 2);
+    supplyMip(gl, 0xff, 0x00, 0xff, 1024, 1);
+    supplyMip(gl, 0xff, 0x00, 0x80, 2048, 0);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_LINEAR
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    /*
+		Notes:
+		- `generateMipmap` overwrites all but the top mip, even if the texture is texture complete.
+		- Incorrectly-sized mips just make the texture not display. No error is thrown.
+		- Textures cannot be used with multiple targets (even at different times). An error is thrown.
+		- Textures can be bound to multiple texture units at once.
+		- Float64Array, BigInt64Array, and BigUint64Array cannot be used with WebGL.
+		- `TEXTURE_WRAP_R` appears to have no effect on other texture types, but causes no issues.
+		- Supplying too much data causes the extra data to just be ignored.
+		- Supplying too little throws an error.
+		- Cubemap faces must be square and must each be the same size.
+		- Follow best practices: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices.
+		- All mips across all mipmaps must use the same internal format.
+		- Immutable-format textures (those initialized with `texStorage[23]D`) cannot have `texImage[23]D` called on them (must use `texSubImage[23]D` instead). They do not need to have as many levels as would normally be necessary. They are always texture complete.
+		- Using larger dimensions than a given mip on an immutable-format texture throws an error. Using smaller dimensions than the given data ignores the excessive data.
+		- Only fixed-size internal formats can be used with `texStorage[23]D`: https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexStorage2D.xhtml.
+		- All formats (sized and unsized): https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml.
+		- Should differentiate sized, unsized, and compressed formats.
+		*/
+
+    function rasterizationStep(now) {
+      requestAnimationFrame(rasterizationStep);
+
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      gl.viewport(0, 0, canvas.width, canvas.height);
+
+      gl.enable(gl.CULL_FACE);
+      gl.cullFace(gl.FRONT);
+      gl.enable(gl.DEPTH_TEST);
+
+      gl.clearColor(0, 0, 0, 1);
+      gl.clearDepth(1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      perspective(
+        fov,
+        canvas.clientWidth / (canvas.clientHeight || 1),
+        near,
+        far,
+        projMat
+      );
+      lookAt(camPos, camTarget, up, camMat);
+      invert(camMat, viewMat);
+      multiply(projMat, viewMat, viewProjMat);
+      translate(viewProjMat, translation, mat);
+      rotateZ(mat, rotation, mat);
+      scale(mat, scaling, mat);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+
+      gl.useProgram(program);
+      gl.bindVertexArray(vao);
+
+      gl.uniform1i(texLoc, 0);
+      gl.uniformMatrix4fv(matLoc, false, mat);
+
+      gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+    }
+    requestAnimationFrame(rasterizationStep);
+  });
+</script>

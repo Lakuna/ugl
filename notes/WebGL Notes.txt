@@ -1,0 +1,164 @@
+TODO notes:
+- Incorrectly-sized mips just make the texture not display. No error is thrown.
+- Supplying too much data causes the extra data to just be ignored.
+- Supplying too little data throws an error.
+- Cubemap faces must be square and must each be the same size.
+- Follow best practices: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices.
+- All mips across all mipmaps must use the same internal format.
+- Immutable-format textures (those initialized with `texStorage[23]D`) cannot have `texImage[23]D` called on them (must use `texSubImage[23]D` instead). They do not need to have as many levels as would normally be necessary. They are always texture complete.
+- Using larger dimensions than a given mip on an immutable-format texture throws an error. Using smaller dimensions than the given data ignores the excessive data.
+- Only fixed-size internal formats can be used with `texStorage[23]D`: https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexStorage2D.xhtml.
+- All formats (sized and unsized): https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml.
+- Methods to clear cached values?
+- Using greater offset + size in `texSubImage[23]D` throws an error and doesn't update the texture.
+- Ensure that the supplied MipmapTarget is legal for a texture's TextureTarget.
+- QOL TODO: Throw error with detailed message when attempting to pass incomplete texture to uniform.
+- QOL TODO: Replace instances of `number` with `GLint`, etc. where applicable.
+- Generate mipmap if texture isn't complete when passing the texture to a uniform.
+- Add missing features from old `Program` (i.e. `getActiveAttrib`, `getActiveUniform`) and new features (i.e. `getAttachedShaders`).
+- Automatically enable the necessary extensions for compressed texture formats when they're used.
+
+Done notes:
+- `generateMipmap` overwrites all but the top mip, even if the texture is texture complete.
+- Textures cannot be used with multiple targets (even at different times). An error is thrown.
+- Textures can be bound to multiple texture units at once.
+- Float64Array, BigInt64Array, and BigUint64Array cannot be used with WebGL.
+- `TEXTURE_WRAP_R` appears to have no effect on other texture types, but causes no issues.
+- Should differentiate sized, unsized, and compressed formats.
+- Each texture unit can use each target at the same time.
+- Will need to add a way to provide a Buffer and an offset (in bytes) to Texture.setMip.
+- Will need to add a way to provide a Framebuffer and an offset (x, y in pixels) to Texture.setMip.
+- FRAMEBUFFER_BINDING always returns DRAW_FRAMEBUFFER_BINDING.
+- Setting FRAMEBUFFER sets both READ_FRAMEBUFFER and DRAW_FRAMEBUFFER.
+
+Pre-branch repository: https://github.com/Lakuna/ugl/tree/f6560390e53132f67805114d93f5e2508941a4dd
+
+Inner classes proof-of-concept: https://www.typescriptlang.org/play?#code/KYDwDg9gTgLgBAE2AMwIYFcA28DGnUDOBcAKqDOlMHAN4BQcjcYUAlgG6ozVWoIQA7TAE84AWVZgAtqjBwAvHDyFiE6bNoMm2lhy49gfQSPGSFS-EVNz62u0zDoARplY4lggjCjocMaAAUUpIyYABc1qEAlJr2cUwwABasBAB0wepyihmhANxa8YwAvnQFhbqc3HC8-EKiObIRanll2kX5rQ7Oru44nt6+-lAB3CAUVBFkY5TAMbaFjEkpqaPj1IqrMx0Li8lpGcSKAsAA7uKyAQDalwAMADRwx2dLaWoje1EAup9R+fElnUYFX01UMtRMmwmpHIW1K8WBVRqxnqkgIfyY7ThXRcbg8Ai8Pj8gTmgLgL3SIVkh0ep3OYCutweTzJe1SzQuLy+P3RxSxQLYlQMRjqcAaYDRdBKQA
+
+Missing features from old Texture class:
+- `setAllNeedsUpdate` and `update` called at end of constructor.
+- `faces` map, `getFace` method, `setFace` method.
+- `update` method: attempt to update each face; then, if any did update, generate a mipmap if the texture isn't texture complete.
+- `setAllNeedsUpdate` method.
+
+Missing features from old Texture2d class:
+- `fromSource` static method.
+- `fromImageUrl` static method.
+- `face` accessors.
+
+Missing features from old `Cubemap` class:
+- `fromSources` static method.
+- `fromImageUrls` static method.
+- `nxFace`, `pxFace`, `nyFace`, `pyFace`, `nzFace`, `pzFace` accessors.
+
+Missing features from old Mipmap class:
+- `mips` field, `getMip` method, and `setMip` method.
+- `texture` field.
+- `target` field.
+- `top` accessor.
+- `isTextureComplete` accessor: checks if the top mip exists, then if each mip is the correct size.
+- `update` method: attempt to update each mip, then set the `texture` and `target` fields.
+- `setAllNeedsUpdate` method.
+
+Missing features from old Mip class:
+- `texture` field.
+- `target` field.
+- `lod` field.
+- `source` field.
+- `unpackAlignment` field.
+- `internalFormat` field.
+- `dims` field.
+- `format` field and accessor (with default list).
+- `type` field and accessor (with default list).
+- `needsUpdate` field.
+- `update` method: does nothing if not marked as needing an update, then sets the unpack alignment as necessary, then calls `updateInternal`, then updates the `needsUpdate`, `texture`, `target`, and `lod` fields.
+- `updateInternal` abstract method.
+- `setNeedsUpdate` method.
+
+Missing features from old Texture2dMip class:
+- `width` and `height` accessors.
+- `updateInternal` method: sets the unpack alignment as necessary, then calls `texImage2D`.
+
+Missing features from old CubemapMip class:
+- `dim` accessor.
+- `updateInternal` method: sets the unpack alignment as necessary, then calls `texImage2D`.
+
+Texture.setMipInternal preconditions:
+- Format, internal format, and data type are mutually compatible.
+- If the texture is an immutable format texture, bounds are legal (TODO: including offsets).
+
+Texture.setMipInternal postconditions:
+- The texture data is updated (resized if necessary and possible).
+- The cached texture dimension values are updated if necessary. If this happens (the largest mip was resized), smaller mips need to be marked as dirty (as they no longer contribute to texture completeness).
+
+Potential internal sub-methods:
+- protected abstract setMipFromFramebuffer(	target, level, bounds,			framebuffer, 	area		); // `copyTexSubImage2D`, `copyTexImage2D`, `copyTexSubImage3D`.
+- protected abstract setMipFromBuffer(		target, level, bounds, format, type,	buffer, 	offset		); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
+- protected abstract setMipFromData(		target, level, bounds, format, type,	data				); // `texSubImage2D`, `texImage2D`, `texSubImage3D`, `texImage3D`.
+- protected abstract setMipFromArray(		target, level, bounds, format, type,	array, 		offset, length	); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
+
+Old super-method (@throws {@link TextureFormatError}):
+- public setMip(target: MipmapTarget, level: number, data: MipData, bounds?: Box, type?: TextureDataType, unpackAlignment?: 1 | 2 | 4 | 8): void { /* ... */ }
+
+*TypeScript defines `pixels` or `source` as `TexImageSource | OffscreenCanvas` or `TexImageSource`, where `type TexImageSource = ImageBitmap | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | OffscreenCanvas | VideoFrame`.
+**TypeScript defines `srcData` or `pixels` as `ArrayBufferView` or `ArrayBufferView | null`, where `interface ArrayBufferView { buffer: ArrayBufferLike; byteLength: number; byteOffset: number; }`.
+
+Texture.setMipInternal method tree:
+	Texture2d or TextureCubemap:
+		Immutable-format or bounds exist and are smaller than current bounds:
+			Data is a framebuffer: copyTexSubImage2D
+				- target, level, xoffset, yoffset, x, y, width, height // From the currently-bound framebuffer. `x` and `y` are the lower left corner to start copying from, `xoffset` and `yoffset` are the horizontal and vertical offset within the texture image.
+			Compressed format: compressedTexSubImage2D
+				- target, level, xoffset, yoffset, width, height, format, imageSize, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, xoffset, yoffset, width, height, format, srcData // From a `TypedArray` or a `DataView`**.
+				- target, level, xoffset, yoffset, width, height, format, srcData, srcOffset // From a `TypedArray` or a `DataView`**.
+				- target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride // From a `TypedArray` or a `DataView`**.
+			Otherwise: texSubImage2D
+				- target, level, xoffset, yoffset, format, type, pixels // From a `TypedArray` or a `DataView`*.
+				- target, level, xoffset, yoffset, width, height, format, type, pixels // From a `TypedArray` or a `DataView`* **.
+				- target, level, xoffset, yoffset, width, height, format, type, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, xoffset, yoffset, width, height, format, type, source // ?* **.
+				- target, level, xoffset, yoffset, width, height, format, type, pixels, srcOffset // From a `TypedArray` or a `DataView`**.
+		Otherwise (need to update dimension cache):
+			Data is a framebuffer: copyTexImage2D
+				- target, level, internalformat, x, y, width, height, border // From the currently-bound framebuffer. `x` and `y` are the lower left corner to start copying from.
+			Compressed format: compressedTexImage2D
+				- target, level, internalformat, width, height, border // ?
+				- target, level, internalformat, width, height, border, pixels // From a `TypedArray` or a `DataView`**.
+				- target, level, internalformat, width, height, border, imageSize, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, internalformat, width, height, border, srcData // ?**
+				- target, level, internalformat, width, height, border, srcData, srcOffset // ?**
+				- target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride // ?**
+			Otherwise: texImage2D
+				- target, level, internalformat, format, type, pixels // From an `ImageData`, `HTMLImageElement`, `HTMLCanvasElement`, `HTMLVideoElement`, or `ImageBitmap`*.
+				- target, level, internalformat, width, height, border, format, type, pixels // From an `ImageData`, `HTMLImageElement`, `HTMLCanvasElement`, `HTMLVideoElement`, or `ImageBitmap`* **.
+				- target, level, internalformat, width, height, border, format, type, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, internalformat, width, height, border, format, type, source // ?* **
+				- target, level, internalformat, width, height, border, format, type, srcData, srcOffset // ?**
+	Otherwise:
+		Immutable-format or bounds exist and are smaller than current bounds:
+			Data is a framebuffer: copyTexSubImage3D
+				- target, level, xoffset, yoffset, zoffset, x, y, width, height // From the currently-bound framebuffer. `x` and `y` are the lower left corner to start copying from, `xoffset`, `yoffset`, and `zoffset` are the offset within the texture image.
+			Compressed format: compressedTexSubImage3D
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData // From a `TypedArray` or a `DataView`**.
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset // From a `TypedArray` or a `DataView`**.
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride // From a `TypedArray` or a `DataView`**.
+			Otherwise: texSubImage3D
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels // From a `Uint8Array`, `Uint16Array`, `Float32Array`, `ImageBitmap`, `ImageData`, `HTMLImageElement`, `HTMLCanvasElement`, or `HTMLVideoElement`*.
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData // ?*
+				- target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset // ?**
+		Otherwise (need to update dimension cache):
+			Data is a framebuffer: copyTexSubImage3D
+				- target, level, xoffset, yoffset, zoffset, x, y, width, height // From the currently-bound framebuffer. `x` and `y` are the lower left corner to start copying from, `xoffset`, `yoffset`, and `zoffset` are the offset within the texture image.
+			Compressed format: compressedTexImage3D
+				- target, level, internalformat, width, height, depth, border, imageSize, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, internalformat, width, height, depth, border, srcData // ?**
+				- target, level, internalformat, width, height, depth, border, srcData, srcOffset // ?**
+				- target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride // ?**
+			Otherwise: texImage3D
+				- target, level, internalformat, width, height, depth, border, format, type, offset // From the `PIXEL_UNPACK_BUFFER`.
+				- target, level, internalformat, width, height, depth, border, format, type, source // From an `ImageBitmap`, `ImageData`, `HTMLImageElement`, `HTMLCanvasElement`, or `HTMLVideoElement`* **.
+				- target, level, internalformat, width, height, depth, border, format, type, srcData // From a `TypedArray` or a `DataView`* **.
+				- target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset // ?**

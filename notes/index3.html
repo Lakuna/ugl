@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<script>
+  // `ugl`.
+  function makeFullscreenCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.style.touchAction = "none";
+
+    document.body = document.createElement("body");
+    document.body.appendChild(canvas);
+
+    function recursiveFullscreen(element) {
+      element.style.width = "100%";
+      element.style.height = "100%";
+      element.style.margin = "0px";
+      element.style.padding = "0px";
+      element.style.display = "block";
+
+      if (element.parentElement) {
+        recursiveFullscreen(element.parentElement);
+      }
+    }
+    recursiveFullscreen(canvas);
+
+    return canvas;
+  }
+
+  window.addEventListener("load", () => {
+    const canvas = makeFullscreenCanvas();
+    const gl = canvas.getContext("webgl2");
+
+    const a = gl.createFramebuffer();
+    const b = gl.createFramebuffer();
+
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === null);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, a);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === a);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === a);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === a);
+
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, a);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, b);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === b);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === a);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === b);
+
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === b);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === b);
+
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === null);
+
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, a);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === a);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === null);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, a);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, b);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === b);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === a);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === b);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    console.log(gl.getParameter(gl.FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) === null);
+    console.log(gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) === null);
+  });
+</script>
