@@ -198,6 +198,7 @@ export default class Context extends ApiInterface {
 		) {
 			return;
 		}
+
 		this.gl.blendColor(value[0], value[1], value[2], value[3]);
 		this.blendColorCache = value;
 	}
@@ -475,6 +476,16 @@ export default class Context extends ApiInterface {
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 */
 	public set clearColor(value: Color) {
+		if (
+			typeof this.clearColorCache !== "undefined" &&
+			this.clearColorCache[0] === value[0] &&
+			this.clearColorCache[1] === value[1] &&
+			this.clearColorCache[2] === value[2] &&
+			this.clearColorCache[3] === value[3]
+		) {
+			return;
+		}
+
 		this.gl.clearColor(value[0], value[1], value[2], value[3]);
 		this.clearColorCache = value;
 	}
@@ -501,6 +512,10 @@ export default class Context extends ApiInterface {
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
 	public set clearDepth(value: number) {
+		if (this.clearDepthCache === value) {
+			return;
+		}
+
 		this.gl.clearDepth(value);
 		this.clearDepthCache = value;
 	}
@@ -527,6 +542,10 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public set clearStencil(value: number) {
+		if (this.clearStencilCache === value) {
+			return;
+		}
+
 		this.gl.clearStencil(value);
 		this.clearStencilCache = value;
 	}
@@ -556,6 +575,16 @@ export default class Context extends ApiInterface {
 	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 */
 	public set colorMask(value: ColorMask) {
+		if (
+			typeof this.colorMaskCache !== "undefined" &&
+			this.colorMaskCache[0] === value[0] &&
+			this.colorMaskCache[1] === value[1] &&
+			this.colorMaskCache[2] === value[2] &&
+			this.colorMaskCache[3] === value[3]
+		) {
+			return;
+		}
+
 		this.gl.colorMask(value[0], value[1], value[2], value[3]);
 		this.colorMaskCache = value;
 	}
@@ -608,19 +637,32 @@ export default class Context extends ApiInterface {
 	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public set cullFace(value: PolygonDirection | boolean) {
-		if (value === false) {
-			this.gl.disable(CULL_FACE);
-			this.doCullFaceCache = false;
+		if (typeof value === "boolean") {
+			if (this.doCullFaceCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(CULL_FACE);
+			} else {
+				this.gl.disable(CULL_FACE);
+			}
+			this.doCullFaceCache = value;
+
 			return;
 		}
 
-		this.gl.enable(CULL_FACE);
-		this.doCullFaceCache = true;
-
-		if (typeof value !== "boolean") {
-			this.gl.cullFace(value);
-			this.cullFaceCache = value;
+		if (!this.doCullFaceCache) {
+			this.gl.enable(CULL_FACE);
+			this.doCullFaceCache = true;
 		}
+
+		if (this.cullFaceCache === value) {
+			return;
+		}
+
+		this.gl.cullFace(value);
+		this.cullFaceCache = value;
 	}
 
 	/**
@@ -656,19 +698,32 @@ export default class Context extends ApiInterface {
 	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public set depthFunction(value: TestFunction | boolean) {
-		if (value === false) {
-			this.gl.disable(DEPTH_TEST);
-			this.doDepthTestCache = false;
+		if (typeof value === "boolean") {
+			if (this.doDepthTestCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(DEPTH_TEST);
+			} else {
+				this.gl.disable(DEPTH_TEST);
+			}
+			this.doDepthTestCache = value;
+
 			return;
 		}
 
-		this.gl.enable(DEPTH_TEST);
-		this.doDepthTestCache = true;
-
-		if (typeof value !== "boolean") {
-			this.gl.depthFunc(value);
-			this.depthFunctionCache = value;
+		if (!this.doDepthTestCache) {
+			this.gl.enable(DEPTH_TEST);
+			this.doDepthTestCache = true;
 		}
+
+		if (this.depthFunctionCache === value) {
+			return;
+		}
+
+		this.gl.depthFunc(value);
+		this.depthFunctionCache = value;
 	}
 
 	/**
@@ -693,6 +748,10 @@ export default class Context extends ApiInterface {
 	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
 	 */
 	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
+		if (this.unpackAlignmentCache === value) {
+			return;
+		}
+
 		this.gl.pixelStorei(UNPACK_ALIGNMENT, value);
 		this.unpackAlignmentCache = value;
 	}
