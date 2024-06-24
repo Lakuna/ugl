@@ -12,12 +12,10 @@ export default tseslint.config(
 		rules: {
 			"capitalized-comments": "off",
 			complexity: "off",
-			// consistent-this?
 			"guard-for-in": "off",
 			"id-denylist": "off",
 			"id-length": "off",
 			"id-match": "off",
-			// init-declarations?
 			"max-classes-per-file": "off",
 			"max-depth": "off",
 			"max-lines": "off",
@@ -28,12 +26,10 @@ export default tseslint.config(
 			"no-bitwise": "off",
 			"no-continue": "off",
 			"no-div-regex": "off",
-			// no-implicit-coercion?
 			"no-inline-comments": "off",
 			"no-label-var": "off",
 			"no-labels": "off",
 			"no-magic-numbers": "off", // WebGL
-			// no-multi-str?
 			"no-nested-ternary": "off",
 			"no-plusplus": "off",
 			"no-restricted-exports": "off",
@@ -41,19 +37,16 @@ export default tseslint.config(
 			"no-restricted-imports": "off",
 			"no-restricted-properties": "off",
 			"no-restricted-syntax": "off",
-			// no-return-assign?
-			// no-sequences?
 			"no-shadow": "off", // Must use `@typescript-eslint/no-shadow` instead.
 			"no-ternary": "off",
 			"no-undef-init": "off",
 			"no-void": "off",
 			"no-warning-comments": "off",
-			// no-with?
 			"one-var": ["error", "never"]
 		}
 	},
 
-	// Enable type checking.
+	// Enable type checking and related rules.
 	...tseslint.configs.strictTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	{
@@ -78,5 +71,6 @@ export default tseslint.config(
 		}
 	},
 
+	// Enable the Prettier plugin.
 	prettier // Includes `eslint-config-prettier` and `eslint-plugin-prettier`.
 );
