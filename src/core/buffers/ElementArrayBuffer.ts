@@ -1,7 +1,7 @@
 import BufferParent from "#BufferParent";
-import type Context from "#Context";
-import BufferUsage from "#BufferUsage";
 import BufferTarget from "#BufferTarget";
+import BufferUsage from "#BufferUsage";
+import type Context from "#Context";
 import type { UintTypedArray } from "#UintTypedArray";
 
 /**

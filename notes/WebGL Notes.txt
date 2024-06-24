@@ -92,10 +92,10 @@ Texture.setMipInternal postconditions:
 - The cached texture dimension values are updated if necessary. If this happens (the largest mip was resized), smaller mips need to be marked as dirty (as they no longer contribute to texture completeness).
 
 Potential internal sub-methods:
-- protected abstract setMipFromFramebuffer(	target, level, bounds,			framebuffer, 	area		); // `copyTexSubImage2D`, `copyTexImage2D`, `copyTexSubImage3D`.
-- protected abstract setMipFromBuffer(		target, level, bounds, format, type,	buffer, 	offset		); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
-- protected abstract setMipFromData(		target, level, bounds, format, type,	data				); // `texSubImage2D`, `texImage2D`, `texSubImage3D`, `texImage3D`.
-- protected abstract setMipFromArray(		target, level, bounds, format, type,	array, 		offset, length	); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
+- protected abstract setMipFromFramebuffer(	target, level, bounds,					framebuffer, 	area			); // `copyTexSubImage2D`, `copyTexImage2D`, `copyTexSubImage3D`.
+- protected abstract setMipFromBuffer(		target, level, bounds, format, type,	buffer, 		offset			); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
+- protected abstract setMipFromData(		target, level, bounds, format, type,	data							); // `texSubImage2D`, `texImage2D`, `texSubImage3D`, `texImage3D`.
+- protected abstract setMipFromArray(		target, level, bounds, format, type,	array, 			offset, length	); // `compressedTexSubImage2D`, `texSubImage2D`, `compressedTexImage2D`, `texImage2D`, `compressedTexSubImage3D`, `texSubImage3D`, `compressedTexImage3D`, `texImage3D`.
 
 Old super-method (@throws {@link TextureFormatError}):
 - public setMip(target: MipmapTarget, level: number, data: MipData, bounds?: Box, type?: TextureDataType, unpackAlignment?: 1 | 2 | 4 | 8): void { /* ... */ }

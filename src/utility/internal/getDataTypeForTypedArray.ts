@@ -1,5 +1,5 @@
-import type { TypedArray } from "#TypedArray";
 import BufferDataType from "#BufferDataType";
+import type { TypedArray } from "#TypedArray";
 
 /**
  * Returns a default buffer data type for the given typed array.

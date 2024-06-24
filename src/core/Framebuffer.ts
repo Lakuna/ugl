@@ -1,9 +1,9 @@
-import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import FramebufferTarget from "#FramebufferTarget";
-import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
+import ContextDependent from "#ContextDependent";
 import FramebufferStatus from "#FramebufferStatus";
+import FramebufferTarget from "#FramebufferTarget";
+import UnsupportedOperationError from "#UnsupportedOperationError";
+import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
 
 /**
  * A portion of contiguous memory that can be thought of as a collection of
@@ -135,6 +135,9 @@ export default class Framebuffer extends ContextDependent {
 			case FramebufferTarget.DRAW_FRAMEBUFFER:
 				// For `DRAW_FRAMEBUFFER`, update `FRAMEBUFFER` too (`FRAMEBUFFER_BINDING` always returns `DRAW_FRAMEBUFFER_BINDING`).
 				contextBindingsCache.set(FramebufferTarget.FRAMEBUFFER, framebuffer);
+				break;
+			default:
+				throw new RangeError();
 		}
 	}
 

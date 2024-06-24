@@ -1,9 +1,9 @@
-import ContextDependent from "#ContextDependent";
+import { COMPILE_STATUS } from "#constants";
 import type Context from "#Context";
+import ContextDependent from "#ContextDependent";
+import ShaderCompileError from "#ShaderCompileError";
 import type ShaderType from "#ShaderType";
 import UnsupportedOperationError from "#UnsupportedOperationError";
-import { COMPILE_STATUS } from "#constants";
-import ShaderCompileError from "#ShaderCompileError";
 
 /**
  * A WebGL2 shader.
@@ -37,7 +37,7 @@ export default class Shader extends ContextDependent {
 		this.gl.compileShader(shader);
 
 		if (!this.compileStatus) {
-			throw new ShaderCompileError(this.infoLog ?? undefined);
+			throw new ShaderCompileError(this.infoLog ?? void 0);
 		}
 	}
 

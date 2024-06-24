@@ -1,9 +1,9 @@
-import FramebufferTarget from "#FramebufferTarget";
 import {
 	DRAW_FRAMEBUFFER_BINDING,
 	FRAMEBUFFER_BINDING,
 	READ_FRAMEBUFFER_BINDING
 } from "#constants";
+import FramebufferTarget from "#FramebufferTarget";
 
 /**
  * Gets the constant value representing the context property of the given
@@ -23,5 +23,7 @@ export default function getParameterForFramebufferTarget(
 			return FRAMEBUFFER_BINDING;
 		case FramebufferTarget.READ_FRAMEBUFFER:
 			return READ_FRAMEBUFFER_BINDING;
+		default:
+			throw new RangeError();
 	}
 }

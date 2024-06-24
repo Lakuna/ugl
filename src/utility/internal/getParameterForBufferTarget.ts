@@ -1,4 +1,3 @@
-import BufferTarget from "#BufferTarget";
 import {
 	ARRAY_BUFFER_BINDING,
 	COPY_READ_BUFFER_BINDING,
@@ -9,6 +8,7 @@ import {
 	TRANSFORM_FEEDBACK_BUFFER_BINDING,
 	UNIFORM_BUFFER_BINDING
 } from "#constants";
+import BufferTarget from "#BufferTarget";
 
 /**
  * Gets the constant value representing the context property of the given
@@ -38,5 +38,7 @@ export default function getParameterForBufferTarget(
 			return TRANSFORM_FEEDBACK_BUFFER_BINDING;
 		case BufferTarget.UNIFORM_BUFFER:
 			return UNIFORM_BUFFER_BINDING;
+		default:
+			throw new RangeError();
 	}
 }

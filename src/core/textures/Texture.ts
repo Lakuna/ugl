@@ -1,9 +1,3 @@
-import ContextDependent from "#ContextDependent";
-import type Context from "#Context";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import type TextureTarget from "#TextureTarget";
-import getParameterForTextureTarget from "#getParameterForTextureTarget";
-import type TextureMagFilter from "#TextureMagFilter";
 import {
 	TEXTURE_BASE_LEVEL,
 	TEXTURE_COMPARE_FUNC,
@@ -18,23 +12,29 @@ import {
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
 } from "#constants";
-import TextureMinFilter from "#TextureMinFilter";
-import type TextureWrapFunction from "#TextureWrapFunction";
+import type Box from "#Box";
+import Buffer from "#Buffer";
+import type Context from "#Context";
+import ContextDependent from "#ContextDependent";
+import Framebuffer from "#Framebuffer";
+import ImmutableError from "#ImmutableError";
+import type MipmapTarget from "#MipmapTarget";
 import type TestFunction from "#TestFunction";
 import type TextureCompareMode from "#TextureCompareMode";
-import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
-import type MipmapTarget from "#MipmapTarget";
-import type Box from "#Box";
 import TextureDataType from "#TextureDataType";
 import TextureFormat from "#TextureFormat";
-import type { TextureInternalFormat } from "#TextureInternalFormat";
-import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
-import ImmutableError from "#ImmutableError";
-import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
 import TextureFormatError from "#TextureFormatError";
+import type { TextureInternalFormat } from "#TextureInternalFormat";
+import type TextureMagFilter from "#TextureMagFilter";
+import TextureMinFilter from "#TextureMinFilter";
+import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
+import type TextureTarget from "#TextureTarget";
+import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
+import type TextureWrapFunction from "#TextureWrapFunction";
+import UnsupportedOperationError from "#UnsupportedOperationError";
+import getParameterForTextureTarget from "#getParameterForTextureTarget";
 import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
-import Framebuffer from "#Framebuffer";
-import Buffer from "#Buffer";
+import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
 
 /**
  * A randomly-accessible array.
@@ -236,7 +236,7 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Gets the currently-bound texture for a binding point.
 	 * @param context - The rendering context.
-	 * @param textureUnit - The texture unit, or `undefined` for the current
+	 * @param requestedTextureUnit - The texture unit, or `undefined` for the current
 	 * texture unit.
 	 * @param target - The binding point.
 	 * @returns The texture.
@@ -245,11 +245,12 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public static getBound(
 		context: Context,
-		textureUnit: number | undefined,
+		requestedTextureUnit: number | undefined,
 		target: TextureTarget
 	): WebGLTexture | null {
 		// Default to the most desirable texture unit.
-		textureUnit ??= Texture.getBestTextureUnit(context, target);
+		const textureUnit =
+			requestedTextureUnit ?? Texture.getBestTextureUnit(context, target);
 
 		// Get the texture unit bindings cache.
 		const textureUnitBindingsCache: Map<TextureTarget, WebGLTexture | null> =
@@ -271,7 +272,7 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Binds a texture to a binding point.
 	 * @param context - The rendering context.
-	 * @param textureUnit - The texture unit, or `undefined` for the current
+	 * @param requestedTextureUnit - The texture unit, or `undefined` for the current
 	 * texture unit.
 	 * @param target - The binding point.
 	 * @param texture - The texture.
@@ -281,12 +282,14 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public static override bind(
 		context: Context,
-		textureUnit: number | undefined,
+		requestedTextureUnit: number | undefined,
 		target: TextureTarget,
 		texture: WebGLTexture | null
 	): number {
 		// Default to the most desirable texture unit.
-		textureUnit ??= Texture.getBestTextureUnit(context, target, texture);
+		const textureUnit =
+			requestedTextureUnit ??
+			Texture.getBestTextureUnit(context, target, texture);
 
 		// Update the texture overwrite order.
 		const targetBindingOverwriteOrder: number[] =
@@ -346,8 +349,10 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Otherwise, unbind the texture from every texture unit.
-		for (const textureUnit of Texture.getContextBindingsCache(context).keys()) {
-			Texture.unbind(context, textureUnit, target, texture);
+		for (const otherTextureUnit of Texture.getContextBindingsCache(
+			context
+		).keys()) {
+			Texture.unbind(context, otherTextureUnit, target, texture);
 		}
 	}
 
@@ -614,8 +619,8 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
-		bounds?: Box,
-		type?: TextureDataType,
+		requestedBounds?: Box,
+		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		shape1?: Box | number, // Meaning depends on data type; see overloads.
 		shape2?: number // Meaning depends on data type; see overloads.
@@ -623,24 +628,26 @@ export default abstract class Texture extends ContextDependent {
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes: TextureDataType[] | null =
 			getTextureDataTypesForTextureInternalFormat(this.format);
-		type ??= expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
+		const type =
+			requestedType ?? expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
 		if (expectedDataTypes !== null && !expectedDataTypes.includes(type)) {
 			throw new TextureFormatError();
 		}
 
 		// Ensure that the specified bounds (if any) are no bigger than the mip.
 		const mipDims: number[] = this.getSizeOfMip(level);
+		let bounds: Box | undefined = requestedBounds;
 		if (typeof bounds === "undefined") {
 			// Default to the entire mip for immutable-format textures.
 			// For mutable-format textures, `texImage[23]D` can be used (no bounds needed).
 			if (this.isImmutableFormat) {
 				bounds = {
+					depth: mipDims[2] ?? 0,
+					height: mipDims[1] ?? 0,
+					width: mipDims[0] ?? 0,
 					x: 0,
 					y: 0,
-					z: 0,
-					width: mipDims[0] ?? 0,
-					height: mipDims[1] ?? 0,
-					depth: mipDims[2] ?? 0
+					z: 0
 				};
 			}
 		} else if (this.isImmutableFormat || level > 0) {
@@ -691,12 +698,12 @@ export default abstract class Texture extends ContextDependent {
 
 			// Automatically set bounds to entire mip if they don't exist.
 			bounds ??= {
+				depth: mipDims[2] ?? 0,
+				height: mipDims[1] ?? 0,
+				width: mipDims[0] ?? 0,
 				x: 0,
 				y: 0,
-				z: 0,
-				width: mipDims[0] ?? 0,
-				height: mipDims[1] ?? 0,
-				depth: mipDims[2] ?? 0
+				z: 0
 			};
 
 			this.setMipFromBuffer(
@@ -716,12 +723,12 @@ export default abstract class Texture extends ContextDependent {
 
 			// Automatically set bounds to entire mip if they don't exist.
 			bounds ??= {
+				depth: mipDims[2] ?? 0,
+				height: mipDims[1] ?? 0,
+				width: mipDims[0] ?? 0,
 				x: 0,
 				y: 0,
-				z: 0,
-				width: mipDims[0] ?? 0,
-				height: mipDims[1] ?? 0,
-				depth: mipDims[2] ?? 0
+				z: 0
 			};
 
 			this.setMipFromArray(
@@ -748,19 +755,19 @@ export default abstract class Texture extends ContextDependent {
 
 		// Clear cached values.
 		// TODO: Determine which of these cached values actually need to be cleared.
-		this.baseLevelCache = undefined;
-		this.comparisonFunctionCache = undefined;
-		this.comparisonModeCache = undefined;
+		this.baseLevelCache = void 0;
+		this.comparisonFunctionCache = void 0;
+		this.comparisonModeCache = void 0;
 		delete this.formatCache;
-		this.magFilterCache = undefined;
-		this.maxAnisotropyCache = undefined;
-		this.maxLevelCache = undefined;
-		this.maxLodCache = undefined;
-		this.minFilterCache = undefined;
-		this.minLodCache = undefined;
-		this.wrapRFunctionCache = undefined;
-		this.wrapSFunctionCache = undefined;
-		this.wrapTFunctionCache = undefined;
+		this.magFilterCache = void 0;
+		this.maxAnisotropyCache = void 0;
+		this.maxLevelCache = void 0;
+		this.maxLodCache = void 0;
+		this.minFilterCache = void 0;
+		this.minLodCache = void 0;
+		this.wrapRFunctionCache = void 0;
+		this.wrapSFunctionCache = void 0;
+		this.wrapTFunctionCache = void 0;
 	}
 
 	/**

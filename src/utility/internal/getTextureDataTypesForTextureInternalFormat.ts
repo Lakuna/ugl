@@ -1,9 +1,9 @@
+import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 import TextureDataType from "#TextureDataType";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
-import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
-import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
 import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInternalFormat";
-import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
+import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
+import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 
 /**
  * Gets a list of data types that can be supplied to the given texture internal

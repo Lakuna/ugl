@@ -1,7 +1,7 @@
-import ContextDependent from "#ContextDependent";
-import type Context from "#Context";
-import UnsupportedOperationError from "#UnsupportedOperationError";
 import { RENDERBUFFER, RENDERBUFFER_BINDING } from "#constants";
+import type Context from "#Context";
+import ContextDependent from "#ContextDependent";
+import UnsupportedOperationError from "#UnsupportedOperationError";
 
 /**
  * An object that contains an image and is optimized as a rendering target.

@@ -1,16 +1,16 @@
-import Texture from "#Texture";
-import TextureTarget from "#TextureTarget";
-import type Context from "#Context";
-import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type Box from "#Box";
 import type Buffer from "#Buffer";
-import Framebuffer from "#Framebuffer";
-import type MipmapTarget from "#MipmapTarget";
-import type TextureFormat from "#TextureFormat";
-import FramebufferTarget from "#FramebufferTarget";
-import isTextureFormatCompressed from "#isTextureFormatCompressed";
 import BufferTarget from "#BufferTarget";
+import type Context from "#Context";
+import Framebuffer from "#Framebuffer";
+import FramebufferTarget from "#FramebufferTarget";
+import type MipmapTarget from "#MipmapTarget";
+import Texture from "#Texture";
 import type TextureDataType from "#TextureDataType";
+import type TextureFormat from "#TextureFormat";
+import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
+import TextureTarget from "#TextureTarget";
+import isTextureFormatCompressed from "#isTextureFormatCompressed";
 
 /** A two-dimensional array texture. */
 export default class Texture2dArray extends Texture {
@@ -349,36 +349,35 @@ export default class Texture2dArray extends Texture {
 				offset,
 				length
 			);
+		} else if (typeof offset === "undefined") {
+			// Uncompressed format without offset.
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				bounds.width,
+				bounds.height,
+				bounds.depth ?? 1,
+				0,
+				format,
+				type,
+				array
+			);
 		} else {
-			// Uncompressed format.
-			if (typeof offset === "undefined") {
-				this.gl.texImage3D(
-					target,
-					level,
-					this.format,
-					bounds.width,
-					bounds.height,
-					bounds.depth ?? 1,
-					0,
-					format,
-					type,
-					array
-				);
-			} else {
-				this.gl.texImage3D(
-					target,
-					level,
-					this.format,
-					bounds.width,
-					bounds.height,
-					bounds.depth ?? 1,
-					0,
-					format,
-					type,
-					array,
-					offset
-				);
-			}
+			// Uncompressed format with offset.
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				bounds.width,
+				bounds.height,
+				bounds.depth ?? 1,
+				0,
+				format,
+				type,
+				array,
+				offset
+			);
 		}
 
 		// Update dimensions.

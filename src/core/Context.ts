@@ -1,43 +1,43 @@
 import {
 	ACTIVE_TEXTURE,
-	TEXTURE0,
+	BLEND,
 	BLEND_COLOR,
-	BLEND_EQUATION_RGB,
-	BLEND_EQUATION_ALPHA,
-	BLEND_SRC_RGB,
-	BLEND_SRC_ALPHA,
-	BLEND_DST_RGB,
 	BLEND_DST_ALPHA,
-	COLOR_CLEAR_VALUE,
-	DEPTH_CLEAR_VALUE,
-	STENCIL_CLEAR_VALUE,
+	BLEND_DST_RGB,
+	BLEND_EQUATION_ALPHA,
+	BLEND_EQUATION_RGB,
+	BLEND_SRC_ALPHA,
+	BLEND_SRC_RGB,
 	COLOR_BUFFER_BIT,
-	DEPTH_BUFFER_BIT,
-	STENCIL_BUFFER_BIT,
+	COLOR_CLEAR_VALUE,
 	COLOR_WRITEMASK,
-	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-	UNPACK_ALIGNMENT,
 	CULL_FACE,
 	CULL_FACE_MODE,
-	DEPTH_TEST,
+	DEPTH_BUFFER_BIT,
+	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
-	BLEND
+	DEPTH_TEST,
+	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+	STENCIL_BUFFER_BIT,
+	STENCIL_CLEAR_VALUE,
+	TEXTURE0,
+	UNPACK_ALIGNMENT
 } from "#constants";
 import ApiInterface from "#ApiInterface";
-import type { Canvas } from "#Canvas";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import type Color from "#Color";
+import BadValueError from "#BadValueError";
 import BlendEquation from "#BlendEquation";
 import type BlendEquationSet from "#BlendEquationSet";
-import type BlendFunctionSet from "#BlendFunctionSet";
-import type BlendFunctionFullSet from "#BlendFunctionFullSet";
 import type BlendFunction from "#BlendFunction";
-import ErrorCode from "#ErrorCode";
-import WebglError from "#WebglError";
+import type BlendFunctionFullSet from "#BlendFunctionFullSet";
+import type BlendFunctionSet from "#BlendFunctionSet";
+import type { Canvas } from "#Canvas";
+import type Color from "#Color";
 import type ColorMask from "#ColorMask";
-import BadValueError from "#BadValueError";
+import ErrorCode from "#ErrorCode";
 import type PolygonDirection from "#PolygonDirection";
 import type TestFunction from "#TestFunction";
+import UnsupportedOperationError from "#UnsupportedOperationError";
+import WebglError from "#WebglError";
 
 /**
  * A WebGL2 rendering context.

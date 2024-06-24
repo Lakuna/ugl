@@ -1,16 +1,16 @@
-import Texture from "#Texture";
-import TextureTarget from "#TextureTarget";
-import type Context from "#Context";
-import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type Box from "#Box";
 import type Buffer from "#Buffer";
-import Framebuffer from "#Framebuffer";
-import MipmapTarget from "#MipmapTarget";
-import type TextureFormat from "#TextureFormat";
-import FramebufferTarget from "#FramebufferTarget";
-import isTextureFormatCompressed from "#isTextureFormatCompressed";
 import BufferTarget from "#BufferTarget";
+import type Context from "#Context";
+import Framebuffer from "#Framebuffer";
+import FramebufferTarget from "#FramebufferTarget";
+import MipmapTarget from "#MipmapTarget";
+import Texture from "#Texture";
 import type TextureDataType from "#TextureDataType";
+import type TextureFormat from "#TextureFormat";
+import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
+import TextureTarget from "#TextureTarget";
+import isTextureFormatCompressed from "#isTextureFormatCompressed";
 
 /** A cube mapped texture. */
 export default class TextureCubemap extends Texture {
@@ -40,10 +40,10 @@ export default class TextureCubemap extends Texture {
 		// Fill each face with one magenta texel until the image loads.
 		const magenta: Uint8Array = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, 0, magenta, {
-			x: 0,
-			y: 0,
+			height: 1,
 			width: 1,
-			height: 1
+			x: 0,
+			y: 0
 		});
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, magenta);
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, magenta);
@@ -70,8 +70,8 @@ export default class TextureCubemap extends Texture {
 
 				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
 				if (loadedImages.size >= 6) {
-					for (const [target, image] of loadedImages) {
-						out.setMip(target, 0, image);
+					for (const [otherTarget, otherImage] of loadedImages) {
+						out.setMip(otherTarget, 0, otherImage);
 					}
 				}
 			});
@@ -400,34 +400,33 @@ export default class TextureCubemap extends Texture {
 				offset,
 				length
 			);
+		} else if (typeof offset === "undefined") {
+			// Uncompressed format without offset.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				dim,
+				dim,
+				0,
+				format,
+				type,
+				array
+			);
 		} else {
-			// Uncompressed format.
-			if (typeof offset === "undefined") {
-				this.gl.texImage2D(
-					target,
-					level,
-					this.format,
-					dim,
-					dim,
-					0,
-					format,
-					type,
-					array
-				);
-			} else {
-				this.gl.texImage2D(
-					target,
-					level,
-					this.format,
-					dim,
-					dim,
-					0,
-					format,
-					type,
-					array,
-					offset
-				);
-			}
+			// Uncompressed format with offset.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				dim,
+				dim,
+				0,
+				format,
+				type,
+				array,
+				offset
+			);
 		}
 
 		// Update dimensions.

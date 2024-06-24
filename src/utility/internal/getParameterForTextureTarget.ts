@@ -1,10 +1,10 @@
-import TextureTarget from "#TextureTarget";
 import {
 	TEXTURE_BINDING_2D,
 	TEXTURE_BINDING_2D_ARRAY,
 	TEXTURE_BINDING_3D,
 	TEXTURE_BINDING_CUBE_MAP
 } from "#constants";
+import TextureTarget from "#TextureTarget";
 
 /**
  * Gets the constant value representing the context property of the given
@@ -26,5 +26,7 @@ export default function getParameterForTextureTarget(
 			return TEXTURE_BINDING_3D;
 		case TextureTarget.TEXTURE_CUBE_MAP:
 			return TEXTURE_BINDING_CUBE_MAP;
+		default:
+			throw new RangeError();
 	}
 }

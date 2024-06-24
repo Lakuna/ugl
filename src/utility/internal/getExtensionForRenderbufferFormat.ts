@@ -1,5 +1,5 @@
-import RenderbufferFormat from "#RenderbufferFormat";
 import Extension from "#Extension";
+import RenderbufferFormat from "#RenderbufferFormat";
 
 /**
  * Gets the extension that is associated with the given renderbuffer format.

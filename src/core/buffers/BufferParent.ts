@@ -1,10 +1,10 @@
-import ContextDependent from "#ContextDependent";
-import type Context from "#Context";
-import UnsupportedOperationError from "#UnsupportedOperationError";
 import BufferTarget from "#BufferTarget";
-import getParameterForBufferTarget from "#getParameterForBufferTarget";
 import BufferUsage from "#BufferUsage";
+import type Context from "#Context";
+import ContextDependent from "#ContextDependent";
 import type { TypedArray } from "#TypedArray";
+import UnsupportedOperationError from "#UnsupportedOperationError";
+import getParameterForBufferTarget from "#getParameterForBufferTarget";
 
 /**
  * An array of binary data.
@@ -339,7 +339,7 @@ export default abstract class BufferParent extends ContextDependent {
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		isHalf = false,
-		replaceOffset?: number
+		replaceOffset: number | undefined = void 0
 	): void {
 		if (typeof replaceOffset === "number") {
 			this.gl.bufferSubData(

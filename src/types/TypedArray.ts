@@ -1,6 +1,6 @@
-import type { UintTypedArray } from "#UintTypedArray";
-import type { IntTypedArray } from "#IntTypedArray";
 import type { FloatTypedArray } from "#FloatTypedArray";
+import type { IntTypedArray } from "#IntTypedArray";
+import type { UintTypedArray } from "#UintTypedArray";
 
 /**
  * Array-like objects that provide a mechanism for reading and writing raw

@@ -1,9 +1,9 @@
+import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
+import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
 import TextureFormat from "#TextureFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
 import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
-import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
-import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
 
 /**
  * Gets the corresponding texture format for an internal format.
@@ -208,5 +208,7 @@ export default function getTextureFormatForTextureInternalFormat(
 			return TextureFormat.COMPRESSED_RED_GREEN_RGTC2_EXT;
 		case TextureCompressedUnsizedInternalFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT:
 			return TextureFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT;
+		default:
+			throw new RangeError();
 	}
 }

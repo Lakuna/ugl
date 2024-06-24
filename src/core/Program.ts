@@ -1,10 +1,10 @@
-import ContextDependent from "#ContextDependent";
 import type Context from "#Context";
-import UnsupportedOperationError from "#UnsupportedOperationError";
+import ContextDependent from "#ContextDependent";
+import { LINK_STATUS } from "#constants";
+import ProgramLinkError from "#ProgramLinkError";
 import Shader from "#Shader";
 import ShaderType from "#ShaderType";
-import ProgramLinkError from "#ProgramLinkError";
-import { LINK_STATUS } from "#constants";
+import UnsupportedOperationError from "#UnsupportedOperationError";
 
 /**
  * A WebGL2 shader program.
@@ -82,7 +82,7 @@ export default class Program extends ContextDependent {
 		this.gl.linkProgram(program);
 
 		if (!this.linkStatus) {
-			throw new ProgramLinkError(this.infoLog ?? undefined);
+			throw new ProgramLinkError(this.infoLog ?? void 0);
 		}
 	}
 

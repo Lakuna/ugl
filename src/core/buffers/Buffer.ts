@@ -1,8 +1,8 @@
 import BufferParent from "#BufferParent";
+import BufferTarget from "#BufferTarget";
+import BufferUsage from "#BufferUsage";
 import type Context from "#Context";
 import type { TypedArray } from "#TypedArray";
-import BufferUsage from "#BufferUsage";
-import BufferTarget from "#BufferTarget";
 
 /**
  * An array of binary data to be used as anything other than an element array

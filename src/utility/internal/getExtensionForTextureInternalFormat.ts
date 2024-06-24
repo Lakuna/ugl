@@ -1,9 +1,9 @@
-import type { TextureInternalFormat } from "#TextureInternalFormat";
-import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInternalFormat";
-import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
-import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
 import Extension from "#Extension";
 import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
+import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
+import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
+import type { TextureInternalFormat } from "#TextureInternalFormat";
+import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInternalFormat";
 
 /**
  * Gets the extension that is associated with the given texture internal format.

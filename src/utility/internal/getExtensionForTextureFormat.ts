@@ -1,5 +1,5 @@
-import TextureFormat from "#TextureFormat";
 import Extension from "#Extension";
+import TextureFormat from "#TextureFormat";
 
 /**
  * Gets the extension that is associated with the given texture format.
