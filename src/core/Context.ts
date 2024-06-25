@@ -34,6 +34,8 @@ import type { Canvas } from "#Canvas";
 import type Color from "#Color";
 import type ColorMask from "#ColorMask";
 import ErrorCode from "#ErrorCode";
+import type Extension from "#Extension";
+import type { ExtensionObject } from "#ExtensionObject";
 import type PolygonDirection from "#PolygonDirection";
 import type TestFunction from "#TestFunction";
 import UnsupportedOperationError from "#UnsupportedOperationError";
@@ -80,6 +82,7 @@ export default class Context extends ApiInterface {
 		}
 
 		this.canvas = this.gl.canvas;
+		this.enabledExtensions = new Map();
 	}
 
 	/**
@@ -779,5 +782,38 @@ export default class Context extends ApiInterface {
 
 		this.gl.pixelStorei(UNPACK_ALIGNMENT, value);
 		this.unpackAlignmentCache = value;
+	}
+
+	/**
+	 * Already-enabled WebGL extensions.
+	 * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)
+	 * @internal
+	 */
+	private enabledExtensions: Map<Extension, ExtensionObject | null>;
+
+	/**
+	 * Enables the specified extension.
+	 * @param extension - The extension.
+	 * @returns The extension's implementation object.
+	 * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)
+	 */
+	public enableExtension(extension: Extension): ExtensionObject | null {
+		let out: ExtensionObject | null | undefined =
+			this.enabledExtensions.get(extension);
+		if (typeof out !== "undefined") {
+			return out;
+		}
+
+		out = this.gl.getExtension(extension) as ExtensionObject | null;
+		this.enabledExtensions.set(extension, out);
+		return out;
+	}
+
+	/**
+	 * A list of supported extensions.
+	 * @see [`getSupportedExtensions`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions)
+	 */
+	public get supportedExtensions(): Extension[] {
+		return this.gl.getSupportedExtensions() as Extension[];
 	}
 }

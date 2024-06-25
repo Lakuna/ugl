@@ -16,6 +16,7 @@ import type Box from "#Box";
 import Buffer from "#Buffer";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
+import Extension from "#Extension";
 import Framebuffer from "#Framebuffer";
 import ImmutableError from "#ImmutableError";
 import type MipmapTarget from "#MipmapTarget";
@@ -32,6 +33,7 @@ import type TextureTarget from "#TextureTarget";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 import type TextureWrapFunction from "#TextureWrapFunction";
 import UnsupportedOperationError from "#UnsupportedOperationError";
+import getExtensionForTextureInternalFormat from "#getExtensionForTextureInternalFormat";
 import getParameterForTextureTarget from "#getParameterForTextureTarget";
 import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
 import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
@@ -452,8 +454,16 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link ImmutableError} if this is an immutable-format texture.
 	 */
 	public set format(value: TextureInternalFormat) {
+		// Immutable-format textures cannot have their format changed (duh).
 		if (this.isImmutableFormat) {
 			throw new ImmutableError();
+		}
+
+		// Enable the extension that is required for the given format, if any.
+		const extension: Extension | null =
+			getExtensionForTextureInternalFormat(value);
+		if (extension !== null) {
+			this.context.enableExtension(extension);
 		}
 
 		this.formatCache = value;
@@ -1001,7 +1011,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public get maxAnisotropy(): number {
-		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
+		this.context.enableExtension(Extension.TextureFilterAnisotropic);
 		this.bind();
 		return (this.maxAnisotropyCache ??= this.gl.getTexParameter(
 			this.target,
@@ -1015,7 +1025,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxAnisotropy(value: number) {
-		// TODO: Automatically enable the `EXT_texture_filter_anisotropic` extension.
+		this.context.enableExtension(Extension.TextureFilterAnisotropic);
 		this.bind();
 		this.gl.texParameterf(this.target, TEXTURE_MAX_ANISOTROPY_EXT, value);
 		this.maxAnisotropyCache = value;

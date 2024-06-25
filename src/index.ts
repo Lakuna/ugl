@@ -45,6 +45,7 @@ export type { default as Box } from "#Box";
 export type { Canvas } from "#Canvas";
 export type { default as Color } from "#Color";
 export type { default as ColorMask } from "#ColorMask";
+export type { ExtensionObject } from "#ExtensionObject";
 export type { FloatTypedArray } from "#FloatTypedArray";
 export type { IntTypedArray } from "#IntTypedArray";
 export type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
