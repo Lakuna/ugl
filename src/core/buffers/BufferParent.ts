@@ -2,7 +2,6 @@ import BufferTarget from "#BufferTarget";
 import BufferUsage from "#BufferUsage";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
-import type { TypedArray } from "#TypedArray";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import getParameterForBufferTarget from "#getParameterForBufferTarget";
 
@@ -168,7 +167,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 */
 	protected constructor(
 		context: Context,
-		data: TypedArray | number,
+		data: ArrayBufferView | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		isHalf = false,
@@ -181,7 +180,7 @@ export default abstract class BufferParent extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = buffer;
-		this.dataCache = data;
+		this.dataCache = void 0;
 		this.targetCache = target;
 		this.usageCache = usage;
 		this.offsetCache = offset;
@@ -248,15 +247,23 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 * @internal
 	 */
-	private dataCache: TypedArray | number | null;
+	private dataCache: ArrayBufferView | undefined;
 
 	/**
-	 * The data contained in this buffer or the size of this buffer's data
-	 * store in bytes.
+	 * The data contained in this buffer.
 	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
 	 */
-	public get data(): Readonly<TypedArray> | number | null {
+	public get data(): Readonly<ArrayBufferView> | undefined {
+		// TODO: Read from buffer if `undefined`.
 		return this.dataCache;
+	}
+
+	/**
+	 * The data contained in this buffer.
+	 * @see [`bufferData`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
+	 */
+	public set data(value: ArrayBufferView) {
+		this.setData(value);
 	}
 
 	/**
@@ -275,12 +282,12 @@ export default abstract class BufferParent extends ContextDependent {
 	}
 
 	/**
-	 * The size of the data in this buffer in bytes.
+	 * The size of this buffer's data store in bytes.
 	 * @internal
 	 */
 	private sizeCache: number;
 
-	/** The size of the data in this buffer in bytes. */
+	/** The size of this buffer's data store in bytes. */
 	public get size(): number {
 		return this.sizeCache;
 	}
@@ -311,7 +318,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * contains floating-point data.
 	 */
 	public setData(
-		data: TypedArray | number,
+		data: ArrayBufferView | number,
 		usage?: BufferUsage,
 		offset?: number,
 		isHalf?: boolean
@@ -327,7 +334,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param replaceOffset - The offset in bytes to start replacing data at.
 	 */
 	public setData(
-		data: TypedArray,
+		data: ArrayBufferView,
 		_: never,
 		offset: number,
 		__: never,
@@ -335,24 +342,25 @@ export default abstract class BufferParent extends ContextDependent {
 	): void;
 
 	public setData(
-		data: TypedArray | number,
+		data: ArrayBufferView | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		isHalf = false,
 		replaceOffset: number | undefined = void 0
 	): void {
-		if (typeof replaceOffset === "number") {
-			this.gl.bufferSubData(
-				this.target,
-				replaceOffset,
-				data as TypedArray,
-				offset
-			);
-			this.dataCache = null;
+		if (typeof data === "number") {
+			this.gl.bufferData(this.target, data, usage);
+			this.dataCache = void 0;
+			this.sizeCache = data;
+			this.usageCache = usage;
+			this.isHalfCache = isHalf;
+		} else if (typeof replaceOffset === "number") {
+			this.gl.bufferSubData(this.target, replaceOffset, data, offset);
+			this.dataCache = void 0;
 		} else {
-			this.gl.bufferData(this.target, data as TypedArray, usage, offset);
+			this.gl.bufferData(this.target, data, usage, offset);
 			this.dataCache = data;
-			this.sizeCache = typeof data === "number" ? data : data.byteLength;
+			this.sizeCache = data.byteLength;
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
 		}
