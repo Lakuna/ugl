@@ -1,10 +1,11 @@
-import type Box from "#Box";
 import type Buffer from "#Buffer";
 import BufferTarget from "#BufferTarget";
 import type Context from "#Context";
 import Framebuffer from "#Framebuffer";
 import FramebufferTarget from "#FramebufferTarget";
 import type MipmapTarget from "#MipmapTarget";
+import type Prism from "#Prism";
+import type Rectangle from "#Rectangle";
 import Texture from "#Texture";
 import type TextureDataType from "#TextureDataType";
 import type TextureFormat from "#TextureFormat";
@@ -95,23 +96,23 @@ export default class Texture3d extends Texture {
 	protected override setMipFromFramebuffer(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Prism | undefined,
 		framebuffer: Framebuffer | undefined,
-		area: Box | undefined
+		area: Rectangle | undefined
 	): void {
 		const mipDims: number[] = this.getSizeOfMip(level);
 
-		const x: number = bounds?.x ?? 0;
-		const y: number = bounds?.y ?? 0;
-		const z: number = bounds?.z ?? 0;
-		const width: number = bounds?.width ?? mipDims[0] ?? 1;
-		const height: number = bounds?.height ?? mipDims[1] ?? 1;
-		const depth: number = bounds?.depth ?? mipDims[2] ?? 1;
+		const x: number = bounds?.[0] ?? 0;
+		const y: number = bounds?.[1] ?? 0;
+		const z: number = bounds?.[4] ?? 0;
+		const width: number = bounds?.[2] ?? mipDims[0] ?? 1;
+		const height: number = bounds?.[3] ?? mipDims[1] ?? 1;
+		const depth: number = bounds?.[5] ?? mipDims[2] ?? 1;
 
-		const frameX: number = area?.x ?? 0;
-		const frameY: number = area?.y ?? 0;
-		const frameWidth: number = area?.width ?? width;
-		const frameHeight: number = area?.height ?? height;
+		const frameX: number = area?.[0] ?? 0;
+		const frameY: number = area?.[1] ?? 0;
+		const frameWidth: number = area?.[2] ?? width;
+		const frameHeight: number = area?.[3] ?? height;
 
 		// Ensure that the area being copied is no larger than the area being written to.
 		if (frameWidth * frameHeight > width * height * depth) {
@@ -142,7 +143,7 @@ export default class Texture3d extends Texture {
 	protected override setMipFromBuffer(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds: Box,
+		bounds: Prism,
 		format: TextureFormat,
 		type: TextureDataType,
 		buffer: Buffer,
@@ -161,12 +162,12 @@ export default class Texture3d extends Texture {
 				this.gl.compressedTexSubImage3D(
 					target,
 					level,
-					bounds.x,
-					bounds.y,
-					bounds.z ?? 0,
-					bounds.width,
-					bounds.height,
-					bounds.depth ?? 1,
+					bounds[0],
+					bounds[1],
+					bounds[4],
+					bounds[2],
+					bounds[3],
+					bounds[5],
 					format,
 					size,
 					offset
@@ -178,12 +179,12 @@ export default class Texture3d extends Texture {
 			this.gl.texSubImage3D(
 				target,
 				level,
-				bounds.x,
-				bounds.y,
-				bounds.z ?? 0,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[0],
+				bounds[1],
+				bounds[4],
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				format,
 				type,
 				offset
@@ -198,9 +199,9 @@ export default class Texture3d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				0,
 				size,
 				offset
@@ -211,9 +212,9 @@ export default class Texture3d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				0,
 				format,
 				type,
@@ -222,29 +223,33 @@ export default class Texture3d extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = bounds.width;
-		this.dims[1] = bounds.height;
-		this.dims[2] = bounds.depth ?? 1;
+		// ESLint improperly assumes that `bounds` can be destructured.
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[0] = bounds[2];
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[1] = bounds[3];
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[2] = bounds[5];
 	}
 
 	protected override setMipFromData(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Prism | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
 		data: TexImageSource
 	): void {
-		const x: number = bounds?.x ?? 0;
-		const y: number = bounds?.y ?? 0;
-		const z: number = bounds?.z ?? 0;
+		const x: number = bounds?.[0] ?? 0;
+		const y: number = bounds?.[1] ?? 0;
+		const z: number = bounds?.[4] ?? 0;
 		const width: number =
-			bounds?.width ??
+			bounds?.[2] ??
 			(data instanceof VideoFrame ? data.codedWidth : data.width);
 		const height: number =
-			bounds?.height ??
+			bounds?.[3] ??
 			(data instanceof VideoFrame ? data.codedHeight : data.height);
-		const depth: number = bounds?.depth ?? 1;
+		const depth: number = bounds?.[5] ?? 1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
 		if (this.isImmutableFormat || level > 0) {
@@ -287,7 +292,7 @@ export default class Texture3d extends Texture {
 	protected override setMipFromArray(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds: Box,
+		bounds: Prism,
 		format: TextureFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
@@ -303,12 +308,12 @@ export default class Texture3d extends Texture {
 				this.gl.compressedTexSubImage3D(
 					target,
 					level,
-					bounds.x,
-					bounds.y,
-					bounds.z ?? 0,
-					bounds.width,
-					bounds.height,
-					bounds.depth ?? 1,
+					bounds[0],
+					bounds[1],
+					bounds[4],
+					bounds[2],
+					bounds[3],
+					bounds[5],
 					format,
 					array,
 					offset,
@@ -321,12 +326,12 @@ export default class Texture3d extends Texture {
 			this.gl.texSubImage3D(
 				target,
 				level,
-				bounds.x,
-				bounds.y,
-				bounds.z ?? 0,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[0],
+				bounds[1],
+				bounds[4],
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				format,
 				type,
 				array
@@ -341,9 +346,9 @@ export default class Texture3d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				0,
 				array,
 				offset,
@@ -355,9 +360,9 @@ export default class Texture3d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				0,
 				format,
 				type,
@@ -369,9 +374,9 @@ export default class Texture3d extends Texture {
 				target,
 				level,
 				this.format,
-				bounds.width,
-				bounds.height,
-				bounds.depth ?? 1,
+				bounds[2],
+				bounds[3],
+				bounds[5],
 				0,
 				format,
 				type,
@@ -381,8 +386,12 @@ export default class Texture3d extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = bounds.width;
-		this.dims[1] = bounds.height;
-		this.dims[2] = bounds.depth ?? 1;
+		// ESLint improperly assumes that `bounds` can be destructured.
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[0] = bounds[2];
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[1] = bounds[3];
+		// eslint-disable-next-line prefer-destructuring
+		this.dims[2] = bounds[5];
 	}
 }

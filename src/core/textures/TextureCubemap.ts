@@ -1,10 +1,10 @@
-import type Box from "#Box";
 import type Buffer from "#Buffer";
 import BufferTarget from "#BufferTarget";
 import type Context from "#Context";
 import Framebuffer from "#Framebuffer";
 import FramebufferTarget from "#FramebufferTarget";
 import MipmapTarget from "#MipmapTarget";
+import type Rectangle from "#Rectangle";
 import Texture from "#Texture";
 import type TextureDataType from "#TextureDataType";
 import type TextureFormat from "#TextureFormat";
@@ -39,12 +39,12 @@ export default class TextureCubemap extends Texture {
 
 		// Fill each face with one magenta texel until the image loads.
 		const magenta: Uint8Array = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, 0, magenta, {
-			height: 1,
-			width: 1,
-			x: 0,
-			y: 0
-		});
+		out.setMip(
+			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X,
+			0,
+			magenta,
+			[0, 0, 1, 1]
+		);
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, magenta);
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, magenta);
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, magenta);
@@ -150,19 +150,19 @@ export default class TextureCubemap extends Texture {
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Rectangle | undefined,
 		framebuffer: Framebuffer | undefined,
-		area: Box | undefined
+		area: Rectangle | undefined
 	): void {
 		const mipDims: number[] = this.getSizeOfMip(level);
 
-		const x: number = bounds?.x ?? 0;
-		const y: number = bounds?.y ?? 0;
-		const dim: number = bounds?.width ?? mipDims[0] ?? 1;
+		const x: number = bounds?.[0] ?? 0;
+		const y: number = bounds?.[1] ?? 0;
+		const dim: number = bounds?.[2] ?? mipDims[0] ?? 1;
 
-		const frameX: number = area?.x ?? 0;
-		const frameY: number = area?.y ?? 0;
-		const frameDim: number = area?.width ?? dim;
+		const frameX: number = area?.[0] ?? 0;
+		const frameY: number = area?.[1] ?? 0;
+		const frameDim: number = area?.[2] ?? dim;
 
 		// Ensure that the area being copied is no larger than the area being written to.
 		if (frameDim > dim) {
@@ -210,7 +210,7 @@ export default class TextureCubemap extends Texture {
 	protected override setMipFromBuffer(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box,
+		bounds: Rectangle,
 		format: TextureFormat,
 		type: TextureDataType,
 		buffer: Buffer,
@@ -229,10 +229,10 @@ export default class TextureCubemap extends Texture {
 				this.gl.compressedTexSubImage2D(
 					target,
 					level,
-					bounds.x,
-					bounds.y,
-					bounds.width,
-					bounds.height,
+					bounds[0],
+					bounds[1],
+					bounds[2],
+					bounds[3],
 					format,
 					size,
 					offset
@@ -244,10 +244,10 @@ export default class TextureCubemap extends Texture {
 			this.gl.texSubImage2D(
 				target,
 				level,
-				bounds.x,
-				bounds.y,
-				bounds.width,
-				bounds.height,
+				bounds[0],
+				bounds[1],
+				bounds[2],
+				bounds[3],
 				format,
 				type,
 				offset
@@ -256,7 +256,7 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Mutable-format.
-		const dim: number = Math.max(bounds.width, bounds.height);
+		const dim: number = Math.max(bounds[2], bounds[3]);
 		if (isCompressed) {
 			// Compressed format.
 			this.gl.compressedTexImage2D(
@@ -291,18 +291,18 @@ export default class TextureCubemap extends Texture {
 	protected override setMipFromData(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Rectangle | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
 		data: TexImageSource
 	): void {
-		const x: number = bounds?.x ?? 0;
-		const y: number = bounds?.y ?? 0;
+		const x: number = bounds?.[0] ?? 0;
+		const y: number = bounds?.[1] ?? 0;
 		const width: number =
-			bounds?.width ??
+			bounds?.[2] ??
 			(data instanceof VideoFrame ? data.codedWidth : data.width);
 		const height: number =
-			bounds?.height ??
+			bounds?.[3] ??
 			(data instanceof VideoFrame ? data.codedHeight : data.height);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
@@ -342,7 +342,7 @@ export default class TextureCubemap extends Texture {
 	protected override setMipFromArray(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box,
+		bounds: Rectangle,
 		format: TextureFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
@@ -358,10 +358,10 @@ export default class TextureCubemap extends Texture {
 				this.gl.compressedTexSubImage2D(
 					target,
 					level,
-					bounds.x,
-					bounds.y,
-					bounds.width,
-					bounds.height,
+					bounds[0],
+					bounds[1],
+					bounds[2],
+					bounds[3],
 					format,
 					array,
 					offset,
@@ -374,10 +374,10 @@ export default class TextureCubemap extends Texture {
 			this.gl.texSubImage2D(
 				target,
 				level,
-				bounds.x,
-				bounds.y,
-				bounds.width,
-				bounds.height,
+				bounds[0],
+				bounds[1],
+				bounds[2],
+				bounds[3],
 				format,
 				type,
 				array
@@ -386,7 +386,7 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Mutable-format.
-		const dim: number = Math.max(bounds.width, bounds.height);
+		const dim: number = Math.max(bounds[2], bounds[3]);
 		if (isCompressed) {
 			// Compressed format.
 			this.gl.compressedTexImage2D(

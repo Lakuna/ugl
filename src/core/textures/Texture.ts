@@ -12,7 +12,6 @@ import {
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
 } from "#constants";
-import type Box from "#Box";
 import Buffer from "#Buffer";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
@@ -20,6 +19,8 @@ import Extension from "#Extension";
 import Framebuffer from "#Framebuffer";
 import ImmutableError from "#ImmutableError";
 import type MipmapTarget from "#MipmapTarget";
+import type Prism from "#Prism";
+import type Rectangle from "#Rectangle";
 import type TestFunction from "#TestFunction";
 import type TextureCompareMode from "#TextureCompareMode";
 import TextureDataType from "#TextureDataType";
@@ -542,10 +543,10 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		framebuffer: Framebuffer | undefined,
-		bounds?: Box,
+		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
-		area?: Box
+		area?: Prism | Rectangle
 	): void;
 
 	/**
@@ -568,7 +569,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		buffer: Buffer,
-		bounds: Box | undefined,
+		bounds: Prism | Rectangle | undefined,
 		type: TextureDataType | undefined,
 		unpackAlignment: 1 | 2 | 4 | 8 | undefined,
 		size: number,
@@ -592,7 +593,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		data: TexImageSource,
-		bounds?: Box,
+		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
 	): void;
@@ -618,7 +619,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		array: ArrayBufferView,
-		bounds?: Box,
+		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		offset?: number,
@@ -629,10 +630,10 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
-		requestedBounds?: Box,
+		requestedBounds?: Prism | Rectangle,
 		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
-		shape1?: Box | number, // Meaning depends on data type; see overloads.
+		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
 		shape2?: number // Meaning depends on data type; see overloads.
 	): void {
 		// Ensure that the data type and internal format are compatible.
@@ -646,27 +647,20 @@ export default abstract class Texture extends ContextDependent {
 
 		// Ensure that the specified bounds (if any) are no bigger than the mip.
 		const mipDims: number[] = this.getSizeOfMip(level);
-		let bounds: Box | undefined = requestedBounds;
+		let bounds: Prism | Rectangle | undefined = requestedBounds;
 		if (typeof bounds === "undefined") {
 			// Default to the entire mip for immutable-format textures.
 			// For mutable-format textures, `texImage[23]D` can be used (no bounds needed).
 			if (this.isImmutableFormat) {
-				bounds = {
-					depth: mipDims[2] ?? 0,
-					height: mipDims[1] ?? 0,
-					width: mipDims[0] ?? 0,
-					x: 0,
-					y: 0,
-					z: 0
-				};
+				bounds = [0, 0, mipDims[0] ?? 0, mipDims[1] ?? 0, 0, mipDims[2] ?? 0];
 			}
 		} else if (this.isImmutableFormat || level > 0) {
 			// Throw an error if the specified bounding box (if any) is larger than the specified mip.
 			// For mutable-format textures, resizing the largest mip is okay.
 			if (
-				bounds.x + bounds.width > (mipDims[0] ?? 0) ||
-				bounds.y + bounds.height > (mipDims[1] ?? 0) ||
-				(bounds.z ?? 0) + (bounds.depth ?? 1) > (mipDims[2] ?? 1)
+				bounds[0] + bounds[2] > (mipDims[0] ?? 0) ||
+				bounds[1] + bounds[3] > (mipDims[1] ?? 0) ||
+				(4 in bounds && bounds[4] + bounds[5] > (mipDims[2] ?? 1))
 			) {
 				throw new RangeError(
 					"The specified bounding box is larger than the specified mip."
@@ -679,10 +673,10 @@ export default abstract class Texture extends ContextDependent {
 			this.context.unpackAlignment = unpackAlignment;
 		} else if (typeof bounds === "undefined") {
 			this.context.unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
-		} else if (bounds.height > 1 || (bounds.depth ?? 1) > 1) {
+		} else if (bounds[3] > 1 || (4 in bounds && bounds[5] > 1)) {
 			// Unpack alignment doesn't matter if there is only one row of data.
 			for (const alignment of [8, 4, 2, 1] as const) {
-				if (bounds.width % alignment === 0) {
+				if (bounds[2] % alignment === 0) {
 					this.context.unpackAlignment = alignment;
 					break;
 				}
@@ -707,14 +701,7 @@ export default abstract class Texture extends ContextDependent {
 			}
 
 			// Automatically set bounds to entire mip if they don't exist.
-			bounds ??= {
-				depth: mipDims[2] ?? 0,
-				height: mipDims[1] ?? 0,
-				width: mipDims[0] ?? 0,
-				x: 0,
-				y: 0,
-				z: 0
-			};
+			bounds ??= [0, 0, mipDims[0] ?? 0, mipDims[1] ?? 0, 0, mipDims[2] ?? 0];
 
 			this.setMipFromBuffer(
 				target,
@@ -732,14 +719,7 @@ export default abstract class Texture extends ContextDependent {
 			}
 
 			// Automatically set bounds to entire mip if they don't exist.
-			bounds ??= {
-				depth: mipDims[2] ?? 0,
-				height: mipDims[1] ?? 0,
-				width: mipDims[0] ?? 0,
-				x: 0,
-				y: 0,
-				z: 0
-			};
+			bounds ??= [0, 0, mipDims[0] ?? 0, mipDims[1] ?? 0, 0, mipDims[2] ?? 0];
 
 			this.setMipFromArray(
 				target,
@@ -794,9 +774,9 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract setMipFromFramebuffer(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Prism | Rectangle | undefined,
 		framebuffer: Framebuffer | undefined,
-		area: Box | undefined
+		area: Rectangle | undefined
 	): void;
 
 	/**
@@ -815,7 +795,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract setMipFromBuffer(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box,
+		bounds: Prism | Rectangle,
 		format: TextureFormat,
 		type: TextureDataType,
 		buffer: Buffer,
@@ -837,7 +817,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract setMipFromData(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box | undefined,
+		bounds: Prism | Rectangle | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
 		data: TexImageSource
@@ -861,7 +841,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract setMipFromArray(
 		target: MipmapTarget,
 		level: number,
-		bounds: Box,
+		bounds: Prism | Rectangle,
 		format: TextureFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,

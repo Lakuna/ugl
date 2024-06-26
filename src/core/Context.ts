@@ -17,11 +17,23 @@ import {
 	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
 	DEPTH_TEST,
+	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+	RASTERIZER_DISCARD,
+	SCISSOR_BOX,
+	SCISSOR_TEST,
+	STENCIL_BACK_FUNC,
+	STENCIL_BACK_REF,
+	STENCIL_BACK_VALUE_MASK,
 	STENCIL_BUFFER_BIT,
 	STENCIL_CLEAR_VALUE,
+	STENCIL_FUNC,
+	STENCIL_REF,
+	STENCIL_TEST,
+	STENCIL_VALUE_MASK,
 	TEXTURE0,
-	UNPACK_ALIGNMENT
+	UNPACK_ALIGNMENT,
+	VIEWPORT
 } from "#constants";
 import ApiInterface from "#ApiInterface";
 import BadValueError from "#BadValueError";
@@ -36,10 +48,13 @@ import type ColorMask from "#ColorMask";
 import ErrorCode from "#ErrorCode";
 import type Extension from "#Extension";
 import type { ExtensionObject } from "#ExtensionObject";
-import type PolygonDirection from "#PolygonDirection";
+import PolygonDirection from "#PolygonDirection";
+import type Rectangle from "#Rectangle";
+import type Stencil from "#Stencil";
 import type TestFunction from "#TestFunction";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import WebglError from "#WebglError";
+import type WindingOrientation from "#WindingOrientation";
 
 /**
  * A WebGL2 rendering context.
@@ -447,42 +462,6 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Clears buffers to their specified preset values.
-	 * @param color - Whether to clear the color buffer.
-	 * @param depth - Whether to clear the depth buffer.
-	 * @param stencil - Whether to clear the stencil buffer.
-	 */
-	public clear(color?: boolean, depth?: boolean, stencil?: boolean): void;
-
-	/**
-	 * Clears buffers to the specified values.
-	 * @param color - The value to clear the color buffer to.
-	 * @param depth - The value to clear the depth buffer to.
-	 * @param stencil - The value to clear the stencil buffer to.
-	 */
-	public clear(color: Color, depth: number, stencil: number): void;
-
-	public clear(
-		color: boolean | Color = true,
-		depth: boolean | number = true,
-		stencil: boolean | number = true
-	): void {
-		if (typeof color === "boolean") {
-			this.gl.clear(
-				(color ? COLOR_BUFFER_BIT : 0) |
-					(depth ? DEPTH_BUFFER_BIT : 0) |
-					(stencil ? STENCIL_BUFFER_BIT : 0)
-			);
-			return;
-		}
-
-		this.clearColor = color;
-		this.clearDepth = depth as number;
-		this.clearStencil = stencil as number;
-		this.gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT | STENCIL_BUFFER_BIT);
-	}
-
-	/**
 	 * The value to store in the color buffer when clearing it.
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 * @internal
@@ -815,5 +794,444 @@ export default class Context extends ApiInterface {
 	 */
 	public get supportedExtensions(): Extension[] {
 		return this.gl.getSupportedExtensions() as Extension[];
+	}
+
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 * @internal
+	 */
+	private scissorBoxCache: Rectangle | undefined;
+
+	/**
+	 * Whether the scissor test is enabled.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 * @internal
+	 */
+	private doScissorTestCache: boolean | undefined;
+
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle, or
+	 * `false` if the scissor test is disabled.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 */
+	public get scissorBox(): Rectangle | false {
+		if (!(this.doScissorTestCache ??= this.gl.isEnabled(SCISSOR_TEST))) {
+			return false;
+		}
+
+		return (this.scissorBoxCache ??= this.gl.getParameter(
+			SCISSOR_BOX
+		) as Rectangle);
+	}
+
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle, or
+	 * `false` if the scissor test is disabled.
+	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 */
+	public set scissorBox(value: Rectangle | boolean) {
+		if (typeof value === "boolean") {
+			if (this.doScissorTestCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(SCISSOR_TEST);
+			} else {
+				this.gl.disable(SCISSOR_TEST);
+			}
+			this.doScissorTestCache = value;
+
+			return;
+		}
+
+		if (!this.doScissorTestCache) {
+			this.gl.enable(SCISSOR_TEST);
+			this.doScissorTestCache = true;
+		}
+
+		if (this.scissorBoxCache === value) {
+			return;
+		}
+
+		this.gl.scissor(value[0], value[1], value[2], value[3]);
+		this.scissorBoxCache = value;
+	}
+
+	/**
+	 * The viewport box, which specifies the affine transformation of
+	 * coordinates from normalized device coordinates to window coordinates.
+	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 * @internal
+	 */
+	private viewportCache: Rectangle | undefined;
+
+	/**
+	 * The viewport box, which specifies the affine transformation of
+	 * coordinates from normalized device coordinates to window coordinates.
+	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 */
+	public get viewport(): Rectangle {
+		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT) as Rectangle);
+	}
+
+	/**
+	 * The viewport box, which specifies the affine transformation of
+	 * coordinates from normalized device coordinates to window coordinates.
+	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 */
+	public set viewport(value: Rectangle) {
+		this.gl.viewport(value[0], value[1], value[2], value[3]);
+		this.viewportCache = value;
+	}
+
+	/**
+	 * The front stencil test function, reference, and mask.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * @internal
+	 */
+	private frontStencilCache: Stencil | undefined;
+
+	/**
+	 * The back stencil test function, reference, and mask.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * @internal
+	 */
+	private backStencilCache: Stencil | undefined;
+
+	/**
+	 * Whether stencil testing is enabled.
+	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * @internal
+	 */
+	private doStencilTestCache: boolean | undefined;
+
+	/**
+	 * The front stencil test function, reference, and mask, or `false` if stencil testing is disabled.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 */
+	public get frontStencil(): Stencil | false {
+		if (!(this.doStencilTestCache ??= this.gl.isEnabled(STENCIL_TEST))) {
+			return false;
+		}
+
+		return (this.frontStencilCache ??= [
+			this.gl.getParameter(STENCIL_FUNC),
+			this.gl.getParameter(STENCIL_REF),
+			this.gl.getParameter(STENCIL_VALUE_MASK)
+		]);
+	}
+
+	/**
+	 * The front stencil test function, reference, and mask, or `false` if stencil testing is disabled.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 */
+	public set frontStencil(value: Stencil | boolean) {
+		if (typeof value === "boolean") {
+			if (this.doStencilTestCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(STENCIL_TEST);
+			} else {
+				this.gl.disable(STENCIL_TEST);
+			}
+			this.doStencilTestCache = value;
+
+			return;
+		}
+
+		if (!this.doStencilTestCache) {
+			this.gl.enable(STENCIL_TEST);
+			this.doStencilTestCache = true;
+		}
+
+		if (
+			typeof this.frontStencilCache !== "undefined" &&
+			this.frontStencilCache[0] === value[0] &&
+			this.frontStencilCache[1] === value[1] &&
+			this.frontStencilCache[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFuncSeparate(
+			PolygonDirection.FRONT,
+			value[0],
+			value[1],
+			value[2]
+		);
+	}
+
+	/**
+	 * The back stencil test function, reference, and mask, or `false` if stencil testing is disabled.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 */
+	public get backStencil(): Stencil | false {
+		if (!(this.doStencilTestCache ??= this.gl.isEnabled(STENCIL_TEST))) {
+			return false;
+		}
+
+		return (this.backStencilCache ??= [
+			this.gl.getParameter(STENCIL_BACK_FUNC),
+			this.gl.getParameter(STENCIL_BACK_REF),
+			this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
+		]);
+	}
+
+	/**
+	 * The back stencil test function, reference, and mask, or `false` if stencil testing is disabled.
+	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 */
+	public set backStencil(value: Stencil | boolean) {
+		if (typeof value === "boolean") {
+			if (this.doStencilTestCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(STENCIL_TEST);
+			} else {
+				this.gl.disable(STENCIL_TEST);
+			}
+			this.doStencilTestCache = value;
+
+			return;
+		}
+
+		if (!this.doStencilTestCache) {
+			this.gl.enable(STENCIL_TEST);
+			this.doStencilTestCache = true;
+		}
+
+		if (
+			typeof this.backStencilCache !== "undefined" &&
+			this.backStencilCache[0] === value[0] &&
+			this.backStencilCache[1] === value[1] &&
+			this.backStencilCache[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFuncSeparate(
+			PolygonDirection.BACK,
+			value[0],
+			value[1],
+			value[2]
+		);
+	}
+
+	/**
+	 * The front and back stencil test functions, references, and masks, or `false` if stencil testing is disabled.
+	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 */
+	public get stencil(): Stencil | false {
+		return this.frontStencil;
+	}
+
+	/**
+	 * The front and back stencil test functions, references, and masks, or `false` if stencil testing is disabled.
+	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 */
+	public set stencil(value: Stencil | boolean) {
+		if (typeof value === "boolean") {
+			if (this.doStencilTestCache === value) {
+				return;
+			}
+
+			if (value) {
+				this.gl.enable(STENCIL_TEST);
+			} else {
+				this.gl.disable(STENCIL_TEST);
+			}
+			this.doStencilTestCache = value;
+
+			return;
+		}
+
+		if (!this.doStencilTestCache) {
+			this.gl.enable(STENCIL_TEST);
+			this.doStencilTestCache = true;
+		}
+
+		if (
+			typeof this.frontStencilCache !== "undefined" &&
+			this.frontStencilCache[0] === value[0] &&
+			this.frontStencilCache[1] === value[1] &&
+			this.frontStencilCache[2] === value[2] &&
+			typeof this.backStencilCache !== "undefined" &&
+			this.backStencilCache[0] === value[0] &&
+			this.backStencilCache[1] === value[1] &&
+			this.backStencilCache[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFunc(value[0], value[1], value[2]);
+		this.frontStencilCache = value;
+		this.backStencilCache = value;
+	}
+
+	/**
+	 * Whether primitives are discarded immediately before the rasterization stage.
+	 * @internal
+	 */
+	private doRasterizerDiscardCache: boolean | undefined;
+
+	/**
+	 * Whether primitives are discarded immediately before the rasterization stage.
+	 */
+	public get doRasterizerDiscard(): boolean {
+		return (this.doRasterizerDiscardCache ??=
+			this.gl.isEnabled(RASTERIZER_DISCARD));
+	}
+
+	/**
+	 * Whether primitives are discarded immediately before the rasterization stage.
+	 */
+	public set doRasterizerDiscard(value: boolean) {
+		if (this.doRasterizerDiscardCache === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(RASTERIZER_DISCARD);
+		} else {
+			this.gl.disable(RASTERIZER_DISCARD);
+		}
+		this.doRasterizerDiscardCache = value;
+	}
+
+	/**
+	 * The winding orientation of front-facing polygons.
+	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 * @internal
+	 */
+	private frontFaceCache: WindingOrientation | undefined;
+
+	/**
+	 * The winding orientation of front-facing polygons.
+	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 */
+	public get frontFace(): WindingOrientation {
+		return (this.frontFaceCache ??= this.gl.getParameter(
+			FRONT_FACE
+		) as WindingOrientation);
+	}
+
+	/**
+	 * The winding orientation of front-facing polygons.
+	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 */
+	public set frontFace(value: WindingOrientation) {
+		if (this.frontFaceCache === value) {
+			return;
+		}
+
+		this.gl.frontFace(value);
+		this.frontFaceCache = value;
+	}
+
+	/**
+	 * Clears the specified buffers to the specified values.
+	 * @param color - The value to clear the color buffer to or a boolean to use
+	 * the previous clear color.
+	 * @param depth - The value to clear the depth buffer to or a boolean to use
+	 * the previous clear depth.
+	 * @param stencil - The value to clear the stencil buffer to or a boolean to use
+	 * the previous clear stencil.
+	 * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
+	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 */
+	public clear(
+		color: Color | boolean = false,
+		depth: number | boolean = false,
+		stencil: number | boolean = false
+	): void {
+		let colorBit: number = color ? COLOR_BUFFER_BIT : 0;
+		if (typeof color !== "boolean") {
+			this.clearColor = color;
+			colorBit = COLOR_BUFFER_BIT;
+		}
+
+		let depthBit: number = depth ? COLOR_BUFFER_BIT : 0;
+		if (typeof depth !== "boolean") {
+			this.clearDepth = depth;
+			depthBit = DEPTH_BUFFER_BIT;
+		}
+
+		let stencilBit: number = stencil ? STENCIL_BUFFER_BIT : 0;
+		if (typeof stencil !== "boolean") {
+			this.clearStencil = stencil;
+			stencilBit = STENCIL_BUFFER_BIT;
+		}
+
+		this.gl.clear(colorBit | depthBit | stencilBit);
+	}
+
+	/**
+	 * Resizes this rendering context's canvas' drawing buffer to match its
+	 * physical size.
+	 * @returns Whether the drawing buffer was resized.
+	 */
+	public fitDrawingBuffer(): boolean {
+		if (this.canvas instanceof OffscreenCanvas) {
+			return false;
+		}
+
+		// Get physical size.
+		const displayWidth: number = this.canvas.clientWidth;
+		const displayHeight: number = this.canvas.clientHeight;
+
+		if (
+			this.canvas.width !== displayWidth ||
+			this.canvas.height !== displayHeight
+		) {
+			this.canvas.width = displayWidth;
+			this.canvas.height = displayHeight;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resizes this rendering context's viewport to match the size of its
+	 * current drawing buffer.
+	 */
+	public fitViewport(): void {
+		this.viewport = [0, 0, this.canvas.width, this.canvas.height];
+	}
+
+	/**
+	 * Resizes this rendering context's canvas' drawing buffer to match its
+	 * physical size, resizes the viewport and scissor box to match the given
+	 * size, and enables the scissor test if necessary.
+	 * @param rectangle - The rectangle that represents the viewport and
+	 * scissor box, or `undefined` to match the viewport to the drawing buffer
+	 * and disable the scissor test.
+	 * @returns Whether the drawing buffer was resized.
+	 */
+	public resize(rectangle?: Rectangle): boolean {
+		if (this.canvas instanceof OffscreenCanvas) {
+			throw new UnsupportedOperationError();
+		}
+
+		const out: boolean = this.fitDrawingBuffer();
+
+		if (typeof rectangle === "undefined") {
+			this.fitViewport();
+			this.scissorBox = false;
+		} else {
+			this.viewport = rectangle;
+			this.scissorBox = rectangle;
+		}
+
+		return out;
 	}
 }
