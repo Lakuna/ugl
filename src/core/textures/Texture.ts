@@ -634,7 +634,7 @@ export default abstract class Texture extends ContextDependent {
 		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
-		shape2?: number // Meaning depends on data type; see overloads.
+		shape2?: number | boolean // Meaning depends on data type; see overloads.
 	): void {
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes: TextureDataType[] | null =
@@ -694,7 +694,7 @@ export default abstract class Texture extends ContextDependent {
 				throw new TypeError();
 			}
 
-			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
+			this.setMipFromFramebuffer(target, level, bounds, data, shape1, shape2);
 		} else if (data instanceof Buffer) {
 			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
 				throw new TypeError();
@@ -714,7 +714,10 @@ export default abstract class Texture extends ContextDependent {
 				shape2
 			);
 		} else if ("buffer" in data) {
-			if (typeof shape1 !== "number" && typeof shape1 !== "undefined") {
+			if (
+				(typeof shape1 !== "number" && typeof shape1 !== "undefined") ||
+				typeof shape2 === "boolean"
+			) {
 				throw new TypeError();
 			}
 
@@ -769,6 +772,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined`
 	 * for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @param readBuffer - The color buffer to read from, or `true` for the
+	 * back buffer, or `false` for no buffer, or `undefined` for the previous
+	 * buffer.
 	 * @internal
 	 */
 	protected abstract setMipFromFramebuffer(
@@ -776,7 +782,8 @@ export default abstract class Texture extends ContextDependent {
 		level: number,
 		bounds: Prism | Rectangle | undefined,
 		framebuffer: Framebuffer | undefined,
-		area: Rectangle | undefined
+		area: Rectangle | undefined,
+		readBuffer: number | boolean | undefined
 	): void;
 
 	/**

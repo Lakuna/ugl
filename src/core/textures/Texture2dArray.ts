@@ -1,3 +1,4 @@
+import { BACK, COLOR_ATTACHMENT0, NONE } from "#constants";
 import type Buffer from "#Buffer";
 import BufferTarget from "#BufferTarget";
 import type Context from "#Context";
@@ -98,7 +99,8 @@ export default class Texture2dArray extends Texture {
 		level: number,
 		bounds: Prism | undefined,
 		framebuffer: Framebuffer | undefined,
-		area: Rectangle | undefined
+		area: Rectangle | undefined,
+		readBuffer: boolean | number | undefined
 	): void {
 		const mipDims: number[] = this.getSizeOfMip(level);
 
@@ -124,6 +126,15 @@ export default class Texture2dArray extends Texture {
 			Framebuffer.unbind(this.context, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		}
+
+		// Set the read buffer.
+		if (typeof readBuffer === "number") {
+			this.gl.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
+		} else if (readBuffer) {
+			this.gl.readBuffer(BACK);
+		} else if (readBuffer === false) {
+			this.gl.readBuffer(NONE);
 		}
 
 		// Since a 2D framebuffer is being copied to a 3D texture, only a portion of the texture can be updated (resizing the texture is not possible).
