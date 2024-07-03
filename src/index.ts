@@ -5,6 +5,7 @@ export { default as BufferDataType } from "#BufferDataType";
 export { default as BufferUsage } from "#BufferUsage";
 export { default as ErrorCode } from "#ErrorCode";
 export { default as Extension } from "#Extension";
+export { default as FramebufferAttachment } from "#FramebufferAttachment";
 export { default as FramebufferStatus } from "#FramebufferStatus";
 export { default as MipmapTarget } from "#MipmapTarget";
 export { default as PolygonDirection } from "#PolygonDirection";

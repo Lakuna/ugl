@@ -1,7 +1,20 @@
+import {
+	COLOR_ATTACHMENT0,
+	DEPTH_ATTACHMENT,
+	DEPTH_STENCIL_ATTACHMENT,
+	RENDERBUFFER,
+	STENCIL_ATTACHMENT
+} from "#constants";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
+import FramebufferAttachment from "#FramebufferAttachment";
 import FramebufferStatus from "#FramebufferStatus";
 import FramebufferTarget from "#FramebufferTarget";
+import MipmapTarget from "#MipmapTarget";
+import Renderbuffer from "#Renderbuffer";
+import type Texture from "#Texture";
+import type Texture2d from "#Texture2d";
+import type TextureCubemap from "#TextureCubemap";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
 
@@ -259,5 +272,117 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public unbind(): void {
 		Framebuffer.unbind(this.context, this.target, this.internal);
+	}
+
+	/**
+	 * Attaches a 2D texture to this framebuffer.
+	 * @param attachment - Specify the depth attachment, the stencil attachment,
+	 * the depth stencil attachment, or the index of a color attachment.
+	 * @param texture - The texture to attach.
+	 * @param _ - An unused value.
+	 * @param level - The level of the texture to attach. Defaults to the top level.
+	 * @param layer - The layer of the texture to attach, or `undefined` for
+	 * the entire texture.
+	 */
+	public attach(
+		attachment: FramebufferAttachment | number,
+		texture: Texture2d,
+		_?: never,
+		level?: number,
+		layer?: number
+	): void;
+
+	/**
+	 * Attaches a face of a cubemapped texture to this framebuffer.
+	 * @param attachment - Specify the depth attachment, the stencil attachment,
+	 * the depth stencil attachment, or the index of a color attachment.
+	 * @param texture - The texture to attach.
+	 * @param face - The face of the cubemapped texture to attach.
+	 * @param level - The level of the texture to attach. Defaults to the top level.
+	 * @param layer - The layer of the texture to attach, or `undefined` for
+	 * the entire texture.
+	 */
+	public attach(
+		attachment: FramebufferAttachment | number,
+		texture: TextureCubemap,
+		face:
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y
+			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
+			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
+		level?: number,
+		layer?: number
+	): void;
+
+	/**
+	 * Attaches a renderbuffer to this framebuffer.
+	 * @param attachment - Specify the depth attachment, the stencil attachment,
+	 * the depth stencil attachment, or the index of a color attachment.
+	 * @param renderbuffer - The renderbuffer to attach.
+	 */
+	public attach(
+		attachment: FramebufferAttachment | number,
+		renderbuffer: Renderbuffer
+	): void;
+
+	public attach(
+		attachment: FramebufferAttachment | number,
+		data: Texture | Renderbuffer,
+		face: MipmapTarget = MipmapTarget.TEXTURE_2D,
+		level = 0,
+		layer: number | undefined = void 0
+	): void {
+		// Determine the actual WebGL constant value of the attachment.
+		let attachmentValue: number = attachment;
+		switch (attachment as FramebufferAttachment) {
+			case FramebufferAttachment.Depth:
+				attachmentValue = DEPTH_ATTACHMENT;
+				break;
+			case FramebufferAttachment.DepthStencil:
+				attachmentValue = DEPTH_STENCIL_ATTACHMENT;
+				break;
+			case FramebufferAttachment.Stencil:
+				attachmentValue = STENCIL_ATTACHMENT;
+				break;
+			default:
+				attachmentValue += COLOR_ATTACHMENT0;
+		}
+
+		// Bind this framebuffer.
+		this.bind();
+
+		// Attach a renderbuffer.
+		if (data instanceof Renderbuffer) {
+			this.gl.framebufferRenderbuffer(
+				this.target,
+				attachmentValue,
+				RENDERBUFFER,
+				(data as unknown as { internal: WebGLRenderbuffer }).internal
+			);
+			return;
+		}
+
+		// Attach a layer of a texture.
+		if (typeof layer === "number") {
+			this.gl.framebufferTextureLayer(
+				this.target,
+				attachmentValue,
+				(data as unknown as { internal: WebGLTexture }).internal,
+				level,
+				layer
+			);
+			return;
+		}
+
+		// Attach an entire texture.
+		this.gl.framebufferTexture2D(
+			this.target,
+			attachmentValue,
+			face,
+			(data as unknown as { internal: WebGLTexture }).internal,
+			level
+		);
 	}
 }

@@ -72,6 +72,7 @@
 		"#constants": "./dist/constants/constants.js",
 		"#ErrorCode": "./dist/constants/ErrorCode.js",
 		"#Extension": "./dist/constants/Extension.js",
+		"#FramebufferAttachment": "./dist/constants/FramebufferAttachment.js",
 		"#FramebufferStatus": "./dist/constants/FramebufferStatus.js",
 		"#FramebufferTarget": "./dist/constants/FramebufferTarget.js",
 		"#MipmapTarget": "./dist/constants/MipmapTarget.js",

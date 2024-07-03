@@ -17,6 +17,7 @@ TODO notes:
 - Generate mipmap if texture isn't complete when passing the texture to a uniform.
 - Add missing features from old `Program` (i.e. `getActiveAttrib`, `getActiveUniform`) and new features (i.e. `getAttachedShaders`).
 - Automatically enable the necessary extensions for compressed texture formats when they're used.
+- Update write framebuffer, draw buffers (`drawBuffers`) in VAO draw method.
 
 Done notes:
 - `generateMipmap` overwrites all but the top mip, even if the texture is texture complete.
