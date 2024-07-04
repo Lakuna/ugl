@@ -275,6 +275,102 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
+	 * The first color buffer.
+	 * @internal
+	 */
+	private colorBufferCache:
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined;
+
+	/**
+	 * A convenience accessor for the first color buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public get colorBuffer():
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined {
+		return this.colorBufferCache;
+	}
+
+	/**
+	 * A convenience accessor for the first color buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public set colorBuffer(value: Texture2d | Renderbuffer) {
+		this.attach(0, value as Texture2d);
+	}
+
+	/**
+	 * The depth buffer.
+	 * @internal
+	 */
+	private depthBufferCache:
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined;
+
+	/**
+	 * A convenience accessor for the depth buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public get depthBuffer():
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined {
+		return this.depthBufferCache;
+	}
+
+	/**
+	 * A convenience accessor for the depth buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public set depthBuffer(value: Texture2d | Renderbuffer) {
+		this.attach(FramebufferAttachment.Depth, value as Texture2d);
+	}
+
+	/**
+	 * The stencil buffer.
+	 * @internal
+	 */
+	private stencilBufferCache:
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined;
+
+	/**
+	 * A convenience accessor for the stencil buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public get stencilBuffer():
+		| Texture2d
+		| TextureCubemap
+		| Renderbuffer
+		| undefined {
+		return this.stencilBufferCache;
+	}
+
+	/**
+	 * A convenience accessor for the stencil buffer.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 */
+	public set stencilBuffer(value: Texture2d | Renderbuffer) {
+		this.attach(FramebufferAttachment.Stencil, value as Texture2d);
+	}
+
+	/**
 	 * Attaches a 2D texture to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment,
 	 * the depth stencil attachment, or the index of a color attachment.
@@ -283,6 +379,8 @@ export default class Framebuffer extends ContextDependent {
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for
 	 * the entire texture.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
@@ -301,6 +399,8 @@ export default class Framebuffer extends ContextDependent {
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for
 	 * the entire texture.
+	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
+	 * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
@@ -321,6 +421,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param attachment - Specify the depth attachment, the stencil attachment,
 	 * the depth stencil attachment, or the index of a color attachment.
 	 * @param renderbuffer - The renderbuffer to attach.
+	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
