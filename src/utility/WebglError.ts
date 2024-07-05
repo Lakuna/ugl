@@ -9,6 +9,7 @@ export default class WebglError extends Error {
 	/**
 	 * Creates a WebGL error.
 	 * @param value - The code or message of the error.
+	 * @internal
 	 */
 	public constructor(
 		value: ErrorCode | string = "A WebGL error has occurred."

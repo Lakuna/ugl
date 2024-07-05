@@ -18,6 +18,12 @@ TODO notes:
 - Add missing features from old `Program` (i.e. `getActiveAttrib`, `getActiveUniform`) and new features (i.e. `getAttachedShaders`).
 - Automatically enable the necessary extensions for compressed texture formats when they're used.
 - Update write framebuffer, draw buffers (`drawBuffers`) in VAO draw method.
+- Replace `TextureMagFilter` and `TextureMinFilter` with `TextureFilter`.
+- Get rid of `FramebufferAttachment` somehow.
+- Potentially replace `TypedArray` and related types with `ArrayBufferView` or similar.
+- Is there a way to check if a value is in a TypeScript enumeration? Relevant for `isTextureFormatCompressed`.
+- Ensure that `Context.throwIfError` is used everywhere that an error occurs. Ensure that `@throws` annotations are used in the documentation of these functions.
+- Should users be able to set boolean values on `BlendEquation` to enable blending? Parity with `BlendFunction`. Maybe extend this to other functionalities as well.
 
 Done notes:
 - `generateMipmap` overwrites all but the top mip, even if the texture is texture complete.

@@ -11,7 +11,7 @@ import UnsupportedOperationError from "#UnsupportedOperationError";
  */
 export default class Shader extends ContextDependent {
 	/**
-	 * Creates a shader.
+	 * Create a shader.
 	 * @param context - The rendering context.
 	 * @param type - The type.
 	 * @param source - The source code.
@@ -24,7 +24,7 @@ export default class Shader extends ContextDependent {
 	public constructor(context: Context, type: ShaderType, source: string) {
 		super(context);
 
-		const shader: WebGLShader | null = this.gl.createShader(type);
+		const shader = this.gl.createShader(type);
 		if (shader === null) {
 			throw new UnsupportedOperationError();
 		}
@@ -46,32 +46,32 @@ export default class Shader extends ContextDependent {
 	 * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
 	 * @internal
 	 */
-	protected readonly internal: WebGLShader;
+	public readonly internal;
 
 	/** The type of this shader. */
-	public readonly type: ShaderType;
+	public readonly type;
 
 	/** The source code of this shader. */
-	public readonly source: string;
+	public readonly source;
 
-	/** The compilation status of this shader. */
-	public get compileStatus(): boolean {
+	/** Get the compilation status of this shader. */
+	public get compileStatus() {
 		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
 	}
 
 	/**
-	 * The information log of this shader.
+	 * Get the information log of this shader.
 	 * @see [`getShaderInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog)
 	 */
-	public get infoLog(): string | null {
+	public get infoLog() {
 		return this.gl.getShaderInfoLog(this.internal);
 	}
 
 	/**
-	 * Deletes this shader.
+	 * Delete this shader.
 	 * @see [`deleteShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteShader)
 	 */
-	public delete(): void {
+	public delete() {
 		this.gl.deleteShader(this.internal);
 	}
 }

@@ -1,31 +1,29 @@
-import BufferDataType from "#BufferDataType";
-import type { TypedArray } from "#TypedArray";
+import DataType from "#DataType";
 
 /**
- * Returns a default buffer data type for the given typed array.
+ * Get a default buffer data type for the given typed array.
  * @param array - The typed array.
- * @param half - Whether the array contains 16-bit floating-point data if it
- * contains floating-point data.
+ * @param half - Whether the array contains 16-bit floating-point data if it contains floating-point data.
  * @returns A default buffer data type for the given typed array.
  * @internal
  */
 export default function getDataTypeForTypedArray(
-	array: TypedArray,
+	array: ArrayBufferView,
 	half = false
-): BufferDataType {
+) {
 	return array instanceof Int8Array
-		? BufferDataType.BYTE
+		? DataType.BYTE
 		: array instanceof Uint8Array || array instanceof Uint8ClampedArray
-			? BufferDataType.UNSIGNED_BYTE
+			? DataType.UNSIGNED_BYTE
 			: array instanceof Int16Array
-				? BufferDataType.SHORT
+				? DataType.SHORT
 				: array instanceof Uint16Array
-					? BufferDataType.UNSIGNED_SHORT
+					? DataType.UNSIGNED_SHORT
 					: array instanceof Int32Array
-						? BufferDataType.INT
+						? DataType.INT
 						: array instanceof Uint32Array
-							? BufferDataType.UNSIGNED_INT
+							? DataType.UNSIGNED_INT
 							: half // `Float32Array`.
-								? BufferDataType.HALF_FLOAT
-								: BufferDataType.FLOAT;
+								? DataType.HALF_FLOAT
+								: DataType.FLOAT;
 }

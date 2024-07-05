@@ -1,43 +1,17 @@
 import Extension from "#Extension";
-import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
 import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
-import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInternalFormat";
 
 /**
- * Gets the extension that is associated with the given texture internal format.
- * @param format - The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format: TextureCompressedInternalFormat
-): Extension;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
- * @param format - The texture internal format.
- * @returns The extension that is associated with the texture internal format.
- * @internal
- */
-export default function getExtensionForTextureInternalFormat(
-	format: TextureUncompressedInternalFormat
-): null;
-
-/**
- * Gets the extension that is associated with the given texture internal format.
+ * Get the extension that is associated with the given texture internal format.
  * @param format - The texture internal format.
  * @returns The extension that is associated with the texture internal format.
  * @internal
  */
 export default function getExtensionForTextureInternalFormat(
 	format: TextureInternalFormat
-): Extension | null;
-
-export default function getExtensionForTextureInternalFormat(
-	format: TextureInternalFormat
-): Extension | null {
+) {
 	switch (format) {
 		case TextureCompressedUnsizedInternalFormat.COMPRESSED_RGB_S3TC_DXT1_EXT:
 		case TextureCompressedUnsizedInternalFormat.COMPRESSED_RGBA_S3TC_DXT1_EXT:

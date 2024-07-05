@@ -6,8 +6,7 @@ import {
 import FramebufferTarget from "#FramebufferTarget";
 
 /**
- * Gets the constant value representing the context property of the given
- * buffer binding point.
+ * Get the constant value representing the context property of the given buffer binding point.
  * @param target - The buffer binding point.
  * @returns The constant value.
  * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
@@ -15,7 +14,7 @@ import FramebufferTarget from "#FramebufferTarget";
  */
 export default function getParameterForFramebufferTarget(
 	target: FramebufferTarget
-): number {
+) {
 	switch (target) {
 		case FramebufferTarget.DRAW_FRAMEBUFFER:
 			return DRAW_FRAMEBUFFER_BINDING;

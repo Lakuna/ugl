@@ -1,5 +1,5 @@
 /**
- * Test functions.
+ * Testing functions.
  * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
  * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
  * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
@@ -14,9 +14,7 @@ enum TestFunction {
 	/** Passes if the incoming value is equal to the buffer value. */
 	EQUAL = 0x0202,
 
-	/**
-	 * Passes if the incoming value is less than or equal to the buffer value.
-	 */
+	/** Passes if the incoming value is less than or equal to the buffer value. */
 	LEQUAL = 0x0203,
 
 	/** Passes if the incoming value is greater than the buffer value. */
@@ -25,10 +23,7 @@ enum TestFunction {
 	/** Passes if the incoming value is not equal to the buffer value. */
 	NOTEQUAL = 0x0205,
 
-	/**
-	 * Passes if the incoming value is greater than or equal to the buffer
-	 * value.
-	 */
+	/** Passes if the incoming value is greater than or equal to the buffer value. */
 	GEQUAL = 0x0206,
 
 	/** Always passes. */

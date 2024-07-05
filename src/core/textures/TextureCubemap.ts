@@ -16,7 +16,7 @@ import isTextureFormatCompressed from "#isTextureFormatCompressed";
 /** A cube mapped texture. */
 export default class TextureCubemap extends Texture {
 	/**
-	 * Creates a cube mapped texture from the data in the images at the given URLs.
+	 * Create a cube mapped texture from the data in the images at the given URLs.
 	 * @param context - The rendering context of the texture.
 	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
 	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
@@ -34,12 +34,12 @@ export default class TextureCubemap extends Texture {
 		ny: string,
 		pz: string,
 		nz: string
-	): TextureCubemap {
+	) {
 		// Create a new cube mapped texture.
-		const out: TextureCubemap = new TextureCubemap(context);
+		const out = new TextureCubemap(context);
 
 		// Fill each face with one magenta texel until the image loads.
-		const magenta: Uint8Array = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
+		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
 		out.setMip(
 			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X,
 			0,
@@ -53,10 +53,7 @@ export default class TextureCubemap extends Texture {
 		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, magenta);
 
 		// Load the images.
-		const loadedImages: Map<MipmapTarget, HTMLImageElement> = new Map<
-			MipmapTarget,
-			HTMLImageElement
-		>();
+		const loadedImages = new Map<MipmapTarget, HTMLImageElement>();
 		for (const [target, url] of [
 			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, px],
 			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nx],
@@ -65,7 +62,7 @@ export default class TextureCubemap extends Texture {
 			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pz],
 			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nz]
 		] as [MipmapTarget, string][]) {
-			const image: HTMLImageElement = new Image();
+			const image = new Image();
 			image.addEventListener("load", () => {
 				loadedImages.set(target, image);
 
@@ -84,15 +81,14 @@ export default class TextureCubemap extends Texture {
 	}
 
 	/**
-	 * Creates a cube mapped texture.
+	 * Create a cube mapped texture.
 	 * @param context - The rendering context of the texture.
 	 * @throws {@link UnsupportedOperationError}
 	 */
 	public constructor(context: Context);
 
 	/**
-	 * Creates a cube mapped texture with a fixed size. This has better
-	 * performance than a variable-sized texture.
+	 * Create a cube mapped texture with a fixed size. This has better performance than a variable-sized texture.
 	 * @param context - The rendering context of the texture.
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
@@ -126,15 +122,15 @@ export default class TextureCubemap extends Texture {
 	}
 
 	/**
-	 * Makes this into an immutable-format texture.
+	 * Make this texture into an immutable-format texture.
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D).
+	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D)
 	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 * @internal
 	 */
-	protected makeImmutableFormatInternal(
+	protected override makeImmutableFormatInternal(
 		levels: number,
 		format: TextureSizedInternalFormat,
 		dims: [number]
@@ -142,6 +138,16 @@ export default class TextureCubemap extends Texture {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[0]);
 	}
 
+	/**
+	 * Copy the data in a framebuffer into one of this texture's mips.
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
+	 * @internal
+	 */
 	protected override setMipFromFramebuffer(
 		target:
 			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X
@@ -151,20 +157,20 @@ export default class TextureCubemap extends Texture {
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		level: number,
-		bounds: Rectangle | undefined,
-		framebuffer: Framebuffer | undefined,
-		area: Rectangle | undefined,
-		readBuffer: number | boolean | undefined
-	): void {
-		const mipDims: number[] = this.getSizeOfMip(level);
+		bounds?: Rectangle,
+		framebuffer?: Framebuffer,
+		area?: Rectangle,
+		readBuffer?: number | boolean
+	) {
+		const mipDims = this.getSizeOfMip(level);
 
-		const x: number = bounds?.[0] ?? 0;
-		const y: number = bounds?.[1] ?? 0;
-		const dim: number = bounds?.[2] ?? mipDims[0] ?? 1;
+		const x = bounds?.[0] ?? 0;
+		const y = bounds?.[1] ?? 0;
+		const dim = bounds?.[2] ?? mipDims[0] ?? 1;
 
-		const frameX: number = area?.[0] ?? 0;
-		const frameY: number = area?.[1] ?? 0;
-		const frameDim: number = area?.[2] ?? dim;
+		const frameX = area?.[0] ?? 0;
+		const frameY = area?.[1] ?? 0;
+		const frameDim = area?.[2] ?? dim;
 
 		// Ensure that the area being copied is no larger than the area being written to.
 		if (frameDim > dim) {
@@ -173,7 +179,7 @@ export default class TextureCubemap extends Texture {
 
 		// Bind the framebuffer.
 		if (typeof framebuffer === "undefined") {
-			Framebuffer.unbind(this.context, FramebufferTarget.READ_FRAMEBUFFER);
+			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		}
@@ -218,6 +224,18 @@ export default class TextureCubemap extends Texture {
 		this.dims[0] = frameDim;
 	}
 
+	/**
+	 * Copy the data in a buffer into one of this texture's mips.
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated.
+	 * @param format - The format of the data in the buffer.
+	 * @param type - The type of the data in the buffer.
+	 * @param buffer - The buffer to copy into the mip.
+	 * @param size - The number of bytes of data to copy from the buffer.
+	 * @param offset - The offset in bytes from the start of the buffer to start copying at.
+	 * @internal
+	 */
 	protected override setMipFromBuffer(
 		target: MipmapTarget,
 		level: number,
@@ -227,8 +245,8 @@ export default class TextureCubemap extends Texture {
 		buffer: Buffer,
 		size: number,
 		offset: number
-	): void {
-		const isCompressed: boolean = isTextureFormatCompressed(format);
+	) {
+		const isCompressed = isTextureFormatCompressed(format);
 
 		// Bind the buffer.
 		buffer.bind(BufferTarget.PIXEL_UNPACK_BUFFER);
@@ -299,6 +317,16 @@ export default class TextureCubemap extends Texture {
 		this.dims[0] = dim;
 	}
 
+	/**
+	 * Copy data into one of this texture's mips.
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @param format - The format of the data.
+	 * @param type - The type of the data.
+	 * @param data - The data to copy into the mip.
+	 * @internal
+	 */
 	protected override setMipFromData(
 		target: MipmapTarget,
 		level: number,
@@ -306,13 +334,13 @@ export default class TextureCubemap extends Texture {
 		format: TextureFormat,
 		type: TextureDataType,
 		data: TexImageSource
-	): void {
-		const x: number = bounds?.[0] ?? 0;
-		const y: number = bounds?.[1] ?? 0;
-		const width: number =
+	) {
+		const x = bounds?.[0] ?? 0;
+		const y = bounds?.[1] ?? 0;
+		const width =
 			bounds?.[2] ??
 			(data instanceof VideoFrame ? data.codedWidth : data.width);
-		const height: number =
+		const height =
 			bounds?.[3] ??
 			(data instanceof VideoFrame ? data.codedHeight : data.height);
 
@@ -350,6 +378,18 @@ export default class TextureCubemap extends Texture {
 		this.dims[0] = dim;
 	}
 
+	/**
+	 * Copy the data in an array into one of this texture's mips.
+	 * @param target - The mipmap that the mip belongs to.
+	 * @param level - The level of the mip within its mipmap.
+	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
+	 * @param format - The format of the data in the array.
+	 * @param type - The type of the data in the array.
+	 * @param array - The array to copy into the mip.
+	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
+	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
+	 * @internal
+	 */
 	protected override setMipFromArray(
 		target: MipmapTarget,
 		level: number,
@@ -359,8 +399,8 @@ export default class TextureCubemap extends Texture {
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
-	): void {
-		const isCompressed: boolean = isTextureFormatCompressed(format);
+	) {
+		const isCompressed = isTextureFormatCompressed(format);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {

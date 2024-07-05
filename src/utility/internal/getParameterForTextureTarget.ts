@@ -7,16 +7,13 @@ import {
 import TextureTarget from "#TextureTarget";
 
 /**
- * Gets the constant value representing the context property of the given
- * texture binding point.
+ * Get the constant value representing the context property of the given texture binding point.
  * @param target - The texture binding point.
  * @returns The constant value.
  * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
  * @internal
  */
-export default function getParameterForTextureTarget(
-	target: TextureTarget
-): number {
+export default function getParameterForTextureTarget(target: TextureTarget) {
 	switch (target) {
 		case TextureTarget.TEXTURE_2D:
 			return TEXTURE_BINDING_2D;

@@ -1,55 +1,18 @@
-import type { TextureCompressedInternalFormat } from "#TextureCompressedInternalFormat";
 import TextureDataType from "#TextureDataType";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
-import type { TextureUncompressedInternalFormat } from "#TextureUncompressedInternalFormat";
 import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 
 /**
- * Gets a list of data types that can be supplied to the given texture internal
- * format.
+ * Get a list of data types that can be supplied to the given texture internal format.
  * @param internalFormat - The texture internal format.
- * @returns A list of data types. If the return value is not null, it is
- * guaranteed to contain at least one data type. The first data type in the
- * list is a sensible default.
- * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
- * @internal
- */
-export default function getTextureDataTypesForTextureInternalFormat(
-	internalFormat: TextureCompressedInternalFormat
-): null;
-
-/**
- * Gets a list of data types that can be supplied to the given texture internal
- * format.
- * @param internalFormat - The texture internal format.
- * @returns A list of data types. If the return value is not null, it is
- * guaranteed to contain at least one data type. The first data type in the
- * list is a sensible default.
- * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
- * @internal
- */
-export default function getTextureDataTypesForTextureInternalFormat(
-	internalFormat: TextureUncompressedInternalFormat
-): TextureDataType[];
-
-/**
- * Gets a list of data types that can be supplied to the given texture internal
- * format.
- * @param internalFormat - The texture internal format.
- * @returns A list of data types. If the return value is not null, it is
- * guaranteed to contain at least one data type. The first data type in the
- * list is a sensible default.
+ * @returns A list of data types. If the return value is not null, it is guaranteed to contain at least one data type. The first data type in the list is a sensible default.
  * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal
  */
 export default function getTextureDataTypesForTextureInternalFormat(
 	internalFormat: TextureInternalFormat
-): TextureDataType[] | null;
-
-export default function getTextureDataTypesForTextureInternalFormat(
-	internalFormat: TextureInternalFormat
-): TextureDataType[] | null {
+) {
 	switch (internalFormat) {
 		case TextureUncompressedUnsizedInternalFormat.RGB:
 		case TextureUncompressedSizedInternalFormat.RGB565:

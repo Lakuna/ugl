@@ -237,8 +237,7 @@ export const DEPTH_BUFFER_BIT = 0x00000100;
 export const STENCIL_BUFFER_BIT = 0x00000400;
 
 /**
- * The mask that specifies which components to enable or disable when
- * rendering to a framebuffer.
+ * The mask that specifies which components to enable or disable when rendering to a framebuffer.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
@@ -301,51 +300,49 @@ export const STENCIL_TEST = 0x0b90;
 export const SCISSOR_TEST = 0x0c11;
 
 /**
- * Whether blending of the computed fragment color values is enabled.
+ * Whether or not blending of the computed fragment color values is enabled.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const BLEND = 0x0be2;
 
 /**
- * Whether polygons culling is enabled.
+ * Whether or not polygon culling is enabled.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const CULL_FACE = 0x0b44;
 
 /**
- * Whether color components are dithered before they get written to the color
- * buffer.
+ * Whether or not color components are dithered before they get written to the color buffer.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const DITHER = 0x0bd0;
 
 /**
- * Whether an offset is added to depth values of polygons' fragments.
+ * Whether or not an offset is added to depth values of polygons' fragments.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const POLYGON_OFFSET_FILL = 0x8037;
 
 /**
- * Whether a temporary coverage value determined by the alpha value is
- * generated.
+ * Whether or not a temporary coverage value determined by the alpha value is generated.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const SAMPLE_ALPHA_TO_COVERAGE = 0x809e;
 
 /**
- * Whether fragments' coverages are combined with the temporary coverage value.
+ * Whether or not fragments' coverages are combined with the temporary coverage value.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
 export const SAMPLE_COVERAGE = 0x80a0;
 
 /**
- * Whether primitives are discarded immediately before the rasterization stage.
+ * Whether or not primitives are discarded immediately before the rasterization stage.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
@@ -387,7 +384,7 @@ export const POLYGON_OFFSET_FACTOR = 0x8038;
 export const SAMPLE_COVERAGE_VALUE = 0x80aa;
 
 /**
- * Whether the sample coverage is inverted.
+ * Whether or not the sample coverage is inverted.
  * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
  * @internal
  */
@@ -528,8 +525,7 @@ export const ACTIVE_ATTRIBUTES = 0x8b89;
 export const ACTIVE_UNIFORMS = 0x8b86;
 
 /**
- * The number of active varyings that are used for transform feedback in a
- * shader program.
+ * The number of active varyings that are used for transform feedback in a shader program.
  * @see [`getProgramParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramParameter)
  * @internal
  */

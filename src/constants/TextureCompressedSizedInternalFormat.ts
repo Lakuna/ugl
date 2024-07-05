@@ -49,15 +49,13 @@ enum TextureCompressedSizedInternalFormat {
 	COMPRESSED_SRGB8_ALPHA8_ETC2_EAC = 0x9277,
 
 	/**
-	 * Compressed RGB8 data with the ability to punch through the alpha channel
-	 * (make it completely opaque or transparent).
+	 * Compressed RGB8 data with the ability to punch through the alpha channel (make it completely opaque or transparent).
 	 * @see [`WEBGL_compressed_texture_etc`](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_compressed_texture_etc)
 	 */
 	COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9278,
 
 	/**
-	 * Compressed sRGB8 data with the ability to punch through the alpha channel
-	 * (make it completely opaque or transparent).
+	 * Compressed sRGB8 data with the ability to punch through the alpha channel (make it completely opaque or transparent).
 	 * @see [`WEBGL_compressed_texture_etc`](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_compressed_texture_etc)
 	 */
 	COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9279

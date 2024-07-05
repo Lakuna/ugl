@@ -7,10 +7,7 @@ enum BufferTarget {
 	/** A buffer containing vertex attributes. */
 	ARRAY_BUFFER = 0x8892,
 
-	/**
-	 * A buffer containing element indices. Not compatible with the rest of the
-	 * buffer targets.
-	 */
+	/** A buffer containing element indices. Not compatible with the rest of the buffer targets. */
 	ELEMENT_ARRAY_BUFFER = 0x8893,
 
 	/** A buffer for copying from one buffer to another. */

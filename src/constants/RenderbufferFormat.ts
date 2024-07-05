@@ -84,10 +84,7 @@ enum RenderbufferFormat {
 	/** An 8-bit integer each for red, green, blue, and alpha. */
 	RGBA8I = 0x8d8e,
 
-	/**
-	 * A 10-bit unsigned integer each for red, green, and blue, and a 2-bit
-	 * unsigned integer for alpha.
-	 */
+	/** A 10-bit unsigned integer each for red, green, and blue, and a 2-bit unsigned integer for alpha. */
 	RGB10_A2UI = 0x906f,
 
 	/** A 16-bit unsigned integer each for red, green, blue, and alpha. */
@@ -158,8 +155,7 @@ enum RenderbufferFormat {
 	RGBA32F = 0x8814,
 
 	/**
-	 * An 11-bit floating-point number each for red and green, and a 10-bit
-	 * floating-point number for blue.
+	 * An 11-bit floating-point number each for red and green, and a 10-bit floating-point number for blue.
 	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
 	 */
 	R11F_G11F_B10F = 0x8c3a

@@ -1,13 +1,13 @@
 import ErrorCode from "#ErrorCode";
 
 /**
- * Gets the message for an error code.
+ * Get the description of an error code.
  * @param code - The error code.
  * @returns The message.
  * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
  * @internal
  */
-export default function getErrorCodeMessage(code: ErrorCode): string {
+export default function getErrorCodeMessage(code: ErrorCode) {
 	switch (code) {
 		case ErrorCode.CONTEXT_LOST_WEBGL:
 			return "The context is lost.";

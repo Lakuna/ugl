@@ -1,34 +1,18 @@
 /** Unsized internal formats for the color components in a texture. */
 enum TextureUncompressedUnsizedInternalFormat {
-	/**
-	 * `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or
-	 * `UNSIGNED_SHORT_5_6_5`. Color renderable and texture filterable.
-	 */
+	/** Color renderable and texture filterable. `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. */
 	RGB = 0x1907,
 
-	/**
-	 * `format` must be `RGBA`. `type` must be `UNSIGNED_BYTE`,
-	 * `UNSIGNED_SHORT_4_4_4_4`, or `UNSIGNED_SHORT_5_5_5_1`. Color renderable
-	 * and texture filterable.
-	 */
+	/** Color renderable and texture filterable. `format` must be `RGBA`. `type` must be `UNSIGNED_BYTE`, `UNSIGNED_SHORT_4_4_4_4`, or `UNSIGNED_SHORT_5_5_5_1`. */
 	RGBA = 0x1908,
 
-	/**
-	 * `format` must be `LUMINANCE_ALPHA`. `type` must be `UNSIGNED_BYTE`.
-	 * Color renderable and texture filterable.
-	 */
+	/** Color renderable and texture filterable. `format` must be `LUMINANCE_ALPHA`. `type` must be `UNSIGNED_BYTE`. */
 	LUMINANCE_ALPHA = 0x190a,
 
-	/**
-	 * `format` must be `LUMINANCE`. `type` must be `UNSIGNED_BYTE`. Color
-	 * renderable and texture filterable.
-	 */
+	/** Color renderable and texture filterable. `format` must be `LUMINANCE`. `type` must be `UNSIGNED_BYTE`. */
 	LUMINANCE = 0x1909,
 
-	/**
-	 * `format` must be `ALPHA`. `type` must be `UNSIGNED_BYTE`. Color
-	 * renderable and texture filterable.
-	 */
+	/** Color renderable and texture filterable. `format` must be `ALPHA`. `type` must be `UNSIGNED_BYTE`. */
 	ALPHA = 0x1906,
 
 	/**

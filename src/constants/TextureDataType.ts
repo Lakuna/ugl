@@ -60,7 +60,10 @@ enum TextureDataType {
 	/** Unsigned 32-bit integer data. */
 	UNSIGNED_INT_24_8 = 0x84fa,
 
-	/** Null data. */
+	/**
+	 * Null data.
+	 * @deprecated Unusable in WebGL.
+	 */
 	FLOAT_32_UNSIGNED_INT_24_8_REV = 0x8dad
 }
 

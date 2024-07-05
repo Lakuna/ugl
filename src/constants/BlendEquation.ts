@@ -1,5 +1,5 @@
 /**
- * Blend equations.
+ * Blending equations.
  * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
  */
 enum BlendEquation {

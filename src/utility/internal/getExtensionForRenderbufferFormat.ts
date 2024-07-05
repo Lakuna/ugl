@@ -2,14 +2,14 @@ import Extension from "#Extension";
 import RenderbufferFormat from "#RenderbufferFormat";
 
 /**
- * Gets the extension that is associated with the given renderbuffer format.
+ * Get the extension that is associated with the given renderbuffer format.
  * @param format - The renderbuffer format.
  * @returns The extension that is associated with the renderbuffer format.
  * @internal
  */
 export default function getExtensionForRenderbufferFormat(
 	format: RenderbufferFormat
-): Extension | null {
+) {
 	switch (format) {
 		case RenderbufferFormat.R16F:
 		case RenderbufferFormat.RG16F:

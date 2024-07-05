@@ -2,8 +2,7 @@ import ApiInterface from "#ApiInterface";
 import type Context from "#Context";
 
 /**
- * An object with direct access to the WebGL2 API that requires an existing
- * rendering context to instantiate.
+ * An object with direct access to the WebGL2 API that requires an existing rendering context to instantiate.
  * @internal
  */
 export default abstract class ContextDependent extends ApiInterface {
@@ -21,5 +20,5 @@ export default abstract class ContextDependent extends ApiInterface {
 	 * The rendering context.
 	 * @internal
 	 */
-	public context: Context;
+	public readonly context;
 }
