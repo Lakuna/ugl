@@ -1,5 +1,6 @@
 import {
 	ACTIVE_TEXTURE,
+	BACK,
 	BLEND,
 	BLEND_COLOR,
 	BLEND_DST_ALPHA,
@@ -8,6 +9,7 @@ import {
 	BLEND_EQUATION_RGB,
 	BLEND_SRC_ALPHA,
 	BLEND_SRC_RGB,
+	COLOR_ATTACHMENT0,
 	COLOR_BUFFER_BIT,
 	COLOR_CLEAR_VALUE,
 	COLOR_WRITEMASK,
@@ -20,7 +22,9 @@ import {
 	DITHER,
 	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+	NONE,
 	RASTERIZER_DISCARD,
+	READ_BUFFER,
 	SCISSOR_BOX,
 	SCISSOR_TEST,
 	STENCIL_BACK_FUNC,
@@ -1113,6 +1117,36 @@ export default class Context extends ApiInterface {
 
 		this.gl.frontFace(value);
 		this.frontFaceCache = value;
+	}
+
+	/**
+	 * The current read buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 * @internal
+	 */
+	private readBufferCache?: number | boolean;
+
+	/**
+	 * Get the current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 */
+	public get readBuffer() {
+		return (this.readBufferCache ??= this.gl.getParameter(READ_BUFFER));
+	}
+
+	/**
+	 * Set the current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 */
+	public set readBuffer(value) {
+		if (this.readBufferCache === value) {
+			return;
+		}
+
+		this.gl.readBuffer(
+			value === true ? BACK : value === false ? NONE : COLOR_ATTACHMENT0 + value
+		);
+		this.readBufferCache = value;
 	}
 
 	/**

@@ -490,6 +490,20 @@ export const STENCIL_ATTACHMENT = 0x8d20;
 export const DEPTH_STENCIL_ATTACHMENT = 0x821a;
 
 /**
+ * Indicates which color buffer should be read from.
+ * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+ * @internal
+ */
+export const READ_BUFFER = 0x0c02;
+
+/**
+ * Indicates the first color buffer that should be written to.
+ * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+ * @internal
+ */
+export const DRAW_BUFFER0 = 0x8825;
+
+/**
  * Indicates that the back framebuffer (canvas) should be drawn to.
  * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
  * @internal
