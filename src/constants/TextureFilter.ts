@@ -1,8 +1,8 @@
 /**
- * Minification filters for textures.
+ * Minification and magnification filters for textures.
  * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
  */
-enum TextureMinFilter {
+enum TextureFilter {
 	/** Choose one pixel from the largest mip. */
 	NEAREST = 0x2600,
 
@@ -22,4 +22,4 @@ enum TextureMinFilter {
 	LINEAR_MIPMAP_LINEAR = 0x2703
 }
 
-export default TextureMinFilter;
+export default TextureFilter;

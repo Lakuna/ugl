@@ -24,11 +24,10 @@ import type Rectangle from "#Rectangle";
 import type TestFunction from "#TestFunction";
 import type TextureCompareMode from "#TextureCompareMode";
 import TextureDataType from "#TextureDataType";
+import TextureFilter from "#TextureFilter";
 import TextureFormat from "#TextureFormat";
 import TextureFormatError from "#TextureFormatError";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
-import type TextureMagFilter from "#TextureMagFilter";
-import TextureMinFilter from "#TextureMinFilter";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
 import type TextureTarget from "#TextureTarget";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
@@ -813,7 +812,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private magFilterCache?: TextureMagFilter;
+	private magFilterCache?: TextureFilter.LINEAR | TextureFilter.NEAREST;
 
 	/**
 	 * Get the magnification filter of this texture.
@@ -825,7 +824,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.magFilterCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAG_FILTER
-		) as TextureMagFilter);
+		));
 	}
 
 	/**
@@ -845,7 +844,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
-	private minFilterCache?: TextureMinFilter;
+	private minFilterCache?: TextureFilter;
 
 	/**
 	 * Get the minification filter of this texture.
@@ -857,7 +856,7 @@ export default abstract class Texture extends ContextDependent {
 		return (this.minFilterCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MIN_FILTER
-		) as TextureMinFilter);
+		));
 	}
 
 	/**
@@ -1211,8 +1210,8 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		if (
-			this.minFilter === TextureMinFilter.LINEAR ||
-			this.minFilter === TextureMinFilter.NEAREST
+			this.minFilter === TextureFilter.LINEAR ||
+			this.minFilter === TextureFilter.NEAREST
 		) {
 			this.isTextureCompleteCache = true;
 			return true;
