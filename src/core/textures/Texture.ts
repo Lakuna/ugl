@@ -15,10 +15,11 @@ import {
 import Buffer from "#Buffer";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
+import CubemapFace from "#CubemapFace";
 import Extension from "#Extension";
 import Framebuffer from "#Framebuffer";
 import ImmutableError from "#ImmutableError";
-import type MipmapTarget from "#MipmapTarget";
+import MipmapTarget from "#MipmapTarget";
 import type Prism from "#Prism";
 import type Rectangle from "#Rectangle";
 import type TestFunction from "#TestFunction";
@@ -29,11 +30,12 @@ import TextureFormat from "#TextureFormat";
 import TextureFormatError from "#TextureFormatError";
 import type { TextureInternalFormat } from "#TextureInternalFormat";
 import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
-import type TextureTarget from "#TextureTarget";
+import TextureTarget from "#TextureTarget";
 import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
 import type TextureWrapFunction from "#TextureWrapFunction";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import getExtensionForTextureInternalFormat from "#getExtensionForTextureInternalFormat";
+import getMipmapTargetForCubemapFace from "#getMipmapTargetForCubemapFace";
 import getParameterForTextureTarget from "#getParameterForTextureTarget";
 import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
 import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
@@ -503,7 +505,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in a framebuffer into one of this texture's mips.
-	 * @param target - The mipmap that the mip belongs to.
+	 * @param face - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
@@ -513,7 +515,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		target: MipmapTarget,
+		face: CubemapFace | undefined,
 		level: number,
 		framebuffer: Framebuffer | undefined,
 		bounds?: Prism | Rectangle,
@@ -524,7 +526,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in a buffer into one of this texture's mips.
-	 * @param target - The mipmap that the mip belongs to.
+	 * @param face - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param buffer - The buffer to copy into the mip.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
@@ -535,7 +537,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		target: MipmapTarget,
+		face: CubemapFace | undefined,
 		level: number,
 		buffer: Buffer,
 		bounds: Prism | Rectangle | undefined,
@@ -547,7 +549,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy data into one of this texture's mips.
-	 * @param target - The mipmap that the mip belongs to.
+	 * @param face - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param data - The data to copy into the mip.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
@@ -556,7 +558,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		target: MipmapTarget,
+		face: CubemapFace | undefined,
 		level: number,
 		data: TexImageSource,
 		bounds?: Prism | Rectangle,
@@ -566,7 +568,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in an array into one of this texture's mips.
-	 * @param target - The mipmap that the mip belongs to.
+	 * @param face - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param array - The array to copy into the mip.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
@@ -577,7 +579,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		target: MipmapTarget,
+		face: CubemapFace | undefined,
 		level: number,
 		array: ArrayBufferView,
 		bounds?: Prism | Rectangle,
@@ -588,7 +590,7 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	public setMip(
-		target: MipmapTarget,
+		face: CubemapFace | undefined,
 		level: number,
 		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
 		requestedBounds?: Prism | Rectangle,
@@ -645,6 +647,9 @@ export default abstract class Texture extends ContextDependent {
 
 		// Determine the compatible data format.
 		const format = getTextureFormatForTextureInternalFormat(this.format);
+
+		// Determine the proper mipmap target.
+		const target = getMipmapTargetForCubemapFace(face, this.target);
 
 		// Update the mip data.
 		if (typeof data === "undefined" || data instanceof Framebuffer) {

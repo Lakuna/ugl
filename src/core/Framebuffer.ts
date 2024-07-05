@@ -7,6 +7,7 @@ import {
 } from "#constants";
 import type Context from "#Context";
 import ContextDependent from "#ContextDependent";
+import CubemapFace from "#CubemapFace";
 import FramebufferAttachment from "#FramebufferAttachment";
 import FramebufferTarget from "#FramebufferTarget";
 import MipmapTarget from "#MipmapTarget";
@@ -15,6 +16,7 @@ import type Texture from "#Texture";
 import type Texture2d from "#Texture2d";
 import type TextureCubemap from "#TextureCubemap";
 import UnsupportedOperationError from "#UnsupportedOperationError";
+import getMipmapTargetForCubemapFace from "#getMipmapTargetForCubemapFace";
 import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
 
 /**
@@ -351,13 +353,7 @@ export default class Framebuffer extends ContextDependent {
 	public attach(
 		attachment: FramebufferAttachment | number,
 		texture: TextureCubemap,
-		face:
-			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X
-			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y
-			| MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z
-			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X
-			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y
-			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
+		face: CubemapFace,
 		level?: number,
 		layer?: number
 	): void;
@@ -376,7 +372,7 @@ export default class Framebuffer extends ContextDependent {
 	public attach(
 		attachment: FramebufferAttachment | number,
 		data: Texture | Renderbuffer,
-		face = MipmapTarget.TEXTURE_2D,
+		face: CubemapFace | undefined = void 0,
 		level = 0,
 		layer: number | undefined = void 0
 	) {
@@ -422,11 +418,17 @@ export default class Framebuffer extends ContextDependent {
 			return;
 		}
 
+		// Get the mipmap binding point of the specified face. `undefined` means that a `Texture2d` is being used.
+		const mipmapTarget =
+			typeof face === "undefined"
+				? MipmapTarget.TEXTURE_2D
+				: getMipmapTargetForCubemapFace(face);
+
 		// Attach an entire texture.
 		this.gl.framebufferTexture2D(
 			this.target,
 			attachmentValue,
-			face,
+			mipmapTarget,
 			data.internal,
 			level
 		);

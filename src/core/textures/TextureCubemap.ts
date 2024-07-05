@@ -2,6 +2,7 @@ import { BACK, COLOR_ATTACHMENT0, NONE } from "#constants";
 import type Buffer from "#Buffer";
 import BufferTarget from "#BufferTarget";
 import type Context from "#Context";
+import CubemapFace from "#CubemapFace";
 import Framebuffer from "#Framebuffer";
 import FramebufferTarget from "#FramebufferTarget";
 import MipmapTarget from "#MipmapTarget";
@@ -40,36 +41,31 @@ export default class TextureCubemap extends Texture {
 
 		// Fill each face with one magenta texel until the image loads.
 		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(
-			MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X,
-			0,
-			magenta,
-			[0, 0, 1, 1]
-		);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, magenta);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, magenta);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, magenta);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, magenta);
-		out.setMip(MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, magenta);
+		out.setMip(CubemapFace.PositiveX, 0, magenta, [0, 0, 1, 1]);
+		out.setMip(CubemapFace.NegativeX, 0, magenta);
+		out.setMip(CubemapFace.PositiveY, 0, magenta);
+		out.setMip(CubemapFace.NegativeY, 0, magenta);
+		out.setMip(CubemapFace.PositiveZ, 0, magenta);
+		out.setMip(CubemapFace.NegativeZ, 0, magenta);
 
 		// Load the images.
-		const loadedImages = new Map<MipmapTarget, HTMLImageElement>();
-		for (const [target, url] of [
-			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X, px],
-			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X, nx],
-			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y, py],
-			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y, ny],
-			[MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z, pz],
-			[MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z, nz]
-		] as [MipmapTarget, string][]) {
+		const loadedImages = new Map<CubemapFace, HTMLImageElement>();
+		for (const [face, url] of [
+			[CubemapFace.PositiveX, px],
+			[CubemapFace.NegativeX, nx],
+			[CubemapFace.PositiveY, py],
+			[CubemapFace.NegativeY, ny],
+			[CubemapFace.PositiveZ, pz],
+			[CubemapFace.NegativeZ, nz]
+		] as [CubemapFace, string][]) {
 			const image = new Image();
 			image.addEventListener("load", () => {
-				loadedImages.set(target, image);
+				loadedImages.set(face, image);
 
 				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
 				if (loadedImages.size >= 6) {
-					for (const [otherTarget, otherImage] of loadedImages) {
-						out.setMip(otherTarget, 0, otherImage);
+					for (const [otherFace, otherImage] of loadedImages) {
+						out.setMip(otherFace, 0, otherImage);
 					}
 				}
 			});
