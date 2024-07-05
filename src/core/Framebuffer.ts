@@ -1,7 +1,11 @@
 import {
+	BACK,
 	COLOR_ATTACHMENT0,
 	DEPTH_ATTACHMENT,
 	DEPTH_STENCIL_ATTACHMENT,
+	DRAW_BUFFER0,
+	NONE,
+	READ_BUFFER,
 	RENDERBUFFER,
 	STENCIL_ATTACHMENT
 } from "#constants";
@@ -357,5 +361,118 @@ export default class Framebuffer extends ContextDependent {
 				level
 			);
 		}
+	}
+
+	/**
+	 * The current read buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 * @internal
+	 */
+	private readBufferCache?: number | boolean;
+
+	/**
+	 * Get the current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 */
+	public get readBuffer() {
+		if (typeof this.readBufferCache !== "undefined") {
+			return this.readBufferCache;
+		}
+
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+
+		this.readBufferCache =
+			this.gl.getParameter(READ_BUFFER) - COLOR_ATTACHMENT0;
+		return this.readBufferCache;
+	}
+
+	/**
+	 * Set the current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
+	 */
+	public set readBuffer(value) {
+		if (this.readBufferCache === value) {
+			return;
+		}
+
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+
+		this.gl.readBuffer(
+			value === true ? BACK : value === false ? NONE : COLOR_ATTACHMENT0 + value
+		);
+		this.readBufferCache = value;
+	}
+
+	/**
+	 * The current draw buffers.
+	 * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+	 * @internal
+	 */
+	private drawBuffersCache?: (number | boolean)[];
+
+	/**
+	 * Get the current draw buffers. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+	 */
+	public get drawBuffers() {
+		if (typeof this.drawBuffersCache !== "undefined") {
+			return this.drawBuffersCache;
+		}
+
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+
+		const out = [];
+		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
+			const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
+			out.push(
+				drawBuffer === BACK
+					? true
+					: drawBuffer === NONE
+						? false
+						: drawBuffer - DRAW_BUFFER0
+			);
+		}
+
+		this.drawBuffersCache = out;
+		return this.drawBuffersCache;
+	}
+
+	/**
+	 * Set the current draw buffers. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+	 */
+	public set drawBuffers(value) {
+		if (
+			typeof this.drawBuffersCache !== "undefined" &&
+			this.drawBuffersCache.length === value.length
+		) {
+			let mismatch = false;
+			for (let i = 0; i < value.length; i++) {
+				if (this.drawBuffersCache[i] === value[i]) {
+					mismatch = true;
+					break;
+				}
+			}
+
+			if (!mismatch) {
+				return;
+			}
+		}
+
+		const out = [];
+		for (const buffer of value) {
+			out.push(
+				buffer === true
+					? BACK
+					: buffer === false
+						? NONE
+						: COLOR_ATTACHMENT0 + buffer
+			);
+		}
+
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+
+		this.gl.drawBuffers(out);
+		this.drawBuffersCache = value;
 	}
 }

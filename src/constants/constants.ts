@@ -504,6 +504,13 @@ export const READ_BUFFER = 0x0c02;
 export const DRAW_BUFFER0 = 0x8825;
 
 /**
+ * Indicates the maximum usable number of draw buffers.
+ * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
+ * @internal
+ */
+export const MAX_DRAW_BUFFERS = 0x8824;
+
+/**
  * Indicates that the back framebuffer (canvas) should be drawn to.
  * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
  * @internal

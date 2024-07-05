@@ -25,6 +25,7 @@ TODO notes:
 - Ensure that `Context.throwIfError` is used everywhere that an error occurs. Ensure that `@throws` annotations are used in the documentation of these functions.
 - Should users be able to set boolean values on `BlendEquation` to enable blending? Parity with `BlendFunction`. Maybe extend this to other functionalities as well.
 - Set the read buffer (`gl.readBuffer`) before calls to `copyTex[Sub]Image[23]D` and `readPixels`. Make `Context.readBuffer` internal.
+- Are the read buffer and draw buffers part of the context of the bound framebuffer? Conflicting information from https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers and other sources.
 
 Done notes:
 - `generateMipmap` overwrites all but the top mip, even if the texture is texture complete.
