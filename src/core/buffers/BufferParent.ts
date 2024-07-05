@@ -201,7 +201,7 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @internal
 	 */
 	public set target(value) {
-		if (this.targetCache === value) {
+		if (this.target === value) {
 			return;
 		}
 
@@ -341,6 +341,7 @@ export default abstract class BufferParent extends ContextDependent {
 		isHalf = false,
 		replaceOffset: number | undefined = void 0
 	) {
+		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, usage);
 			delete this.dataCache;

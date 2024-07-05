@@ -71,7 +71,7 @@ export default abstract class Attribute extends Variable {
 	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
 	 */
 	public set enabled(value) {
-		if (this.enabledCache === value) {
+		if (this.enabled === value) {
 			return;
 		}
 

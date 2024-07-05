@@ -432,6 +432,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link ImmutableError} if this is an immutable-format texture.
 	 */
 	public set format(value) {
+		if (value === this.format) {
+			return;
+		}
+
 		// Immutable-format textures cannot have their format changed (duh).
 		if (this.isImmutableFormat) {
 			throw new ImmutableError();
@@ -838,6 +842,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set magFilter(value) {
+		if (this.magFilter === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MAG_FILTER, value);
 		this.magFilterCache = value;
@@ -870,6 +878,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set minFilter(value) {
+		if (this.minFilter === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
 		this.minFilterCache = value;
@@ -902,6 +914,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapSFunction(value) {
+		if (this.wrapSFunction === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
 		this.wrapSFunctionCache = value;
@@ -934,6 +950,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapTFunction(value) {
+		if (this.wrapTFunction === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
 		this.wrapTFunctionCache = value;
@@ -967,6 +987,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxAnisotropy(value) {
+		if (this.maxAnisotropy === value) {
+			return;
+		}
+
 		this.context.enableExtension(Extension.TextureFilterAnisotropic);
 		this.bind();
 		this.gl.texParameterf(this.target, TEXTURE_MAX_ANISOTROPY_EXT, value);
@@ -1000,6 +1024,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set baseLevel(value) {
+		if (this.baseLevel === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_BASE_LEVEL, value);
 		this.baseLevelCache = value;
@@ -1032,6 +1060,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set comparisonFunction(value) {
+		if (this.comparisonFunction === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_COMPARE_FUNC, value);
 		this.comparisonFunctionCache = value;
@@ -1064,6 +1096,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set comparisonMode(value) {
+		if (this.comparisonMode === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_COMPARE_MODE, value);
 		this.comparisonModeCache = value;
@@ -1096,6 +1132,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxLevel(value) {
+		if (this.maxLevel === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_MAX_LEVEL, value);
 		this.maxLevelCache = value;
@@ -1128,6 +1168,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set maxLod(value) {
+		if (this.maxLod === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameterf(this.target, TEXTURE_MAX_LOD, value);
 		this.maxLodCache = value;
@@ -1160,6 +1204,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set minLod(value) {
+		if (this.minLod === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameterf(this.target, TEXTURE_MIN_LOD, value);
 		this.minLodCache = value;
@@ -1192,6 +1240,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 */
 	public set wrapRFunction(value) {
+		if (this.wrapRFunction === value) {
+			return;
+		}
+
 		this.bind();
 		this.gl.texParameteri(this.target, TEXTURE_WRAP_R, value);
 		this.wrapRFunctionCache = value;

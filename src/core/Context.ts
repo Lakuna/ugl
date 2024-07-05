@@ -127,7 +127,7 @@ export default class Context extends ApiInterface {
 	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 */
 	public set drawingBufferColorSpace(value) {
-		if (this.drawingBufferColorSpaceCache === value) {
+		if (this.drawingBufferColorSpace === value) {
 			return;
 		}
 
@@ -175,7 +175,7 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	public set activeTexture(value) {
-		if (this.activeTextureCache === value) {
+		if (this.activeTexture === value) {
 			return;
 		}
 
@@ -208,11 +208,11 @@ export default class Context extends ApiInterface {
 	 */
 	public set blendColor(value) {
 		if (
-			typeof this.blendColorCache !== "undefined" &&
-			this.blendColorCache[0] === value[0] &&
-			this.blendColorCache[1] === value[1] &&
-			this.blendColorCache[2] === value[2] &&
-			this.blendColorCache[3] === value[3]
+			typeof this.blendColor !== "undefined" &&
+			this.blendColor[0] === value[0] &&
+			this.blendColor[1] === value[1] &&
+			this.blendColor[2] === value[2] &&
+			this.blendColor[3] === value[3]
 		) {
 			return;
 		}
@@ -257,9 +257,9 @@ export default class Context extends ApiInterface {
 		// One value.
 		if (typeof value === "number") {
 			if (
-				typeof this.blendEquationCache !== "undefined" &&
-				this.blendEquationCache[0] === value &&
-				this.blendEquationCache[1] === value
+				typeof this.blendEquation !== "undefined" &&
+				this.blendEquation[0] === value &&
+				this.blendEquation[1] === value
 			) {
 				return;
 			}
@@ -276,9 +276,9 @@ export default class Context extends ApiInterface {
 
 		// Set of values.
 		if (
-			typeof this.blendEquationCache !== "undefined" &&
-			this.blendEquationCache[0] === value[0] &&
-			this.blendEquationCache[1] === value[1]
+			typeof this.blendEquation !== "undefined" &&
+			this.blendEquation[0] === value[0] &&
+			this.blendEquation[1] === value[1]
 		) {
 			return;
 		}
@@ -321,7 +321,7 @@ export default class Context extends ApiInterface {
 
 	/** Set whether or not blending is enabled. */
 	public set doBlend(value) {
-		if (this.doBlendCache === value) {
+		if (this.doBlend === value) {
 			return;
 		}
 
@@ -372,11 +372,11 @@ export default class Context extends ApiInterface {
 		// Full set.
 		if (2 in value) {
 			if (
-				typeof this.blendFunctionCache !== "undefined" &&
-				this.blendFunctionCache[0] === value[0] &&
-				this.blendFunctionCache[1] === value[1] &&
-				this.blendFunctionCache[2] === value[2] &&
-				this.blendFunctionCache[3] === value[3]
+				typeof this.blendFunction !== "undefined" &&
+				this.blendFunction[0] === value[0] &&
+				this.blendFunction[1] === value[1] &&
+				this.blendFunction[2] === value[2] &&
+				this.blendFunction[3] === value[3]
 			) {
 				return;
 			}
@@ -395,11 +395,11 @@ export default class Context extends ApiInterface {
 
 		// Half set.
 		if (
-			typeof this.blendFunctionCache !== "undefined" &&
-			this.blendFunctionCache[0] === value[0] &&
-			this.blendFunctionCache[1] === value[1] &&
-			this.blendFunctionCache[2] === value[0] &&
-			this.blendFunctionCache[3] === value[1]
+			typeof this.blendFunction !== "undefined" &&
+			this.blendFunction[0] === value[0] &&
+			this.blendFunction[1] === value[1] &&
+			this.blendFunction[2] === value[0] &&
+			this.blendFunction[3] === value[1]
 		) {
 			return;
 		}
@@ -487,11 +487,11 @@ export default class Context extends ApiInterface {
 	 */
 	public set clearColor(value) {
 		if (
-			typeof this.clearColorCache !== "undefined" &&
-			this.clearColorCache[0] === value[0] &&
-			this.clearColorCache[1] === value[1] &&
-			this.clearColorCache[2] === value[2] &&
-			this.clearColorCache[3] === value[3]
+			typeof this.clearColor !== "undefined" &&
+			this.clearColor[0] === value[0] &&
+			this.clearColor[1] === value[1] &&
+			this.clearColor[2] === value[2] &&
+			this.clearColor[3] === value[3]
 		) {
 			return;
 		}
@@ -520,7 +520,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 */
 	public set clearDepth(value) {
-		if (this.clearDepthCache === value) {
+		if (this.clearDepth === value) {
 			return;
 		}
 
@@ -549,7 +549,7 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public set clearStencil(value) {
-		if (this.clearStencilCache === value) {
+		if (this.clearStencil === value) {
 			return;
 		}
 
@@ -578,11 +578,11 @@ export default class Context extends ApiInterface {
 	 */
 	public set colorMask(value) {
 		if (
-			typeof this.colorMaskCache !== "undefined" &&
-			this.colorMaskCache[0] === value[0] &&
-			this.colorMaskCache[1] === value[1] &&
-			this.colorMaskCache[2] === value[2] &&
-			this.colorMaskCache[3] === value[3]
+			typeof this.colorMask !== "undefined" &&
+			this.colorMask[0] === value[0] &&
+			this.colorMask[1] === value[1] &&
+			this.colorMask[2] === value[2] &&
+			this.colorMask[3] === value[3]
 		) {
 			return;
 		}
@@ -628,7 +628,7 @@ export default class Context extends ApiInterface {
 	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public set doCullFace(value) {
-		if (this.doCullFaceCache === value) {
+		if (this.doCullFace === value) {
 			return;
 		}
 
@@ -660,7 +660,7 @@ export default class Context extends ApiInterface {
 	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 */
 	public set cullFace(value) {
-		if (this.cullFaceCache === value) {
+		if (this.cullFace === value) {
 			return;
 		}
 
@@ -681,7 +681,7 @@ export default class Context extends ApiInterface {
 
 	/** Set whether or not dithering is enabled. */
 	public set doDither(value) {
-		if (this.doDitherCache === value) {
+		if (this.doDither === value) {
 			return;
 		}
 
@@ -713,7 +713,7 @@ export default class Context extends ApiInterface {
 	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public set doDepthTest(value) {
-		if (this.doDepthTestCache === value) {
+		if (this.doDepthTest === value) {
 			return;
 		}
 
@@ -745,7 +745,7 @@ export default class Context extends ApiInterface {
 	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 */
 	public set depthFunction(value) {
-		if (this.depthFunctionCache === value) {
+		if (this.depthFunction === value) {
 			return;
 		}
 
@@ -774,7 +774,7 @@ export default class Context extends ApiInterface {
 	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
 	 */
 	public set unpackAlignment(value) {
-		if (this.unpackAlignmentCache === value) {
+		if (this.unpackAlignment === value) {
 			return;
 		}
 
@@ -834,7 +834,7 @@ export default class Context extends ApiInterface {
 	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 */
 	public set doScissorTest(value) {
-		if (this.doScissorTestCache === value) {
+		if (this.doScissorTest === value) {
 			return;
 		}
 
@@ -867,11 +867,11 @@ export default class Context extends ApiInterface {
 	 */
 	public set scissorBox(value) {
 		if (
-			typeof this.scissorBoxCache !== "undefined" &&
-			this.scissorBoxCache[0] === value[0] &&
-			this.scissorBoxCache[1] === value[1] &&
-			this.scissorBoxCache[2] === value[2] &&
-			this.scissorBoxCache[3] === value[3]
+			typeof this.scissorBox !== "undefined" &&
+			this.scissorBox[0] === value[0] &&
+			this.scissorBox[1] === value[1] &&
+			this.scissorBox[2] === value[2] &&
+			this.scissorBox[3] === value[3]
 		) {
 			return;
 		}
@@ -901,11 +901,11 @@ export default class Context extends ApiInterface {
 	 */
 	public set viewport(value) {
 		if (
-			typeof this.viewportCache !== "undefined" &&
-			this.viewportCache[0] === value[0] &&
-			this.viewportCache[1] === value[1] &&
-			this.viewportCache[2] === value[2] &&
-			this.viewportCache[3] === value[3]
+			typeof this.viewport !== "undefined" &&
+			this.viewport[0] === value[0] &&
+			this.viewport[1] === value[1] &&
+			this.viewport[2] === value[2] &&
+			this.viewport[3] === value[3]
 		) {
 			return;
 		}
@@ -937,7 +937,7 @@ export default class Context extends ApiInterface {
 	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
 	 */
 	public set doStencilTest(value) {
-		if (value === this.doStencilTestCache) {
+		if (value === this.doStencilTest) {
 			return;
 		}
 
@@ -974,10 +974,10 @@ export default class Context extends ApiInterface {
 	 */
 	public set frontStencil(value) {
 		if (
-			typeof this.frontStencilCache !== "undefined" &&
-			this.frontStencilCache[0] === value[0] &&
-			this.frontStencilCache[1] === value[1] &&
-			this.frontStencilCache[2] === value[2]
+			typeof this.frontStencil !== "undefined" &&
+			this.frontStencil[0] === value[0] &&
+			this.frontStencil[1] === value[1] &&
+			this.frontStencil[2] === value[2]
 		) {
 			return;
 		}
@@ -1015,10 +1015,10 @@ export default class Context extends ApiInterface {
 	 */
 	public set backStencil(value) {
 		if (
-			typeof this.backStencilCache !== "undefined" &&
-			this.backStencilCache[0] === value[0] &&
-			this.backStencilCache[1] === value[1] &&
-			this.backStencilCache[2] === value[2]
+			typeof this.backStencil !== "undefined" &&
+			this.backStencil[0] === value[0] &&
+			this.backStencil[1] === value[1] &&
+			this.backStencil[2] === value[2]
 		) {
 			return;
 		}
@@ -1045,14 +1045,14 @@ export default class Context extends ApiInterface {
 	 */
 	public set stencil(value) {
 		if (
-			typeof this.frontStencilCache !== "undefined" &&
-			this.frontStencilCache[0] === value[0] &&
-			this.frontStencilCache[1] === value[1] &&
-			this.frontStencilCache[2] === value[2] &&
-			typeof this.backStencilCache !== "undefined" &&
-			this.backStencilCache[0] === value[0] &&
-			this.backStencilCache[1] === value[1] &&
-			this.backStencilCache[2] === value[2]
+			typeof this.frontStencil !== "undefined" &&
+			this.frontStencil[0] === value[0] &&
+			this.frontStencil[1] === value[1] &&
+			this.frontStencil[2] === value[2] &&
+			typeof this.backStencil !== "undefined" &&
+			this.backStencil[0] === value[0] &&
+			this.backStencil[1] === value[1] &&
+			this.backStencil[2] === value[2]
 		) {
 			return;
 		}
@@ -1076,7 +1076,7 @@ export default class Context extends ApiInterface {
 
 	/** Whether primitives are discarded immediately before the rasterization stage. */
 	public set doRasterizerDiscard(value) {
-		if (this.doRasterizerDiscardCache === value) {
+		if (this.doRasterizerDiscard === value) {
 			return;
 		}
 
@@ -1108,7 +1108,7 @@ export default class Context extends ApiInterface {
 	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 */
 	public set frontFace(value) {
-		if (this.frontFaceCache === value) {
+		if (this.frontFace === value) {
 			return;
 		}
 

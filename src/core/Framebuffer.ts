@@ -206,7 +206,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public set target(value) {
-		if (this.targetCache === value) {
+		if (this.target === value) {
 			return;
 		}
 
@@ -391,7 +391,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see [`readBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer)
 	 */
 	public set readBuffer(value) {
-		if (this.readBufferCache === value) {
+		if (this.readBuffer === value) {
 			return;
 		}
 
@@ -443,12 +443,12 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public set drawBuffers(value) {
 		if (
-			typeof this.drawBuffersCache !== "undefined" &&
-			this.drawBuffersCache.length === value.length
+			typeof this.drawBuffers !== "undefined" &&
+			this.drawBuffers.length === value.length
 		) {
 			let mismatch = false;
 			for (let i = 0; i < value.length; i++) {
-				if (this.drawBuffersCache[i] === value[i]) {
+				if (this.drawBuffers[i] === value[i]) {
 					mismatch = true;
 					break;
 				}
