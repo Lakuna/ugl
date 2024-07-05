@@ -251,78 +251,6 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
-	 * The first color buffer of this framebuffer.
-	 * @internal
-	 */
-	private colorBufferCache?: Texture2d | TextureCubemap | Renderbuffer;
-
-	/**
-	 * Get the first color buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public get colorBuffer() {
-		return this.colorBufferCache;
-	}
-
-	/**
-	 * Set the first color buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public set colorBuffer(value) {
-		this.attach(0, value as Texture2d);
-	}
-
-	/**
-	 * The depth buffer of this framebuffer.
-	 * @internal
-	 */
-	private depthBufferCache?: Texture2d | TextureCubemap | Renderbuffer;
-
-	/**
-	 * Get the depth buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public get depthBuffer() {
-		return this.depthBufferCache;
-	}
-
-	/**
-	 * Set the depth buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public set depthBuffer(value) {
-		this.attach(FramebufferAttachment.Depth, value as Texture2d);
-	}
-
-	/**
-	 * The stencil buffer of this framebuffer.
-	 * @internal
-	 */
-	private stencilBufferCache?: Texture2d | TextureCubemap | Renderbuffer;
-
-	/**
-	 * Get the stencil buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public get stencilBuffer() {
-		return this.stencilBufferCache;
-	}
-
-	/**
-	 * Set the stencil buffer of this framebuffer.
-	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
-	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
-	 */
-	public set stencilBuffer(value) {
-		this.attach(FramebufferAttachment.Stencil, value as Texture2d);
-	}
-
-	/**
 	 * Attach a 2D texture to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
 	 * @param texture - The texture to attach.
@@ -395,19 +323,17 @@ export default class Framebuffer extends ContextDependent {
 		// Bind this framebuffer.
 		this.bind();
 
-		// Attach a renderbuffer.
+		// Attach the renderbuffer or texture.
 		if (data instanceof Renderbuffer) {
+			// Attach a renderbuffer.
 			this.gl.framebufferRenderbuffer(
 				this.target,
 				attachmentValue,
 				RENDERBUFFER,
 				data.internal
 			);
-			return;
-		}
-
-		// Attach a layer of a texture.
-		if (typeof layer === "number") {
+		} else if (typeof layer === "number") {
+			// Attach a layer of a texture.
 			this.gl.framebufferTextureLayer(
 				this.target,
 				attachmentValue,
@@ -415,22 +341,21 @@ export default class Framebuffer extends ContextDependent {
 				level,
 				layer
 			);
-			return;
+		} else {
+			// Get the mipmap binding point of the specified face. `undefined` means that a `Texture2d` is being used.
+			const mipmapTarget =
+				typeof face === "undefined"
+					? MipmapTarget.TEXTURE_2D
+					: getMipmapTargetForCubemapFace(face);
+
+			// Attach an entire texture.
+			this.gl.framebufferTexture2D(
+				this.target,
+				attachmentValue,
+				mipmapTarget,
+				data.internal,
+				level
+			);
 		}
-
-		// Get the mipmap binding point of the specified face. `undefined` means that a `Texture2d` is being used.
-		const mipmapTarget =
-			typeof face === "undefined"
-				? MipmapTarget.TEXTURE_2D
-				: getMipmapTargetForCubemapFace(face);
-
-		// Attach an entire texture.
-		this.gl.framebufferTexture2D(
-			this.target,
-			attachmentValue,
-			mipmapTarget,
-			data.internal,
-			level
-		);
 	}
 }

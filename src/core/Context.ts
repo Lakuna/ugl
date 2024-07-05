@@ -17,6 +17,7 @@ import {
 	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
 	DEPTH_TEST,
+	DITHER,
 	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 	RASTERIZER_DISCARD,
@@ -664,6 +665,31 @@ export default class Context extends ApiInterface {
 
 		this.gl.cullFace(value);
 		this.cullFaceCache = value;
+	}
+
+	/**
+	 * Whether or not dithering is enabled.
+	 * @internal
+	 */
+	private doDitherCache?: boolean;
+
+	/** Get whether or not dithering is enabled. */
+	public get doDither() {
+		return (this.doDitherCache ??= this.gl.isEnabled(DITHER));
+	}
+
+	/** Set whether or not dithering is enabled. */
+	public set doDither(value) {
+		if (this.doDitherCache === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(DITHER);
+		} else {
+			this.gl.disable(DITHER);
+		}
+		this.doDitherCache = value;
 	}
 
 	/**
