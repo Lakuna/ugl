@@ -1,4 +1,5 @@
 import type AttributeValue from "#AttributeValue";
+import type Buffer from "#Buffer";
 import BufferTarget from "#BufferTarget";
 import type Program from "#Program";
 import UnsupportedOperationError from "#UnsupportedOperationError";
@@ -95,11 +96,12 @@ export default abstract class Attribute extends Variable {
 	}
 
 	/** Set the value that is stored in this attribute. */
-	public set value(value: AttributeValue) {
+	public set value(value: AttributeValue | Buffer) {
 		// Update even if the cached value is the same as the given value, since the data in the buffer could have updated.
 		this.enabled = true;
-		value.buffer.bind(BufferTarget.ARRAY_BUFFER);
-		this.setterInternal(value);
-		this.valueCache = value;
+		const realValue = "buffer" in value ? value : { buffer: value };
+		realValue.buffer.bind(BufferTarget.ARRAY_BUFFER);
+		this.setterInternal(realValue);
+		this.valueCache = realValue;
 	}
 }
