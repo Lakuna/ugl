@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Attributes</title>
+		<title>Varyings</title>
 
 		<!-- Prevent browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -25,9 +25,13 @@
 #version 300 es
 
 in vec4 a_position;
+in vec4 a_color;
+
+out vec4 v_color;
 
 void main() {
 	gl_Position = a_position;
+	v_color = a_color;
 }
 `;
 
@@ -36,14 +40,17 @@ void main() {
 
 precision highp float;
 
+in vec4 v_color;
+
 out vec4 outColor;
 
 void main() {
-	outColor = vec4(0, 0, 0, 1);
+	outColor = v_color;
 }
 `;
 
 			const positionData = new Float32Array([0, 0.5, 0, 0, 0.7, 0, 0.7, 0.5]);
+			const colorData = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1]);
 			const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
@@ -77,11 +84,16 @@ void main() {
 
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
+				const colorLoc = gl.getAttribLocation(program, "a_color");
 
 				// Create buffers.
 				const positionBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
+
+				const colorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, colorData, gl.STATIC_DRAW);
 
 				const indexBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -93,6 +105,9 @@ void main() {
 				gl.enableVertexAttribArray(positionLoc);
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+				gl.enableVertexAttribArray(colorLoc);
+				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+				gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 				return function () {
@@ -127,13 +142,15 @@ void main() {
 
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
+				const colorBuffer = new Buffer(context, colorData);
 				const indexBuffer = new ElementArrayBuffer(context, indexData);
 
 				// Create VAOs, bind indices.
 				const rectVao = new Vao(
 					program,
 					{
-						a_position: { buffer: positionBuffer, size: 2 }
+						a_position: { buffer: positionBuffer, size: 2 },
+						a_color: colorBuffer
 					},
 					indexBuffer
 				);
@@ -145,7 +162,7 @@ void main() {
 					// Clear the canvas.
 					context.clear();
 
-					// Rasterize.
+					// Set uniform values, rasterize.
 					rectVao.draw();
 				};
 			}
