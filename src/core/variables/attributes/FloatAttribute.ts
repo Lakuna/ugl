@@ -1,22 +1,11 @@
-import Attribute from "#Attribute";
-import type AttributeValue from "#AttributeValue";
-import type Program from "#Program";
+import Attribute from "./Attribute.js";
+import type AttributeValue from "../../../types/AttributeValue.js";
 
 /**
  * A floating-point input variable in a WebGL vertex shader.
  * @internal
  */
 export default class FloatAttribute extends Attribute {
-	/**
-	 * Create a floating-point attribute.
-	 * @param program - The shader program that the attribute belongs to.
-	 * @param index - The index of the attribute.
-	 * @internal
-	 */
-	public constructor(program: Program, index: number) {
-		super(program, index);
-	}
-
 	/**
 	 * Set the value of this attribute.
 	 * @param value - The value to pass to the attribute.

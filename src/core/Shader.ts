@@ -1,9 +1,9 @@
-import { COMPILE_STATUS } from "#constants";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import ShaderCompileError from "#ShaderCompileError";
-import type ShaderType from "#ShaderType";
-import UnsupportedOperationError from "#UnsupportedOperationError";
+import { COMPILE_STATUS } from "../constants/constants.js";
+import type Context from "./Context.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import ShaderCompileError from "../utility/ShaderCompileError.js";
+import type ShaderType from "../constants/ShaderType.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
 /**
  * A WebGL2 shader.

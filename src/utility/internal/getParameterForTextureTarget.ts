@@ -3,8 +3,8 @@ import {
 	TEXTURE_BINDING_2D_ARRAY,
 	TEXTURE_BINDING_3D,
 	TEXTURE_BINDING_CUBE_MAP
-} from "#constants";
-import TextureTarget from "#TextureTarget";
+} from "../../constants/constants.js";
+import TextureTarget from "../../constants/TextureTarget.js";
 
 /**
  * Get the constant value representing the context property of the given texture binding point.

@@ -1,7 +1,7 @@
-import BufferParent from "#BufferParent";
-import BufferTarget from "#BufferTarget";
-import BufferUsage from "#BufferUsage";
-import type Context from "#Context";
+import BufferParent from "./BufferParent.js";
+import BufferTarget from "../../constants/BufferTarget.js";
+import BufferUsage from "../../constants/BufferUsage.js";
+import type Context from "../Context.js";
 
 /**
  * An array of binary data to be used as anything other than an element array buffer.

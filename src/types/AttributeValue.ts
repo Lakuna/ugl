@@ -1,4 +1,4 @@
-import type Buffer from "#Buffer";
+import type Buffer from "../core/buffers/Buffer.js";
 
 /** An object that contains information about how to read the data in a buffer. */
 export default interface AttributeValue {

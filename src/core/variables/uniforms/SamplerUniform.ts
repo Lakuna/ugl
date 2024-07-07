@@ -1,5 +1,5 @@
-import type Texture from "#Texture";
-import Uniform from "#Uniform";
+import type Texture from "../../textures/Texture.js";
+import Uniform from "./Uniform.js";
 
 /** A sampler global variable in a WebGL shader program. */
 export default class SamplerUniform extends Uniform {

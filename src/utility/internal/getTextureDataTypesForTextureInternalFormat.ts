@@ -1,7 +1,7 @@
-import TextureDataType from "#TextureDataType";
-import type { TextureInternalFormat } from "#TextureInternalFormat";
-import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
-import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
+import TextureDataType from "../../constants/TextureDataType.js";
+import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js";
+import TextureUncompressedSizedInternalFormat from "../../constants/TextureUncompressedSizedInternalFormat.js";
+import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUncompressedUnsizedInternalFormat.js";
 
 /**
  * Get a list of data types that can be supplied to the given texture internal format.

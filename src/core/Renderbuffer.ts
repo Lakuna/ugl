@@ -1,7 +1,7 @@
-import { RENDERBUFFER, RENDERBUFFER_BINDING } from "#constants";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import UnsupportedOperationError from "#UnsupportedOperationError";
+import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
+import type Context from "./Context.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
 /**
  * An object that contains an image and is optimized as a rendering target.

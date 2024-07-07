@@ -7,8 +7,8 @@ import {
 	PIXEL_UNPACK_BUFFER_BINDING,
 	TRANSFORM_FEEDBACK_BUFFER_BINDING,
 	UNIFORM_BUFFER_BINDING
-} from "#constants";
-import BufferTarget from "#BufferTarget";
+} from "../../constants/constants.js";
+import BufferTarget from "../../constants/BufferTarget.js";
 
 /**
  * Get the constant value representing the context property of the given buffer binding point.

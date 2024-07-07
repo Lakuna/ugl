@@ -1,4 +1,4 @@
-import type BlendFunction from "#BlendFunction";
+import type BlendFunction from "../constants/BlendFunction.js";
 
 /** A set of source and destination RGB and alpha blend functions. */
 export default interface BlendFunctionFullSet {

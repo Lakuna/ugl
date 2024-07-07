@@ -1,4 +1,4 @@
-import ErrorCode from "#ErrorCode";
+import ErrorCode from "../../constants/ErrorCode.js";
 
 /**
  * Get the description of an error code.

@@ -1,0 +1,72 @@
+<!doctype html>
+
+<html lang="en-US">
+	<head>
+		<!-- TODO: Title of test. -->
+		<title>Template</title>
+
+		<!-- Prevent browser console from complaining. -->
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1"
+		/>
+
+		<!-- Test script. -->
+		<script type="module">
+			import { Context } from "../dist/index.js";
+
+			// Vanilla WebGL2 implementation.
+			function raw(canvas) {
+				const gl = canvas.getContext("webgl2");
+
+				// TODO: Raw initialization function.
+
+				return function () {
+					// TODO: Raw update function.
+				};
+			}
+
+			// μGL implementation.
+			function ugl(canvas) {
+				const context = new Context(canvas);
+
+				// TODO: μGL initialization function.
+
+				return function () {
+					// TODO: μGL update function.
+				};
+			}
+
+			// Start after the canvases finish loading.
+			addEventListener("load", () => {
+				// Set up both rendering contexts, get separate update functions.
+				const rawUpdate = raw(document.querySelector("canvas#raw"));
+				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
+
+				// Create a combined update function.
+				function update(now) {
+					requestAnimationFrame(update);
+
+					// Update both canvases on every frame.
+					rawUpdate(now);
+					uglUpdate(now);
+				}
+				requestAnimationFrame(update);
+			});
+		</script>
+
+		<!-- Canvas visibility. -->
+		<style>
+			canvas {
+				border: 1px solid black;
+				width: 512px;
+				height: 512px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="raw"></canvas>
+		<canvas id="ugl"></canvas>
+	</body>
+</html>

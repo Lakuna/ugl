@@ -1,4 +1,4 @@
-import type Rectangle from "#Rectangle";
+import type Rectangle from "./Rectangle.js";
 
 /** A rectangular prism. */
 export default interface Prism extends Rectangle {

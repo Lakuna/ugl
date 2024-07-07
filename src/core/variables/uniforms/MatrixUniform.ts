@@ -1,4 +1,4 @@
-import MultipleValuedUniform from "#MultipleValuedUniform";
+import MultipleValuedUniform from "./MultipleValuedUniform.js";
 
 /**
  * A matrix global variable in a WebGL shader program.

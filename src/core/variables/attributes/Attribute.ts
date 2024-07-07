@@ -1,28 +1,20 @@
-import type AttributeValue from "#AttributeValue";
-import type Buffer from "#Buffer";
-import BufferTarget from "#BufferTarget";
-import type Program from "#Program";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import Variable from "#Variable";
+import type AttributeValue from "../../../types/AttributeValue.js";
+import type Buffer from "../../buffers/Buffer.js";
+import BufferTarget from "../../../constants/BufferTarget.js";
+import type Program from "../../Program.js";
+import Variable from "../Variable.js";
 
 /** An input variable for a vertex shader. */
 export default abstract class Attribute extends Variable {
 	/**
 	 * Create an attribute.
 	 * @param program - The shader program that the attribute belongs to.
-	 * @param index - The index of the attribute.
-	 * @throws {@link UnsupportedOperationError}
+	 * @param activeInfo - The information of the attribute.
 	 * @internal
 	 */
-	protected constructor(program: Program, index: number) {
+	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program);
-
-		const activeInfo = this.gl.getActiveAttrib(program.internal, index);
-		if (!activeInfo) {
-			throw new UnsupportedOperationError();
-		}
 		this.activeInfo = activeInfo;
-
 		this.location = this.gl.getAttribLocation(program.internal, this.name);
 	}
 
@@ -95,7 +87,10 @@ export default abstract class Attribute extends Variable {
 		return this.valueCache;
 	}
 
-	/** Set the value that is stored in this attribute. */
+	/**
+	 * Set the value that is stored in this attribute.
+	 * @internal
+	 */
 	public set value(value: AttributeValue | Buffer) {
 		// Update even if the cached value is the same as the given value, since the data in the buffer could have updated.
 		this.enabled = true;

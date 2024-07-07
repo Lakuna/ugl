@@ -1,4 +1,4 @@
-import DataType from "#DataType";
+import DataType from "../../constants/DataType.js";
 
 /**
  * Get a default buffer data type for the given typed array.

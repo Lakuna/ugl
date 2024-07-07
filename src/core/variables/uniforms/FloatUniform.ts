@@ -1,4 +1,4 @@
-import Uniform from "#Uniform";
+import Uniform from "./Uniform.js";
 
 /**
  * A floating-point global variable in a shader program.

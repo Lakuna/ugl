@@ -6,19 +6,19 @@ import {
 	LINK_STATUS,
 	TRANSFORM_FEEDBACK_VARYINGS,
 	VALIDATE_STATUS
-} from "#constants";
-import type Attribute from "#Attribute";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import ProgramLinkError from "#ProgramLinkError";
-import Shader from "#Shader";
-import ShaderType from "#ShaderType";
-import TransformFeedbackBufferMode from "#TransformFeedbackBufferMode";
-import type Uniform from "#Uniform";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import Varying from "#Varying";
-import createAttribute from "#createAttribute";
-import createUniform from "#createUniform";
+} from "../constants/constants.js";
+import type Attribute from "./variables/attributes/Attribute.js";
+import type Context from "./Context.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import ProgramLinkError from "../utility/ProgramLinkError.js";
+import Shader from "./Shader.js";
+import ShaderType from "../constants/ShaderType.js";
+import TransformFeedbackBufferMode from "../constants/TransformFeedbackBufferMode.js";
+import type Uniform from "./variables/uniforms/Uniform.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import Varying from "./variables/Varying.js";
+import createAttribute from "./variables/attributes/createAttribute.js";
+import createUniform from "./variables/uniforms/createUniform.js";
 
 /**
  * A WebGL2 shader program.
@@ -80,7 +80,7 @@ export default class Program extends ContextDependent {
 		}
 
 		// Bind the program.
-		gl.bindVertexArray(program);
+		gl.useProgram(program);
 		Program.getBindingsCache().set(gl, program);
 	}
 

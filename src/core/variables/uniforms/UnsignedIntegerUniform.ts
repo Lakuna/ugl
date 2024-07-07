@@ -1,4 +1,4 @@
-import Uniform from "#Uniform";
+import Uniform from "./Uniform.js";
 
 /**
  * An unsigned integer global variable in a shader program.

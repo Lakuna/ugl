@@ -1,7 +1,7 @@
-import Extension from "#Extension";
-import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
-import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
-import type { TextureInternalFormat } from "#TextureInternalFormat";
+import Extension from "../../constants/Extension.js";
+import TextureCompressedSizedInternalFormat from "../../constants/TextureCompressedSizedInternalFormat.js";
+import TextureCompressedUnsizedInternalFormat from "../../constants/TextureCompressedUnsizedInternalFormat.js";
+import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js";
 
 /**
  * Get the extension that is associated with the given texture internal format.

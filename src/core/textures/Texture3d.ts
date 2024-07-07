@@ -1,18 +1,18 @@
-import { BACK, COLOR_ATTACHMENT0, NONE } from "#constants";
-import type Buffer from "#Buffer";
-import BufferTarget from "#BufferTarget";
-import type Context from "#Context";
-import Framebuffer from "#Framebuffer";
-import FramebufferTarget from "#FramebufferTarget";
-import type MipmapTarget from "#MipmapTarget";
-import type Prism from "#Prism";
-import type Rectangle from "#Rectangle";
-import Texture from "#Texture";
-import type TextureDataType from "#TextureDataType";
-import type TextureFormat from "#TextureFormat";
-import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
-import TextureTarget from "#TextureTarget";
-import isTextureFormatCompressed from "#isTextureFormatCompressed";
+import { BACK, COLOR_ATTACHMENT0, NONE } from "../../constants/constants.js";
+import type Buffer from "../buffers/Buffer.js";
+import BufferTarget from "../../constants/BufferTarget.js";
+import type Context from "../Context.js";
+import Framebuffer from "../Framebuffer.js";
+import FramebufferTarget from "../../constants/FramebufferTarget.js";
+import type MipmapTarget from "../../constants/MipmapTarget.js";
+import type Prism from "../../types/Prism.js";
+import type Rectangle from "../../types/Rectangle.js";
+import Texture from "./Texture.js";
+import type TextureDataType from "../../constants/TextureDataType.js";
+import type TextureFormat from "../../constants/TextureFormat.js";
+import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
+import TextureTarget from "../../constants/TextureTarget.js";
+import isTextureFormatCompressed from "../../utility/internal/isTextureFormatCompressed.js";
 
 /** A three-dimensional texture. */
 export default class Texture3d extends Texture {

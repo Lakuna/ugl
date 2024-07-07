@@ -1,4 +1,4 @@
-import type BlendEquation from "#BlendEquation";
+import type BlendEquation from "../constants/BlendEquation.js";
 
 /** A set of an RGB and an alpha blend equation. */
 export default interface BlendEquationSet {

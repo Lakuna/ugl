@@ -1,25 +1,20 @@
-import type Program from "#Program";
-import type Texture from "#Texture";
-import type { UniformValue } from "#UniformValue";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import Variable from "#Variable";
+import type Program from "../../Program.js";
+import type Texture from "../../textures/Texture.js";
+import type { UniformValue } from "../../../types/UniformValue.js";
+import UnsupportedOperationError from "../../../utility/UnsupportedOperationError.js";
+import Variable from "../Variable.js";
 
 /** A global variable in a shader program. */
 export default abstract class Uniform extends Variable {
 	/**
 	 * Create a uniform.
 	 * @param program - The shader program that the uniform belongs to.
-	 * @param index - The index of the uniform.
+	 * @param activeInfo - The information of the uniform.
 	 * @throws {@link UnsupportedOperationError}
 	 * @internal
 	 */
-	public constructor(program: Program, index: number) {
+	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program);
-
-		const activeInfo = this.gl.getActiveUniform(program.internal, index);
-		if (!activeInfo) {
-			throw new UnsupportedOperationError();
-		}
 		this.activeInfo = activeInfo;
 
 		const location = this.gl.getUniformLocation(

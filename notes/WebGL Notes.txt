@@ -1,6 +1,0 @@
-TODO notes:
-- Follow best practices: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices.
-- Get rid of `FramebufferAttachment` somehow.
-- Make bindable WebGL objects extend a `BindableObject` abstract parent class.
-
-Pre-branch repository: https://github.com/Lakuna/ugl/tree/f6560390e53132f67805114d93f5e2508941a4dd

@@ -21,8 +21,6 @@ jobs:
         run: npm run lint
       - name: Build
         run: npm run build
-      - name: Test
-        run: npm run test
       - name: Build Documentation
         run: npm run doc
       - name: Upload Package Artifact

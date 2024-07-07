@@ -1,11 +1,11 @@
-import BufferTarget from "#BufferTarget";
-import BufferUsage from "#BufferUsage";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import type DataType from "#DataType";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import getDataTypeForTypedArray from "#getDataTypeForTypedArray";
-import getParameterForBufferTarget from "#getParameterForBufferTarget";
+import BufferTarget from "../../constants/BufferTarget.js";
+import BufferUsage from "../../constants/BufferUsage.js";
+import type Context from "../Context.js";
+import ContextDependent from "../internal/ContextDependent.js";
+import type DataType from "../../constants/DataType.js";
+import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
+import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 
 /**
  * An array of binary data.
@@ -308,7 +308,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the supplied data at.
 	 * @param isHalf - Whether the data contains 16-bit floating-point data if it contains floating-point data.
-	 * @throws {@link WebglError}
 	 */
 	public setData(
 		data: ArrayBufferView | number,
@@ -324,7 +323,6 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @param offset - The index of the element to start reading the supplied data at.
 	 * @param __ - An ignored value.
 	 * @param replaceOffset - The offset in bytes to start replacing data at.
-	 * @throws {@link WebglError}
 	 */
 	public setData(
 		data: ArrayBufferView,
@@ -342,6 +340,7 @@ export default abstract class BufferParent extends ContextDependent {
 		replaceOffset: number | undefined = void 0
 	) {
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
+		this.bind();
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, usage);
 			delete this.dataCache;
@@ -360,7 +359,6 @@ export default abstract class BufferParent extends ContextDependent {
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
 		}
-		this.context.throwIfError();
 		this.offsetCache = offset;
 	}
 

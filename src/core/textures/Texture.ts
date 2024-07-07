@@ -11,34 +11,34 @@ import {
 	TEXTURE_WRAP_R,
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
-} from "#constants";
-import Buffer from "#Buffer";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import CubemapFace from "#CubemapFace";
-import Extension from "#Extension";
-import Framebuffer from "#Framebuffer";
-import ImmutableError from "#ImmutableError";
-import MipmapTarget from "#MipmapTarget";
-import type Prism from "#Prism";
-import type Rectangle from "#Rectangle";
-import type TestFunction from "#TestFunction";
-import type TextureCompareMode from "#TextureCompareMode";
-import TextureDataType from "#TextureDataType";
-import TextureFilter from "#TextureFilter";
-import TextureFormat from "#TextureFormat";
-import TextureFormatError from "#TextureFormatError";
-import type { TextureInternalFormat } from "#TextureInternalFormat";
-import type { TextureSizedInternalFormat } from "#TextureSizedInternalFormat";
-import TextureTarget from "#TextureTarget";
-import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
-import type TextureWrapFunction from "#TextureWrapFunction";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import getExtensionForTextureInternalFormat from "#getExtensionForTextureInternalFormat";
-import getMipmapTargetForCubemapFace from "#getMipmapTargetForCubemapFace";
-import getParameterForTextureTarget from "#getParameterForTextureTarget";
-import getTextureDataTypesForTextureInternalFormat from "#getTextureDataTypesForTextureInternalFormat";
-import getTextureFormatForTextureInternalFormat from "#getTextureFormatForTextureInternalFormat";
+} from "../../constants/constants.js";
+import Buffer from "../buffers/Buffer.js";
+import type Context from "../Context.js";
+import ContextDependent from "../internal/ContextDependent.js";
+import type CubemapFace from "../../constants/CubemapFace.js";
+import Extension from "../../constants/Extension.js";
+import Framebuffer from "../Framebuffer.js";
+import ImmutableError from "../../utility/ImmutableError.js";
+import type MipmapTarget from "../../constants/MipmapTarget.js";
+import type Prism from "../../types/Prism.js";
+import type Rectangle from "../../types/Rectangle.js";
+import type TestFunction from "../../constants/TestFunction.js";
+import type TextureCompareMode from "../../constants/TextureCompareMode.js";
+import TextureDataType from "../../constants/TextureDataType.js";
+import TextureFilter from "../../constants/TextureFilter.js";
+import type TextureFormat from "../../constants/TextureFormat.js";
+import TextureFormatError from "../../utility/TextureFormatError.js";
+import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js";
+import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
+import type TextureTarget from "../../constants/TextureTarget.js";
+import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUncompressedUnsizedInternalFormat.js";
+import type TextureWrapFunction from "../../constants/TextureWrapFunction.js";
+import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import getExtensionForTextureInternalFormat from "../../utility/internal/getExtensionForTextureInternalFormat.js";
+import getMipmapTargetForCubemapFace from "../../utility/internal/getMipmapTargetForCubemapFace.js";
+import getParameterForTextureTarget from "../../utility/internal/getParameterForTextureTarget.js";
+import getTextureDataTypesForTextureInternalFormat from "../../utility/internal/getTextureDataTypesForTextureInternalFormat.js";
+import getTextureFormatForTextureInternalFormat from "../../utility/internal/getTextureFormatForTextureInternalFormat.js";
 
 /**
  * A randomly-accessible array of data.

@@ -1,15 +1,15 @@
-import type { AttributeMap } from "#AttributeMap";
-import type AttributeValue from "#AttributeValue";
-import BadValueError from "#BadValueError";
-import type Buffer from "#Buffer";
-import ContextDependent from "#ContextDependent";
-import type ElementArrayBuffer from "#ElementArrayBuffer";
-import Primitive from "#Primitive";
-import type Program from "#Program";
-import type { UniformMap } from "#UniformMap";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import { VERTEX_ARRAY_BINDING } from "#constants";
-import getSizeOfDataType from "#getSizeOfDataType";
+import type { AttributeMap } from "../types/AttributeMap.js";
+import type AttributeValue from "../types/AttributeValue.js";
+import BadValueError from "../utility/BadValueError.js";
+import type Buffer from "./buffers/Buffer.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import type ElementArrayBuffer from "./buffers/ElementArrayBuffer.js";
+import Primitive from "../constants/Primitive.js";
+import type Program from "./Program.js";
+import type { UniformMap } from "../types/UniformMap.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
+import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 
 /** A vertex attribute array; a collection of attribute state. */
 export default class Vao extends ContextDependent {
@@ -161,6 +161,7 @@ export default class Vao extends ContextDependent {
 			throw new BadValueError();
 		}
 
+		this.bind();
 		attribute.value = value;
 		this.attributeCache.set(
 			name,

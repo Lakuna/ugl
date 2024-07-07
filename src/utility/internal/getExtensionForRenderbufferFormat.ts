@@ -1,5 +1,5 @@
-import Extension from "#Extension";
-import RenderbufferFormat from "#RenderbufferFormat";
+import Extension from "../../constants/Extension.js";
+import RenderbufferFormat from "../../constants/RenderbufferFormat.js";
 
 /**
  * Get the extension that is associated with the given renderbuffer format.

@@ -1,9 +1,9 @@
-import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
-import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
-import TextureFormat from "#TextureFormat";
-import type { TextureInternalFormat } from "#TextureInternalFormat";
-import TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
-import TextureUncompressedUnsizedInternalFormat from "#TextureUncompressedUnsizedInternalFormat";
+import TextureCompressedSizedInternalFormat from "../../constants/TextureCompressedSizedInternalFormat.js";
+import TextureCompressedUnsizedInternalFormat from "../../constants/TextureCompressedUnsizedInternalFormat.js";
+import TextureFormat from "../../constants/TextureFormat.js";
+import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js";
+import TextureUncompressedSizedInternalFormat from "../../constants/TextureUncompressedSizedInternalFormat.js";
+import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUncompressedUnsizedInternalFormat.js";
 
 /**
  * Get the corresponding texture format for an internal texture format.

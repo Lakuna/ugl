@@ -36,26 +36,26 @@ import {
 	TEXTURE0,
 	UNPACK_ALIGNMENT,
 	VIEWPORT
-} from "#constants";
-import ApiInterface from "#ApiInterface";
-import BadValueError from "#BadValueError";
-import BlendEquation from "#BlendEquation";
-import type BlendEquationSet from "#BlendEquationSet";
-import type BlendFunctionFullSet from "#BlendFunctionFullSet";
-import type BlendFunctionSet from "#BlendFunctionSet";
-import type { Canvas } from "#Canvas";
-import type Color from "#Color";
-import type ColorMask from "#ColorMask";
-import ErrorCode from "#ErrorCode";
-import type Extension from "#Extension";
-import type { ExtensionObject } from "#ExtensionObject";
-import PolygonDirection from "#PolygonDirection";
-import type Rectangle from "#Rectangle";
-import type Stencil from "#Stencil";
-import type TestFunction from "#TestFunction";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import WebglError from "#WebglError";
-import type WindingOrientation from "#WindingOrientation";
+} from "../constants/constants.js";
+import ApiInterface from "./internal/ApiInterface.js";
+import BadValueError from "../utility/BadValueError.js";
+import BlendEquation from "../constants/BlendEquation.js";
+import type BlendEquationSet from "../types/BlendEquationSet.js";
+import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
+import type BlendFunctionSet from "../types/BlendFunctionSet.js";
+import type { Canvas } from "../types/Canvas.js";
+import type Color from "../types/Color.js";
+import type ColorMask from "../types/ColorMask.js";
+import ErrorCode from "../constants/ErrorCode.js";
+import type Extension from "../constants/Extension.js";
+import type { ExtensionObject } from "../types/ExtensionObject.js";
+import PolygonDirection from "../constants/PolygonDirection.js";
+import type Rectangle from "../types/Rectangle.js";
+import type Stencil from "../types/Stencil.js";
+import type TestFunction from "../constants/TestFunction.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import WebglError from "../utility/WebglError.js";
+import type WindingOrientation from "../constants/WindingOrientation.js";
 
 /**
  * A WebGL2 rendering context.
@@ -1143,9 +1143,9 @@ export default class Context extends ApiInterface {
 	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 */
 	public clear(
-		color: Color | boolean = false,
-		depth: number | boolean = false,
-		stencil: number | boolean = false
+		color: Color | boolean = true,
+		depth: number | boolean = true,
+		stencil: number | boolean = true
 	) {
 		let colorBit = color ? COLOR_BUFFER_BIT : 0;
 		if (typeof color !== "boolean") {
@@ -1153,7 +1153,7 @@ export default class Context extends ApiInterface {
 			colorBit = COLOR_BUFFER_BIT;
 		}
 
-		let depthBit = depth ? COLOR_BUFFER_BIT : 0;
+		let depthBit = depth ? DEPTH_BUFFER_BIT : 0;
 		if (typeof depth !== "boolean") {
 			this.clearDepth = depth;
 			depthBit = DEPTH_BUFFER_BIT;

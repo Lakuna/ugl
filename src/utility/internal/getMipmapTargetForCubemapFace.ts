@@ -1,6 +1,6 @@
-import CubemapFace from "#CubemapFace";
-import MipmapTarget from "#MipmapTarget";
-import TextureTarget from "#TextureTarget";
+import CubemapFace from "../../constants/CubemapFace.js";
+import MipmapTarget from "../../constants/MipmapTarget.js";
+import TextureTarget from "../../constants/TextureTarget.js";
 
 /**
  * Get a mipmap target for the given cubemap face.

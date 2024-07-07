@@ -1,4 +1,4 @@
-import type TestFunction from "#TestFunction";
+import type TestFunction from "../constants/TestFunction.js";
 
 /** A stencil function, reference value, and mask. */
 export default interface Stencil {

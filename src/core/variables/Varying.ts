@@ -1,6 +1,6 @@
-import type Program from "#Program";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import Variable from "#Variable";
+import type Program from "../Program.js";
+import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import Variable from "./Variable.js";
 
 /** An input variable in a WebGL fragment shader used for transform feedback. */
 export default class Varying extends Variable {

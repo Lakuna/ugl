@@ -1,4 +1,4 @@
-import MultipleValuedUniform from "#MultipleValuedUniform";
+import MultipleValuedUniform from "./MultipleValuedUniform.js";
 
 /**
  * A floating-point 3D vector global variable in a shader program.

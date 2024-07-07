@@ -8,20 +8,20 @@ import {
 	READ_BUFFER,
 	RENDERBUFFER,
 	STENCIL_ATTACHMENT
-} from "#constants";
-import type Context from "#Context";
-import ContextDependent from "#ContextDependent";
-import CubemapFace from "#CubemapFace";
-import FramebufferAttachment from "#FramebufferAttachment";
-import FramebufferTarget from "#FramebufferTarget";
-import MipmapTarget from "#MipmapTarget";
-import Renderbuffer from "#Renderbuffer";
-import type Texture from "#Texture";
-import type Texture2d from "#Texture2d";
-import type TextureCubemap from "#TextureCubemap";
-import UnsupportedOperationError from "#UnsupportedOperationError";
-import getMipmapTargetForCubemapFace from "#getMipmapTargetForCubemapFace";
-import getParameterForFramebufferTarget from "#getParameterForFramebufferTarget";
+} from "../constants/constants.js";
+import type Context from "./Context.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import CubemapFace from "../constants/CubemapFace.js";
+import FramebufferAttachment from "../constants/FramebufferAttachment.js";
+import FramebufferTarget from "../constants/FramebufferTarget.js";
+import MipmapTarget from "../constants/MipmapTarget.js";
+import Renderbuffer from "./Renderbuffer.js";
+import type Texture from "./textures/Texture.js";
+import type Texture2d from "./textures/Texture2d.js";
+import type TextureCubemap from "./textures/TextureCubemap.js";
+import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import getMipmapTargetForCubemapFace from "../utility/internal/getMipmapTargetForCubemapFace.js";
+import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
 
 /**
  * A portion of contiguous memory that contains a collection of buffers that store color, alpha, depth, and stencil information that is used to render an image.

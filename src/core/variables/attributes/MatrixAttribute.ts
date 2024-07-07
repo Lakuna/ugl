@@ -1,7 +1,7 @@
-import Attribute from "#Attribute";
-import type AttributeValue from "#AttributeValue";
-import type Program from "#Program";
-import getSizeOfDataType from "#getSizeOfDataType";
+import Attribute from "./Attribute.js";
+import type AttributeValue from "../../../types/AttributeValue.js";
+import type Program from "../../Program.js";
+import getSizeOfDataType from "../../../utility/internal/getSizeOfDataType.js";
 
 /**
  * A matrix input variable in a vertex shader.
@@ -11,11 +11,16 @@ export default class MatrixAttribute extends Attribute {
 	/**
 	 * Create a matrix attribute.
 	 * @param program - The shader program that the attribute belongs to.
-	 * @param index - The index of the attribute.
+	 * @param activeInfo - The information of the attribute.
+	 * @param dim - The side length of the matrix.
 	 * @internal
 	 */
-	public constructor(program: Program, index: number, dim: 1 | 2 | 3 | 4) {
-		super(program, index);
+	public constructor(
+		program: Program,
+		activeInfo: WebGLActiveInfo,
+		dim: 1 | 2 | 3 | 4
+	) {
+		super(program, activeInfo);
 		this.dim = dim;
 	}
 

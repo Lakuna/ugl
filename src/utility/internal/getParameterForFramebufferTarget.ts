@@ -2,8 +2,8 @@ import {
 	DRAW_FRAMEBUFFER_BINDING,
 	FRAMEBUFFER_BINDING,
 	READ_FRAMEBUFFER_BINDING
-} from "#constants";
-import FramebufferTarget from "#FramebufferTarget";
+} from "../../constants/constants.js";
+import FramebufferTarget from "../../constants/FramebufferTarget.js";
 
 /**
  * Get the constant value representing the context property of the given buffer binding point.

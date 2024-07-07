@@ -1,4 +1,4 @@
-import DataType from "#DataType";
+import DataType from "../../constants/DataType.js";
 
 /**
  * Get the size of a data type in bytes.

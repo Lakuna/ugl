@@ -1,5 +1,5 @@
-import type TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
-import type TextureUncompressedSizedInternalFormat from "#TextureUncompressedSizedInternalFormat";
+import type TextureCompressedSizedInternalFormat from "../constants/TextureCompressedSizedInternalFormat.js";
+import type TextureUncompressedSizedInternalFormat from "../constants/TextureUncompressedSizedInternalFormat.js";
 
 /**
  * Sized formats for the color components in a texture.

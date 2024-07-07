@@ -1,6 +1,6 @@
-import TextureCompressedSizedInternalFormat from "#TextureCompressedSizedInternalFormat";
-import TextureCompressedUnsizedInternalFormat from "#TextureCompressedUnsizedInternalFormat";
-import type TextureFormat from "#TextureFormat";
+import TextureCompressedSizedInternalFormat from "../../constants/TextureCompressedSizedInternalFormat.js";
+import TextureCompressedUnsizedInternalFormat from "../../constants/TextureCompressedUnsizedInternalFormat.js";
+import type TextureFormat from "../../constants/TextureFormat.js";
 
 /**
  * Determine whether the given texture format is compressed.

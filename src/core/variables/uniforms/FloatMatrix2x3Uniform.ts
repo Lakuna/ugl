@@ -1,4 +1,4 @@
-import MatrixUniform from "#MatrixUniform";
+import MatrixUniform from "./MatrixUniform.js";
 
 /**
  * A floating-point 2x3 matrix global variable in a shader program.

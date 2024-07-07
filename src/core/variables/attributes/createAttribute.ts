@@ -1,9 +1,9 @@
-import AttributeType from "#AttributeType";
-import FloatAttribute from "#FloatAttribute";
-import IntegerAttribute from "#IntegerAttribute";
-import MatrixAttribute from "#MatrixAttribute";
-import type Program from "#Program";
-import UnsupportedOperationError from "#UnsupportedOperationError";
+import AttributeType from "../../../constants/AttributeType.js";
+import FloatAttribute from "./FloatAttribute.js";
+import IntegerAttribute from "./IntegerAttribute.js";
+import MatrixAttribute from "./MatrixAttribute.js";
+import type Program from "../../Program.js";
+import UnsupportedOperationError from "../../../utility/UnsupportedOperationError.js";
 
 /**
  * Create a wrapper object for an attribute.
@@ -24,7 +24,7 @@ export default function createAttribute(program: Program, index: number) {
 		case AttributeType.FLOAT_VEC2:
 		case AttributeType.FLOAT_VEC3:
 		case AttributeType.FLOAT_VEC4:
-			return new FloatAttribute(program, index);
+			return new FloatAttribute(program, activeInfo);
 		case AttributeType.INT:
 		case AttributeType.INT_VEC2:
 		case AttributeType.INT_VEC3:
@@ -37,13 +37,13 @@ export default function createAttribute(program: Program, index: number) {
 		case AttributeType.BOOL_VEC2:
 		case AttributeType.BOOL_VEC3:
 		case AttributeType.BOOL_VEC4:
-			return new IntegerAttribute(program, index);
+			return new IntegerAttribute(program, activeInfo);
 		case AttributeType.FLOAT_MAT2:
-			return new MatrixAttribute(program, index, 2);
+			return new MatrixAttribute(program, activeInfo, 2);
 		case AttributeType.FLOAT_MAT3:
-			return new MatrixAttribute(program, index, 3);
+			return new MatrixAttribute(program, activeInfo, 3);
 		case AttributeType.FLOAT_MAT4:
-			return new MatrixAttribute(program, index, 4);
+			return new MatrixAttribute(program, activeInfo, 4);
 		default:
 			throw new UnsupportedOperationError();
 	}
