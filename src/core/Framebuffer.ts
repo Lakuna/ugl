@@ -49,19 +49,19 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Get the framebuffer bindings cache for a rendering context.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @returns The framebuffer bindings cache.
 	 * @internal
 	 */
-	private static getContextBindingsCache(context: Context) {
+	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
 		// Get the full bindings cache.
 		const bindingsCache = Framebuffer.getBindingsCache();
 
 		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(context.gl);
+		let contextBindingsCache = bindingsCache.get(gl);
 		if (typeof contextBindingsCache === "undefined") {
 			contextBindingsCache = new Map();
-			bindingsCache.set(context.gl, contextBindingsCache);
+			bindingsCache.set(gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
@@ -69,20 +69,23 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Get the currently-bound framebuffer for a binding point.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @param target - The binding point. Note that `FRAMEBUFFER` will return the same value as `DRAW_FRAMEBUFFER`.
 	 * @returns The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
-	public static getBound(context: Context, target: FramebufferTarget) {
+	public static getBound(
+		gl: WebGL2RenderingContext,
+		target: FramebufferTarget
+	) {
 		// Get the context bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(context);
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(gl);
 
 		// Get the bound framebuffer.
 		let boundFramebuffer = contextBindingsCache.get(target);
 		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer = context.gl.getParameter(
+			boundFramebuffer = gl.getParameter(
 				getParameterForFramebufferTarget(target)
 			) as WebGLFramebuffer | null;
 			contextBindingsCache.set(target, boundFramebuffer);
@@ -92,27 +95,27 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Bind a framebuffer to a binding point.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @param framebuffer - The framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
 	public static bindGl(
-		context: Context,
+		gl: WebGL2RenderingContext,
 		target: FramebufferTarget,
 		framebuffer: WebGLFramebuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Framebuffer.getBound(context, target) === framebuffer) {
+		if (Framebuffer.getBound(gl, target) === framebuffer) {
 			return;
 		}
 
 		// Bind the framebuffer to the target.
-		context.gl.bindFramebuffer(target, framebuffer);
+		gl.bindFramebuffer(target, framebuffer);
 
 		// Update the bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(context);
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(gl);
 		contextBindingsCache.set(target, framebuffer);
 		switch (target) {
 			case FramebufferTarget.FRAMEBUFFER:
@@ -137,27 +140,27 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Unbind the given framebuffer from the given binding point.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @param framebuffer - The framebuffer, or `undefined` for any framebuffer.
 	 * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
 	 * @internal
 	 */
 	public static unbindGl(
-		context: Context,
+		gl: WebGL2RenderingContext,
 		target: FramebufferTarget,
 		framebuffer?: WebGLFramebuffer
 	) {
 		// Do nothing if the framebuffer is already unbound.
 		if (
 			typeof framebuffer !== "undefined" &&
-			Framebuffer.getBound(context, target) !== framebuffer
+			Framebuffer.getBound(gl, target) !== framebuffer
 		) {
 			return;
 		}
 
 		// Unbind the framebuffer.
-		Framebuffer.bindGl(context, target, null);
+		Framebuffer.bindGl(gl, target, null);
 	}
 
 	/**
@@ -242,7 +245,7 @@ export default class Framebuffer extends ContextDependent {
 			this.target = target;
 		}
 
-		Framebuffer.bindGl(this.context, this.target, this.internal);
+		Framebuffer.bindGl(this.gl, this.target, this.internal);
 	}
 
 	/**
@@ -251,7 +254,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		Framebuffer.unbindGl(this.context, this.target, this.internal);
+		Framebuffer.unbindGl(this.gl, this.target, this.internal);
 	}
 
 	/**

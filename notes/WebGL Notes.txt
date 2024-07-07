@@ -1,10 +1,6 @@
 TODO notes:
 - Follow best practices: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices.
-- Add missing features from old `Program` (i.e. `getActiveAttrib`, `getActiveUniform`) and new features (i.e. `getAttachedShaders`).
-- Update write framebuffer, draw buffers (`drawBuffers`) in VAO draw method.
-- Set the read buffer (`gl.readBuffer`) before calls to `copyTex[Sub]Image[23]D` and `readPixels`. Make `Context.readBuffer` internal.
 - Get rid of `FramebufferAttachment` somehow.
-- Ensure that `Context.throwIfError` is used everywhere that an error occurs. Ensure that `@throws` annotations are used in the documentation of these functions.
-- Are the read buffer and draw buffers part of the context of the bound framebuffer? Conflicting information from https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers and other sources.
+- Make bindable WebGL objects extend a `BindableObject` abstract parent class.
 
 Pre-branch repository: https://github.com/Lakuna/ugl/tree/f6560390e53132f67805114d93f5e2508941a4dd

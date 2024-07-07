@@ -138,7 +138,7 @@ export default class Texture2d extends Texture {
 
 		// Bind the framebuffer.
 		if (typeof framebuffer === "undefined") {
-			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
+			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		}

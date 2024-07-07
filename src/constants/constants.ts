@@ -568,6 +568,13 @@ export const DELETE_STATUS = 0x8b80;
 export const VERTEX_ARRAY_BINDING = 0x85b5;
 
 /**
+ * The currently-bound program.
+ * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
+ * @internal
+ */
+export const CURRENT_PROGRAM = 0x8b8d;
+
+/**
  * The desired maximum anisotropy of a texture.
  * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
  * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)

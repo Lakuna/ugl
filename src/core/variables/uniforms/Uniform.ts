@@ -1,5 +1,6 @@
 import type Program from "#Program";
 import type Texture from "#Texture";
+import type { UniformValue } from "#UniformValue";
 import UnsupportedOperationError from "#UnsupportedOperationError";
 import Variable from "#Variable";
 
@@ -72,20 +73,15 @@ export default abstract class Uniform extends Variable {
 	 * The value that is stored in this variable.
 	 * @internal
 	 */
-	private valueCache?: number | Iterable<number> | Texture | Iterable<Texture>;
+	private valueCache?: UniformValue;
 
 	/** Get the value that is stored in this uniform. */
-	public get value():
-		| number
-		| Iterable<number>
-		| Texture
-		| Iterable<Texture>
-		| undefined {
+	public get value(): UniformValue | undefined {
 		return this.valueCache;
 	}
 
 	/** Set the value that is stored in this uniform. */
-	public set value(value: number | Iterable<number> | Texture) {
+	public set value(value: UniformValue) {
 		// Update even if the cached value is the same as the given value, since the data in the iterable could have updated.
 		if (typeof value !== "number" && Symbol.iterator in value) {
 			this.iterableSetter(value);

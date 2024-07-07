@@ -66,19 +66,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Get the texture bindings cache for a rendering context.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @returns The texture bindings cache.
 	 * @internal
 	 */
-	private static getContextBindingsCache(context: Context) {
+	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
 		// Get the full bindings cache.
 		const bindingsCache = Texture.getBindingsCache();
 
 		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(context.gl);
+		let contextBindingsCache = bindingsCache.get(gl);
 		if (typeof contextBindingsCache === "undefined") {
 			contextBindingsCache = [];
-			bindingsCache.set(context.gl, contextBindingsCache);
+			bindingsCache.set(gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
@@ -86,17 +86,17 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Get the texture bindings cache for a texture unit.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @param textureUnit - The texture unit.
 	 * @returns The texture bindings cache.
 	 * @internal
 	 */
 	private static getTextureUnitBindingsCache(
-		context: Context,
+		gl: WebGL2RenderingContext,
 		textureUnit: number
 	) {
 		// Get the context bindings cache.
-		const contextBindingsCache = Texture.getContextBindingsCache(context);
+		const contextBindingsCache = Texture.getContextBindingsCache(gl);
 
 		// Get the texture unit bindings cache.
 		let textureUnitBindingsCache = contextBindingsCache[textureUnit];
@@ -129,19 +129,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Get the texture binding overwrite order for a rendering context.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @returns The texture binding overwrite order.
 	 * @internal
 	 */
-	private static getContextBindingOverwriteOrder(context: Context) {
+	private static getContextBindingOverwriteOrder(gl: WebGL2RenderingContext) {
 		// Get the full texture binding overwrite order.
 		const bindingOverwriteOrder = Texture.getBindingOverwriteOrder();
 
 		// Get the context binding overwrite order.
-		let contextBindingOverwriteOrder = bindingOverwriteOrder.get(context.gl);
+		let contextBindingOverwriteOrder = bindingOverwriteOrder.get(gl);
 		if (typeof contextBindingOverwriteOrder === "undefined") {
 			contextBindingOverwriteOrder = new Map();
-			bindingOverwriteOrder.set(context.gl, contextBindingOverwriteOrder);
+			bindingOverwriteOrder.set(gl, contextBindingOverwriteOrder);
 		}
 
 		return contextBindingOverwriteOrder;
@@ -149,18 +149,18 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Get the texture binding overwrite order for a binding point.
-	 * @param context - The rendering context.
+	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @returns The texture binding overwrite order.
 	 * @internal
 	 */
 	private static getTargetBindingOverwriteOrder(
-		context: Context,
+		gl: WebGL2RenderingContext,
 		target: TextureTarget
 	) {
 		// Get the context binding overwrite order.
 		const contextBindingOverwriteOrder =
-			Texture.getContextBindingOverwriteOrder(context);
+			Texture.getContextBindingOverwriteOrder(gl);
 
 		// Get the binding point binding overwrite order.
 		let targetBindingOverwriteOrder = contextBindingOverwriteOrder.get(target);
@@ -196,7 +196,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Get the texture target binding overwrite order.
 		const targetBindingOverwriteOrder = Texture.getTargetBindingOverwriteOrder(
-			context,
+			context.gl,
 			target
 		);
 
@@ -231,7 +231,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Get the texture unit bindings cache.
 		const textureUnitBindingsCache = Texture.getTextureUnitBindingsCache(
-			context,
+			context.gl,
 			textureUnit
 		);
 
@@ -270,7 +270,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Update the texture overwrite order.
 		const targetBindingOverwriteOrder = Texture.getTargetBindingOverwriteOrder(
-			context,
+			context.gl,
 			target
 		);
 		if (targetBindingOverwriteOrder.includes(textureUnit)) {
@@ -289,7 +289,7 @@ export default abstract class Texture extends ContextDependent {
 		// Bind the texture to the target.
 		context.activeTexture = textureUnit;
 		context.gl.bindTexture(target, texture);
-		Texture.getTextureUnitBindingsCache(context, textureUnit).set(
+		Texture.getTextureUnitBindingsCache(context.gl, textureUnit).set(
 			target,
 			texture
 		);
@@ -329,7 +329,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Otherwise, unbind the texture from every texture unit.
 		for (const otherTextureUnit of Texture.getContextBindingsCache(
-			context
+			context.gl
 		).keys()) {
 			Texture.unbindGl(context, otherTextureUnit, target, texture);
 		}
