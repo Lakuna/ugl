@@ -13,7 +13,13 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import { Buffer, Context, Program, Vao } from "../dist/index.js";
+			import {
+				Buffer,
+				Context,
+				ElementArrayBuffer,
+				Program,
+				Vao
+			} from "../dist/index.js";
 
 			const vss = `\
 #version 300 es
@@ -37,7 +43,8 @@ void main() {
 }
 `;
 
-			const positionData = new Float32Array([0, 0, 0, 0.5, 0.7, 0]);
+			const positionData = new Float32Array([0, 0.5, 0, 0, 0.7, 0, 0.7, 0.5]);
+			const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
 			function raw(canvas) {
@@ -76,12 +83,17 @@ void main() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
 
+				const indexBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
+
 				// Create VAOs.
 				const rectVao = gl.createVertexArray();
 				gl.bindVertexArray(rectVao);
 				gl.enableVertexAttribArray(positionLoc);
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 				return function () {
 					// Resize the drawing buffer.
@@ -98,7 +110,7 @@ void main() {
 					// Rasterize.
 					gl.useProgram(program);
 					gl.bindVertexArray(rectVao);
-					gl.drawArrays(gl.TRIANGLES, 0, 3);
+					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
 				};
 			}
 
@@ -111,11 +123,16 @@ void main() {
 
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
+				const indexBuffer = new ElementArrayBuffer(context, indexData);
 
-				// Create VAOs.
-				const rectVao = new Vao(program, {
-					a_position: { buffer: positionBuffer, size: 2 }
-				});
+				// Create VAOs, bind indices.
+				const rectVao = new Vao(
+					program,
+					{
+						a_position: { buffer: positionBuffer, size: 2 }
+					},
+					indexBuffer
+				);
 
 				return function () {
 					// Resize the drawing buffer, set global state.

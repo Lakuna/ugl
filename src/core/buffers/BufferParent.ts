@@ -5,138 +5,12 @@ import ContextDependent from "../internal/ContextDependent.js";
 import type DataType from "../../constants/DataType.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
-import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 
 /**
  * An array of binary data.
  * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
  */
 export default abstract class BufferParent extends ContextDependent {
-	/**
-	 * The currently-bound buffer cache.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @internal
-	 */
-	private static bindingsCache?: Map<
-		WebGL2RenderingContext,
-		Map<BufferTarget, WebGLBuffer | null>
-	>;
-
-	/**
-	 * Get the buffer bindings cache.
-	 * @returns The buffer bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (BufferParent.bindingsCache ??= new Map());
-	}
-
-	/**
-	 * Get the buffer bindings cache for a rendering context.
-	 * @param gl - The rendering context.
-	 * @returns The buffer bindings cache.
-	 * @internal
-	 */
-	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
-		// Get the full bindings cache.
-		const bindingsCache = BufferParent.getBindingsCache();
-
-		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(gl);
-		if (typeof contextBindingsCache === "undefined") {
-			contextBindingsCache = new Map();
-			bindingsCache.set(gl, contextBindingsCache);
-		}
-
-		return contextBindingsCache;
-	}
-
-	/**
-	 * Get the currently-bound buffer for a binding point.
-	 * @param gl - The rendering context.
-	 * @param target - The binding point.
-	 * @returns The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @internal
-	 */
-	public static getBound(gl: WebGL2RenderingContext, target: BufferTarget) {
-		// Get the context bindings cache.
-		const contextBindingsCache = BufferParent.getContextBindingsCache(gl);
-
-		// Get the bound buffer.
-		let boundBuffer = contextBindingsCache.get(target);
-		if (typeof boundBuffer === "undefined") {
-			boundBuffer = gl.getParameter(
-				getParameterForBufferTarget(target)
-			) as WebGLBuffer | null;
-			contextBindingsCache.set(target, boundBuffer);
-		}
-		return boundBuffer;
-	}
-
-	/**
-	 * Bind a buffer to a binding point.
-	 * @param gl - The rendering context.
-	 * @param target - The binding point.
-	 * @param buffer - The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @internal
-	 */
-	public static bindGl(
-		gl: WebGL2RenderingContext,
-		target: BufferTarget,
-		buffer: WebGLBuffer | null
-	) {
-		// Do nothing if the binding is already correct.
-		if (BufferParent.getBound(gl, target) === buffer) {
-			return;
-		}
-
-		// Get the context bindings cache.
-		const contextBindingsCache = BufferParent.getContextBindingsCache(gl);
-
-		// Unbind the buffer from all other targets.
-		if (buffer !== null) {
-			for (const [otherTarget, otherBuffer] of contextBindingsCache) {
-				if (target === otherTarget || buffer !== otherBuffer) {
-					continue;
-				}
-
-				gl.bindBuffer(otherTarget, null);
-				contextBindingsCache.set(otherTarget, null);
-			}
-		}
-
-		// Bind the buffer to the target.
-		gl.bindBuffer(target, buffer);
-		contextBindingsCache.set(target, buffer);
-	}
-
-	/**
-	 * Unbind the buffer that is bound to the given binding point.
-	 * @param gl - The rendering context.
-	 * @param target - The binding point.
-	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
-	 * @internal
-	 */
-	public static unbindGl(
-		gl: WebGL2RenderingContext,
-		target: BufferTarget,
-		buffer?: WebGLBuffer
-	) {
-		// Do nothing if the buffer is already unbound.
-		if (
-			typeof buffer !== "undefined" &&
-			BufferParent.getBound(gl, target) !== buffer
-		) {
-			return;
-		}
-
-		// Unbind the buffer.
-		BufferParent.bindGl(gl, target, null);
-	}
-
 	/**
 	 * Create a buffer.
 	 * @param context - The rendering context.
@@ -376,20 +250,12 @@ export default abstract class BufferParent extends ContextDependent {
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	public bind(target?: BufferTarget) {
-		if (typeof target !== "undefined") {
-			this.target = target;
-		}
-
-		BufferParent.bindGl(this.gl, this.target, this.internal);
-	}
+	public abstract bind(): void;
 
 	/**
 	 * Unbind this buffer from its binding point.
 	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
-	public unbind() {
-		BufferParent.unbindGl(this.gl, this.target, this.internal);
-	}
+	public abstract unbind(): void;
 }
