@@ -239,17 +239,6 @@ void main() {
 				const matrix = createMatrix4Like();
 
 				return function (now) {
-					// Transformation update.
-					const halfWidth = canvas.width / 2;
-					const halfHeight = canvas.height / 2;
-					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
-					rotateZ(matrix, now * 0.001, matrix);
-					translate(matrix, [100, 0, 0], matrix);
-					rotateZ(matrix, now * 0.002, matrix);
-					const canvasMin = Math.min(canvas.width, canvas.height);
-					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
-					scale(matrix, [xyScale, xyScale, 1], matrix);
-
 					// Resize the drawing buffer.
 					canvas.width = canvas.clientWidth;
 					canvas.height = canvas.clientHeight;
@@ -260,6 +249,17 @@ void main() {
 
 					// Clear the canvas.
 					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					// Transformation update.
+					const halfWidth = canvas.width / 2;
+					const halfHeight = canvas.height / 2;
+					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
+					rotateZ(matrix, now * 0.001, matrix);
+					translate(matrix, [100, 0, 0], matrix);
+					rotateZ(matrix, now * 0.002, matrix);
+					const canvasMin = Math.min(canvas.width, canvas.height);
+					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
+					scale(matrix, [xyScale, xyScale, 1], matrix);
 
 					// Use the program.
 					gl.useProgram(program);
@@ -297,6 +297,12 @@ void main() {
 				const matrix = createMatrix4Like();
 
 				return function (now) {
+					// Resize the drawing buffer, set global state.
+					context.resize();
+
+					// Clear the canvas.
+					context.clear();
+
 					// Transformation update.
 					const halfWidth = canvas.width / 2;
 					const halfHeight = canvas.height / 2;
@@ -307,12 +313,6 @@ void main() {
 					const canvasMin = Math.min(canvas.width, canvas.height);
 					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
 					scale(matrix, [xyScale, xyScale, 1], matrix);
-
-					// Resize the drawing buffer, set global state.
-					context.resize();
-
-					// Clear the canvas.
-					context.clear();
 
 					// Set uniform values, rasterize.
 					rectVao.draw({ u_matrix: matrix });

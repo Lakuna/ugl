@@ -163,10 +163,10 @@
 
 in vec4 a_position;
 
-uniform mat4 u_world;
+uniform mat4 u_matrix;
 
 void main() {
-	gl_Position = u_world * a_position;
+	gl_Position = u_matrix * a_position;
 }
 `;
 
@@ -216,7 +216,7 @@ void main() {
 
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
-				const matLoc = gl.getUniformLocation(program, "u_world");
+				const matLoc = gl.getUniformLocation(program, "u_matrix");
 
 				// Create buffers.
 				const positionBuffer = gl.createBuffer();
@@ -239,12 +239,6 @@ void main() {
 				const matrix = createMatrix4Like();
 
 				return function (now) {
-					// Transformation update.
-					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
-					const canvasMin = Math.min(canvas.width, canvas.height);
-					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
-					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
-
 					// Resize the drawing buffer.
 					canvas.width = canvas.clientWidth;
 					canvas.height = canvas.clientHeight;
@@ -255,6 +249,12 @@ void main() {
 
 					// Clear the canvas.
 					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					// Transformation update.
+					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
+					const canvasMin = Math.min(canvas.width, canvas.height);
+					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
+					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
 
 					// Use the program.
 					gl.useProgram(program);
@@ -298,17 +298,17 @@ void main() {
 				const matrix = createMatrix4Like();
 
 				return function (now) {
-					// Transformation update.
-					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
-					const canvasMin = Math.min(canvas.width, canvas.height);
-					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
-					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
-
 					// Resize the drawing buffer, set global state.
 					context.resize();
 
 					// Clear the canvas.
 					context.clear();
+
+					// Transformation update.
+					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
+					const canvasMin = Math.min(canvas.width, canvas.height);
+					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
+					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
 
 					// Set uniform values, rasterize.
 					for (let i = 0; i < 20; i++) {
@@ -316,7 +316,7 @@ void main() {
 						rotateZ(matrix, now * 0.001, matrix);
 						scale(matrix, [0.9, 0.9, 1], matrix);
 
-						rectVao.draw({ u_world: matrix });
+						rectVao.draw({ u_matrix: matrix });
 					}
 				};
 			}
