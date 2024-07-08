@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Transformation</title>
+		<title>Scene Graph</title>
 
 		<!-- Prevent browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -163,10 +163,10 @@
 
 in vec4 a_position;
 
-uniform mat4 u_matrix;
+uniform mat4 u_world;
 
 void main() {
-	gl_Position = u_matrix * a_position;
+	gl_Position = u_world * a_position;
 }
 `;
 
@@ -216,7 +216,7 @@ void main() {
 
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
-				const matLoc = gl.getUniformLocation(program, "u_matrix");
+				const matLoc = gl.getUniformLocation(program, "u_world");
 
 				// Create buffers.
 				const positionBuffer = gl.createBuffer();
@@ -240,15 +240,10 @@ void main() {
 
 				return function (now) {
 					// Transformation update.
-					const halfWidth = canvas.width / 2;
-					const halfHeight = canvas.height / 2;
-					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
-					rotateZ(matrix, now * 0.001, matrix);
-					translate(matrix, [100, 0, 0], matrix);
-					rotateZ(matrix, now * 0.002, matrix);
+					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
 					const canvasMin = Math.min(canvas.width, canvas.height);
-					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
-					scale(matrix, [xyScale, xyScale, 1], matrix);
+					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
+					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
 
 					// Resize the drawing buffer.
 					canvas.width = canvas.clientWidth;
@@ -268,10 +263,16 @@ void main() {
 					gl.bindVertexArray(rectVao);
 
 					// Set uniform values.
-					gl.uniformMatrix4fv(matLoc, false, matrix);
+					for (let i = 0; i < 20; i++) {
+						translate(matrix, [10 * Math.sin(now * 0.001), 0, 0], matrix);
+						rotateZ(matrix, now * 0.001, matrix);
+						scale(matrix, [0.9, 0.9, 1], matrix);
 
-					// Rasterize.
-					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+						gl.uniformMatrix4fv(matLoc, false, matrix);
+
+						// Rasterize.
+						gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+					}
 				};
 			}
 
@@ -298,15 +299,10 @@ void main() {
 
 				return function (now) {
 					// Transformation update.
-					const halfWidth = canvas.width / 2;
-					const halfHeight = canvas.height / 2;
-					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
-					rotateZ(matrix, now * 0.001, matrix);
-					translate(matrix, [100, 0, 0], matrix);
-					rotateZ(matrix, now * 0.002, matrix);
+					ortho(0, canvas.width, 0, canvas.height, -1, 1, matrix);
 					const canvasMin = Math.min(canvas.width, canvas.height);
-					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
-					scale(matrix, [xyScale, xyScale, 1], matrix);
+					translate(matrix, [canvas.width / 2, canvasMin / 5, 0], matrix);
+					scale(matrix, [canvasMin / 20, canvasMin / 20, 1], matrix);
 
 					// Resize the drawing buffer, set global state.
 					context.resize();
@@ -315,7 +311,13 @@ void main() {
 					context.clear();
 
 					// Set uniform values, rasterize.
-					rectVao.draw({ u_matrix: matrix });
+					for (let i = 0; i < 20; i++) {
+						translate(matrix, [10 * Math.sin(now * 0.001), 0, 0], matrix);
+						rotateZ(matrix, now * 0.001, matrix);
+						scale(matrix, [0.9, 0.9, 1], matrix);
+
+						rectVao.draw({ u_world: matrix });
+					}
 				};
 			}
 
