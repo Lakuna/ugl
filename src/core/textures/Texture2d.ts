@@ -26,7 +26,12 @@ export default class Texture2d extends Texture {
 		const out = new Texture2d(context);
 
 		// Fill it with one magenta texel until the image loads.
-		out.setMip(void 0, 0, new Uint8Array([0xff, 0x00, 0xff, 0xff]));
+		out.setMip(
+			void 0,
+			0,
+			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
+			[0, 0, 1, 1]
+		);
 
 		// Load the image.
 		const image = new Image();
@@ -300,14 +305,13 @@ export default class Texture2d extends Texture {
 	): void {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
-		const width =
-			bounds?.[2] ??
-			(data instanceof VideoFrame ? data.codedWidth : data.width);
-		const height =
-			bounds?.[3] ??
-			(data instanceof VideoFrame ? data.codedHeight : data.height);
+		// https://caniuse.com/mdn-api_videoframe
+		// const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : data.width);
+		// const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : data.height);
+		const width = bounds?.[2] ?? (data as HTMLImageElement).width;
+		const height = bounds?.[3] ?? (data as HTMLImageElement).height;
 
-		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {
 			this.gl.texSubImage2D(
 				target,
@@ -324,17 +328,23 @@ export default class Texture2d extends Texture {
 		}
 
 		// Mutable-format.
-		this.gl.texImage2D(
-			target,
-			level,
-			this.format,
-			width,
-			height,
-			0,
-			format,
-			type,
-			data
-		);
+		if (typeof bounds === "undefined") {
+			// Undefined bounds. Resize to match data.
+			this.gl.texImage2D(target, level, this.format, format, type, data);
+		} else {
+			// Defined bounds. Resize to match bounds.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				width,
+				height,
+				0,
+				format,
+				type,
+				data
+			);
+		}
 
 		// Update dimensions.
 		this.dims[0] = width;

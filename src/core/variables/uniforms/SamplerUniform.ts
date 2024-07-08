@@ -37,6 +37,12 @@ export default class SamplerUniform extends Uniform {
 	 * @internal
 	 */
 	public override setter(value: Texture) {
+		// Ensure that the texture is texture complete.
+		if (!value.isTextureComplete) {
+			value.generateMipmap();
+		}
+
+		// Pass the texture unit to the shader program.
 		this.gl.uniform1i(this.location, value.bind());
 	}
 }

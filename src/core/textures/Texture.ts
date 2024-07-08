@@ -238,6 +238,7 @@ export default abstract class Texture extends ContextDependent {
 		// Get the bound texture.
 		let boundTexture = textureUnitBindingsCache.get(target);
 		if (typeof boundTexture === "undefined") {
+			context.activeTexture = textureUnit;
 			boundTexture = context.gl.getParameter(
 				getParameterForTextureTarget(target)
 			) as WebGLTexture | null;
@@ -618,7 +619,7 @@ export default abstract class Texture extends ContextDependent {
 		let bounds = requestedBounds;
 		if (typeof bounds === "undefined") {
 			// Default to the entire mip for immutable-format textures. For mutable-format textures, `texImage[23]D` can be used (no bounds needed).
-			if (this.isImmutableFormat) {
+			if (this.isImmutableFormat || level > 0) {
 				bounds = [0, 0, mipDims[0] ?? 0, mipDims[1] ?? 0, 0, mipDims[2] ?? 0];
 			}
 		} else if (this.isImmutableFormat || level > 0) {
@@ -654,6 +655,9 @@ export default abstract class Texture extends ContextDependent {
 
 		// Determine the proper mipmap target.
 		const target = getMipmapTargetForCubemapFace(face, this.target);
+
+		// Bind this texture.
+		this.bind();
 
 		// Update the mip data.
 		if (typeof data === "undefined" || data instanceof Framebuffer) {
