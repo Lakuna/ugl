@@ -41,12 +41,12 @@ export default class TextureCubemap extends Texture {
 
 		// Fill each face with one magenta texel until the image loads.
 		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(CubemapFace.PositiveX, 0, magenta, [0, 0, 1, 1]);
-		out.setMip(CubemapFace.NegativeX, 0, magenta);
-		out.setMip(CubemapFace.PositiveY, 0, magenta);
-		out.setMip(CubemapFace.NegativeY, 0, magenta);
-		out.setMip(CubemapFace.PositiveZ, 0, magenta);
-		out.setMip(CubemapFace.NegativeZ, 0, magenta);
+		out.setMip(magenta, 0, CubemapFace.PositiveX, [0, 0, 1, 1]);
+		out.setMip(magenta, 0, CubemapFace.NegativeX);
+		out.setMip(magenta, 0, CubemapFace.PositiveY);
+		out.setMip(magenta, 0, CubemapFace.NegativeY);
+		out.setMip(magenta, 0, CubemapFace.PositiveZ);
+		out.setMip(magenta, 0, CubemapFace.NegativeZ);
 
 		// Load the images.
 		const loadedImages = new Map<CubemapFace, HTMLImageElement>();
@@ -65,7 +65,7 @@ export default class TextureCubemap extends Texture {
 				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
 				if (loadedImages.size >= 6) {
 					for (const [otherFace, otherImage] of loadedImages) {
-						out.setMip(otherFace, 0, otherImage);
+						out.setMip(otherImage, 0, otherFace);
 					}
 				}
 			});

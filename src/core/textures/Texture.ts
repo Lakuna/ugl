@@ -510,9 +510,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in a framebuffer into one of this texture's mips.
-	 * @param face - The mipmap that the mip belongs to.
-	 * @param level - The level of the mip within its mipmap.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param level - The level of the mip within its mipmap. Defaults to the top mip.
+	 * @param face - The mipmap that the mip belongs to. Ignored by non-cubemap textures.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
@@ -520,9 +520,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		face: CubemapFace | undefined,
-		level: number,
 		framebuffer: Framebuffer | undefined,
+		level?: number,
+		face?: CubemapFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
@@ -531,9 +531,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in a buffer into one of this texture's mips.
-	 * @param face - The mipmap that the mip belongs to.
-	 * @param level - The level of the mip within its mipmap.
 	 * @param buffer - The buffer to copy into the mip.
+	 * @param level - The level of the mip within its mipmap. Defaults to the top mip.
+	 * @param face - The mipmap that the mip belongs to. Ignored by non-cubemap textures.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
@@ -542,9 +542,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		face: CubemapFace | undefined,
-		level: number,
 		buffer: Buffer,
+		level: number | undefined,
+		face: CubemapFace | undefined,
 		bounds: Prism | Rectangle | undefined,
 		type: TextureDataType | undefined,
 		unpackAlignment: 1 | 2 | 4 | 8 | undefined,
@@ -554,18 +554,18 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy data into one of this texture's mips.
-	 * @param face - The mipmap that the mip belongs to.
-	 * @param level - The level of the mip within its mipmap.
 	 * @param data - The data to copy into the mip.
+	 * @param level - The level of the mip within its mipmap. Defaults to the top mip.
+	 * @param face - The mipmap that the mip belongs to. Ignored by non-cubemap textures.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		face: CubemapFace | undefined,
-		level: number,
 		data: TexImageSource,
+		level?: number,
+		face?: CubemapFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
@@ -573,9 +573,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in an array into one of this texture's mips.
-	 * @param face - The mipmap that the mip belongs to.
-	 * @param level - The level of the mip within its mipmap.
 	 * @param array - The array to copy into the mip.
+	 * @param level - The level of the mip within its mipmap. Defaults to the top mip.
+	 * @param face - The mipmap that the mip belongs to. Ignored by non-cubemap textures.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
@@ -584,9 +584,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		face: CubemapFace | undefined,
-		level: number,
 		array: ArrayBufferView,
+		level?: number,
+		face?: CubemapFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
@@ -595,15 +595,17 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	public setMip(
-		face: CubemapFace | undefined,
-		level: number,
 		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
+		requestedLevel?: number,
+		face?: CubemapFace,
 		requestedBounds?: Prism | Rectangle,
 		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
 		shape2?: number | boolean // Meaning depends on data type; see overloads.
 	) {
+		const level = requestedLevel ?? 0;
+
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes = getTextureDataTypesForTextureInternalFormat(
 			this.format

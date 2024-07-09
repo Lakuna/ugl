@@ -27,16 +27,16 @@ export default class Texture2d extends Texture {
 
 		// Fill it with one magenta texel until the image loads.
 		out.setMip(
-			void 0,
-			0,
 			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
+			0,
+			void 0,
 			[0, 0, 1, 1]
 		);
 
 		// Load the image.
 		const image = new Image();
 		image.addEventListener("load", () => {
-			out.setMip(void 0, 0, image);
+			out.setMip(image);
 		});
 		image.crossOrigin = ""; // CORS
 		image.src = url;
