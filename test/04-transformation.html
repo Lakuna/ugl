@@ -2,11 +2,11 @@
 
 <html lang="en-US">
 	<head>
-		<title>Textures</title>
+		<title>Transformation</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
-		<link rel="icon" href="./favicon.ico" />
+		<link rel="icon" href="./assets/favicon.ico" />
 
 		<!-- Spector.js. -->
 		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
@@ -17,15 +17,120 @@
 				Buffer,
 				Context,
 				ElementArrayBuffer,
-				PolygonDirection,
 				Program,
-				Texture2d,
 				Vao
 			} from "../dist/index.js";
 
 			// https://umath.lakuna.pw/
 			function createMatrix4Like() {
 				return new Float32Array(16);
+			}
+
+			// https://umath.lakuna.pw/
+			function ortho(left, right, bottom, top, near, far, out) {
+				const lr = 1 / (left - right);
+				const bt = 1 / (bottom - top);
+				const nf = 1 / (near - far);
+
+				out[0] = -2 * lr;
+				out[1] = 0;
+				out[2] = 0;
+				out[3] = 0;
+				out[4] = 0;
+				out[5] = -2 * bt;
+				out[6] = 0;
+				out[7] = 0;
+				out[8] = 0;
+				out[9] = 0;
+				out[10] = 2 * nf;
+				out[11] = 0;
+				out[12] = (left + right) * lr;
+				out[13] = (top + bottom) * bt;
+				out[14] = (far + near) * nf;
+				out[15] = 1;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function translate(matrix, vector, out) {
+				const x = vector[0];
+				const y = vector[1];
+				const z = vector[2];
+
+				if (out == matrix) {
+					out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+					out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+					out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+					out[15] = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
+				} else {
+					const a00 = matrix[0];
+					const a01 = matrix[1];
+					const a02 = matrix[2];
+					const a03 = matrix[3];
+					const a10 = matrix[4];
+					const a11 = matrix[5];
+					const a12 = matrix[6];
+					const a13 = matrix[7];
+					const a20 = matrix[8];
+					const a21 = matrix[9];
+					const a22 = matrix[10];
+					const a23 = matrix[11];
+
+					out[0] = a00;
+					out[1] = a01;
+					out[2] = a02;
+					out[3] = a03;
+					out[4] = a10;
+					out[5] = a11;
+					out[6] = a12;
+					out[7] = a13;
+					out[8] = a20;
+					out[9] = a21;
+					out[10] = a22;
+					out[11] = a23;
+					out[12] = a00 * x + a10 * y + a20 * z + matrix[12];
+					out[13] = a01 * x + a11 * y + a21 * z + matrix[13];
+					out[14] = a02 * x + a12 * y + a22 * z + matrix[14];
+					out[15] = a03 * x + a13 * y + a23 * z + matrix[15];
+				}
+
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function rotateZ(matrix, radians, out) {
+				const s = Math.sin(radians);
+				const c = Math.cos(radians);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+
+				if (out != matrix) {
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c + a10 * s;
+				out[1] = a01 * c + a11 * s;
+				out[2] = a02 * c + a12 * s;
+				out[3] = a03 * c + a13 * s;
+				out[4] = a10 * c - a00 * s;
+				out[5] = a11 * c - a01 * s;
+				out[6] = a12 * c - a02 * s;
+				out[7] = a13 * c - a03 * s;
+				return out;
 			}
 
 			// https://umath.lakuna.pw/
@@ -53,40 +158,15 @@
 				return out;
 			}
 
-			// https://umath.lakuna.pw/
-			function identity(out) {
-				out[0] = 1;
-				out[1] = 0;
-				out[2] = 0;
-				out[3] = 0;
-				out[4] = 0;
-				out[5] = 1;
-				out[6] = 0;
-				out[7] = 0;
-				out[8] = 0;
-				out[9] = 0;
-				out[10] = 1;
-				out[11] = 0;
-				out[12] = 0;
-				out[13] = 0;
-				out[14] = 0;
-				out[15] = 1;
-				return out;
-			}
-
 			const vss = `\
 #version 300 es
 
 in vec4 a_position;
-in vec2 a_texcoord;
 
 uniform mat4 u_matrix;
 
-out vec2 v_texcoord;
-
 void main() {
 	gl_Position = u_matrix * a_position;
-	v_texcoord = a_texcoord;
 }
 `;
 
@@ -95,19 +175,14 @@ void main() {
 
 precision mediump float;
 
-in vec2 v_texcoord;
-
-uniform sampler2D u_texture;
-
 out vec4 outColor;
 
 void main() {
-	outColor = texture(u_texture, v_texcoord);
+	outColor = vec4(0, 0, 0, 1);
 }
 `;
 
 			const positionData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
-			const texcoordData = new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]);
 			const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
@@ -141,63 +216,24 @@ void main() {
 
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
-				const texcoordLoc = gl.getAttribLocation(program, "a_texcoord");
 				const matLoc = gl.getUniformLocation(program, "u_matrix");
-				const textureLoc = gl.getUniformLocation(program, "u_texture");
 
 				// Create buffers.
 				const positionBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
 
-				const texcoordBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, texcoordData, gl.STATIC_DRAW);
-
 				const indexBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
 
 				// Create VAOs.
-				const vao = gl.createVertexArray();
-				gl.bindVertexArray(vao);
+				const rectVao = gl.createVertexArray();
+				gl.bindVertexArray(rectVao);
 				gl.enableVertexAttribArray(positionLoc);
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
-				gl.enableVertexAttribArray(texcoordLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-				gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-				// Texture initialization.
-				const texture = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA,
-					1,
-					1,
-					0,
-					gl.RGBA,
-					gl.UNSIGNED_BYTE,
-					new Uint8Array([0xff, 0x00, 0xff, 0xff])
-				);
-				const image = new Image();
-				image.addEventListener("load", () => {
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.texImage2D(
-						gl.TEXTURE_2D,
-						0,
-						gl.RGBA,
-						gl.RGBA,
-						gl.UNSIGNED_BYTE,
-						image
-					);
-					gl.generateMipmap(gl.TEXTURE_2D);
-				});
-				image.crossOrigin = "";
-				image.src = "./peppers.png";
 
 				// Transformation initialization.
 				const matrix = createMatrix4Like();
@@ -210,35 +246,29 @@ void main() {
 					// Set global state.
 					gl.viewport(0, 0, canvas.width, canvas.height);
 					gl.clearColor(0, 0, 0, 0);
-					gl.enable(gl.CULL_FACE);
-					gl.cullFace(gl.BACK);
-					gl.enable(gl.DEPTH_TEST);
-					gl.clearDepth(1);
 
 					// Clear the canvas.
-					gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
 					// Transformation update.
-					identity(matrix);
-					scale(
-						matrix,
-						canvas.width > canvas.height
-							? [canvas.height / (canvas.width || 1), 1, 1]
-							: [1, canvas.width / (canvas.height || 1), 1],
-						matrix
-					);
+					const halfWidth = canvas.width / 2;
+					const halfHeight = canvas.height / 2;
+					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
+					rotateZ(matrix, now * 0.001, matrix);
+					translate(matrix, [100, 0, 0], matrix);
+					rotateZ(matrix, now * 0.002, matrix);
+					const canvasMin = Math.min(canvas.width, canvas.height);
+					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
+					scale(matrix, [xyScale, xyScale, 1], matrix);
 
 					// Use the program.
 					gl.useProgram(program);
 
 					// Bind the VAO.
-					gl.bindVertexArray(vao);
+					gl.bindVertexArray(rectVao);
 
 					// Set uniform values.
 					gl.uniformMatrix4fv(matLoc, false, matrix);
-					gl.activeTexture(gl.TEXTURE0);
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.uniform1i(textureLoc, 0);
 
 					// Rasterize.
 					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
@@ -254,21 +284,14 @@ void main() {
 
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
-				const texcoordBuffer = new Buffer(context, texcoordData);
 				const indexBuffer = new ElementArrayBuffer(context, indexData);
 
 				// Create VAOs, bind indices.
-				const vao = new Vao(
+				const rectVao = new Vao(
 					program,
-					{
-						a_position: { buffer: positionBuffer, size: 2 },
-						a_texcoord: { buffer: texcoordBuffer, size: 2 }
-					},
+					{ a_position: { buffer: positionBuffer, size: 2 } },
 					indexBuffer
 				);
-
-				// Texture initialization.
-				const texture = Texture2d.fromImageUrl(context, "./peppers.png");
 
 				// Transformation initialization.
 				const matrix = createMatrix4Like();
@@ -276,25 +299,23 @@ void main() {
 				return function (now) {
 					// Resize the drawing buffer, set global state.
 					context.resize();
-					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
-					context.doDepthTest = true;
 
 					// Clear the canvas.
-					context.clear([0, 0, 0, 0], 1, false);
+					context.clear();
 
 					// Transformation update.
-					identity(matrix);
-					scale(
-						matrix,
-						canvas.width > canvas.height
-							? [canvas.height / (canvas.width || 1), 1, 1]
-							: [1, canvas.width / (canvas.height || 1), 1],
-						matrix
-					);
+					const halfWidth = canvas.width / 2;
+					const halfHeight = canvas.height / 2;
+					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
+					rotateZ(matrix, now * 0.001, matrix);
+					translate(matrix, [100, 0, 0], matrix);
+					rotateZ(matrix, now * 0.002, matrix);
+					const canvasMin = Math.min(canvas.width, canvas.height);
+					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
+					scale(matrix, [xyScale, xyScale, 1], matrix);
 
 					// Set uniform values, rasterize.
-					vao.draw({ u_matrix: matrix, u_texture: texture });
+					rectVao.draw({ u_matrix: matrix });
 				};
 			}
 

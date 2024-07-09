@@ -6,7 +6,7 @@
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
-		<link rel="icon" href="./favicon.ico" />
+		<link rel="icon" href="./assets/favicon.ico" />
 
 		<!-- Spector.js. -->
 		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
@@ -613,7 +613,7 @@ void main() {
 					gl.generateMipmap(gl.TEXTURE_2D);
 				});
 				image.crossOrigin = "";
-				image.src = "./peppers.png";
+				image.src = "./assets/peppers.png";
 
 				// Transformation initialization.
 				const planeMat = createMatrix4Like();
@@ -791,7 +791,7 @@ void main() {
 				);
 				texture.minFilter = TextureFilter.NEAREST;
 				texture.magFilter = TextureFilter.NEAREST;
-				const projTex = Texture2d.fromImageUrl(context, "./peppers.png");
+				const projTex = Texture2d.fromImageUrl(context, "./assets/peppers.png");
 
 				// Transformation initialization.
 				const planeMat = createMatrix4Like();
