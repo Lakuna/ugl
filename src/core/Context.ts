@@ -49,6 +49,8 @@ import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
 import type Extension from "../constants/Extension.js";
 import type { ExtensionObject } from "../types/ExtensionObject.js";
+import Framebuffer from "./Framebuffer.js";
+import FramebufferTarget from "../constants/FramebufferTarget.js";
 import PolygonDirection from "../constants/PolygonDirection.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
@@ -1137,6 +1139,7 @@ export default class Context extends ApiInterface {
 	 * @param color - The value to clear the color buffer to or a boolean to use the previous clear color.
 	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
 	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
+	 * @param framebuffer - The framebuffer to clear, or `null` for the default framebuffer (canvas).
 	 * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
 	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
@@ -1145,7 +1148,8 @@ export default class Context extends ApiInterface {
 	public clear(
 		color: Color | boolean = true,
 		depth: number | boolean = true,
-		stencil: number | boolean = true
+		stencil: number | boolean = true,
+		framebuffer: Framebuffer | null = null
 	) {
 		let colorBit = color ? COLOR_BUFFER_BIT : 0;
 		if (typeof color !== "boolean") {
@@ -1163,6 +1167,12 @@ export default class Context extends ApiInterface {
 		if (typeof stencil !== "boolean") {
 			this.clearStencil = stencil;
 			stencilBit = STENCIL_BUFFER_BIT;
+		}
+
+		if (framebuffer === null) {
+			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);
+		} else {
+			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
 		}
 
 		this.gl.clear(colorBit | depthBit | stencilBit);

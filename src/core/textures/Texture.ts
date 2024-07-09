@@ -457,6 +457,45 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	protected readonly dims: number[];
 
+	/** Get the width of this texture. */
+	public get width() {
+		return this.dims[0] ?? 0;
+	}
+
+	/**
+	 * Set the width of this texture.
+	 * @internal
+	 */
+	protected set width(value) {
+		this.dims[0] = value;
+	}
+
+	/** Get the height of this texture. */
+	public get height() {
+		return this.dims[1] ?? 0;
+	}
+
+	/**
+	 * Set the height of this texture.
+	 * @internal
+	 */
+	protected set height(value) {
+		this.dims[1] = value;
+	}
+
+	/** Get the depth of this texture. */
+	public get depth() {
+		return this.dims[2] ?? 0;
+	}
+
+	/**
+	 * Set the depth of this texture.
+	 * @internal
+	 */
+	protected set depth(value) {
+		this.dims[2] = value;
+	}
+
 	/**
 	 * Whether or not this is an immutable-format texture.
 	 * @internal
@@ -510,7 +549,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Copy the data in a framebuffer into one of this texture's mips.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param level - The level of the mip within its mipmap. Defaults to the top mip.
 	 * @param face - The mipmap that the mip belongs to. Ignored by non-cubemap textures.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
@@ -520,7 +559,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		framebuffer: Framebuffer | undefined,
+		framebuffer: Framebuffer | null,
 		level?: number,
 		face?: CubemapFace,
 		bounds?: Prism | Rectangle,
@@ -563,7 +602,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
-		data: TexImageSource,
+		data?: TexImageSource,
 		level?: number,
 		face?: CubemapFace,
 		bounds?: Prism | Rectangle,
@@ -595,7 +634,7 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	public setMip(
-		data: Framebuffer | undefined | Buffer | TexImageSource | ArrayBufferView,
+		data?: Framebuffer | null | Buffer | TexImageSource | ArrayBufferView,
 		requestedLevel?: number,
 		face?: CubemapFace,
 		requestedBounds?: Prism | Rectangle,
@@ -629,7 +668,7 @@ export default abstract class Texture extends ContextDependent {
 			if (
 				bounds[0] + bounds[2] > (mipDims[0] ?? 0) ||
 				bounds[1] + bounds[3] > (mipDims[1] ?? 0) ||
-				(4 in bounds && bounds[4] + bounds[5] > (mipDims[2] ?? 1))
+				(4 in bounds && bounds[4] + bounds[5] > (mipDims[2] ?? 0))
 			) {
 				throw new RangeError(
 					"The specified bounding box is larger than the specified mip."
@@ -662,7 +701,7 @@ export default abstract class Texture extends ContextDependent {
 		this.bind();
 
 		// Update the mip data.
-		if (typeof data === "undefined" || data instanceof Framebuffer) {
+		if (data === null || data instanceof Framebuffer) {
 			if (typeof shape1 === "number") {
 				throw new TypeError();
 			}
@@ -686,7 +725,7 @@ export default abstract class Texture extends ContextDependent {
 				shape1,
 				shape2
 			);
-		} else if ("buffer" in data) {
+		} else if (typeof data !== "undefined" && "buffer" in data) {
 			if (
 				(typeof shape1 !== "number" && typeof shape1 !== "undefined") ||
 				typeof shape2 === "boolean"
@@ -742,7 +781,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
 	 * @internal
@@ -751,7 +790,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		bounds?: Prism | Rectangle,
-		framebuffer?: Framebuffer,
+		framebuffer?: Framebuffer | null,
 		area?: Rectangle,
 		readBuffer?: number | boolean
 	): void;
@@ -795,7 +834,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
-		data: TexImageSource
+		data?: TexImageSource
 	): void;
 
 	/**

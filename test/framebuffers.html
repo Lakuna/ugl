@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Projection Mapping</title>
+		<title>Framebuffers</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -17,12 +17,16 @@
 				Buffer,
 				Context,
 				ElementArrayBuffer,
+				Framebuffer,
+				FramebufferAttachment,
 				PolygonDirection,
 				Primitive,
 				Program,
+				Renderbuffer,
+				RenderbufferFormat,
 				Texture2d,
 				TextureFilter,
-				TextureUncompressedUnsizedInternalFormat,
+				TextureUncompressedSizedInternalFormat,
 				Vao
 			} from "../dist/index.js";
 
@@ -152,6 +156,42 @@
 				out[9] = a01 * s + a21 * c;
 				out[10] = a02 * s + a22 * c;
 				out[11] = a03 * s + a23 * c;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function rotateZ(matrix, radians, out) {
+				const s = Math.sin(radians);
+				const c = Math.cos(radians);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+
+				if (out != matrix) {
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c + a10 * s;
+				out[1] = a01 * c + a11 * s;
+				out[2] = a02 * c + a12 * s;
+				out[3] = a03 * c + a13 * s;
+				out[4] = a10 * c - a00 * s;
+				out[5] = a11 * c - a01 * s;
+				out[6] = a12 * c - a02 * s;
+				out[7] = a13 * c - a03 * s;
 				return out;
 			}
 
@@ -344,18 +384,13 @@
 in vec4 a_position;
 in vec2 a_texcoord;
 
-uniform mat4 u_world;
-uniform mat4 u_camViewProj;
-uniform mat4 u_texMat;
+uniform mat4 u_matrix;
 
 out vec2 v_texcoord;
-out vec4 v_projTexcoord;
 
 void main() {
-	vec4 worldPos = u_world * a_position;
-	gl_Position = u_camViewProj * worldPos;
+	gl_Position = u_matrix * a_position;
 	v_texcoord = a_texcoord;
-	v_projTexcoord = u_texMat * worldPos;
 }
 `;
 
@@ -365,76 +400,29 @@ void main() {
 precision mediump float;
 
 in vec2 v_texcoord;
-in vec4 v_projTexcoord;
 
-uniform vec4 u_color;
 uniform sampler2D u_texture;
-uniform sampler2D u_projTex;
 
 out vec4 outColor;
 
 void main() {
-	vec2 projTexcoord = (v_projTexcoord.xyz / v_projTexcoord.w).xy;
-
-	bool inProj = projTexcoord.x >= 0.0
-		&& projTexcoord.x <= 1.0
-		&& projTexcoord.y >= 0.0
-		&& projTexcoord.y <= 1.0;
-
-	vec4 projTexColor = texture(u_projTex, projTexcoord);
-	vec4 texColor = texture(u_texture, v_texcoord) * u_color;
-	outColor = inProj ? projTexColor : texColor;
+	outColor = texture(u_texture, v_texcoord);
 }
 `;
 
-			const solidVss = `\
-#version 300 es
-
-in vec4 a_position;
-
-uniform mat4 u_world;
-uniform mat4 u_camViewProj;
-
-void main() {
-	gl_Position = u_camViewProj * u_world * a_position;
-}
-`;
-
-			const solidFss = `\
-#version 300 es
-
-precision mediump float;
-
-out vec4 outColor;
-
-void main() {
-	outColor = vec4(0, 0, 0, 1);
-}
-`;
-
-			const planePositionData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
-			const planeTexcoordData = new Float32Array([0, 0, 0, 10, 10, 10, 10, 0]);
-			const planeIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
-			const cubePositionData = new Float32Array([
+			const positionData = new Float32Array([
 				-1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, -1,
 				-1, 1, -1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
 				1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1,
 				1, -1, -1, -1, 1, -1, -1, 1, -1, 1
 			]);
-			const cubeTexcoordData = new Float32Array([
+			const texcoordData = new Float32Array([
 				0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0,
 				0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0
 			]);
-			const cubeIndexData = new Uint8Array([
+			const indexData = new Uint8Array([
 				0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12,
 				14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
-			]);
-			const frustumPositionData = new Float32Array([
-				-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1,
-				1, 1, 1, 1
-			]);
-			const frustumIndexData = new Uint8Array([
-				0, 1, 1, 3, 3, 2, 2, 0, 4, 5, 5, 7, 7, 6, 6, 4, 0, 4, 1, 5, 3, 7, 2, 6
 			]);
 
 			// Vanilla WebGL2 implementation.
@@ -448,12 +436,6 @@ void main() {
 				if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
 					throw new Error(gl.getShaderInfoLog(vs));
 				}
-				const solidVs = gl.createShader(gl.VERTEX_SHADER);
-				gl.shaderSource(solidVs, solidVss);
-				gl.compileShader(solidVs);
-				if (!gl.getShaderParameter(solidVs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(solidVs));
-				}
 
 				// Fragment shader.
 				const fs = gl.createShader(gl.FRAGMENT_SHADER);
@@ -461,12 +443,6 @@ void main() {
 				gl.compileShader(fs);
 				if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
 					throw new Error(gl.getShaderInfoLog(fs));
-				}
-				const solidFs = gl.createShader(gl.FRAGMENT_SHADER);
-				gl.shaderSource(solidFs, solidFss);
-				gl.compileShader(solidFs);
-				if (!gl.getShaderParameter(solidFs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(solidFs));
 				}
 
 				// Shader program.
@@ -477,178 +453,196 @@ void main() {
 				if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(program));
 				}
-				const solidProgram = gl.createProgram();
-				gl.attachShader(solidProgram, solidVs);
-				gl.attachShader(solidProgram, solidFs);
-				gl.linkProgram(solidProgram);
-				if (!gl.getProgramParameter(solidProgram, gl.LINK_STATUS)) {
-					throw new Error(gl.getProgramInfoLog(solidProgram));
-				}
 
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
 				const texcoordLoc = gl.getAttribLocation(program, "a_texcoord");
-				const worldMatLoc = gl.getUniformLocation(program, "u_world");
-				const camViewProjMatLoc = gl.getUniformLocation(
-					program,
-					"u_camViewProj"
-				);
-				const texMatLoc = gl.getUniformLocation(program, "u_texMat");
-				const colorLoc = gl.getUniformLocation(program, "u_color");
+				const matrixLoc = gl.getUniformLocation(program, "u_matrix");
 				const textureLoc = gl.getUniformLocation(program, "u_texture");
-				const projTexLoc = gl.getUniformLocation(program, "u_projTex");
-				const solidPosLoc = gl.getAttribLocation(solidProgram, "a_position");
-				const solidMatLoc = gl.getUniformLocation(solidProgram, "u_world");
-				const solidCamViewProjMatLoc = gl.getUniformLocation(
-					solidProgram,
-					"u_camViewProj"
-				);
 
 				// Create buffers.
-				const planePositionBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, planePositionData, gl.STATIC_DRAW);
+				const positionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
 
-				const planeTexcoordBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, planeTexcoordBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, planeTexcoordData, gl.STATIC_DRAW);
+				const texcoordBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, texcoordData, gl.STATIC_DRAW);
 
-				const planeIndexBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
-				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, planeIndexData, gl.STATIC_DRAW);
-
-				const cubePositionBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, cubePositionData, gl.STATIC_DRAW);
-
-				const cubeTexcoordBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, cubeTexcoordBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, cubeTexcoordData, gl.STATIC_DRAW);
-
-				const cubeIndexBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
-				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndexData, gl.STATIC_DRAW);
-
-				const frustumPositionBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, frustumPositionBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, frustumPositionData, gl.STATIC_DRAW);
-
-				const frustumIndexBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, frustumIndexBuffer);
-				gl.bufferData(
-					gl.ELEMENT_ARRAY_BUFFER,
-					frustumIndexData,
-					gl.STATIC_DRAW
-				);
+				const indexBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
 
 				// Create VAOs.
-				const planeVao = gl.createVertexArray();
-				gl.bindVertexArray(planeVao);
+				const vao = gl.createVertexArray();
+				gl.bindVertexArray(vao);
 				gl.enableVertexAttribArray(positionLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
-				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
-				gl.enableVertexAttribArray(texcoordLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, planeTexcoordBuffer);
-				gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
-
-				const cubeVao = gl.createVertexArray();
-				gl.bindVertexArray(cubeVao);
-				gl.enableVertexAttribArray(positionLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
 				gl.enableVertexAttribArray(texcoordLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, cubeTexcoordBuffer);
+				gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
 				gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
-
-				const frustumVao = gl.createVertexArray();
-				gl.bindVertexArray(frustumVao);
-				gl.enableVertexAttribArray(solidPosLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, frustumPositionBuffer);
-				gl.vertexAttribPointer(solidPosLoc, 3, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, frustumIndexBuffer);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 				// Texture initialization.
-				const texture = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+				const redTexture = gl.createTexture();
+				gl.bindTexture(gl.TEXTURE_2D, redTexture);
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.LUMINANCE,
-					2,
-					2,
+					gl.R8,
+					1,
+					1,
 					0,
-					gl.LUMINANCE,
+					gl.RED,
 					gl.UNSIGNED_BYTE,
-					new Uint8Array([0x80, 0xc0, 0xc0, 0x80])
+					new Uint8Array([0xff])
+				);
+
+				const greenTexture = gl.createTexture();
+				gl.bindTexture(gl.TEXTURE_2D, greenTexture);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RG8,
+					1,
+					1,
+					0,
+					gl.RG,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0x00, 0xff])
+				);
+
+				const renderTexture = gl.createTexture();
+				gl.bindTexture(gl.TEXTURE_2D, renderTexture);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					0x100,
+					0x100,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				const projTex = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, projTex);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA,
-					1,
-					1,
-					0,
-					gl.RGBA,
-					gl.UNSIGNED_BYTE,
-					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+
+				const renderDepth = gl.createRenderbuffer();
+				gl.bindRenderbuffer(gl.RENDERBUFFER, renderDepth);
+				gl.renderbufferStorage(
+					gl.RENDERBUFFER,
+					gl.DEPTH_COMPONENT24,
+					0x100,
+					0x100
 				);
-				const image = new Image();
-				image.addEventListener("load", () => {
-					gl.bindTexture(gl.TEXTURE_2D, projTex);
-					gl.texImage2D(
-						gl.TEXTURE_2D,
-						0,
-						gl.RGBA,
-						gl.RGBA,
-						gl.UNSIGNED_BYTE,
-						image
-					);
-					gl.generateMipmap(gl.TEXTURE_2D);
-				});
-				image.crossOrigin = "";
-				image.src = "./peppers.png";
+
+				const framebuffer = gl.createFramebuffer();
+				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffer);
+				gl.framebufferTexture2D(
+					gl.FRAMEBUFFER,
+					gl.COLOR_ATTACHMENT0,
+					gl.TEXTURE_2D,
+					renderTexture,
+					0
+				);
+				gl.framebufferRenderbuffer(
+					gl.DRAW_FRAMEBUFFER,
+					gl.DEPTH_ATTACHMENT,
+					gl.RENDERBUFFER,
+					renderDepth
+				);
 
 				// Transformation initialization.
-				const planeMat = createMatrix4Like();
-				identity(planeMat);
-				rotateX(planeMat, (Math.PI * 3) / 2, planeMat);
-				const cubeMat = createMatrix4Like();
-				identity(cubeMat);
-				scale(cubeMat, [0.1, 0.1, 0.1], cubeMat);
-				translate(cubeMat, [1, 2, 1], cubeMat);
-				const projProjMat = createMatrix4Like();
-				perspective(Math.PI / 10, 1, 1, 3, projProjMat);
-				const projCamMat = createMatrix4Like();
-				identity(projCamMat);
-				rotateX(projCamMat, -Math.PI / 5, projCamMat);
-				translate(projCamMat, [0, 0, 2], projCamMat);
-				const projViewMat = createMatrix4Like();
-				invert(projCamMat, projViewMat);
-				const projViewProjMat = createMatrix4Like();
-				multiply(projProjMat, projViewMat, projViewProjMat);
-				const texMat = createMatrix4Like();
-				identity(texMat);
-				translate(texMat, [0.5, 0.5, 0.5], texMat);
-				scale(texMat, [0.5, 0.5, 0.5], texMat);
-				multiply(texMat, projViewProjMat, texMat);
-				const frustumMat = createMatrix4Like();
-				invert(projViewProjMat, frustumMat);
-				const camProjMat = createMatrix4Like();
-				const camCamMat = createMatrix4Like();
-				const camViewMat = createMatrix4Like();
-				const camViewProjMat = createMatrix4Like();
+				const camMat = createMatrix4Like();
+				identity(camMat);
+				translate(camMat, [0, 0, 5], camMat);
+				const viewMat = createMatrix4Like();
+				invert(camMat, viewMat);
+				const innerCamMat = createMatrix4Like();
+				identity(innerCamMat);
+				translate(innerCamMat, [0, 0, 5], innerCamMat);
+				const innerViewMat = createMatrix4Like();
+				invert(innerCamMat, innerViewMat);
+				const projMat = createMatrix4Like();
+				const viewProjMat = createMatrix4Like();
+				const innerProjMat = createMatrix4Like();
+				const innerViewProjMat = createMatrix4Like();
+				const redMat = createMatrix4Like();
+				const greenMat = createMatrix4Like();
+				const blueMat = createMatrix4Like();
 
 				return function (now) {
 					// Resize the drawing buffer.
 					canvas.width = canvas.clientWidth;
 					canvas.height = canvas.clientHeight;
+
+					// Transformation update.
+					perspective(
+						Math.PI / 4,
+						canvas.width / (canvas.height || 1),
+						1,
+						10,
+						projMat
+					);
+					multiply(projMat, viewMat, viewProjMat);
+					perspective(Math.PI / 4, 0x100 / 0x100, 1, 10, innerProjMat);
+					multiply(innerProjMat, innerViewMat, innerViewProjMat);
+					identity(redMat);
+					rotateX(redMat, now * 0.001, redMat);
+					rotateY(redMat, now * 0.001, redMat);
+					multiply(innerViewProjMat, redMat, redMat);
+					identity(greenMat);
+					multiply(innerViewProjMat, greenMat, greenMat);
+					identity(blueMat);
+					rotateY(blueMat, now * 0.001, blueMat);
+					rotateZ(blueMat, now * 0.001, blueMat);
+					multiply(viewProjMat, blueMat, blueMat);
+
+					// Set global state.
+					gl.viewport(0, 0, 0x100, 0x100);
+					gl.clearColor(0, 0, 1, 1);
+					gl.enable(gl.CULL_FACE);
+					gl.cullFace(gl.BACK);
+					gl.enable(gl.DEPTH_TEST);
+					gl.clearDepth(1);
+
+					// Bind the framebuffer.
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffer);
+
+					// Clear the canvas.
+					gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+					// Use the program.
+					gl.useProgram(program);
+
+					// Bind the VAO.
+					gl.bindVertexArray(vao);
+
+					// Set uniform values.
+					gl.uniformMatrix4fv(matrixLoc, false, redMat);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, redTexture);
+					gl.uniform1i(textureLoc, 0);
+
+					// Rasterize.
+					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
+
+					// Use the program.
+					gl.useProgram(program);
+
+					// Bind the VAO.
+					gl.bindVertexArray(vao);
+
+					// Set uniform values.
+					gl.uniformMatrix4fv(matrixLoc, false, greenMat);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, greenTexture);
+					gl.uniform1i(textureLoc, 0);
+
+					// Rasterize.
+					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
 
 					// Set global state.
 					gl.viewport(0, 0, canvas.width, canvas.height);
@@ -658,78 +652,26 @@ void main() {
 					gl.enable(gl.DEPTH_TEST);
 					gl.clearDepth(1);
 
+					// Bind the framebuffer.
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+
 					// Clear the canvas.
 					gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-					// Transformation update.
-					perspective(
-						Math.PI / 4,
-						canvas.width / (canvas.height || 1),
-						0.1,
-						5,
-						camProjMat
-					);
-					identity(camCamMat);
-					rotateY(camCamMat, now * 0.0003, camCamMat);
-					rotateX(camCamMat, -Math.PI / 5, camCamMat);
-					translate(camCamMat, [0, 0, 2], camCamMat);
-					invert(camCamMat, camViewMat);
-					multiply(camProjMat, camViewMat, camViewProjMat);
-
 					// Use the program.
 					gl.useProgram(program);
 
 					// Bind the VAO.
-					gl.bindVertexArray(planeVao);
+					gl.bindVertexArray(vao);
 
 					// Set uniform values.
-					gl.uniformMatrix4fv(worldMatLoc, false, planeMat);
-					gl.uniformMatrix4fv(camViewProjMatLoc, false, camViewProjMat);
-					gl.uniformMatrix4fv(texMatLoc, false, texMat);
-					gl.uniform4fv(colorLoc, [1, 0, 0, 1]);
+					gl.uniformMatrix4fv(matrixLoc, false, blueMat);
 					gl.activeTexture(gl.TEXTURE0);
-					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.bindTexture(gl.TEXTURE_2D, renderTexture);
 					gl.uniform1i(textureLoc, 0);
-					gl.activeTexture(gl.TEXTURE1);
-					gl.bindTexture(gl.TEXTURE_2D, projTex);
-					gl.uniform1i(projTexLoc, 1);
-
-					// Rasterize.
-					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
-
-					// Use the program.
-					gl.useProgram(program);
-
-					// Bind the VAO.
-					gl.bindVertexArray(cubeVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(worldMatLoc, false, cubeMat);
-					gl.uniformMatrix4fv(camViewProjMatLoc, false, camViewProjMat);
-					gl.uniformMatrix4fv(texMatLoc, false, texMat);
-					gl.uniform4fv(colorLoc, [0, 1, 0, 1]);
-					gl.activeTexture(gl.TEXTURE0);
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.uniform1i(textureLoc, 0);
-					gl.activeTexture(gl.TEXTURE1);
-					gl.bindTexture(gl.TEXTURE_2D, projTex);
-					gl.uniform1i(projTexLoc, 1);
 
 					// Rasterize.
 					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
-
-					// Use the program.
-					gl.useProgram(solidProgram);
-
-					// Bind the VAO.
-					gl.bindVertexArray(frustumVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(solidMatLoc, false, frustumMat);
-					gl.uniformMatrix4fv(solidCamViewProjMatLoc, false, camViewProjMat);
-
-					// Rasterize.
-					gl.drawElements(gl.LINES, 24, gl.UNSIGNED_BYTE, 0);
 				};
 			}
 
@@ -739,138 +681,129 @@ void main() {
 
 				// Vertex shader, fragment shader, shader program, get variable locations.
 				const program = Program.fromSource(context, vss, fss);
-				const solidProgram = Program.fromSource(context, solidVss, solidFss);
 
 				// Create buffers.
-				const planePositionBuffer = new Buffer(context, planePositionData);
-				const planeTexcoordBuffer = new Buffer(context, planeTexcoordData);
-				const planeIndexBuffer = new ElementArrayBuffer(
-					context,
-					planeIndexData
-				);
-				const cubePositionBuffer = new Buffer(context, cubePositionData);
-				const cubeTexcoordBuffer = new Buffer(context, cubeTexcoordData);
-				const cubeIndexBuffer = new ElementArrayBuffer(context, cubeIndexData);
-				const frustumPositionBuffer = new Buffer(context, frustumPositionData);
-				const frustumIndexBuffer = new ElementArrayBuffer(
-					context,
-					frustumIndexData
-				);
+				const positionBuffer = new Buffer(context, positionData);
+				const texcoordBuffer = new Buffer(context, texcoordData);
+				const indexBuffer = new ElementArrayBuffer(context, indexData);
 
-				// Create VAOs, bind indices.
-				const planeVao = new Vao(
+				// Create VAOs.
+				const vao = new Vao(
 					program,
 					{
-						a_position: { buffer: planePositionBuffer, size: 2 },
-						a_texcoord: { buffer: planeTexcoordBuffer, size: 2 }
+						a_position: positionBuffer,
+						a_texcoord: { buffer: texcoordBuffer, size: 2 }
 					},
-					planeIndexBuffer
-				);
-				const cubeVao = new Vao(
-					program,
-					{
-						a_position: cubePositionBuffer,
-						a_texcoord: { buffer: cubeTexcoordBuffer, size: 2 }
-					},
-					cubeIndexBuffer
-				);
-				const frustumVao = new Vao(
-					solidProgram,
-					{ a_position: frustumPositionBuffer },
-					frustumIndexBuffer
+					indexBuffer
 				);
 
 				// Texture initialization.
-				const texture = new Texture2d(context);
-				texture.format = TextureUncompressedUnsizedInternalFormat.LUMINANCE;
-				texture.setMip(
-					new Uint8Array([0x80, 0xc0, 0xc0, 0x80]),
-					0,
+				const redTexture = new Texture2d(context);
+				redTexture.format = TextureUncompressedSizedInternalFormat.R8;
+				redTexture.setMip(new Uint8Array([0xff]), void 0, void 0, [0, 0, 1, 1]);
+
+				const greenTexture = new Texture2d(context);
+				greenTexture.format = TextureUncompressedSizedInternalFormat.RG8;
+				greenTexture.setMip(
+					new Uint8Array([0x00, 0xff]),
 					void 0,
-					[0, 0, 2, 2]
+					void 0,
+					[0, 0, 1, 1]
 				);
-				texture.minFilter = TextureFilter.NEAREST;
-				texture.magFilter = TextureFilter.NEAREST;
-				const projTex = Texture2d.fromImageUrl(context, "./peppers.png");
+
+				const renderTexture = new Texture2d(context);
+				renderTexture.setMip(void 0, void 0, void 0, [0, 0, 0x100, 0x100]);
+				renderTexture.minFilter = TextureFilter.NEAREST;
+				renderTexture.magFilter = TextureFilter.NEAREST;
+
+				const renderDepth = new Renderbuffer(
+					context,
+					RenderbufferFormat.DEPTH_COMPONENT24,
+					0x100,
+					0x100
+				);
+
+				const framebuffer = new Framebuffer(context);
+				framebuffer.attach(0, renderTexture);
+				framebuffer.attach(FramebufferAttachment.Depth, renderDepth);
 
 				// Transformation initialization.
-				const planeMat = createMatrix4Like();
-				identity(planeMat);
-				rotateX(planeMat, (Math.PI * 3) / 2, planeMat);
-				const cubeMat = createMatrix4Like();
-				identity(cubeMat);
-				scale(cubeMat, [0.1, 0.1, 0.1], cubeMat);
-				translate(cubeMat, [1, 2, 1], cubeMat);
-				const projProjMat = createMatrix4Like();
-				perspective(Math.PI / 10, 1, 1, 3, projProjMat);
-				const projCamMat = createMatrix4Like();
-				identity(projCamMat);
-				rotateX(projCamMat, -Math.PI / 5, projCamMat);
-				translate(projCamMat, [0, 0, 2], projCamMat);
-				const projViewMat = createMatrix4Like();
-				invert(projCamMat, projViewMat);
-				const projViewProjMat = createMatrix4Like();
-				multiply(projProjMat, projViewMat, projViewProjMat);
-				const texMat = createMatrix4Like();
-				identity(texMat);
-				translate(texMat, [0.5, 0.5, 0.5], texMat);
-				scale(texMat, [0.5, 0.5, 0.5], texMat);
-				multiply(texMat, projViewProjMat, texMat);
-				const frustumMat = createMatrix4Like();
-				invert(projViewProjMat, frustumMat);
-				const camProjMat = createMatrix4Like();
-				const camCamMat = createMatrix4Like();
-				const camViewMat = createMatrix4Like();
-				const camViewProjMat = createMatrix4Like();
+				const camMat = createMatrix4Like();
+				identity(camMat);
+				translate(camMat, [0, 0, 5], camMat);
+				const viewMat = createMatrix4Like();
+				invert(camMat, viewMat);
+				const innerCamMat = createMatrix4Like();
+				identity(innerCamMat);
+				translate(innerCamMat, [0, 0, 5], innerCamMat);
+				const innerViewMat = createMatrix4Like();
+				invert(innerCamMat, innerViewMat);
+				const projMat = createMatrix4Like();
+				const viewProjMat = createMatrix4Like();
+				const innerProjMat = createMatrix4Like();
+				const innerViewProjMat = createMatrix4Like();
+				const redMat = createMatrix4Like();
+				const greenMat = createMatrix4Like();
+				const blueMat = createMatrix4Like();
 
 				return function (now) {
-					// Resize the drawing buffer, set global state.
-					context.resize();
-					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
-					context.doDepthTest = true;
-
-					// Clear the canvas.
-					context.clear([0, 0, 0, 0], 1, false);
+					// Resize the drawing buffer.
+					context.fitDrawingBuffer();
 
 					// Transformation update.
 					perspective(
 						Math.PI / 4,
 						canvas.width / (canvas.height || 1),
-						0.1,
-						5,
-						camProjMat
+						1,
+						10,
+						projMat
 					);
-					identity(camCamMat);
-					rotateY(camCamMat, now * 0.0003, camCamMat);
-					rotateX(camCamMat, -Math.PI / 5, camCamMat);
-					translate(camCamMat, [0, 0, 2], camCamMat);
-					invert(camCamMat, camViewMat);
-					multiply(camProjMat, camViewMat, camViewProjMat);
+					multiply(projMat, viewMat, viewProjMat);
+					perspective(Math.PI / 4, 0x100 / 0x100, 1, 10, innerProjMat);
+					multiply(innerProjMat, innerViewMat, innerViewProjMat);
+					identity(redMat);
+					rotateX(redMat, now * 0.001, redMat);
+					rotateY(redMat, now * 0.001, redMat);
+					multiply(innerViewProjMat, redMat, redMat);
+					identity(greenMat);
+					multiply(innerViewProjMat, greenMat, greenMat);
+					identity(blueMat);
+					rotateY(blueMat, now * 0.001, blueMat);
+					rotateZ(blueMat, now * 0.001, blueMat);
+					multiply(viewProjMat, blueMat, blueMat);
 
-					// Set uniform values, rasterize.
-					planeVao.draw({
-						u_world: planeMat,
-						u_camViewProj: camViewProjMat,
-						u_texMat: texMat,
-						u_color: [1, 0, 0, 1],
-						u_texture: texture,
-						u_projTex: projTex
-					});
+					// Set global state, bind the framebuffer, clear the canvas.
+					context.viewport = [0, 0, framebuffer.width, framebuffer.height];
+					context.doCullFace = true;
+					context.cullFace = PolygonDirection.BACK;
+					context.doDepthTest = true;
+					context.clear([0, 0, 1, 1], 1, false, framebuffer);
 
-					cubeVao.draw({
-						u_world: cubeMat,
-						u_camViewProj: camViewProjMat,
-						u_texMat: texMat,
-						u_color: [0, 1, 0, 1],
-						u_texture: texture,
-						u_projTex: projTex
-					});
-
-					frustumVao.draw(
-						{ u_world: frustumMat, u_camViewProj: camViewProjMat },
-						Primitive.LINES
+					// Use the program, bind the VAO, set uniform values, rasterize.
+					vao.draw(
+						{ u_matrix: redMat, u_texture: redTexture },
+						void 0,
+						void 0,
+						framebuffer
 					);
+
+					// Use the program, bind the VAO, set uniform values, rasterize.
+					vao.draw(
+						{ u_matrix: greenMat, u_texture: greenTexture },
+						void 0,
+						void 0,
+						framebuffer
+					);
+
+					// Set global state, bind the framebuffer, clear the canvas.
+					context.fitViewport();
+					context.doCullFace = true;
+					context.cullFace = PolygonDirection.BACK;
+					context.doDepthTest = true;
+					context.clear([0, 0, 0, 0], 1, false);
+
+					// Use the program, bind the VAO, set uniform values, rasterize.
+					vao.draw({ u_matrix: blueMat, u_texture: renderTexture });
 				};
 			}
 

@@ -4,6 +4,8 @@ import BadValueError from "../utility/BadValueError.js";
 import type Buffer from "./buffers/Buffer.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type ElementArrayBuffer from "./buffers/ElementArrayBuffer.js";
+import Framebuffer from "./Framebuffer.js";
+import FramebufferTarget from "../constants/FramebufferTarget.js";
 import Primitive from "../constants/Primitive.js";
 import type Program from "./Program.js";
 import type { UniformMap } from "../types/UniformMap.js";
@@ -192,13 +194,26 @@ export default class Vao extends ContextDependent {
 	 * @param uniforms - A collection of uniform values to set prior to rasterization.
 	 * @param primitive - The type of primitive to rasterize.
 	 * @param offset - The number of elements to skip when rasterizing arrays, or the number of indices to skip when rasterizing elements.
+	 * @param framebuffer - The framebuffer to rasterize to, or `null` for the default framebuffer (canvas).
 	 * @throws {@link BadValueError}
 	 */
 	public draw(
 		uniforms?: UniformMap,
 		primitive = Primitive.TRIANGLES,
-		offset = 0
+		offset = 0,
+		framebuffer: Framebuffer | null = null
 	) {
+		// Bind the correct framebuffer.
+		if (framebuffer === null) {
+			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);
+		} else {
+			Framebuffer.bindGl(
+				this.gl,
+				FramebufferTarget.DRAW_FRAMEBUFFER,
+				framebuffer.internal
+			);
+		}
+
 		// Bind the correct shader program.
 		this.program.bind();
 

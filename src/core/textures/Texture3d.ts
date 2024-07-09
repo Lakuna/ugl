@@ -98,7 +98,7 @@ export default class Texture3d extends Texture {
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
 	 * @internal
@@ -107,7 +107,7 @@ export default class Texture3d extends Texture {
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds?: Prism,
-		framebuffer?: Framebuffer,
+		framebuffer?: Framebuffer | null,
 		area?: Rectangle,
 		readBuffer?: number | boolean
 	) {
@@ -131,7 +131,7 @@ export default class Texture3d extends Texture {
 		}
 
 		// Bind the framebuffer.
-		if (typeof framebuffer === "undefined") {
+		if (typeof framebuffer === "undefined" || framebuffer === null) {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
@@ -257,11 +257,11 @@ export default class Texture3d extends Texture {
 		// Update dimensions.
 		// ESLint improperly assumes that `bounds` can be destructured.
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[0] = bounds[2];
+		this.width = bounds[2];
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[1] = bounds[3];
+		this.height = bounds[3];
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[2] = bounds[5];
+		this.depth = bounds[5];
 	}
 
 	/**
@@ -280,18 +280,25 @@ export default class Texture3d extends Texture {
 		bounds: Prism | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
-		data: TexImageSource
+		data?: TexImageSource
 	) {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		const z = bounds?.[4] ?? 0;
+		// https://caniuse.com/mdn-api_videoframe
+		// const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));
+		// const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));
 		const width =
 			bounds?.[2] ??
-			(data instanceof VideoFrame ? data.codedWidth : data.width);
+			(data as HTMLImageElement | undefined)?.width ??
+			this.getSizeOfMip(level)[0] ??
+			1;
 		const height =
 			bounds?.[3] ??
-			(data instanceof VideoFrame ? data.codedHeight : data.height);
-		const depth = bounds?.[5] ?? 1;
+			(data as HTMLImageElement | undefined)?.height ??
+			this.getSizeOfMip(level)[1] ??
+			1;
+		const depth = bounds?.[5] ?? this.getSizeOfMip(level)[2] ?? 1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
 		if (this.isImmutableFormat || level > 0) {
@@ -306,7 +313,7 @@ export default class Texture3d extends Texture {
 				depth,
 				format,
 				type,
-				data
+				(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
 			);
 			return;
 		}
@@ -322,13 +329,13 @@ export default class Texture3d extends Texture {
 			0,
 			format,
 			type,
-			data
+			(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
 		);
 
 		// Update dimensions.
-		this.dims[0] = width;
-		this.dims[1] = height;
-		this.dims[2] = depth;
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
 	}
 
 	/**
@@ -442,10 +449,10 @@ export default class Texture3d extends Texture {
 		// Update dimensions.
 		// ESLint improperly assumes that `bounds` can be destructured.
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[0] = bounds[2];
+		this.width = bounds[2];
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[1] = bounds[3];
+		this.height = bounds[3];
 		// eslint-disable-next-line prefer-destructuring
-		this.dims[2] = bounds[5];
+		this.depth = bounds[5];
 	}
 }

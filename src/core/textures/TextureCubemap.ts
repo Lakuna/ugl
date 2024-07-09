@@ -139,7 +139,7 @@ export default class TextureCubemap extends Texture {
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `undefined` for the default framebuffer.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
 	 * @internal
@@ -154,7 +154,7 @@ export default class TextureCubemap extends Texture {
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		level: number,
 		bounds?: Rectangle,
-		framebuffer?: Framebuffer,
+		framebuffer?: Framebuffer | null,
 		area?: Rectangle,
 		readBuffer?: number | boolean
 	) {
@@ -174,7 +174,7 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Bind the framebuffer.
-		if (typeof framebuffer === "undefined") {
+		if (typeof framebuffer === "undefined" || framebuffer === null) {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
@@ -217,7 +217,8 @@ export default class TextureCubemap extends Texture {
 		);
 
 		// Update dimensions.
-		this.dims[0] = frameDim;
+		this.width = frameDim;
+		this.height = frameDim;
 	}
 
 	/**
@@ -310,7 +311,8 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = dim;
+		this.width = dim;
+		this.height = dim;
 	}
 
 	/**
@@ -329,15 +331,23 @@ export default class TextureCubemap extends Texture {
 		bounds: Rectangle | undefined,
 		format: TextureFormat,
 		type: TextureDataType,
-		data: TexImageSource
+		data?: TexImageSource
 	) {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		// https://caniuse.com/mdn-api_videoframe
-		// const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : data.width);
-		// const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : data.height);
-		const width = bounds?.[2] ?? (data as HTMLImageElement).width;
-		const height = bounds?.[3] ?? (data as HTMLImageElement).height;
+		// const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));
+		// const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));
+		const width =
+			bounds?.[2] ??
+			(data as HTMLImageElement | undefined)?.width ??
+			this.getSizeOfMip(level)[0] ??
+			1;
+		const height =
+			bounds?.[3] ??
+			(data as HTMLImageElement | undefined)?.height ??
+			this.getSizeOfMip(level)[1] ??
+			1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {
@@ -350,14 +360,14 @@ export default class TextureCubemap extends Texture {
 				height,
 				format,
 				type,
-				data
+				(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
 			);
 			return;
 		}
 
 		// Mutable-format.
 		const dim: number = Math.max(width, height);
-		if (typeof bounds === "undefined") {
+		if (typeof bounds === "undefined" && typeof data !== "undefined") {
 			// Undefined bounds. Resize to match data.
 			this.gl.texImage2D(target, level, this.format, format, type, data);
 		} else {
@@ -371,12 +381,13 @@ export default class TextureCubemap extends Texture {
 				0,
 				format,
 				type,
-				data
+				(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
 			);
 		}
 
 		// Update dimensions.
-		this.dims[0] = dim;
+		this.width = dim;
+		this.height = dim;
 	}
 
 	/**
@@ -482,6 +493,7 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Update dimensions.
-		this.dims[0] = dim;
+		this.width = dim;
+		this.height = dim;
 	}
 }

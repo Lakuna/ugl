@@ -1,6 +1,7 @@
 import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
+import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
 /**
@@ -96,10 +97,19 @@ export default class Renderbuffer extends ContextDependent {
 	/**
 	 * Create a renderbuffer.
 	 * @param context - The rendering context.
+	 * @param format - The format of the renderbuffer.
+	 * @param width - The width of the renderbuffer.
+	 * @param height - The height of the renderbuffer.
 	 * @see [`createRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer)
+	 * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)
 	 * @throws {@link UnsupportedOperationError}
 	 */
-	public constructor(context: Context) {
+	public constructor(
+		context: Context,
+		format: RenderbufferFormat,
+		width: number,
+		height: number
+	) {
 		super(context);
 
 		const renderbuffer = this.gl.createRenderbuffer();
@@ -107,6 +117,12 @@ export default class Renderbuffer extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = renderbuffer;
+
+		this.bind();
+		this.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
+		this.format = format;
+		this.width = width;
+		this.height = height;
 	}
 
 	/**
@@ -115,6 +131,18 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public readonly internal;
+
+	/**
+	 * The format of this renderbuffer.
+	 * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)
+	 */
+	public readonly format;
+
+	/** The width of this renderbuffer. */
+	public readonly width;
+
+	/** The height of this renderbuffer. */
+	public readonly height;
 
 	/**
 	 * Delete this renderbuffer.

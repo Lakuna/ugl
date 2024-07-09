@@ -9,6 +9,7 @@ import {
 	RENDERBUFFER,
 	STENCIL_ATTACHMENT
 } from "../constants/constants.js";
+import BadValueError from "../utility/BadValueError.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import CubemapFace from "../constants/CubemapFace.js";
@@ -178,6 +179,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 		this.internal = framebuffer;
 		this.targetCache = FramebufferTarget.FRAMEBUFFER;
+		this.attachmentsCache = [];
 	}
 
 	/**
@@ -258,6 +260,24 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
+	 * The attachments on this framebuffer.
+	 * @internal
+	 */
+	private readonly attachmentsCache: (Texture | Renderbuffer)[];
+
+	/** Get the width of this framebuffer. */
+	public get width() {
+		const [firstAttachment] = this.attachmentsCache;
+		return typeof firstAttachment === "undefined" ? 0 : firstAttachment.width;
+	}
+
+	/** Get the height of this framebuffer. */
+	public get height() {
+		const [firstAttachment] = this.attachmentsCache;
+		return typeof firstAttachment === "undefined" ? 0 : firstAttachment.height;
+	}
+
+	/**
 	 * Attach a 2D texture to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
 	 * @param texture - The texture to attach.
@@ -266,6 +286,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
 	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
 	 * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+	 * @throws {@link BadValueError}
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
@@ -284,6 +305,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
 	 * @see [`framebufferTexture2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D)
 	 * @see [`framebufferTextureLayer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer)
+	 * @throws {@link BadValueError}
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
@@ -298,6 +320,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
 	 * @param renderbuffer - The renderbuffer to attach.
 	 * @see [`framebufferRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer)
+	 * @throws {@link BadValueError}
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
@@ -311,6 +334,16 @@ export default class Framebuffer extends ContextDependent {
 		level = 0,
 		layer: number | undefined = void 0
 	) {
+		// Ensure that attachments are the same size.
+		if (
+			this.attachmentsCache.length > 0 &&
+			(data.width !== this.width || data.height !== this.height)
+		) {
+			throw new BadValueError(
+				"Framebuffer attachments must all be the same size."
+			);
+		}
+
 		// Determine the actual WebGL constant value of the attachment.
 		let attachmentValue = attachment;
 		switch (attachment as FramebufferAttachment) {
@@ -364,6 +397,9 @@ export default class Framebuffer extends ContextDependent {
 				level
 			);
 		}
+
+		// Save a reference to the attachment.
+		this.attachmentsCache.push(data);
 	}
 
 	/**

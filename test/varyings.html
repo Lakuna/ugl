@@ -4,12 +4,12 @@
 	<head>
 		<title>Varyings</title>
 
-		<!-- Prevent browser console from complaining. -->
+		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1, maximum-scale=1"
-		/>
+		<link rel="icon" href="./favicon.ico" />
+
+		<!-- Spector.js. -->
+		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
 
 		<!-- Test script. -->
 		<script type="module">
@@ -169,6 +169,9 @@ void main() {
 
 			// Start after the canvases finish loading.
 			addEventListener("load", () => {
+				// Set up Spector.js.
+				new SPECTOR.Spector().displayUI();
+
 				// Set up both rendering contexts, get separate update functions.
 				const rawUpdate = raw(document.querySelector("canvas#raw"));
 				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
@@ -185,17 +188,26 @@ void main() {
 			});
 		</script>
 
-		<!-- Canvas visibility. -->
+		<!-- Canvas visibility style. -->
 		<style>
+			/* Make canvases more visible. */
 			canvas {
 				border: 1px solid black;
 				width: 512px;
 				height: 512px;
 			}
+
+			/** Display canvases below the Spector.js UI. */
+			div#canvas-wrapper {
+				text-align: center;
+				padding-top: 120px;
+			}
 		</style>
 	</head>
 	<body>
-		<canvas id="raw"></canvas>
-		<canvas id="ugl"></canvas>
+		<div id="canvas-wrapper">
+			<canvas id="raw"></canvas>
+			<canvas id="ugl"></canvas>
+		</div>
 	</body>
 </html>
