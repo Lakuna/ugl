@@ -2,6 +2,7 @@ import type AttributeValue from "../../../types/AttributeValue.js";
 import type Buffer from "../../buffers/Buffer.js";
 import BufferTarget from "../../../constants/BufferTarget.js";
 import type Program from "../../Program.js";
+import Vao from "../../Vao.js";
 import Variable from "../Variable.js";
 
 /** An input variable for a vertex shader. */
@@ -16,6 +17,7 @@ export default abstract class Attribute extends Variable {
 		super(program);
 		this.activeInfo = activeInfo;
 		this.location = this.gl.getAttribLocation(program.internal, this.name);
+		this.enabledVaosCache = [];
 	}
 
 	/**
@@ -42,12 +44,12 @@ export default abstract class Attribute extends Variable {
 	protected abstract setterInternal(value: AttributeValue): void;
 
 	/**
-	 * Whether or not this attribute can read data from a buffer.
+	 * The VAOs for which this attribute can read data from a buffer.
 	 * @see [`enableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/enableVertexAttribArray)
 	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
 	 * @internal
 	 */
-	private enabledCache?: boolean;
+	private enabledVaosCache: WebGLVertexArrayObject[];
 
 	/**
 	 * Get whether or not this attribute can read data from a buffer.
@@ -55,7 +57,12 @@ export default abstract class Attribute extends Variable {
 	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
 	 */
 	public get enabled() {
-		return (this.enabledCache ??= false);
+		const vao = Vao.getBound(this.gl);
+		if (vao === null) {
+			return false;
+		}
+
+		return this.enabledVaosCache.includes(vao);
 	}
 
 	/**
@@ -68,12 +75,22 @@ export default abstract class Attribute extends Variable {
 			return;
 		}
 
+		const vao = Vao.getBound(this.gl);
+
+		// Enable.
 		if (value) {
 			this.gl.enableVertexAttribArray(this.location);
-		} else {
-			this.gl.disableVertexAttribArray(this.location);
+			if (vao !== null && !this.enabledVaosCache.includes(vao)) {
+				this.enabledVaosCache.push(vao);
+			}
+			return;
 		}
-		this.enabledCache = value;
+
+		// Disable.
+		this.gl.disableVertexAttribArray(this.location);
+		if (vao !== null && this.enabledVaosCache.includes(vao)) {
+			this.enabledVaosCache.splice(this.enabledVaosCache.indexOf(vao), 1);
+		}
 	}
 
 	/**

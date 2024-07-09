@@ -173,7 +173,7 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Determine the most desirable texture unit to bind to.
+	 * Determine the most desirable (least-recently used) texture unit to bind to.
 	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @param texture - The texture to be bound.
@@ -214,7 +214,7 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Get the currently-bound texture for a binding point.
 	 * @param context - The rendering context.
-	 * @param requestedTextureUnit - The texture unit, or `undefined` for the current texture unit.
+	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @returns The texture.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
@@ -251,7 +251,7 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Bind a texture to a binding point.
 	 * @param context - The rendering context.
-	 * @param requestedTextureUnit - The texture unit, or `undefined` for the current texture unit.
+	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @param texture - The texture.
 	 * @returns The used texture unit.
@@ -1349,7 +1349,7 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Bind this texture to its binding point.
-	 * @param textureUnit - The texture unit, or `undefined` for the default texture unit.
+	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @returns The used texture unit.
 	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
