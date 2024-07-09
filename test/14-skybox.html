@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Lighting</title>
+		<title>Skybox</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -16,9 +16,12 @@
 			import {
 				Buffer,
 				Context,
+				CubemapFace,
 				ElementArrayBuffer,
 				PolygonDirection,
 				Program,
+				TestFunction,
+				TextureCubemap,
 				Vao
 			} from "../dist/index.js";
 
@@ -90,42 +93,6 @@
 			}
 
 			// https://umath.lakuna.pw/
-			function rotateX(matrix, radians, out) {
-				const s = Math.sin(radians);
-				const c = Math.cos(radians);
-
-				const a10 = matrix[4];
-				const a11 = matrix[5];
-				const a12 = matrix[6];
-				const a13 = matrix[7];
-				const a20 = matrix[8];
-				const a21 = matrix[9];
-				const a22 = matrix[10];
-				const a23 = matrix[11];
-
-				if (out != matrix) {
-					out[0] = matrix[0];
-					out[1] = matrix[1];
-					out[2] = matrix[2];
-					out[3] = matrix[3];
-					out[12] = matrix[12];
-					out[13] = matrix[13];
-					out[14] = matrix[14];
-					out[15] = matrix[15];
-				}
-
-				out[4] = a10 * c + a20 * s;
-				out[5] = a11 * c + a21 * s;
-				out[6] = a12 * c + a22 * s;
-				out[7] = a13 * c + a23 * s;
-				out[8] = a20 * c - a10 * s;
-				out[9] = a21 * c - a11 * s;
-				out[10] = a22 * c - a12 * s;
-				out[11] = a23 * c - a13 * s;
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
 			function rotateY(matrix, radians, out) {
 				const s = Math.sin(radians);
 				const c = Math.cos(radians);
@@ -158,6 +125,42 @@
 				out[9] = a01 * s + a21 * c;
 				out[10] = a02 * s + a22 * c;
 				out[11] = a03 * s + a23 * c;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function rotateZ(matrix, radians, out) {
+				const s = Math.sin(radians);
+				const c = Math.cos(radians);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+
+				if (out != matrix) {
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c + a10 * s;
+				out[1] = a01 * c + a11 * s;
+				out[2] = a02 * c + a12 * s;
+				out[3] = a03 * c + a13 * s;
+				out[4] = a10 * c - a00 * s;
+				out[5] = a11 * c - a01 * s;
+				out[6] = a12 * c - a02 * s;
+				out[7] = a13 * c - a03 * s;
 				return out;
 			}
 
@@ -320,6 +323,14 @@
 			}
 
 			// https://umath.lakuna.pw/
+			function getTranslation(matrix, out) {
+				out[0] = matrix[12];
+				out[1] = matrix[13];
+				out[2] = matrix[14];
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
 			function normalFromMatrix4(matrix, out) {
 				const a00 = matrix[0];
 				const a01 = matrix[1];
@@ -371,10 +382,26 @@
 			}
 
 			// https://umath.lakuna.pw/
-			function getTranslation(matrix, out) {
-				out[0] = matrix[12];
-				out[1] = matrix[13];
-				out[2] = matrix[14];
+			function setTranslation(matrix, translation, out) {
+				if (out != matrix) {
+					out[0] = matrix[0];
+					out[1] = matrix[1];
+					out[2] = matrix[2];
+					out[3] = matrix[3];
+					out[4] = matrix[4];
+					out[5] = matrix[5];
+					out[6] = matrix[6];
+					out[7] = matrix[7];
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[15] = matrix[15];
+				}
+
+				out[12] = translation[0];
+				out[13] = translation[1];
+				out[14] = translation[2];
 				return out;
 			}
 
@@ -387,20 +414,15 @@ in vec3 a_normal;
 uniform mat4 u_viewProjMat;
 uniform mat4 u_worldMat;
 uniform mat3 u_normalMat;
-uniform vec3 u_lightPos;
-uniform vec3 u_camPos;
 
 out vec3 v_normal;
-out vec3 v_dirToLight;
-out vec3 v_dirToCam;
+out vec3 v_surfacePos;
 
 void main() {
 	vec4 worldPos = u_worldMat * a_position;
 	gl_Position = u_viewProjMat * worldPos;
 	v_normal = u_normalMat * a_normal;
-	vec3 surfacePos = worldPos.xyz;
-	v_dirToLight = u_lightPos - surfacePos;
-	v_dirToCam = u_camPos - surfacePos;
+	v_surfacePos = worldPos.xyz;
 }
 `;
 
@@ -410,47 +432,72 @@ void main() {
 precision mediump float;
 
 in vec3 v_normal;
-in vec3 v_dirToLight;
-in vec3 v_dirToCam;
+in vec3 v_surfacePos;
 
-uniform vec4 u_color;
-uniform float u_dullness;
+uniform samplerCube u_texture;
+uniform vec3 u_camPos;
 
 out vec4 outColor;
 
 void main() {
 	vec3 normal = normalize(v_normal);
-	vec3 dirToLight = normalize(v_dirToLight);
-	vec3 dirToCam = normalize(v_dirToCam);
-	vec3 halfVector = normalize(dirToLight + dirToCam);
-
-	float pointBrightness = dot(normal, dirToLight);
-	float specularBrightness = pointBrightness >= 0.0
-		? pow(dot(normal, halfVector), u_dullness)
-		: 0.0;
-
-	outColor = u_color;
-	outColor.rgb *= pointBrightness;
-	outColor.rgb += specularBrightness;
+	vec3 camToSurfaceDir = normalize(v_surfacePos - u_camPos);
+	vec3 reflectDir = reflect(camToSurfaceDir, normal);
+	outColor = texture(u_texture, reflectDir);
 }
 `;
 
-			const positionData = new Float32Array([
+			const skyboxVss = `\
+#version 300 es
+
+in vec4 a_position;
+
+out vec4 v_position;
+
+void main() {
+	gl_Position = a_position;
+	gl_Position.z = 1.0;
+	v_position = a_position;
+}
+`;
+
+			const skyboxFss = `\
+#version 300 es
+
+precision mediump float;
+
+in vec4 v_position;
+
+uniform samplerCube u_texture;
+uniform mat4 u_invViewDirProjMat;
+
+out vec4 outColor;
+
+void main() {
+	vec4 t = u_invViewDirProjMat * v_position;
+	vec3 skyboxNormal = normalize(t.xyz / t.w);
+	outColor = texture(u_texture, skyboxNormal);
+}
+`;
+
+			const cubePositionData = new Float32Array([
 				-1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, -1,
 				-1, 1, -1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
 				1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1,
 				1, -1, -1, -1, 1, -1, -1, 1, -1, 1
 			]);
-			const normalData = new Float32Array([
+			const cubeNormalData = new Float32Array([
 				0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
 				-1, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
 				1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
 				0, 0, -1, 0
 			]);
-			const indexData = new Uint8Array([
+			const cubeIndexData = new Uint8Array([
 				0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12,
 				14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
 			]);
+			const planePositionData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
+			const planeIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
 			function raw(canvas) {
@@ -481,53 +528,197 @@ void main() {
 					throw new Error(gl.getProgramInfoLog(program));
 				}
 
+				// Vertex shader.
+				const skyboxVs = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(skyboxVs, skyboxVss);
+				gl.compileShader(skyboxVs);
+				if (!gl.getShaderParameter(skyboxVs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(skyboxVs));
+				}
+
+				// Fragment shader.
+				const skyboxFs = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(skyboxFs, skyboxFss);
+				gl.compileShader(skyboxFs);
+				if (!gl.getShaderParameter(skyboxFs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(skyboxFs));
+				}
+
+				// Shader program.
+				const skyboxProgram = gl.createProgram();
+				gl.attachShader(skyboxProgram, skyboxVs);
+				gl.attachShader(skyboxProgram, skyboxFs);
+				gl.linkProgram(skyboxProgram);
+				if (!gl.getProgramParameter(skyboxProgram, gl.LINK_STATUS)) {
+					throw new Error(gl.getProgramInfoLog(skyboxProgram));
+				}
+
 				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
 				const normalLoc = gl.getAttribLocation(program, "a_normal");
 				const viewProjMatLoc = gl.getUniformLocation(program, "u_viewProjMat");
 				const worldMatLoc = gl.getUniformLocation(program, "u_worldMat");
 				const normalMatLoc = gl.getUniformLocation(program, "u_normalMat");
-				const lightPosLoc = gl.getUniformLocation(program, "u_lightPos");
+				const textureLoc = gl.getUniformLocation(program, "u_texture");
 				const camPosLoc = gl.getUniformLocation(program, "u_camPos");
-				const colorLoc = gl.getUniformLocation(program, "u_color");
-				const dullnessLoc = gl.getUniformLocation(program, "u_dullness");
+				const skyboxPosLoc = gl.getAttribLocation(skyboxProgram, "a_position");
+				const skyboxTexLoc = gl.getUniformLocation(skyboxProgram, "u_texture");
+				const skyboxInvViewDirProjMatLoc = gl.getUniformLocation(
+					skyboxProgram,
+					"u_invViewDirProjMat"
+				);
 
 				// Create buffers.
-				const positionBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
+				const cubePositionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, cubePositionData, gl.STATIC_DRAW);
 
-				const normalBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, normalData, gl.STATIC_DRAW);
+				const cubeNormalBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, cubeNormalBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, cubeNormalData, gl.STATIC_DRAW);
 
-				const indexBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
+				const cubeIndexBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndexData, gl.STATIC_DRAW);
+
+				const planePositionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, planePositionData, gl.STATIC_DRAW);
+
+				const planeIndexBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, planeIndexData, gl.STATIC_DRAW);
 
 				// Create VAOs.
-				const vao = gl.createVertexArray();
-				gl.bindVertexArray(vao);
+				const cubeVao = gl.createVertexArray();
+				gl.bindVertexArray(cubeVao);
 				gl.enableVertexAttribArray(positionLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionBuffer);
 				gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
 				gl.enableVertexAttribArray(normalLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+				gl.bindBuffer(gl.ARRAY_BUFFER, cubeNormalBuffer);
 				gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+
+				const planeVao = gl.createVertexArray();
+				gl.bindVertexArray(planeVao);
+				gl.enableVertexAttribArray(skyboxPosLoc);
+				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
+				gl.vertexAttribPointer(skyboxPosLoc, 2, gl.FLOAT, false, 0, 0);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
+
+				// Texture initialization.
+				const texture = gl.createTexture();
+				gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				gl.texImage2D(
+					gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+					0,
+					gl.RGBA,
+					1,
+					1,
+					0,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0x00, 0xff, 0xff])
+				);
+				const loadedImages = new Map();
+				for (const [face, url] of [
+					[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "./assets/emap/px.png"],
+					[gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "./assets/emap/nx.png"],
+					[gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "./assets/emap/py.png"],
+					[gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "./assets/emap/ny.png"],
+					[gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "./assets/emap/pz.png"],
+					[gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "./assets/emap/nz.png"]
+				]) {
+					const image = new Image();
+					image.addEventListener("load", () => {
+						loadedImages.set(face, image);
+
+						if (loadedImages.size >= 6) {
+							for (const [otherFace, otherImage] of loadedImages) {
+								gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+								gl.texImage2D(
+									otherFace,
+									0,
+									gl.RGBA,
+									gl.RGBA,
+									gl.UNSIGNED_BYTE,
+									otherImage
+								);
+							}
+
+							gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+						}
+					});
+					image.crossOrigin = "";
+					image.src = url;
+				}
 
 				// Transformation initialization.
 				const camMat = createMatrix4Like();
-				identity(camMat);
-				rotateX(camMat, -Math.PI / 5, camMat);
-				translate(camMat, [0, 0, 5], camMat);
 				const viewMat = createMatrix4Like();
-				invert(camMat, viewMat);
+				const viewDirMat = createMatrix4Like();
 				const camPos = createVector3Like();
-				getTranslation(camMat, camPos);
 				const worldMat = createMatrix4Like();
 				const projMat = createMatrix4Like();
 				const viewProjMat = createMatrix4Like();
+				const viewDirProjMat = createMatrix4Like();
+				const invViewDirProjMat = createMatrix4Like();
 				const normalMat = createMatrix3Like();
 
 				return function (now) {
@@ -541,6 +732,7 @@ void main() {
 					gl.enable(gl.CULL_FACE);
 					gl.cullFace(gl.BACK);
 					gl.enable(gl.DEPTH_TEST);
+					gl.depthFunc(gl.LEQUAL);
 					gl.clearDepth(1);
 
 					// Clear the canvas.
@@ -554,28 +746,55 @@ void main() {
 						10,
 						projMat
 					);
+					identity(camMat);
+					rotateY(camMat, now * 0.0001, camMat);
+					translate(camMat, [0, 0, 5], camMat);
+					getTranslation(camMat, camPos);
+					invert(camMat, viewMat);
+					setTranslation(viewMat, [0, 0, 0], viewDirMat);
 					multiply(projMat, viewMat, viewProjMat);
+					multiply(projMat, viewDirMat, viewDirProjMat);
+					invert(viewDirProjMat, invViewDirProjMat);
 					identity(worldMat);
-					rotateY(worldMat, now * 0.001, worldMat);
+					rotateZ(worldMat, now * 0.0002, worldMat);
 					normalFromMatrix4(worldMat, normalMat);
 
 					// Use the program.
 					gl.useProgram(program);
 
 					// Bind the VAO.
-					gl.bindVertexArray(vao);
+					gl.bindVertexArray(cubeVao);
 
 					// Set uniform values.
 					gl.uniformMatrix4fv(viewProjMatLoc, false, viewProjMat);
 					gl.uniformMatrix4fv(worldMatLoc, false, worldMat);
 					gl.uniformMatrix3fv(normalMatLoc, false, normalMat);
-					gl.uniform3fv(lightPosLoc, [1, 1.4, 2]);
 					gl.uniform3fv(camPosLoc, camPos);
-					gl.uniform4fv(colorLoc, [1, 1, 1, 1]);
-					gl.uniform1f(dullnessLoc, 5);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+					gl.uniform1i(textureLoc, 0);
 
 					// Rasterize.
 					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
+
+					// Use the program.
+					gl.useProgram(skyboxProgram);
+
+					// Bind the VAO.
+					gl.bindVertexArray(planeVao);
+
+					// Set uniform values.
+					gl.uniformMatrix4fv(
+						skyboxInvViewDirProjMatLoc,
+						false,
+						invViewDirProjMat
+					);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+					gl.uniform1i(skyboxTexLoc, 0);
+
+					// Rasterize.
+					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
 				};
 			}
 
@@ -585,31 +804,51 @@ void main() {
 
 				// Vertex shader, fragment shader, shader program, get variable locations.
 				const program = Program.fromSource(context, vss, fss);
+				const skyboxProgram = Program.fromSource(context, skyboxVss, skyboxFss);
 
 				// Create buffers.
-				const positionBuffer = new Buffer(context, positionData);
-				const normalBuffer = new Buffer(context, normalData);
-				const indexBuffer = new ElementArrayBuffer(context, indexData);
+				const cubePositionBuffer = new Buffer(context, cubePositionData);
+				const cubeNormalBuffer = new Buffer(context, cubeNormalData);
+				const cubeIndexBuffer = new ElementArrayBuffer(context, cubeIndexData);
+				const planePositionBuffer = new Buffer(context, planePositionData);
+				const planeIndexBuffer = new ElementArrayBuffer(
+					context,
+					planeIndexData
+				);
 
 				// Create VAOs.
-				const vao = new Vao(
+				const cubeVao = new Vao(
 					program,
-					{ a_position: positionBuffer, a_normal: normalBuffer },
-					indexBuffer
+					{ a_position: cubePositionBuffer, a_normal: cubeNormalBuffer },
+					cubeIndexBuffer
+				);
+				const planeVao = new Vao(
+					skyboxProgram,
+					{ a_position: { buffer: planePositionBuffer, size: 2 } },
+					planeIndexBuffer
+				);
+
+				// Texture initialization.
+				const texture = TextureCubemap.fromImageUrls(
+					context,
+					"./assets/emap/px.png",
+					"./assets/emap/nx.png",
+					"./assets/emap/py.png",
+					"./assets/emap/ny.png",
+					"./assets/emap/pz.png",
+					"./assets/emap/nz.png"
 				);
 
 				// Transformation initialization.
 				const camMat = createMatrix4Like();
-				identity(camMat);
-				rotateX(camMat, -Math.PI / 5, camMat);
-				translate(camMat, [0, 0, 5], camMat);
 				const viewMat = createMatrix4Like();
-				invert(camMat, viewMat);
+				const viewDirMat = createMatrix4Like();
 				const camPos = createVector3Like();
-				getTranslation(camMat, camPos);
 				const worldMat = createMatrix4Like();
 				const projMat = createMatrix4Like();
 				const viewProjMat = createMatrix4Like();
+				const viewDirProjMat = createMatrix4Like();
+				const invViewDirProjMat = createMatrix4Like();
 				const normalMat = createMatrix3Like();
 
 				return function (now) {
@@ -618,6 +857,7 @@ void main() {
 					context.doCullFace = true;
 					context.cullFace = PolygonDirection.BACK;
 					context.doDepthTest = true;
+					context.depthFunction = TestFunction.LEQUAL;
 					context.clear([0, 0, 0, 0], 1, false);
 
 					// Transformation update.
@@ -628,20 +868,30 @@ void main() {
 						10,
 						projMat
 					);
+					identity(camMat);
+					rotateY(camMat, now * 0.0001, camMat);
+					translate(camMat, [0, 0, 5], camMat);
+					getTranslation(camMat, camPos);
+					invert(camMat, viewMat);
+					setTranslation(viewMat, [0, 0, 0], viewDirMat);
 					multiply(projMat, viewMat, viewProjMat);
+					multiply(projMat, viewDirMat, viewDirProjMat);
+					invert(viewDirProjMat, invViewDirProjMat);
 					identity(worldMat);
-					rotateY(worldMat, now * 0.001, worldMat);
+					rotateZ(worldMat, now * 0.0002, worldMat);
 					normalFromMatrix4(worldMat, normalMat);
 
 					// Use the program, bind the VAO, set uniform values, rasterize.
-					vao.draw({
+					cubeVao.draw({
 						u_viewProjMat: viewProjMat,
 						u_worldMat: worldMat,
 						u_normalMat: normalMat,
-						u_lightPos: [1, 1.4, 2],
 						u_camPos: camPos,
-						u_color: [1, 1, 1, 1],
-						u_dullness: 5
+						u_texture: texture
+					});
+					planeVao.draw({
+						u_invViewDirProjMat: invViewDirProjMat,
+						u_texture: texture
 					});
 				};
 			}

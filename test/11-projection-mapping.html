@@ -448,12 +448,6 @@ void main() {
 				if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
 					throw new Error(gl.getShaderInfoLog(vs));
 				}
-				const solidVs = gl.createShader(gl.VERTEX_SHADER);
-				gl.shaderSource(solidVs, solidVss);
-				gl.compileShader(solidVs);
-				if (!gl.getShaderParameter(solidVs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(solidVs));
-				}
 
 				// Fragment shader.
 				const fs = gl.createShader(gl.FRAGMENT_SHADER);
@@ -461,12 +455,6 @@ void main() {
 				gl.compileShader(fs);
 				if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
 					throw new Error(gl.getShaderInfoLog(fs));
-				}
-				const solidFs = gl.createShader(gl.FRAGMENT_SHADER);
-				gl.shaderSource(solidFs, solidFss);
-				gl.compileShader(solidFs);
-				if (!gl.getShaderParameter(solidFs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(solidFs));
 				}
 
 				// Shader program.
@@ -477,6 +465,24 @@ void main() {
 				if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(program));
 				}
+
+				// Vertex shader.
+				const solidVs = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(solidVs, solidVss);
+				gl.compileShader(solidVs);
+				if (!gl.getShaderParameter(solidVs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(solidVs));
+				}
+
+				// Fragment shader.
+				const solidFs = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(solidFs, solidFss);
+				gl.compileShader(solidFs);
+				if (!gl.getShaderParameter(solidFs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(solidFs));
+				}
+
+				// Shader program.
 				const solidProgram = gl.createProgram();
 				gl.attachShader(solidProgram, solidVs);
 				gl.attachShader(solidProgram, solidFs);
