@@ -1209,8 +1209,8 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Resize this rendering context's canvas' drawing buffer to match its physical size, resizes the viewport and scissor box to match the given size, and enables the scissor test if necessary.
-	 * @param rectangle - The rectangle that represents the viewport and scissor box, or `undefined` to match the viewport to the drawing buffer and disable the scissor test.
+	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
+	 * @param rectangle - The rectangle that represents the viewport, or `undefined` to match the viewport to the drawing buffer.
 	 * @returns Whether or not the drawing buffer was resized.
 	 * @throws {@link UnsupportedOperationError}
 	 */
@@ -1223,10 +1223,8 @@ export default class Context extends ApiInterface {
 
 		if (typeof rectangle === "undefined") {
 			this.fitViewport();
-			this.doScissorTest = false;
 		} else {
 			this.viewport = rectangle;
-			this.scissorBox = rectangle;
 		}
 
 		return out;

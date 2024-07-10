@@ -394,7 +394,7 @@ export default class Framebuffer extends ContextDependent {
 				attachmentValue,
 				mipmapTarget,
 				data.internal,
-				level
+				0 // `level` must be zero.
 			);
 		}
 
