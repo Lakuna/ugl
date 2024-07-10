@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check-Out Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set Up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Install Dependencies
         run: npm ci
       - name: Lint
