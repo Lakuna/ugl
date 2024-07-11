@@ -2,7 +2,7 @@
  * Binding points for textures.
  * @internal
  */
-enum TextureTarget {
+const enum TextureTarget {
 	/** A two-dimensional texture. */
 	TEXTURE_2D = 0x0de1,
 

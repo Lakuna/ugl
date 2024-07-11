@@ -2,7 +2,7 @@
  * Blending functions.
  * @public
  */
-enum BlendFunction {
+const enum BlendFunction {
 	/** Multiply all colors by zero. */
 	ZERO = 0,
 

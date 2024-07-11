@@ -2,7 +2,7 @@
  * Blending equations.
  * @public
  */
-enum BlendEquation {
+const enum BlendEquation {
 	/** Add the destination to the source. */
 	FUNC_ADD = 0x8006,
 

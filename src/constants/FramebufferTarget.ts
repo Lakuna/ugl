@@ -2,7 +2,7 @@
  * Binding points for framebuffers.
  * @internal
  */
-enum FramebufferTarget {
+const enum FramebufferTarget {
 	/** Used as a destination for drawing, rendering, clearing, and writing operations, and as a source for reading operations. */
 	FRAMEBUFFER = 0x8d40,
 

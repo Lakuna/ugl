@@ -2,7 +2,7 @@
  * Compressed unsized formats for the color components in a texture.
  * @public
  */
-enum TextureCompressedUnsizedInternalFormat {
+const enum TextureCompressedUnsizedInternalFormat {
 	/** A DXT1-compressed image in an RGB image format. */
 	COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83f0,
 

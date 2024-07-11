@@ -2,7 +2,7 @@
  * Unsized internal formats for the color components in a texture.
  * @public
  */
-enum TextureUncompressedUnsizedInternalFormat {
+const enum TextureUncompressedUnsizedInternalFormat {
 	/** Color renderable and texture filterable. `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. */
 	RGB = 0x1907,
 

@@ -4,7 +4,7 @@
  * Formats for the color components in a texture.
  * @internal
  */
-enum TextureFormat {
+const enum TextureFormat {
 	/** Each element is a red/green/blue triple. Fixed-point normalized components are converted to floating-point, clamped to `[0,1]`, and assembled into an RGBA element by using `1` for alpha. */
 	RGB = 0x1907,
 

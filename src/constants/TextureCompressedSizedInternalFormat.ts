@@ -2,7 +2,7 @@
  * Compressed sized formats for the color components in a texture.
  * @public
  */
-enum TextureCompressedSizedInternalFormat {
+const enum TextureCompressedSizedInternalFormat {
 	/** One-channel unsigned format compression. */
 	COMPRESSED_R11_EAC = 0x9270,
 

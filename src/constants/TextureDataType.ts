@@ -2,7 +2,7 @@
  * Data types for texel data.
  * @public
  */
-enum TextureDataType {
+const enum TextureDataType {
 	/** Unsigned 8-bit integer data. */
 	UNSIGNED_BYTE = 0x1401,
 

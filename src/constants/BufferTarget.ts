@@ -2,7 +2,7 @@
  * Binding points for buffers.
  * @internal
  */
-enum BufferTarget {
+const enum BufferTarget {
 	/** A buffer containing vertex attributes. */
 	ARRAY_BUFFER = 0x8892,
 

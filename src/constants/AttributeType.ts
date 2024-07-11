@@ -2,7 +2,7 @@
  * Types of attributes.
  * @public
  */
-enum AttributeType {
+const enum AttributeType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

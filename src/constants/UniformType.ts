@@ -4,7 +4,7 @@
  * Types of uniforms.
  * @public
  */
-enum UniformType {
+const enum UniformType {
 	/** A 32-bit signed floating-point value. */
 	FLOAT = 0x1406,
 

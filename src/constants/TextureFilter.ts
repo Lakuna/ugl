@@ -2,7 +2,7 @@
  * Minification and magnification filters for textures.
  * @public
  */
-enum TextureFilter {
+const enum TextureFilter {
 	/** Choose one pixel from the largest mip. */
 	NEAREST = 0x2600,
 

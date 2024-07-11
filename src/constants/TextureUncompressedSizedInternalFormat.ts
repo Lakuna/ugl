@@ -2,7 +2,7 @@
  * Sized internal formats for the color components in a texture.
  * @public
  */
-enum TextureUncompressedSizedInternalFormat {
+const enum TextureUncompressedSizedInternalFormat {
 	/** Takes an 8-bit number for the red channel, normalized to `[0,1]`. Color renderable and texture filterable. `format` must be `RED`. `type` must be `UNSIGNED_BYTE`. */
 	R8 = 0x8229,
 

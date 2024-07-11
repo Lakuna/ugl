@@ -2,7 +2,7 @@
  * Wrapping functions for textures.
  * @public
  */
-enum WrapMode {
+const enum WrapMode {
 	/** The texture repeats after it ends. */
 	REPEAT = 0x2901,
 

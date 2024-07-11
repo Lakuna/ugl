@@ -2,7 +2,7 @@
  * Directions that a polygon can face relative to the camera.
  * @public
  */
-enum Face {
+const enum Face {
 	/** A front-facing polygon. */
 	FRONT = 0x0404,
 

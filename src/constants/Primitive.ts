@@ -2,7 +2,7 @@
  * Types of primitives that can be rasterized.
  * @public
  */
-enum Primitive {
+const enum Primitive {
 	/** Draws a dot at each vertex. */
 	POINTS = 0x0000,
 

@@ -2,7 +2,7 @@
  * Framebuffer statuses.
  * @public
  */
-enum FramebufferStatus {
+const enum FramebufferStatus {
 	/** The framebuffer is ready to display. */
 	FRAMEBUFFER_COMPLETE = 0x8cd5,
 
