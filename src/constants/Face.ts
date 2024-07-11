@@ -1,10 +1,8 @@
-// TODO: Rename to `Face`.
-
 /**
  * Directions that a polygon can face relative to the camera.
  * @public
  */
-enum PolygonDirection {
+enum Face {
 	/** A front-facing polygon. */
 	FRONT = 0x0404,
 
@@ -15,4 +13,4 @@ enum PolygonDirection {
 	FRONT_AND_BACK = 0x0408
 }
 
-export default PolygonDirection;
+export default Face;

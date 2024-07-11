@@ -1,10 +1,8 @@
-// TODO: Rename to `Orientation`.
-
 /**
  * Winding orientations.
  * @public
  */
-enum WindingOrientation {
+enum Orientation {
 	/** Clockwise. */
 	CW = 0x0900,
 
@@ -12,4 +10,4 @@ enum WindingOrientation {
 	CCW = 0x0901
 }
 
-export default WindingOrientation;
+export default Orientation;

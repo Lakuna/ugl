@@ -10,10 +10,10 @@ import {
 import type Attribute from "./variables/attributes/Attribute.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
+import MergeOrder from "../constants/MergeOrder.js";
 import ProgramLinkError from "../utility/ProgramLinkError.js";
 import Shader from "./Shader.js";
 import ShaderType from "../constants/ShaderType.js";
-import TransformFeedbackBufferMode from "../constants/TransformFeedbackBufferMode.js";
 import type Uniform from "./variables/uniforms/Uniform.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import Varying from "./variables/Varying.js";
@@ -138,7 +138,7 @@ export default class Program extends ContextDependent {
 		fragmentShader: Shader,
 		attributeLocations?: Map<string, number>,
 		feedbackVaryings: Iterable<string> = [],
-		feedbackMode: TransformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS
+		feedbackMode: MergeOrder = MergeOrder.SEPARATE_ATTRIBS
 	) {
 		if (vertexShader.gl !== fragmentShader.gl) {
 			throw new ProgramLinkError(

@@ -1,5 +1,3 @@
-// TODO: Rename to `IndexBuffer`.
-
 import BufferParent from "./BufferParent.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
@@ -12,7 +10,7 @@ import Vao from "../Vao.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class ElementArrayBuffer extends BufferParent {
+export default class IndexBuffer extends BufferParent {
 	/**
 	 * The currently-bound element array buffer cache.
 	 * @internal
@@ -28,7 +26,7 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @internal
 	 */
 	private static getBindingsCache() {
-		return (ElementArrayBuffer.bindingsCache ??= new Map());
+		return (IndexBuffer.bindingsCache ??= new Map());
 	}
 
 	/**
@@ -43,7 +41,7 @@ export default class ElementArrayBuffer extends BufferParent {
 		vao: WebGLVertexArrayObject | null
 	) {
 		// Get the buffer bindings cache.
-		const bindingsCache = ElementArrayBuffer.getBindingsCache();
+		const bindingsCache = IndexBuffer.getBindingsCache();
 
 		// Get the bound buffer.
 		let boundBuffer = bindingsCache.get(vao);
@@ -71,7 +69,7 @@ export default class ElementArrayBuffer extends BufferParent {
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (ElementArrayBuffer.getBound(gl, vao) === buffer) {
+		if (IndexBuffer.getBound(gl, vao) === buffer) {
 			return;
 		}
 
@@ -80,7 +78,7 @@ export default class ElementArrayBuffer extends BufferParent {
 
 		// Bind the buffer to the target.
 		gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
-		ElementArrayBuffer.getBindingsCache().set(vao, buffer);
+		IndexBuffer.getBindingsCache().set(vao, buffer);
 	}
 
 	/**
@@ -98,13 +96,13 @@ export default class ElementArrayBuffer extends BufferParent {
 		// Do nothing if the buffer is already unbound.
 		if (
 			typeof buffer !== "undefined" &&
-			ElementArrayBuffer.getBound(gl, vao) !== buffer
+			IndexBuffer.getBound(gl, vao) !== buffer
 		) {
 			return;
 		}
 
 		// Unbind the buffer.
-		ElementArrayBuffer.bindGl(gl, vao, null);
+		IndexBuffer.bindGl(gl, vao, null);
 	}
 
 	/**
@@ -140,7 +138,7 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @internal
 	 */
 	public override bind(vao?: Vao) {
-		ElementArrayBuffer.bindGl(
+		IndexBuffer.bindGl(
 			this.gl,
 			vao?.internal ?? Vao.getBound(this.gl),
 			this.internal
@@ -153,7 +151,7 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @internal
 	 */
 	public override unbind(vao?: Vao) {
-		ElementArrayBuffer.unbindGl(
+		IndexBuffer.unbindGl(
 			this.gl,
 			vao?.internal ?? Vao.getBound(this.gl),
 			this.internal

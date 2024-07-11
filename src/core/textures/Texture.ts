@@ -15,7 +15,7 @@ import {
 import Buffer from "../buffers/Buffer.js";
 import type Context from "../Context.js";
 import ContextDependent from "../internal/ContextDependent.js";
-import type CubemapFace from "../../constants/CubemapFace.js";
+import type CubeFace from "../../constants/CubeFace.js";
 import Extension from "../../constants/Extension.js";
 import Framebuffer from "../Framebuffer.js";
 import ImmutableError from "../../utility/ImmutableError.js";
@@ -32,8 +32,8 @@ import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js
 import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
 import type TextureTarget from "../../constants/TextureTarget.js";
 import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUncompressedUnsizedInternalFormat.js";
-import type TextureWrapFunction from "../../constants/TextureWrapFunction.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import type WrapMode from "../../constants/WrapMode.js";
 import getExtensionForTextureInternalFormat from "../../utility/internal/getExtensionForTextureInternalFormat.js";
 import getMipmapTargetForCubemapFace from "../../utility/internal/getMipmapTargetForCubemapFace.js";
 import getParameterForTextureTarget from "../../utility/internal/getParameterForTextureTarget.js";
@@ -548,7 +548,7 @@ export default abstract class Texture extends ContextDependent {
 	public setMip(
 		framebuffer: Framebuffer | null,
 		level?: number,
-		face?: CubemapFace,
+		face?: CubeFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
@@ -569,7 +569,7 @@ export default abstract class Texture extends ContextDependent {
 	public setMip(
 		buffer: Buffer,
 		level: number | undefined,
-		face: CubemapFace | undefined,
+		face: CubeFace | undefined,
 		bounds: Prism | Rectangle | undefined,
 		type: TextureDataType | undefined,
 		unpackAlignment: 1 | 2 | 4 | 8 | undefined,
@@ -589,7 +589,7 @@ export default abstract class Texture extends ContextDependent {
 	public setMip(
 		data?: TexImageSource,
 		level?: number,
-		face?: CubemapFace,
+		face?: CubeFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
@@ -609,7 +609,7 @@ export default abstract class Texture extends ContextDependent {
 	public setMip(
 		array: ArrayBufferView,
 		level?: number,
-		face?: CubemapFace,
+		face?: CubeFace,
 		bounds?: Prism | Rectangle,
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
@@ -620,7 +620,7 @@ export default abstract class Texture extends ContextDependent {
 	public setMip(
 		data?: Framebuffer | null | Buffer | TexImageSource | ArrayBufferView,
 		requestedLevel?: number,
-		face?: CubemapFace,
+		face?: CubeFace,
 		requestedBounds?: Prism | Rectangle,
 		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
@@ -895,15 +895,15 @@ export default abstract class Texture extends ContextDependent {
 	 * The wrapping function on the S-axis of this texture.
 	 * @internal
 	 */
-	private wrapSFunctionCache?: TextureWrapFunction;
+	private wrapSFunctionCache?: WrapMode;
 
 	/** The wrapping function on the S-axis of this texture. */
-	public get wrapSFunction(): TextureWrapFunction {
+	public get wrapSFunction(): WrapMode {
 		this.bind();
 		return (this.wrapSFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_S
-		) as TextureWrapFunction);
+		) as WrapMode);
 	}
 
 	public set wrapSFunction(value) {
@@ -920,15 +920,15 @@ export default abstract class Texture extends ContextDependent {
 	 * The wrapping function on the T-axis of this texture.
 	 * @internal
 	 */
-	private wrapTFunctionCache?: TextureWrapFunction;
+	private wrapTFunctionCache?: WrapMode;
 
 	/** The wrapping function on the T-axis of this texture. */
-	public get wrapTFunction(): TextureWrapFunction {
+	public get wrapTFunction(): WrapMode {
 		this.bind();
 		return (this.wrapTFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_T
-		) as TextureWrapFunction);
+		) as WrapMode);
 	}
 
 	public set wrapTFunction(value) {
@@ -1132,10 +1132,10 @@ export default abstract class Texture extends ContextDependent {
 	 * The wrapping function on the R-axis of this texture.
 	 * @internal
 	 */
-	private wrapRFunctionCache?: TextureWrapFunction;
+	private wrapRFunctionCache?: WrapMode;
 
 	/** The wrapping function on the R-axis of this texture. */
-	public get wrapRFunction(): TextureWrapFunction {
+	public get wrapRFunction(): WrapMode {
 		this.bind();
 		return (this.wrapRFunctionCache ??= this.gl.getTexParameter(
 			this.target,

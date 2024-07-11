@@ -1,7 +1,7 @@
 import type Buffer from "../buffers/Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import type Context from "../Context.js";
-import CubemapFace from "../../constants/CubemapFace.js";
+import CubeFace from "../../constants/CubeFace.js";
 import Framebuffer from "../Framebuffer.js";
 import FramebufferTarget from "../../constants/FramebufferTarget.js";
 import type MipmapTarget from "../../constants/MipmapTarget.js";
@@ -44,23 +44,23 @@ export default class TextureCubemap extends Texture {
 
 		// Fill each face with one magenta texel until the image loads.
 		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(magenta, 0, CubemapFace.PositiveX, [0, 0, 1, 1]);
-		out.setMip(magenta, 0, CubemapFace.NegativeX);
-		out.setMip(magenta, 0, CubemapFace.PositiveY);
-		out.setMip(magenta, 0, CubemapFace.NegativeY);
-		out.setMip(magenta, 0, CubemapFace.PositiveZ);
-		out.setMip(magenta, 0, CubemapFace.NegativeZ);
+		out.setMip(magenta, 0, CubeFace.PositiveX, [0, 0, 1, 1]);
+		out.setMip(magenta, 0, CubeFace.NegativeX);
+		out.setMip(magenta, 0, CubeFace.PositiveY);
+		out.setMip(magenta, 0, CubeFace.NegativeY);
+		out.setMip(magenta, 0, CubeFace.PositiveZ);
+		out.setMip(magenta, 0, CubeFace.NegativeZ);
 
 		// Load the images.
-		const loadedImages = new Map<CubemapFace, HTMLImageElement>();
+		const loadedImages = new Map<CubeFace, HTMLImageElement>();
 		for (const [face, url] of [
-			[CubemapFace.PositiveX, px],
-			[CubemapFace.NegativeX, nx],
-			[CubemapFace.PositiveY, py],
-			[CubemapFace.NegativeY, ny],
-			[CubemapFace.PositiveZ, pz],
-			[CubemapFace.NegativeZ, nz]
-		] as [CubemapFace, string][]) {
+			[CubeFace.PositiveX, px],
+			[CubeFace.NegativeX, nx],
+			[CubeFace.PositiveY, py],
+			[CubeFace.NegativeY, ny],
+			[CubeFace.PositiveZ, pz],
+			[CubeFace.NegativeZ, nz]
+		] as [CubeFace, string][]) {
 			const image = new Image();
 			image.addEventListener("load", () => {
 				loadedImages.set(face, image);

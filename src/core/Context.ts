@@ -46,21 +46,20 @@ import type BlendEquationSet from "../types/BlendEquationSet.js";
 import type BlendFunction from "../constants/BlendFunction.js";
 import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
 import type BlendFunctionSet from "../types/BlendFunctionSet.js";
-import type { Canvas } from "../types/Canvas.js";
 import type Color from "../types/Color.js";
 import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
 import type Extension from "../constants/Extension.js";
 import type { ExtensionObject } from "../types/ExtensionObject.js";
+import Face from "../constants/Face.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
-import PolygonDirection from "../constants/PolygonDirection.js";
+import type Orientation from "../constants/Orientation.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
 import type TestFunction from "../constants/TestFunction.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import WebglError from "../utility/WebglError.js";
-import type WindingOrientation from "../constants/WindingOrientation.js";
 
 /**
  * A WebGL2 rendering context.
@@ -79,10 +78,13 @@ export default class Context extends ApiInterface {
 	 * @param canvas - The canvas of the rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
 	 */
-	public constructor(canvas: Canvas, options?: WebGLContextAttributes);
+	public constructor(
+		canvas: HTMLCanvasElement | OffscreenCanvas,
+		options?: WebGLContextAttributes
+	);
 
 	public constructor(
-		source: WebGL2RenderingContext | Canvas,
+		source: WebGL2RenderingContext | HTMLCanvasElement | OffscreenCanvas,
 		options?: WebGLContextAttributes
 	) {
 		if (source instanceof WebGL2RenderingContext) {
@@ -106,7 +108,7 @@ export default class Context extends ApiInterface {
 	}
 
 	/** The canvas of this rendering context. */
-	public readonly canvas: Canvas;
+	public readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
@@ -563,13 +565,13 @@ export default class Context extends ApiInterface {
 	 * The direction that polygons should face if they are to be culled.
 	 * @internal
 	 */
-	private cullFaceCache?: PolygonDirection;
+	private cullFaceCache?: Face;
 
 	/**
 	 * The direction that polygons should face if they are to be culled.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
 	 */
-	public get cullFace(): PolygonDirection {
+	public get cullFace(): Face {
 		return (this.cullFaceCache ??= this.gl.getParameter(CULL_FACE_MODE));
 	}
 
@@ -839,12 +841,7 @@ export default class Context extends ApiInterface {
 			return;
 		}
 
-		this.gl.stencilFuncSeparate(
-			PolygonDirection.FRONT,
-			value[0],
-			value[1],
-			value[2]
-		);
+		this.gl.stencilFuncSeparate(Face.FRONT, value[0], value[1], value[2]);
 	}
 
 	/**
@@ -875,12 +872,7 @@ export default class Context extends ApiInterface {
 			return;
 		}
 
-		this.gl.stencilFuncSeparate(
-			PolygonDirection.BACK,
-			value[0],
-			value[1],
-			value[2]
-		);
+		this.gl.stencilFuncSeparate(Face.BACK, value[0], value[1], value[2]);
 	}
 
 	/**
@@ -939,13 +931,13 @@ export default class Context extends ApiInterface {
 	 * The winding orientation of front-facing polygons.
 	 * @internal
 	 */
-	private frontFaceCache?: WindingOrientation;
+	private frontFaceCache?: Orientation;
 
 	/**
 	 * The winding orientation of front-facing polygons.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
 	 */
-	public get frontFace(): WindingOrientation {
+	public get frontFace(): Orientation {
 		return (this.frontFaceCache ??= this.gl.getParameter(FRONT_FACE));
 	}
 

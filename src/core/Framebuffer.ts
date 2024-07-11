@@ -12,7 +12,7 @@ import {
 import BadValueError from "../utility/BadValueError.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
-import type CubemapFace from "../constants/CubemapFace.js";
+import type CubeFace from "../constants/CubeFace.js";
 import FramebufferAttachment from "../constants/FramebufferAttachment.js";
 import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
@@ -297,7 +297,7 @@ export default class Framebuffer extends ContextDependent {
 	public attach(
 		attachment: FramebufferAttachment | number,
 		texture: TextureCubemap,
-		face: CubemapFace,
+		face: CubeFace,
 		level?: number,
 		layer?: number
 	): void;
@@ -316,7 +316,7 @@ export default class Framebuffer extends ContextDependent {
 	public attach(
 		attachment: FramebufferAttachment | number,
 		data: Texture | Renderbuffer,
-		face: CubemapFace | undefined = void 0,
+		face: CubeFace | undefined = void 0,
 		level = 0,
 		layer: number | undefined = void 0
 	) {

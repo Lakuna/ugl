@@ -1,4 +1,4 @@
-import CubemapFace from "../../constants/CubemapFace.js";
+import CubeFace from "../../constants/CubeFace.js";
 import MipmapTarget from "../../constants/MipmapTarget.js";
 import TextureTarget from "../../constants/TextureTarget.js";
 
@@ -10,7 +10,7 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * @internal
  */
 export default function getMipmapTargetForCubemapFace(
-	face?: CubemapFace,
+	face?: CubeFace,
 	target: TextureTarget = TextureTarget.TEXTURE_CUBE_MAP
 ) {
 	switch (target) {
@@ -20,17 +20,17 @@ export default function getMipmapTargetForCubemapFace(
 			return MipmapTarget.TEXTURE_3D;
 		case TextureTarget.TEXTURE_CUBE_MAP:
 			switch (face) {
-				case CubemapFace.NegativeX:
+				case CubeFace.NegativeX:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X;
-				case CubemapFace.NegativeY:
+				case CubeFace.NegativeY:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y;
-				case CubemapFace.NegativeZ:
+				case CubeFace.NegativeZ:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z;
-				case CubemapFace.PositiveX:
+				case CubeFace.PositiveX:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X;
-				case CubemapFace.PositiveY:
+				case CubeFace.PositiveY:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y;
-				case CubemapFace.PositiveZ:
+				case CubeFace.PositiveZ:
 				default:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z;
 			}

@@ -1,10 +1,8 @@
-// TODO: Rename to `WrapMode`.
-
 /**
  * Wrapping functions for textures.
  * @public
  */
-enum TextureWrapFunction {
+enum WrapMode {
 	/** The texture repeats after it ends. */
 	REPEAT = 0x2901,
 
@@ -15,4 +13,4 @@ enum TextureWrapFunction {
 	MIRRORED_REPEAT = 0x8370
 }
 
-export default TextureWrapFunction;
+export default WrapMode;
