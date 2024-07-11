@@ -1,6 +1,8 @@
+// TODO: Rename to `Face`.
+
 /**
  * Directions that a polygon can face relative to the camera.
- * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+ * @public
  */
 enum PolygonDirection {
 	/** A front-facing polygon. */

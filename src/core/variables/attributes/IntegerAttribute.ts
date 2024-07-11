@@ -9,7 +9,7 @@ export default class IntegerAttribute extends Attribute {
 	/**
 	 * Set the value of this attribute.
 	 * @param value - The value to pass to the attribute.
-	 * @see [`vertexAttribIPointer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribIPointer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribIPointer | vertexAttribIPointer}
 	 * @internal
 	 */
 	protected override setterInternal(value: AttributeValue) {

@@ -1,95 +1,59 @@
 {
-	"include": ["eslint.config.js", "src"],
-	"exclude": [],
+	"exclude": ["dist", "docs", "node_modules"],
 	"compilerOptions": {
+		// Type Checking
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
-		"alwaysStrict": true,
 		"exactOptionalPropertyTypes": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
-		"noImplicitThis": true,
 		"noPropertyAccessFromIndexSignature": true,
 		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"strict": true,
-		"strictBindCallApply": true,
-		"strictFunctionTypes": true,
-		"strictNullChecks": true,
-		"strictPropertyInitialization": true,
-		"useUnknownInCatchVariables": true,
-		"allowArbitraryExtensions": false,
-		"allowImportingTsExtensions": false,
-		"allowUmdGlobalAccess": false,
+
+		// Modules
 		"module": "nodenext",
-		"moduleResolution": "nodenext",
-		"noResolve": false,
-		"resolveJsonModule": false,
-		"resolvePackageJsonExports": true,
-		"resolvePackageJsonImports": true,
 		"rootDir": "src",
-		"declaration": true,
+
+		// Emit
 		"declarationMap": true,
-		"downlevelIteration": false,
-		"emitBOM": false,
-		"emitDeclarationOnly": false,
-		"importHelpers": false,
-		"inlineSourceMap": false,
-		"inlineSources": false,
-		"noEmit": false,
-		"noEmitHelpers": false,
-		"noEmitOnError": true,
 		"outDir": "dist",
-		"preserveConstEnums": true,
-		"removeComments": true,
 		"sourceMap": true,
 		"stripInternal": true,
-		"allowJs": false,
-		"checkJs": false,
-		"maxNodeModuleJsDepth": 0,
-		"disableSizeLimit": false,
-		"allowSyntheticDefaultImports": false,
-		"esModuleInterop": false,
-		"forceConsistentCasingInFileNames": true,
-		"isolatedModules": true,
-		"preserveSymlinks": false,
+
+		// JavaScript Support
+		// N/A
+
+		// Editor Support
+		// N/A
+
+		// Interop Constraints
+		"isolatedDeclarations": true,
 		"verbatimModuleSyntax": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"moduleDetection": "auto",
-		"noLib": false,
+
+		// Backwards Compatibility
+		// N/A
+
+		// Language and Environment
 		"target": "esnext",
-		"useDefineForClassFields": true,
-		"diagnostics": false,
-		"explainFiles": false,
-		"extendedDiagnostics": false,
-		"generateCpuProfile": "profile.cpuprofile",
-		"listEmittedFiles": false,
-		"listFiles": false,
-		"traceResolution": false,
-		"composite": true,
-		"disableReferencedProjectLoad": false,
-		"disableSolutionSearching": false,
-		"disableSourceOfProjectReferenceRedirect": false,
-		"incremental": true,
-		"tsBuildInfoFile": ".tsbuildinfo",
-		"noErrorTruncation": false,
-		"preserveWatchOutput": false,
-		"pretty": true,
-		"skipLibCheck": false,
-		"assumeChangesOnlyAffectDirectDependencies": false
-	},
-	"watchOptions": {
-		"watchFile": "usefsevents",
-		"watchDirectory": "usefsevents",
-		"fallbackPolling": "dynamicpriority",
-		"synchronousWatchDirectory": false
-	},
-	"typeAcquisition": {
-		"enable": true,
-		"disableFilenameBasedTypeAcquisition": false
+
+		// Projects
+		"composite": true
+
+		// Output Formatting
+		// N/A
+
+		// Completeness
+		// N/A
+
+		// Command Line
+		// N/A
+
+		// Watch Options
+		// N/A
 	}
 }

@@ -8,7 +8,7 @@ export default class FloatUniform extends Uniform {
 	/**
 	 * Set the value of this uniform if the value is iterable.
 	 * @param value - The value to pass to the uniform.
-	 * @see [`uniform[1234][uif][v]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
 	public override iterableSetter(value: Iterable<number>) {
@@ -23,7 +23,7 @@ export default class FloatUniform extends Uniform {
 	/**
 	 * Set the value of this uniform if the value is not iterable.
 	 * @param value - The value to pass to the uniform.
-	 * @see [`uniform[1234][uif][v]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
 	public override setter(value: number) {

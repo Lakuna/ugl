@@ -1,6 +1,8 @@
+// TODO: Rename to `Orientation`.
+
 /**
  * Winding orientations.
- * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+ * @public
  */
 enum WindingOrientation {
 	/** Clockwise. */

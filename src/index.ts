@@ -27,6 +27,8 @@ export { default as WindingOrientation } from "./constants/WindingOrientation.js
 export { default as Buffer } from "./core/buffers/Buffer.js";
 export { default as BufferParent } from "./core/buffers/BufferParent.js";
 export { default as ElementArrayBuffer } from "./core/buffers/ElementArrayBuffer.js";
+export { default as ApiInterface } from "./core/internal/ApiInterface.js";
+export { default as ContextDependent } from "./core/internal/ContextDependent.js";
 export { default as Texture } from "./core/textures/Texture.js";
 export { default as Texture2d } from "./core/textures/Texture2d.js";
 export { default as Texture2dArray } from "./core/textures/Texture2dArray.js";

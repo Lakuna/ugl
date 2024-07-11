@@ -22,12 +22,12 @@ import createUniform from "./variables/uniforms/createUniform.js";
 
 /**
  * A WebGL2 shader program.
- * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram | WebGLProgram}
+ * @public
  */
 export default class Program extends ContextDependent {
 	/**
 	 * The currently-bound program cache.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -47,7 +47,6 @@ export default class Program extends ContextDependent {
 	/**
 	 * Get the currently-bound program.
 	 * @param gl - The rendering context.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
 	 * @internal
 	 */
 	public static getBound(gl: WebGL2RenderingContext) {
@@ -67,7 +66,7 @@ export default class Program extends ContextDependent {
 	 * Bind a program.
 	 * @param gl - The rendering context.
 	 * @param program - The program.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram | useProgram}
 	 * @internal
 	 */
 	public static bindGl(
@@ -88,7 +87,6 @@ export default class Program extends ContextDependent {
 	 * Unbind the program that is bound.
 	 * @param gl - The rendering context.
 	 * @param program - The program to unbind, or `undefined` to unbind any program.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
 	 * @internal
 	 */
 	public static unbindGl(gl: WebGL2RenderingContext, program?: WebGLProgram) {
@@ -107,15 +105,12 @@ export default class Program extends ContextDependent {
 	 * @param vertexShaderSource - The vertex shader's source code.
 	 * @param fragmentShaderSource - The fragment shader's source code.
 	 * @returns The shader program.
-	 * @throws {@link UnsupportedOperationError}
-	 * @throws {@link ProgramLinkError}
-	 * @throws {@link ShaderCompileError}
 	 */
 	public static fromSource(
 		context: Context,
 		vertexShaderSource: string,
 		fragmentShaderSource: string
-	) {
+	): Program {
 		return new Program(
 			context,
 			new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource),
@@ -131,12 +126,11 @@ export default class Program extends ContextDependent {
 	 * @param attributeLocations - A map of attribute names to their desired locations.
 	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
 	 * @param feedbackMode - The mode to use when capturing transform feedback varyings.
-	 * @see [`createProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram)
-	 * @see [`attachShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader)
-	 * @see [`bindAttribLocation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation)
-	 * @see [`linkProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram)
-	 * @throws {@link UnsupportedOperationError}
-	 * @throws {@link ProgramLinkError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/transformFeedbackVaryings | transformFeedbackVaryings}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram | linkProgram}
 	 */
 	public constructor(
 		context: Context,
@@ -144,7 +138,7 @@ export default class Program extends ContextDependent {
 		fragmentShader: Shader,
 		attributeLocations?: Map<string, number>,
 		feedbackVaryings: Iterable<string> = [],
-		feedbackMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS
+		feedbackMode: TransformFeedbackBufferMode = TransformFeedbackBufferMode.SEPARATE_ATTRIBS
 	) {
 		if (vertexShader.gl !== fragmentShader.gl) {
 			throw new ProgramLinkError(
@@ -234,37 +228,36 @@ export default class Program extends ContextDependent {
 
 	/**
 	 * The API interface of this shader program.
-	 * @see [`WebGLProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLProgram)
 	 * @internal
 	 */
 	public readonly internal;
 
 	/** The vertex shader of this shader program. */
-	public readonly vertexShader;
+	public readonly vertexShader: Shader;
 
 	/** The fragment shader of this shader program. */
-	public readonly fragmentShader;
+	public readonly fragmentShader: Shader;
 
 	/** The uniforms in this shader program. */
-	public readonly uniforms;
+	public readonly uniforms: Map<string, Uniform>;
 
 	/** The attributes in this shader program. */
-	public readonly attributes;
+	public readonly attributes: Map<string, Attribute>;
 
 	/** The transform feedback varyings in this shader program. */
-	public readonly varyings;
+	public readonly varyings: Map<string, Varying>;
 
-	/** Get the linking status of this shader program. */
+	/** The linking status of this shader program. */
 	public get linkStatus() {
 		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
 	}
 
-	/** Get the deletion status of this shader program. */
+	/** The deletion status of this shader program. */
 	public get deleteStatus() {
 		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
 	}
 
-	/** Get the validation status of this shader program. */
+	/** The validation status of this shader program. */
 	public get validateStatus() {
 		return this.gl.getProgramParameter(
 			this.internal,
@@ -273,24 +266,23 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
-	 * Get the information log of this shader program.
-	 * @see [`getProgramInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog)
+	 * The information log of this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog | getProgramInfoLog}
 	 */
-	public get infoLog() {
+	public get infoLog(): string | null {
 		return this.gl.getProgramInfoLog(this.internal);
 	}
 
 	/**
 	 * Delete this shader program.
-	 * @see [`deleteProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram | deleteProgram}
 	 */
-	public delete() {
+	public delete(): void {
 		this.gl.deleteProgram(this.internal);
 	}
 
 	/**
 	 * Bind this program.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
 	 * @internal
 	 */
 	public bind() {
@@ -299,7 +291,6 @@ export default class Program extends ContextDependent {
 
 	/**
 	 * Unbind this program.
-	 * @see [`useProgram`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram)
 	 * @internal
 	 */
 	public unbind() {

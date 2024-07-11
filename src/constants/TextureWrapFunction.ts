@@ -1,6 +1,8 @@
+// TODO: Rename to `WrapMode`.
+
 /**
  * Wrapping functions for textures.
- * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @public
  */
 enum TextureWrapFunction {
 	/** The texture repeats after it ends. */

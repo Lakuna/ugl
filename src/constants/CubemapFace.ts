@@ -1,4 +1,9 @@
-/** Faces of a cubemapped texture. */
+// TODO: Rename to `CubeFace`.
+
+/**
+ * Faces of a cubemapped texture.
+ * @public
+ */
 enum CubemapFace {
 	/** The face on the X-axis in the positive direction. */
 	PositiveX,

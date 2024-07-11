@@ -4,7 +4,6 @@ import ErrorCode from "../../constants/ErrorCode.js";
  * Get the description of an error code.
  * @param code - The error code.
  * @returns The message.
- * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
  * @internal
  */
 export default function getErrorCodeMessage(code: ErrorCode) {

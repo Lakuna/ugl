@@ -1,3 +1,5 @@
+// TODO: Document which functions are capable of throwing errors and why.
+
 import {
 	ACTIVE_TEXTURE,
 	BLEND,
@@ -39,8 +41,9 @@ import {
 } from "../constants/constants.js";
 import ApiInterface from "./internal/ApiInterface.js";
 import BadValueError from "../utility/BadValueError.js";
-import BlendEquation from "../constants/BlendEquation.js";
+import type BlendEquation from "../constants/BlendEquation.js";
 import type BlendEquationSet from "../types/BlendEquationSet.js";
+import type BlendFunction from "../constants/BlendFunction.js";
 import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
 import type BlendFunctionSet from "../types/BlendFunctionSet.js";
 import type { Canvas } from "../types/Canvas.js";
@@ -61,7 +64,8 @@ import type WindingOrientation from "../constants/WindingOrientation.js";
 
 /**
  * A WebGL2 rendering context.
- * @see [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext | WebGL2RenderingContext}
+ * @public
  */
 export default class Context extends ApiInterface {
 	/**
@@ -73,8 +77,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * Create a WebGL2 rendering context.
 	 * @param canvas - The canvas of the rendering context.
-	 * @throws {@link UnsupportedOperationError}
-	 * @see [`getContext`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
 	 */
 	public constructor(canvas: Canvas, options?: WebGLContextAttributes);
 
@@ -102,32 +105,24 @@ export default class Context extends ApiInterface {
 		this.enabledExtensions = new Map();
 	}
 
-	/**
-	 * The canvas of this rendering context.
-	 * @see [`canvas`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/canvas)
-	 */
-	public readonly canvas;
+	/** The canvas of this rendering context. */
+	public readonly canvas: Canvas;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
-	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
 	 * @internal
 	 */
 	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
 
 	/**
-	 * Get the color space of the drawing buffer of this rendering context.
-	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
+	 * The color space of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace | drawingBufferColorSpace}
 	 */
-	public get drawingBufferColorSpace() {
+	public get drawingBufferColorSpace(): PredefinedColorSpace {
 		return (this.drawingBufferColorSpaceCache ??=
 			this.gl.drawingBufferColorSpace);
 	}
 
-	/**
-	 * Set the color space of the drawing buffer of this rendering context.
-	 * @see [`drawingBufferColorSpace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace)
-	 */
 	public set drawingBufferColorSpace(value) {
 		if (this.drawingBufferColorSpace === value) {
 			return;
@@ -138,44 +133,38 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Get the actual height of the drawing buffer of this rendering context.
-	 * @see [`drawingBufferHeight`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight)
+	 * The actual height of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight | drawingBufferHeight}
 	 */
-	public get drawingBufferHeight() {
+	public get drawingBufferHeight(): number {
 		return this.gl.drawingBufferHeight;
 	}
 
 	/**
-	 * Get the actual width of the drawing buffer of this rendering context.
-	 * @see [`drawingBufferWidth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth)
+	 * The actual width of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth | drawingBufferWidth}
 	 */
-	public get drawingBufferWidth() {
+	public get drawingBufferWidth(): number {
 		return this.gl.drawingBufferWidth;
 	}
 
 	/**
 	 * The active texture unit.
-	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture | activeTexture}
 	 * @internal
 	 */
 	private activeTextureCache?: number;
 
 	/**
-	 * Get the active texture unit.
-	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
+	 * The active texture unit.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture | activeTexture}
 	 * @internal
 	 */
-	public get activeTexture() {
+	public get activeTexture(): number {
 		return (this.activeTextureCache ??=
 			this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
 	}
 
-	/**
-	 * Set the active texture unit.
-	 * @see [`activeTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture)
-	 * @throws {@link BadValueError}
-	 * @internal
-	 */
 	public set activeTexture(value) {
 		if (this.activeTexture === value) {
 			return;
@@ -191,23 +180,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The blend color.
-	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
 	 * @internal
 	 */
 	private blendColorCache?: Color;
 
 	/**
 	 * The blend color.
-	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor | blendColor}
 	 */
-	public get blendColor() {
+	public get blendColor(): Color {
 		return (this.blendColorCache ??= this.gl.getParameter(BLEND_COLOR));
 	}
 
-	/**
-	 * Set the blend color.
-	 * @see [`blendColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor)
-	 */
 	public set blendColor(value) {
 		if (
 			typeof this.blendColor !== "undefined" &&
@@ -225,7 +209,6 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The RGB and alpha blend equations.
-	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 * @internal
 	 */
 	private blendEquationCache?: BlendEquationSet;
@@ -233,7 +216,6 @@ export default class Context extends ApiInterface {
 	/**
 	 * Create the blend equation cache.
 	 * @returns The blend equation cache.
-	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
 	 * @internal
 	 */
 	private makeBlendEquationCache() {
@@ -244,17 +226,14 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Get the RGB and alpha blend equations.
-	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+	 * The RGB and alpha blend equations.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation | blendEquation}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate | blendEquationSeparate}
 	 */
 	public get blendEquation(): BlendEquationSet {
 		return (this.blendEquationCache ??= this.makeBlendEquationCache());
 	}
 
-	/**
-	 * Set the RGB and alpha blend equations.
-	 * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
-	 */
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
 		// One value.
 		if (typeof value === "number") {
@@ -293,35 +272,27 @@ export default class Context extends ApiInterface {
 		]) as unknown as BlendEquationSet;
 	}
 
-	/**
-	 * Get the RGB blend equation.
-	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
-	 */
-	public get blendEquationRgb() {
+	/** The RGB blend equation. */
+	public get blendEquationRgb(): BlendEquation {
 		return (this.blendEquationCache ??= this.makeBlendEquationCache())[0];
 	}
 
-	/**
-	 * Get the alpha blend equation.
-	 * @see [`blendEquationSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate)
-	 */
-	public get blendEquationAlpha() {
+	/** The alpha blend equation. */
+	public get blendEquationAlpha(): BlendEquation {
 		return (this.blendEquationCache ??= this.makeBlendEquationCache())[1];
 	}
 
 	/**
 	 * Whether or not blending is enabled.
-	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @internal
 	 */
 	private doBlendCache?: boolean;
 
-	/** Get whether or not blending is enabled. */
-	public get doBlend() {
+	/** Whether or not blending is enabled. */
+	public get doBlend(): boolean {
 		return (this.doBlendCache ??= this.gl.isEnabled(BLEND));
 	}
 
-	/** Set whether or not blending is enabled. */
 	public set doBlend(value) {
 		if (this.doBlend === value) {
 			return;
@@ -337,7 +308,6 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The source and destination RGB and alpha blend functions.
-	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @internal
 	 */
 	private blendFunctionCache?: BlendFunctionFullSet;
@@ -345,7 +315,6 @@ export default class Context extends ApiInterface {
 	/**
 	 * Create the blend function cache.
 	 * @returns The blend function cache.
-	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
 	 * @internal
 	 */
 	private makeBlendFunctionCache() {
@@ -358,18 +327,14 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Get the source and destination RGB and alpha blend functions.
-	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
+	 * The source and destination RGB and alpha blend functions.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc | blendFunc}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate | blendFuncSeparate}
 	 */
 	public get blendFunction(): BlendFunctionFullSet {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache());
 	}
 
-	/**
-	 * Set the source and destination RGB and alpha blend functions.
-	 * @see [`blendFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc)
-	 * @throws {@link WebglError}
-	 */
 	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
 		// Full set.
 		if (2 in value) {
@@ -416,52 +381,36 @@ export default class Context extends ApiInterface {
 		]) as unknown as BlendFunctionFullSet;
 	}
 
-	/**
-	 * Get the source RGB blend function.
-	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
-	 */
-	public get blendFunctionSourceRgb() {
+	/** The source RGB blend function. */
+	public get blendFunctionSourceRgb(): BlendFunction {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[0];
 	}
 
-	/**
-	 * Get the destination RGB blend function.
-	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
-	 */
-	public get blendFunctionDestinationRgb() {
+	/** The destination RGB blend function. */
+	public get blendFunctionDestinationRgb(): BlendFunction {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[1];
 	}
 
-	/**
-	 * Get the source alpha blend function.
-	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
-	 */
-	public get blendFunctionSourceAlpha() {
+	/** The source alpha blend function. */
+	public get blendFunctionSourceAlpha(): BlendFunction {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[2];
 	}
 
-	/**
-	 * Get the destination alpha blend function.
-	 * @see [`blendFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate)
-	 */
-	public get blendFunctionDestinationAlpha() {
+	/** The destination alpha blend function. */
+	public get blendFunctionDestinationAlpha(): BlendFunction {
 		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[3];
 	}
 
 	/**
-	 * Get the code of the most recent WebGL error that has occurred in this context.
-	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+	 * The code of the most recent WebGL error that has occurred in this context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError | getError}
 	 */
 	public get error(): ErrorCode {
 		return this.gl.getError();
 	}
 
-	/**
-	 * Throw a JavaScript error if a WebGL error has occurred.
-	 * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
-	 * @throws {@link WebglError}
-	 */
-	public throwIfError() {
+	/** Throw a JavaScript error if a WebGL error has occurred. */
+	public throwIfError(): void {
 		const code: ErrorCode = this.error;
 		if (code !== ErrorCode.NO_ERROR) {
 			throw new WebglError(code);
@@ -470,23 +419,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The value to store in the color buffer when clearing it.
-	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
 	 * @internal
 	 */
 	private clearColorCache?: Color;
 
 	/**
-	 * Get the value to store in the color buffer when clearing it.
-	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
+	 * The value to store in the color buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor | clearColor}
 	 */
-	public get clearColor() {
+	public get clearColor(): Color {
 		return (this.clearColorCache ??= this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
-	/**
-	 * Set the value to store in the color buffer when clearing it.
-	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
-	 */
 	public set clearColor(value) {
 		if (
 			typeof this.clearColor !== "undefined" &&
@@ -504,23 +448,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The value to store in the depth buffer when clearing it.
-	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
 	 * @internal
 	 */
 	private clearDepthCache?: number;
 
 	/**
-	 * Get the value to store in the depth buffer when clearing it.
-	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
+	 * The value to store in the depth buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth | clearDepth}
 	 */
-	public get clearDepth() {
+	public get clearDepth(): number {
 		return (this.clearDepthCache ??= this.gl.getParameter(DEPTH_CLEAR_VALUE));
 	}
 
-	/**
-	 * Set the value to store in the depth buffer when clearing it.
-	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
-	 */
 	public set clearDepth(value) {
 		if (this.clearDepth === value) {
 			return;
@@ -532,24 +471,19 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The value to store in the stencil buffer when clearing it.
-	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
 	 * @internal
 	 */
 	private clearStencilCache?: number;
 
 	/**
-	 * Get the value to store in the stencil buffer when clearing it.
-	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil | clearStencil}
 	 */
-	public get clearStencil() {
+	public get clearStencil(): number {
 		return (this.clearStencilCache ??=
 			this.gl.getParameter(STENCIL_CLEAR_VALUE));
 	}
 
-	/**
-	 * Set the value to store in the stencil buffer when clearing it.
-	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
-	 */
 	public set clearStencil(value) {
 		if (this.clearStencil === value) {
 			return;
@@ -561,23 +495,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The mask that specifies which components to enable or disable when rendering to a framebuffer.
-	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
 	 * @internal
 	 */
 	private colorMaskCache?: ColorMask;
 
 	/**
-	 * Get the mask that specifies which components to enable or disable when rendering to a framebuffer.
-	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
+	 * The mask that specifies which components to enable or disable when rendering to a framebuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask | colorMask}
 	 */
-	public get colorMask() {
+	public get colorMask(): ColorMask {
 		return (this.colorMaskCache ??= this.gl.getParameter(COLOR_WRITEMASK));
 	}
 
-	/**
-	 * Set the mask that specifies which components to enable or disable when rendering to a framebuffer.
-	 * @see [`colorMask`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask)
-	 */
 	public set colorMask(value) {
 		if (
 			typeof this.colorMask !== "undefined" &&
@@ -595,16 +524,12 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The maximum number of texture units that can be used.
-	 * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
 	 * @internal
 	 */
 	private maxCombinedTextureImageUnitsCache?: number;
 
-	/**
-	 * Get the maximum number of texture units that can be used.
-	 * @see [`getParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getParameter)
-	 */
-	public get maxCombinedTextureImageUnits() {
+	/** The maximum number of texture units that can be used. */
+	public get maxCombinedTextureImageUnits(): number {
 		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
 			MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		));
@@ -612,23 +537,15 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * Whether or not polygon culling is enabled.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 * @internal
 	 */
 	private doCullFaceCache?: boolean;
 
-	/**
-	 * Get whether or not polygon culling is enabled.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
-	 */
-	public get doCullFace() {
+	/** Whether or not polygon culling is enabled. */
+	public get doCullFace(): boolean {
 		return (this.doCullFaceCache ??= this.gl.isEnabled(CULL_FACE));
 	}
 
-	/**
-	 * Set whether or not polygon culling is enabled.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
-	 */
 	public set doCullFace(value) {
 		if (this.doCullFace === value) {
 			return;
@@ -644,23 +561,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The direction that polygons should face if they are to be culled.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
 	 * @internal
 	 */
 	private cullFaceCache?: PolygonDirection;
 
 	/**
-	 * Get the direction that polygons should face if they are to be culled.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
+	 * The direction that polygons should face if they are to be culled.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
 	 */
-	public get cullFace() {
+	public get cullFace(): PolygonDirection {
 		return (this.cullFaceCache ??= this.gl.getParameter(CULL_FACE_MODE));
 	}
 
-	/**
-	 * Set the direction that polygons should face if they are to be culled, or `true` to enable polygon culling with the previous value, or `false` to disable polygon culling.
-	 * @see [`cullFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace)
-	 */
 	public set cullFace(value) {
 		if (this.cullFace === value) {
 			return;
@@ -676,12 +588,11 @@ export default class Context extends ApiInterface {
 	 */
 	private doDitherCache?: boolean;
 
-	/** Get whether or not dithering is enabled. */
-	public get doDither() {
+	/** Whether or not dithering is enabled. */
+	public get doDither(): boolean {
 		return (this.doDitherCache ??= this.gl.isEnabled(DITHER));
 	}
 
-	/** Set whether or not dithering is enabled. */
 	public set doDither(value) {
 		if (this.doDither === value) {
 			return;
@@ -697,23 +608,15 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * Whether or not depth testing is enabled.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 * @internal
 	 */
 	private doDepthTestCache?: boolean;
 
-	/**
-	 * Get whether or not depth testing is enabled.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
-	 */
-	public get doDepthTest() {
+	/** Whether or not depth testing is enabled. */
+	public get doDepthTest(): boolean {
 		return (this.doDepthTestCache ??= this.gl.isEnabled(DEPTH_TEST));
 	}
 
-	/**
-	 * Set whether or not depth testing is enabled.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
-	 */
 	public set doDepthTest(value) {
 		if (this.doDepthTest === value) {
 			return;
@@ -729,23 +632,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The depth comparison function to use.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
 	 * @internal
 	 */
 	private depthFunctionCache?: TestFunction;
 
 	/**
-	 * Get the depth comparison function to use.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
+	 * The depth comparison function to use.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc | depthFunc}
 	 */
-	public get depthFunction() {
+	public get depthFunction(): TestFunction {
 		return (this.depthFunctionCache ??= this.gl.getParameter(DEPTH_FUNC));
 	}
 
-	/**
-	 * Set the depth comparison function to use.
-	 * @see [`depthFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc)
-	 */
 	public set depthFunction(value) {
 		if (this.depthFunction === value) {
 			return;
@@ -757,24 +655,16 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The alignment to use when unpacking pixel data from memory.
-	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
 	 * @internal
 	 */
 	private unpackAlignmentCache?: 1 | 2 | 4 | 8;
 
-	/**
-	 * Get the alignment to use when unpacking pixel data from memory.
-	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
-	 */
-	public get unpackAlignment() {
+	/** The alignment to use when unpacking pixel data from memory. */
+	public get unpackAlignment(): 1 | 2 | 4 | 8 {
 		return (this.unpackAlignmentCache ??=
 			this.gl.getParameter(UNPACK_ALIGNMENT));
 	}
 
-	/**
-	 * Set the alignment to use when unpacking pixel data from memory.
-	 * @see [`pixelStorei`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/pixelStorei)
-	 */
 	public set unpackAlignment(value) {
 		if (this.unpackAlignment === value) {
 			return;
@@ -786,7 +676,6 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * A map of already-enabled WebGL extensions.
-	 * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)
 	 * @internal
 	 */
 	private enabledExtensions: Map<Extension, ExtensionObject | null>;
@@ -795,9 +684,9 @@ export default class Context extends ApiInterface {
 	 * Enable the specified extension.
 	 * @param extension - The extension.
 	 * @returns The extension's implementation object.
-	 * @see [`getExtension`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension | getExtension}
 	 */
-	public enableExtension(extension: Extension) {
+	public enableExtension(extension: Extension): ExtensionObject | null {
 		let out = this.enabledExtensions.get(extension);
 		if (typeof out !== "undefined") {
 			return out;
@@ -809,8 +698,8 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Get a list of supported extensions.
-	 * @see [`getSupportedExtensions`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions)
+	 * A list of supported extensions.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions | getSupportedExtensions}
 	 */
 	public get supportedExtensions() {
 		return this.gl.getSupportedExtensions() as Extension[];
@@ -818,23 +707,15 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * Whether or not the scissor test is enabled.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 * @internal
 	 */
 	private doScissorTestCache?: boolean;
 
-	/**
-	 * Get whether or not the scissor test is enabled.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
-	 */
-	public get doScissorTest() {
+	/** Whether or not the scissor test is enabled. */
+	public get doScissorTest(): boolean {
 		return (this.doScissorTestCache ??= this.gl.isEnabled(SCISSOR_TEST));
 	}
 
-	/**
-	 * Set whether or not the scissor test is enabled.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
-	 */
 	public set doScissorTest(value) {
 		if (this.doScissorTest === value) {
 			return;
@@ -850,23 +731,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The scissor box, which limits drawing to a specified rectangle.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
 	 * @internal
 	 */
 	private scissorBoxCache?: Rectangle;
 
 	/**
-	 * Get the scissor box, which limits drawing to a specified rectangle.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
+	 * The scissor box, which limits drawing to a specified rectangle.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor | scissor}
 	 */
-	public get scissorBox() {
+	public get scissorBox(): Rectangle {
 		return (this.scissorBoxCache ??= this.gl.getParameter(SCISSOR_BOX));
 	}
 
-	/**
-	 * Set the scissor box, which limits drawing to a specified rectangle.
-	 * @see [`scissor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor)
-	 */
 	public set scissorBox(value) {
 		if (
 			typeof this.scissorBox !== "undefined" &&
@@ -884,23 +760,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
 	 * @internal
 	 */
 	private viewportCache?: Rectangle;
 
 	/**
-	 * Get the viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
+	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport | viewport}
 	 */
-	public get viewport() {
+	public get viewport(): Rectangle {
 		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
 	}
 
-	/**
-	 * Set the viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see [`viewport`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport)
-	 */
 	public set viewport(value) {
 		if (
 			typeof this.viewport !== "undefined" &&
@@ -917,27 +788,16 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Whether stencil testing is enabled.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * Whether or not stencil testing is enabled.
 	 * @internal
 	 */
 	private doStencilTestCache?: boolean;
 
-	/**
-	 * Get whether stencil testing is enabled.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
-	 */
-	public get doStencilTest() {
+	/** Whether or not stencil testing is enabled. */
+	public get doStencilTest(): boolean {
 		return (this.doStencilTestCache ??= this.gl.isEnabled(STENCIL_TEST));
 	}
 
-	/**
-	 * Set whether stencil testing is enabled.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
-	 */
 	public set doStencilTest(value) {
 		if (value === this.doStencilTest) {
 			return;
@@ -953,16 +813,15 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The front stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
 	 * @internal
 	 */
 	private frontStencilCache?: Stencil;
 
 	/**
-	 * Get the front stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * The front stencil test function, reference, and mask.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
-	public get frontStencil() {
+	public get frontStencil(): Stencil {
 		return (this.frontStencilCache ??= [
 			this.gl.getParameter(STENCIL_FUNC),
 			this.gl.getParameter(STENCIL_REF),
@@ -970,10 +829,6 @@ export default class Context extends ApiInterface {
 		]);
 	}
 
-	/**
-	 * Set the front stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
-	 */
 	public set frontStencil(value) {
 		if (
 			typeof this.frontStencil !== "undefined" &&
@@ -994,16 +849,15 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The back stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
 	 * @internal
 	 */
 	private backStencilCache?: Stencil;
 
 	/**
-	 * Get the back stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
+	 * The back stencil test function, reference, and mask.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
-	public get backStencil() {
+	public get backStencil(): Stencil {
 		return (this.backStencilCache ??= [
 			this.gl.getParameter(STENCIL_BACK_FUNC),
 			this.gl.getParameter(STENCIL_BACK_REF),
@@ -1011,10 +865,6 @@ export default class Context extends ApiInterface {
 		]);
 	}
 
-	/**
-	 * Set the back stencil test function, reference, and mask.
-	 * @see [`stencilFuncSeparate`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate)
-	 */
 	public set backStencil(value) {
 		if (
 			typeof this.backStencil !== "undefined" &&
@@ -1034,17 +884,13 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Get the front and back stencil test functions, references, and masks.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
+	 * The front and back stencil test functions, references, and masks.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc | stencilFunc}
 	 */
-	public get stencil() {
+	public get stencil(): Stencil {
 		return this.frontStencil;
 	}
 
-	/**
-	 * Set the front and back stencil test functions, references, and masks.
-	 * @see [`stencilFunc`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc)
-	 */
 	public set stencil(value) {
 		if (
 			typeof this.frontStencil !== "undefined" &&
@@ -1065,18 +911,17 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Whether primitives are discarded immediately before the rasterization stage.
+	 * Whether or not primitives are discarded immediately before the rasterization stage.
 	 * @internal
 	 */
 	private doRasterizerDiscardCache?: boolean;
 
-	/** Whether primitives are discarded immediately before the rasterization stage. */
-	public get doRasterizerDiscard() {
+	/** Whether or not primitives are discarded immediately before the rasterization stage. */
+	public get doRasterizerDiscard(): boolean {
 		return (this.doRasterizerDiscardCache ??=
 			this.gl.isEnabled(RASTERIZER_DISCARD));
 	}
 
-	/** Whether primitives are discarded immediately before the rasterization stage. */
 	public set doRasterizerDiscard(value) {
 		if (this.doRasterizerDiscard === value) {
 			return;
@@ -1092,23 +937,18 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The winding orientation of front-facing polygons.
-	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
 	 * @internal
 	 */
 	private frontFaceCache?: WindingOrientation;
 
 	/**
-	 * Get the winding orientation of front-facing polygons.
-	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
+	 * The winding orientation of front-facing polygons.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
 	 */
-	public get frontFace() {
+	public get frontFace(): WindingOrientation {
 		return (this.frontFaceCache ??= this.gl.getParameter(FRONT_FACE));
 	}
 
-	/**
-	 * Set the winding orientation of front-facing polygons.
-	 * @see [`frontFace`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace)
-	 */
 	public set frontFace(value) {
 		if (this.frontFace === value) {
 			return;
@@ -1120,16 +960,12 @@ export default class Context extends ApiInterface {
 
 	/**
 	 * The maximum number of draw buffers.
-	 * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
 	 * @internal
 	 */
 	private maxDrawBuffersCache?: number;
 
-	/**
-	 * Get the maximum number of draw buffers.
-	 * @see [`drawBuffers`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers)
-	 */
-	public get maxDrawBuffers() {
+	/** The maximum number of draw buffers. */
+	public get maxDrawBuffers(): number {
 		return (this.maxDrawBuffersCache ??=
 			this.gl.getParameter(MAX_DRAW_BUFFERS));
 	}
@@ -1140,17 +976,14 @@ export default class Context extends ApiInterface {
 	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
 	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
 	 * @param framebuffer - The framebuffer to clear, or `null` for the default framebuffer (canvas).
-	 * @see [`clear`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear)
-	 * @see [`clearColor`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor)
-	 * @see [`clearDepth`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth)
-	 * @see [`clearStencil`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear | clear}
 	 */
 	public clear(
 		color: Color | boolean = true,
 		depth: number | boolean = true,
 		stencil: number | boolean = true,
 		framebuffer: Framebuffer | null = null
-	) {
+	): void {
 		let colorBit = color ? COLOR_BUFFER_BIT : 0;
 		if (typeof color !== "boolean") {
 			this.clearColor = color;
@@ -1182,7 +1015,7 @@ export default class Context extends ApiInterface {
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
-	public fitDrawingBuffer() {
+	public fitDrawingBuffer(): boolean {
 		if (this.canvas instanceof OffscreenCanvas) {
 			return false;
 		}
@@ -1204,7 +1037,7 @@ export default class Context extends ApiInterface {
 	}
 
 	/** Resize this rendering context's viewport to match the size of its current drawing buffer. */
-	public fitViewport() {
+	public fitViewport(): void {
 		this.viewport = [0, 0, this.canvas.width, this.canvas.height];
 	}
 
@@ -1212,9 +1045,8 @@ export default class Context extends ApiInterface {
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
 	 * @param rectangle - The rectangle that represents the viewport, or `undefined` to match the viewport to the drawing buffer.
 	 * @returns Whether or not the drawing buffer was resized.
-	 * @throws {@link UnsupportedOperationError}
 	 */
-	public resize(rectangle?: Rectangle) {
+	public resize(rectangle?: Rectangle): boolean {
 		if (this.canvas instanceof OffscreenCanvas) {
 			throw new UnsupportedOperationError();
 		}

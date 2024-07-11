@@ -1,4 +1,7 @@
-/** A two- or three-dimensional vector. */
+/**
+ * A two- or three-dimensional vector.
+ * @public
+ */
 export default interface Vector {
 	/** The value of this vector on the X-axis. */
 	0: number;

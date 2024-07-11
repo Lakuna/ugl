@@ -1,6 +1,9 @@
 import type TestFunction from "../constants/TestFunction.js";
 
-/** A stencil function, reference value, and mask. */
+/**
+ * A stencil function, reference value, and mask.
+ * @public
+ */
 export default interface Stencil {
 	/** The test function. */
 	0: TestFunction;

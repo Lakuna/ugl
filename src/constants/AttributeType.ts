@@ -1,6 +1,6 @@
 /**
  * Types of attributes.
- * @see [`getActiveAttrib`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib)
+ * @public
  */
 enum AttributeType {
 	/** A 32-bit signed floating-point value. */

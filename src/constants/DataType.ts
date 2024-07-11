@@ -1,6 +1,6 @@
 /**
  * Types of data that can be stored as components in a buffer.
- * @see [`vertexAttribPointer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer)
+ * @public
  */
 enum DataType {
 	/** An 8-bit signed integer with values in the range `[-0x80,0x80)`. */

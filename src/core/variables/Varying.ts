@@ -2,12 +2,16 @@ import type Program from "../Program.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import Variable from "./Variable.js";
 
-/** An input variable in a WebGL fragment shader used for transform feedback. */
+/**
+ * An input variable in a WebGL fragment shader used for transform feedback.
+ * @public
+ */
 export default class Varying extends Variable {
 	/**
 	 * Create a transform feedback varying.
 	 * @param program - The shader program that this transform feedback varying belongs to.
 	 * @param index - The index of this transform feedback varying.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying | getTransformFeedbackVarying}
 	 * @internal
 	 */
 	public constructor(program: Program, index: number) {
@@ -25,13 +29,12 @@ export default class Varying extends Variable {
 
 	/**
 	 * The active information of this varying.
-	 * @see [`getTransformFeedbackVarying`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying)
 	 * @internal
 	 */
 	protected override readonly activeInfo;
 
-	/** Get the value that is stored in this varying. */
-	public override get value() {
+	/** The value that is stored in this varying. */
+	public override get value(): void {
 		return void this; // TODO
 	}
 }

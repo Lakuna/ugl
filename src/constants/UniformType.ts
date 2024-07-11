@@ -1,6 +1,8 @@
+// TODO: Merge with `AttributeType`.
+
 /**
  * Types of uniforms.
- * @see [`getActiveUniform`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform)
+ * @public
  */
 enum UniformType {
 	/** A 32-bit signed floating-point value. */

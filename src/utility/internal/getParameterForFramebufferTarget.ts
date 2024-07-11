@@ -9,7 +9,6 @@ import FramebufferTarget from "../../constants/FramebufferTarget.js";
  * Get the constant value representing the context property of the given buffer binding point.
  * @param target - The buffer binding point.
  * @returns The constant value.
- * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
  * @internal
  */
 export default function getParameterForFramebufferTarget(

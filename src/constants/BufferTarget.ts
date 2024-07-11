@@ -1,6 +1,5 @@
 /**
  * Binding points for buffers.
- * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
  * @internal
  */
 enum BufferTarget {

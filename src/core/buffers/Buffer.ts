@@ -6,12 +6,12 @@ import getParameterForBufferTarget from "../../utility/internal/getParameterForB
 
 /**
  * An array of binary data to be used as anything other than an element array buffer.
- * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
+ * @public
  */
 export default class Buffer extends BufferParent {
 	/**
 	 * The currently-bound buffer cache.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -53,7 +53,6 @@ export default class Buffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @returns The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public static getBound(gl: WebGL2RenderingContext, target: BufferTarget) {
@@ -76,7 +75,7 @@ export default class Buffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @param buffer - The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer | bindBuffer}
 	 * @internal
 	 */
 	public static bindGl(
@@ -114,7 +113,6 @@ export default class Buffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param target - The binding point.
 	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public static unbindGl(
@@ -141,13 +139,12 @@ export default class Buffer extends BufferParent {
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the buffer at.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
-	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
 	public constructor(
 		context: Context,
 		data: ArrayBufferView | number,
-		usage = BufferUsage.STATIC_DRAW,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		isHalf = false
 	) {
@@ -157,7 +154,6 @@ export default class Buffer extends BufferParent {
 	/**
 	 * Bind this buffer to its binding point.
 	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public override bind(target?: BufferTarget) {
@@ -170,7 +166,6 @@ export default class Buffer extends BufferParent {
 
 	/**
 	 * Unbind this buffer from its binding point.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public override unbind() {

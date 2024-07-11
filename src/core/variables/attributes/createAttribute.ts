@@ -10,7 +10,7 @@ import UnsupportedOperationError from "../../../utility/UnsupportedOperationErro
  * @param program - The shader program that the attribute belongs to.
  * @param index - The index of the attribute.
  * @returns The attribute.
- * @throws {@link UnsupportedOperationError}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
  * @internal
  */
 export default function createAttribute(program: Program, index: number) {

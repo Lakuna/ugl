@@ -1,4 +1,7 @@
-/** An error resulting from attempting to use a data format or type that is not compatible with a texture format. */
+/**
+ * An error resulting from attempting to use a data format or type that is not compatible with a texture format.
+ * @public
+ */
 export default class TextureFormatError extends Error {
 	/**
 	 * Creates a texture format error.

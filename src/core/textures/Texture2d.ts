@@ -1,4 +1,3 @@
-import { BACK, COLOR_ATTACHMENT0, NONE } from "../../constants/constants.js";
 import type Buffer from "../buffers/Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import type Context from "../Context.js";
@@ -13,7 +12,11 @@ import type { TextureSizedInternalFormat } from "../../types/TextureSizedInterna
 import TextureTarget from "../../constants/TextureTarget.js";
 import isTextureFormatCompressed from "../../utility/internal/isTextureFormatCompressed.js";
 
-/** A two-dimensional texture. */
+/**
+ * A two-dimensional texture.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture | WebGLTexture}
+ * @public
+ */
 export default class Texture2d extends Texture {
 	/**
 	 * Create a two-dimensional texture from the data in the image at the given URL.
@@ -21,7 +24,7 @@ export default class Texture2d extends Texture {
 	 * @param url - The URL of the image.
 	 * @returns The texture.
 	 */
-	public static fromImageUrl(context: Context, url: string) {
+	public static fromImageUrl(context: Context, url: string): Texture2d {
 		// Create a new 2D texture.
 		const out = new Texture2d(context);
 
@@ -47,7 +50,7 @@ export default class Texture2d extends Texture {
 	/**
 	 * Create a two-dimensional texture.
 	 * @param context - The rendering context of the texture.
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(context: Context);
 
@@ -58,7 +61,7 @@ export default class Texture2d extends Texture {
 	 * @param format - The internal format of the texture.
 	 * @param width - The width of the texture.
 	 * @param height - The height of the texture.
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
 		context: Context,
@@ -94,8 +97,7 @@ export default class Texture2d extends Texture {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D)
-	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D | texStorage2D}
 	 * @internal
 	 */
 	protected override makeImmutableFormatInternal(
@@ -113,7 +115,8 @@ export default class Texture2d extends Texture {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
-	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexSubImage2D | copyTexSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D | copyTexImage2D}
 	 * @internal
 	 */
 	protected override setMipFromFramebuffer(
@@ -121,8 +124,7 @@ export default class Texture2d extends Texture {
 		level: number,
 		bounds?: Rectangle,
 		framebuffer?: Framebuffer | null,
-		area?: Rectangle,
-		readBuffer?: number | boolean
+		area?: Rectangle
 	) {
 		const mipDims = this.getSizeOfMip(level);
 
@@ -146,15 +148,6 @@ export default class Texture2d extends Texture {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
-		}
-
-		// Set the read buffer.
-		if (typeof readBuffer === "number") {
-			this.gl.readBuffer(COLOR_ATTACHMENT0 + readBuffer);
-		} else if (readBuffer) {
-			this.gl.readBuffer(BACK);
-		} else if (readBuffer === false) {
-			this.gl.readBuffer(NONE);
 		}
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
@@ -185,8 +178,8 @@ export default class Texture2d extends Texture {
 		);
 
 		// Update dimensions.
-		this.width = frameWidth;
-		this.height = frameHeight;
+		this.setWidth(frameWidth);
+		this.setHeight(frameHeight);
 	}
 
 	/**
@@ -199,6 +192,10 @@ export default class Texture2d extends Texture {
 	 * @param buffer - The buffer to copy into the mip.
 	 * @param size - The number of bytes of data to copy from the buffer.
 	 * @param offset - The offset in bytes from the start of the buffer to start copying at.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D | compressedTexSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D | texSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D | compressedTexImage[23]D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D | texImage2D}
 	 * @internal
 	 */
 	protected override setMipFromBuffer(
@@ -278,11 +275,8 @@ export default class Texture2d extends Texture {
 		}
 
 		// Update dimensions.
-		// ESLint improperly assumes that `bounds` can be destructured.
-		// eslint-disable-next-line prefer-destructuring
-		this.width = bounds[2];
-		// eslint-disable-next-line prefer-destructuring
-		this.height = bounds[3];
+		this.setWidth(bounds[2]);
+		this.setHeight(bounds[3]);
 	}
 
 	/**
@@ -293,6 +287,8 @@ export default class Texture2d extends Texture {
 	 * @param format - The format of the data.
 	 * @param type - The type of the data.
 	 * @param data - The data to copy into the mip.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D | texSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D | texImage2D}
 	 * @internal
 	 */
 	protected override setMipFromData(
@@ -306,8 +302,8 @@ export default class Texture2d extends Texture {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		// https://caniuse.com/mdn-api_videoframe
-		// const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));
-		// const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));
+		// `const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));`
+		// `const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));`
 		const width =
 			bounds?.[2] ??
 			(data as HTMLImageElement | undefined)?.width ??
@@ -355,8 +351,8 @@ export default class Texture2d extends Texture {
 		}
 
 		// Update dimensions.
-		this.width = width;
-		this.height = height;
+		this.setWidth(width);
+		this.setHeight(height);
 	}
 
 	/**
@@ -369,6 +365,10 @@ export default class Texture2d extends Texture {
 	 * @param array - The array to copy into the mip.
 	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
 	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexSubImage2D | compressedTexSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texSubImage2D | texSubImage2D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D | compressedTexImage[23]D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D | texImage2D}
 	 * @internal
 	 */
 	protected override setMipFromArray(
@@ -461,10 +461,7 @@ export default class Texture2d extends Texture {
 		}
 
 		// Update dimensions.
-		// ESLint improperly assumes that `bounds` can be destructured.
-		// eslint-disable-next-line prefer-destructuring
-		this.width = bounds[2];
-		// eslint-disable-next-line prefer-destructuring
-		this.height = bounds[3];
+		this.setWidth(bounds[2]);
+		this.setHeight(bounds[3]);
 	}
 }

@@ -1,4 +1,7 @@
-/** Unsized internal formats for the color components in a texture. */
+/**
+ * Unsized internal formats for the color components in a texture.
+ * @public
+ */
 enum TextureUncompressedUnsizedInternalFormat {
 	/** Color renderable and texture filterable. `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. */
 	RGB = 0x1907,
@@ -15,16 +18,10 @@ enum TextureUncompressedUnsizedInternalFormat {
 	/** Color renderable and texture filterable. `format` must be `ALPHA`. `type` must be `UNSIGNED_BYTE`. */
 	ALPHA = 0x1906,
 
-	/**
-	 * Unsized sRGB format that leaves the precision up to the driver.
-	 * @see [`EXT_sRGB`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_sRGB)
-	 */
+	/** Unsized sRGB format that leaves the precision up to the driver. */
 	SRGB = 0x8c40,
 
-	/**
-	 * Unsized sRGB format with an unsized alpha component.
-	 * @see [`EXT_sRGB`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_sRGB)
-	 */
+	/** Unsized sRGB format with an unsized alpha component. */
 	SRGB_ALPHA = 0x8c42
 }
 

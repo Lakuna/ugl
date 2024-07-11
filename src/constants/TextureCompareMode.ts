@@ -1,7 +1,6 @@
 /**
  * Comparison modes for textures.
- * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
- * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
+ * @public
  */
 enum TextureCompareMode {
 	/** No compare mode. */

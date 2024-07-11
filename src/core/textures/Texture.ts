@@ -42,12 +42,12 @@ import getTextureFormatForTextureInternalFormat from "../../utility/internal/get
 
 /**
  * A randomly-accessible array of data.
- * @see [`WebGLTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture | WebGLTexture}
+ * @public
  */
 export default abstract class Texture extends ContextDependent {
 	/**
 	 * The currently-bound texture cache.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -110,7 +110,6 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The order that texture units should be overwritten in if necessary.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	private static bindingOverwriteOrder?: Map<
@@ -217,7 +216,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @returns The texture.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	public static getBound(
@@ -255,7 +253,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param target - The binding point.
 	 * @param texture - The texture.
 	 * @returns The used texture unit.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture | bindTexture}
 	 * @internal
 	 */
 	public static bindGl(
@@ -304,7 +302,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
 	 * @param target - The binding point.
 	 * @param texture - The texture, or `undefined` for any texture.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	public static unbindGl(
@@ -340,8 +337,7 @@ export default abstract class Texture extends ContextDependent {
 	 * Create a texture.
 	 * @param context - The rendering context.
 	 * @param target - The target binding point of the texture.
-	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
 	 */
 	protected constructor(context: Context, target: TextureTarget);
@@ -353,8 +349,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @see [`createTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture)
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
 	 */
 	protected constructor(
@@ -394,20 +389,18 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The API interface of this texture.
-	 * @see [`WebGLTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLTexture)
 	 * @internal
 	 */
 	public readonly internal;
 
 	/**
 	 * The binding point of this texture.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	public readonly target;
 
 	/**
-	 * The mipmaps in this texture. Most textures will have only one mipmap, but cubemaps have six (one for each face). Each mipmap is a map of mip levels to boolean values representing whether the corresponding mip has been given texture data.
+	 * The mipmaps in this texture. Most textures will have only one mipmap, but cubemaps have six (one for each face). Each mipmap is a map of mip levels to boolean values representing whether or not the corresponding mip has been given texture data.
 	 * @internal
 	 */
 	private readonly mipmaps: Map<MipmapTarget, Map<number, boolean>>;
@@ -418,8 +411,8 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private formatCache?: TextureInternalFormat;
 
-	/** Get the format of this texture. */
-	public get format() {
+	/** The format of this texture. */
+	public get format(): TextureInternalFormat {
 		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
 		if (typeof this.formatCache === "undefined") {
 			this.formatCache = TextureUncompressedUnsizedInternalFormat.RGBA;
@@ -428,10 +421,6 @@ export default abstract class Texture extends ContextDependent {
 		return this.formatCache;
 	}
 
-	/**
-	 * Set the format of this texture.
-	 * @throws {@link ImmutableError} if this is an immutable-format texture.
-	 */
 	public set format(value) {
 		if (value === this.format) {
 			return;
@@ -457,42 +446,45 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	protected readonly dims: number[];
 
-	/** Get the width of this texture. */
-	public get width() {
+	/** The width of this texture. */
+	public get width(): number {
 		return this.dims[0] ?? 0;
 	}
 
 	/**
 	 * Set the width of this texture.
+	 * @param value - The new width of the texture.
 	 * @internal
 	 */
-	protected set width(value) {
+	protected setWidth(value: number): void {
 		this.dims[0] = value;
 	}
 
-	/** Get the height of this texture. */
-	public get height() {
+	/** The height of this texture. */
+	public get height(): number {
 		return this.dims[1] ?? 0;
 	}
 
 	/**
 	 * Set the height of this texture.
+	 * @param value - The new height of the texture.
 	 * @internal
 	 */
-	protected set height(value) {
+	protected setHeight(value: number): void {
 		this.dims[1] = value;
 	}
 
-	/** Get the depth of this texture. */
-	public get depth() {
+	/** The depth of this texture. */
+	public get depth(): number {
 		return this.dims[2] ?? 0;
 	}
 
 	/**
 	 * Set the depth of this texture.
+	 * @param value - The new width of the texture.
 	 * @internal
 	 */
-	protected set depth(value) {
+	protected setDepth(value: number): void {
 		this.dims[2] = value;
 	}
 
@@ -502,8 +494,8 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private isImmutableFormatCache;
 
-	/** Get whether or not this is an immutable-format texture. */
-	public get isImmutableFormat() {
+	/** Whether or not this is an immutable-format texture. */
+	public get isImmutableFormat(): boolean {
 		return this.isImmutableFormatCache;
 	}
 
@@ -512,14 +504,12 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D)
-	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 */
 	public makeImmutableFormat(
 		levels: number,
 		format: TextureSizedInternalFormat,
 		dims: number[]
-	) {
+	): void {
 		if (this.isImmutableFormat) {
 			return;
 		}
@@ -537,8 +527,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @see [`texStorage2D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage2D)
-	 * @see [`texStorage3D`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texStorage3D)
 	 * @internal
 	 */
 	protected abstract makeImmutableFormatInternal(
@@ -556,7 +544,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param area - The area of the framebuffer to copy into the mip.
-	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
 		framebuffer: Framebuffer | null,
@@ -578,7 +565,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param size - The number of bytes of data to copy from the buffer.
 	 * @param offset - The offset in bytes from the start of the buffer to start copying at.
-	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
 		buffer: Buffer,
@@ -599,7 +585,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
-	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
 		data?: TexImageSource,
@@ -620,7 +605,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
 	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
-	 * @throws {@link TextureFormatError}
 	 */
 	public setMip(
 		array: ArrayBufferView,
@@ -706,7 +690,7 @@ export default abstract class Texture extends ContextDependent {
 				throw new TypeError();
 			}
 
-			this.setMipFromFramebuffer(target, level, bounds, data, shape1, shape2);
+			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
 		} else if (data instanceof Buffer) {
 			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
 				throw new TypeError();
@@ -759,7 +743,6 @@ export default abstract class Texture extends ContextDependent {
 		mipmap.set(level, true);
 
 		// Clear cached values.
-		// TODO: Determine which of these cached values actually need to be cleared.
 		delete this.baseLevelCache;
 		delete this.comparisonFunctionCache;
 		delete this.comparisonModeCache;
@@ -783,7 +766,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
-	 * @param readBuffer - The color buffer to read from, or `true` for the back buffer, or `false` for no buffer, or `undefined` for the previous buffer.
 	 * @internal
 	 */
 	protected abstract setMipFromFramebuffer(
@@ -791,8 +773,7 @@ export default abstract class Texture extends ContextDependent {
 		level: number,
 		bounds?: Prism | Rectangle,
 		framebuffer?: Framebuffer | null,
-		area?: Rectangle,
-		readBuffer?: number | boolean
+		area?: Rectangle
 	): void;
 
 	/**
@@ -862,18 +843,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The magnification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private magFilterCache?: TextureFilter.LINEAR | TextureFilter.NEAREST;
 
-	/**
-	 * Get the magnification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get magFilter() {
+	/** The magnification filter of this texture. */
+	public get magFilter(): TextureFilter.LINEAR | TextureFilter.NEAREST {
 		this.bind();
 		return (this.magFilterCache ??= this.gl.getTexParameter(
 			this.target,
@@ -881,11 +856,6 @@ export default abstract class Texture extends ContextDependent {
 		));
 	}
 
-	/**
-	 * Set the magnification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set magFilter(value) {
 		if (this.magFilter === value) {
 			return;
@@ -898,18 +868,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The minification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private minFilterCache?: TextureFilter;
 
-	/**
-	 * Get the minification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get minFilter() {
+	/** The minification filter of this texture. */
+	public get minFilter(): TextureFilter {
 		this.bind();
 		return (this.minFilterCache ??= this.gl.getTexParameter(
 			this.target,
@@ -917,11 +881,6 @@ export default abstract class Texture extends ContextDependent {
 		));
 	}
 
-	/**
-	 * Set the minification filter of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set minFilter(value) {
 		if (this.minFilter === value) {
 			return;
@@ -934,18 +893,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The wrapping function on the S-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private wrapSFunctionCache?: TextureWrapFunction;
 
-	/**
-	 * Get the wrapping function on the S-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get wrapSFunction() {
+	/** The wrapping function on the S-axis of this texture. */
+	public get wrapSFunction(): TextureWrapFunction {
 		this.bind();
 		return (this.wrapSFunctionCache ??= this.gl.getTexParameter(
 			this.target,
@@ -953,11 +906,6 @@ export default abstract class Texture extends ContextDependent {
 		) as TextureWrapFunction);
 	}
 
-	/**
-	 * Set the wrapping function on the S-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set wrapSFunction(value) {
 		if (this.wrapSFunction === value) {
 			return;
@@ -970,18 +918,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The wrapping function on the T-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private wrapTFunctionCache?: TextureWrapFunction;
 
-	/**
-	 * Get the wrapping function on the T-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get wrapTFunction() {
+	/** The wrapping function on the T-axis of this texture. */
+	public get wrapTFunction(): TextureWrapFunction {
 		this.bind();
 		return (this.wrapTFunctionCache ??= this.gl.getTexParameter(
 			this.target,
@@ -989,11 +931,6 @@ export default abstract class Texture extends ContextDependent {
 		) as TextureWrapFunction);
 	}
 
-	/**
-	 * Set the wrapping function on the T-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set wrapTFunction(value) {
 		if (this.wrapTFunction === value) {
 			return;
@@ -1006,37 +943,36 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The preferred anisotropy of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private maxAnisotropyCache?: number;
 
-	/**
-	 * Get the preferred anisotropy of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get maxAnisotropy() {
-		this.context.enableExtension(Extension.TextureFilterAnisotropic);
+	/** The preferred anisotropy of this texture. */
+	public get maxAnisotropy(): number {
+		if (
+			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
+		) {
+			throw new UnsupportedOperationError();
+		}
+
 		this.bind();
 		return (this.maxAnisotropyCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_ANISOTROPY_EXT
-		) as number);
+		));
 	}
 
-	/**
-	 * Set the preferred anisotropy of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set maxAnisotropy(value) {
 		if (this.maxAnisotropy === value) {
 			return;
 		}
 
-		this.context.enableExtension(Extension.TextureFilterAnisotropic);
+		if (
+			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
+		) {
+			throw new UnsupportedOperationError();
+		}
+
 		this.bind();
 		this.gl.texParameterf(this.target, TEXTURE_MAX_ANISOTROPY_EXT, value);
 		this.maxAnisotropyCache = value;
@@ -1044,30 +980,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The base mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private baseLevelCache?: number;
 
-	/**
-	 * Get the base mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get baseLevel() {
+	/** The base mipmap level of this texture. */
+	public get baseLevel(): number {
 		this.bind();
 		return (this.baseLevelCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_BASE_LEVEL
-		) as number);
+		));
 	}
 
-	/**
-	 * Set the base mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set baseLevel(value) {
 		if (this.baseLevel === value) {
 			return;
@@ -1080,18 +1005,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The comparison function of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private comparisonFunctionCache?: TestFunction;
 
-	/**
-	 * Get the comparison function of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get comparisonFunction() {
+	/** The comparison function of this texture. */
+	public get comparisonFunction(): TestFunction {
 		this.bind();
 		return (this.comparisonFunctionCache ??= this.gl.getTexParameter(
 			this.target,
@@ -1099,11 +1018,6 @@ export default abstract class Texture extends ContextDependent {
 		) as TestFunction);
 	}
 
-	/**
-	 * Set the comparison function of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set comparisonFunction(value) {
 		if (this.comparisonFunction === value) {
 			return;
@@ -1116,18 +1030,12 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The comparison mode of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private comparisonModeCache?: TextureCompareMode;
 
-	/**
-	 * The comparison mode of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get comparisonMode() {
+	/** The comparison mode of this texture. */
+	public get comparisonMode(): TextureCompareMode {
 		this.bind();
 		return (this.comparisonModeCache ??= this.gl.getTexParameter(
 			this.target,
@@ -1135,11 +1043,6 @@ export default abstract class Texture extends ContextDependent {
 		) as TextureCompareMode);
 	}
 
-	/**
-	 * Set the comparison mode of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set comparisonMode(value) {
 		if (this.comparisonMode === value) {
 			return;
@@ -1152,30 +1055,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The maximum mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private maxLevelCache?: number;
 
-	/**
-	 * Get the maximum mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get maxLevel() {
+	/** The maximum mipmap level of this texture. */
+	public get maxLevel(): number {
 		this.bind();
 		return (this.maxLevelCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_LEVEL
-		) as number);
+		));
 	}
 
-	/**
-	 * Set the maximum mipmap level of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set maxLevel(value) {
 		if (this.maxLevel === value) {
 			return;
@@ -1188,30 +1080,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The maximum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private maxLodCache?: number;
 
-	/**
-	 * Get the maximum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get maxLod() {
+	/** The maximum level of detail of this texture. */
+	public get maxLod(): number {
 		this.bind();
 		return (this.maxLodCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MAX_LOD
-		) as number);
+		));
 	}
 
-	/**
-	 * Set the maximum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set maxLod(value) {
 		if (this.maxLod === value) {
 			return;
@@ -1224,30 +1105,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The minimum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private minLodCache?: number;
 
-	/**
-	 * Get the minimum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get minLod() {
+	/** The minimum level of detail of this texture. */
+	public get minLod(): number {
 		this.bind();
 		return (this.minLodCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_MIN_LOD
-		) as number);
+		));
 	}
 
-	/**
-	 * Set the minimum level of detail of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set minLod(value) {
 		if (this.minLod === value) {
 			return;
@@ -1260,30 +1130,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * The wrapping function on the R-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
 	 * @internal
 	 */
 	private wrapRFunctionCache?: TextureWrapFunction;
 
-	/**
-	 * Get the wrapping function on the R-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
-	public get wrapRFunction() {
+	/** The wrapping function on the R-axis of this texture. */
+	public get wrapRFunction(): TextureWrapFunction {
 		this.bind();
 		return (this.wrapRFunctionCache ??= this.gl.getTexParameter(
 			this.target,
 			TEXTURE_WRAP_R
-		) as TextureWrapFunction);
+		));
 	}
 
-	/**
-	 * Set the wrapping function on the R-axis of this texture.
-	 * @see [`texParameter[fi]`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
-	 * @see [`getTexParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getTexParameter)
-	 */
 	public set wrapRFunction(value) {
 		if (this.wrapRFunction === value) {
 			return;
@@ -1300,8 +1159,8 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private isTextureCompleteCache?: boolean;
 
-	/** Get whether or not this texture is texture complete. */
-	public get isTextureComplete() {
+	/** Whether or not this texture is texture complete. */
+	public get isTextureComplete(): boolean {
 		if (typeof this.isTextureCompleteCache === "boolean") {
 			return this.isTextureCompleteCache;
 		}
@@ -1346,7 +1205,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param level - The level of the mip.
 	 * @returns The width, height (if applicable), and depth (if applicable) of the mip, in that order.
 	 */
-	public getSizeOfMip(level: number) {
+	public getSizeOfMip(level: number): number[] {
 		const dims = [...this.dims];
 		for (let i = 0; i < level; i++) {
 			for (let dim = 0; dim < dims.length; dim++) {
@@ -1358,9 +1217,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Generate a mipmap for this texture. Overwrites all mips except those at the top level. Does nothing for immutable-format textures.
-	 * @see [`generateMipmap`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap | generateMipmap}
 	 */
-	public generateMipmap() {
+	public generateMipmap(): void {
 		// Does nothing for immutable-format textures anyway.
 		if (this.isImmutableFormat) {
 			return;
@@ -1380,9 +1239,9 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Delete this texture.
-	 * @see [`deleteTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture | deleteTexture}
 	 */
-	public delete() {
+	public delete(): void {
 		this.gl.deleteTexture(this.internal);
 	}
 
@@ -1390,7 +1249,6 @@ export default abstract class Texture extends ContextDependent {
 	 * Bind this texture to its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @returns The used texture unit.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	public bind(textureUnit?: number) {
@@ -1405,7 +1263,6 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Unbind this texture from its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
-	 * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
 	 * @internal
 	 */
 	public unbind(textureUnit?: number) {

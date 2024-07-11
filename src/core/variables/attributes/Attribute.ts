@@ -5,7 +5,10 @@ import type Program from "../../Program.js";
 import Vao from "../../Vao.js";
 import Variable from "../Variable.js";
 
-/** An input variable for a vertex shader. */
+/**
+ * An input variable for a vertex shader.
+ * @public
+ */
 export default abstract class Attribute extends Variable {
 	/**
 	 * Create an attribute.
@@ -22,14 +25,12 @@ export default abstract class Attribute extends Variable {
 
 	/**
 	 * The active information of this attribute.
-	 * @see [`getActiveAttrib`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib)
 	 * @internal
 	 */
 	protected override readonly activeInfo;
 
 	/**
 	 * The location of this attribute.
-	 * @see [`getAttribLocation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getAttribLocation)
 	 * @internal
 	 */
 	public readonly location;
@@ -37,26 +38,22 @@ export default abstract class Attribute extends Variable {
 	/**
 	 * Set the value of this attribute.
 	 * @param value - The value to pass to the attribute.
-	 * @see [`vertexAttribPointer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer)
-	 * @see [`vertexAttribIPointer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribIPointer)
 	 * @internal
 	 */
 	protected abstract setterInternal(value: AttributeValue): void;
 
 	/**
 	 * The VAOs for which this attribute can read data from a buffer.
-	 * @see [`enableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/enableVertexAttribArray)
-	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
 	 * @internal
 	 */
 	private enabledVaosCache: WebGLVertexArrayObject[];
 
 	/**
-	 * Get whether or not this attribute can read data from a buffer.
-	 * @see [`enableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/enableVertexAttribArray)
-	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
+	 * Whether or not this attribute can read data from a buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/enableVertexAttribArray | enableVertexAttribArray}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray | disableVertexAttribArray}
 	 */
-	public get enabled() {
+	public get enabled(): boolean {
 		const vao = Vao.getBound(this.gl);
 		if (vao === null) {
 			return false;
@@ -65,11 +62,6 @@ export default abstract class Attribute extends Variable {
 		return this.enabledVaosCache.includes(vao);
 	}
 
-	/**
-	 * Set whether or not this attribute can read data from a buffer.
-	 * @see [`enableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/enableVertexAttribArray)
-	 * @see [`disableVertexAttribArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray)
-	 */
 	public set enabled(value) {
 		if (this.enabled === value) {
 			return;
@@ -99,16 +91,17 @@ export default abstract class Attribute extends Variable {
 	 */
 	private valueCache?: AttributeValue;
 
-	/** Get the value that is stored in this attribute. */
+	/** The value that is stored in this attribute. */
 	public override get value(): AttributeValue | undefined {
 		return this.valueCache;
 	}
 
 	/**
-	 * Set the value that is stored in this attribute.
+	 * Set the value of this attribute.
+	 * @param value - The new value for this attribute.
 	 * @internal
 	 */
-	public set value(value: AttributeValue | Buffer) {
+	public setValue(value: AttributeValue | Buffer): void {
 		// Update even if the cached value is the same as the given value, since the data in the buffer could have updated.
 		this.enabled = true;
 		const realValue = "buffer" in value ? value : { buffer: value };

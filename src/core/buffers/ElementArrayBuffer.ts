@@ -1,3 +1,5 @@
+// TODO: Rename to `IndexBuffer`.
+
 import BufferParent from "./BufferParent.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
@@ -7,12 +9,12 @@ import Vao from "../Vao.js";
 
 /**
  * An array of binary data to be used as an element array buffer. Must contain unsigned integers.
- * @see [`WebGLBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
+ * @public
  */
 export default class ElementArrayBuffer extends BufferParent {
 	/**
 	 * The currently-bound element array buffer cache.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -34,7 +36,6 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param vao - The VAO.
 	 * @returns The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public static getBound(
@@ -61,7 +62,7 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param vao - The VAO.
 	 * @param buffer - The buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer | bindBuffer}
 	 * @internal
 	 */
 	public static bindGl(
@@ -87,7 +88,6 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @param gl - The rendering context.
 	 * @param vao - The VAO.
 	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public static unbindGl(
@@ -113,13 +113,12 @@ export default class ElementArrayBuffer extends BufferParent {
 	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the buffer at.
-	 * @see [`createBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer)
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
 	public constructor(
 		context: Context,
 		data: Uint8Array | Uint16Array | Uint32Array | number,
-		usage = BufferUsage.STATIC_DRAW,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset = 0
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
@@ -138,7 +137,6 @@ export default class ElementArrayBuffer extends BufferParent {
 	/**
 	 * Bind this buffer to a VAO.
 	 * @param vao - The new VAO to bind to. or `undefined` to bind to the currently-bound VAO.
-	 * @see [`bindBuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer)
 	 * @internal
 	 */
 	public override bind(vao?: Vao) {

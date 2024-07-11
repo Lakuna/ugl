@@ -3,7 +3,10 @@ import ContextDependent from "../internal/ContextDependent.js";
 import type Program from "../Program.js";
 import type UniformType from "../../constants/UniformType.js";
 
-/** A variable in a WebGL shader program. */
+/**
+ * A variable in a WebGL shader program.
+ * @public
+ */
 export default abstract class Variable extends ContextDependent {
 	/**
 	 * Create a variable.
@@ -29,25 +32,22 @@ export default abstract class Variable extends ContextDependent {
 
 	/**
 	 * The active information of this variable.
-	 * @see [`getActiveUniform`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform)
-	 * @see [`getActiveAttrib`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib)
-	 * @see [`getTransformFeedbackVarying`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying)
 	 * @internal
 	 */
 	protected abstract readonly activeInfo: WebGLActiveInfo;
 
-	/** Get the name of this variable. */
-	public get name() {
+	/** The name of this variable. */
+	public get name(): string {
 		return this.activeInfo.name;
 	}
 
-	/** Get the type of this variable. */
+	/** The type of this variable. */
 	public get type(): UniformType | AttributeType {
 		return this.activeInfo.type;
 	}
 
-	/** Get the size of this variable in memory in bytes. */
-	public get size() {
+	/** The size of this variable in memory in bytes. */
+	public get size(): number {
 		return this.activeInfo.size;
 	}
 }

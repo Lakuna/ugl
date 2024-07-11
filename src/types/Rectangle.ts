@@ -1,4 +1,7 @@
-/** A rectangle. */
+/**
+ * A rectangle.
+ * @public
+ */
 export default interface Rectangle {
 	/** The X-coordinate of the rectangle. */
 	0: number;

@@ -6,12 +6,12 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
 /**
  * An object that contains an image and is optimized as a rendering target.
- * @see [`WebGLRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer | WebGLRenderbuffer}
+ * @public
  */
 export default class Renderbuffer extends ContextDependent {
 	/**
 	 * The currently-bound renderbuffer cache.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -32,7 +32,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * Get the currently-bound renderbuffer.
 	 * @param gl - The rendering context.
 	 * @returns The renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
 	public static getBound(gl: WebGL2RenderingContext) {
@@ -54,7 +53,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * Bind a renderbuffer.
 	 * @param context - The rendering context.
 	 * @param renderbuffer - The renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer | bindRenderbuffer}
 	 * @internal
 	 */
 	public static bindGl(
@@ -75,7 +74,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * Unbind the renderbuffer that is bound.
 	 * @param gl - The rendering context.
 	 * @param renderbuffer - The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
 	public static unbindGl(
@@ -100,9 +98,8 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param format - The format of the renderbuffer.
 	 * @param width - The width of the renderbuffer.
 	 * @param height - The height of the renderbuffer.
-	 * @see [`createRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer)
-	 * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)
-	 * @throws {@link UnsupportedOperationError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer | createRenderbuffer}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
 	 */
 	public constructor(
 		context: Context,
@@ -127,34 +124,29 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * The API interface of this renderbuffer.
-	 * @see [`WebGLRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer)
 	 * @internal
 	 */
 	public readonly internal;
 
-	/**
-	 * The format of this renderbuffer.
-	 * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)
-	 */
-	public readonly format;
+	/** The format of this renderbuffer. */
+	public readonly format: RenderbufferFormat;
 
 	/** The width of this renderbuffer. */
-	public readonly width;
+	public readonly width: number;
 
 	/** The height of this renderbuffer. */
-	public readonly height;
+	public readonly height: number;
 
 	/**
 	 * Delete this renderbuffer.
-	 * @see [`deleteRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteRenderbuffer | deleteRenderbuffer}
 	 */
-	public delete() {
+	public delete(): void {
 		this.gl.deleteRenderbuffer(this.internal);
 	}
 
 	/**
 	 * Bind this renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
 	public bind() {
@@ -163,7 +155,6 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Unbind this renderbuffer.
-	 * @see [`bindRenderbuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindRenderbuffer)
 	 * @internal
 	 */
 	public unbind() {

@@ -1,6 +1,8 @@
+// TODO: Rename to `BufferMode`.
+
 /**
  * Modes for capturing transform feedback varyings.
- * @see [`transformFeedbackVaryings`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/transformFeedbackVaryings)
+ * @public
  */
 enum TransformFeedbackBufferMode {
 	/** All of the varyings will be written to the same buffer, interleaved in the specified order. */

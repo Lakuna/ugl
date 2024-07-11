@@ -1,6 +1,5 @@
 /**
  * Binding points for framebuffers.
- * @see [`bindFramebuffer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer)
  * @internal
  */
 enum FramebufferTarget {

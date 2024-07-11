@@ -1,6 +1,6 @@
 /**
  * WebGL error codes.
- * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+ * @public
  */
 enum ErrorCode {
 	/** No error has been recorded. */

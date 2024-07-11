@@ -29,7 +29,7 @@ import UnsupportedOperationError from "../../../utility/UnsupportedOperationErro
  * @param program - The shader program that the uniform belongs to.
  * @param index - The index of the uniform.
  * @returns The uniform.
- * @throws {@link UnsupportedOperationError}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform | getActiveUniform}
  * @internal
  */
 export default function createUniform(program: Program, index: number) {

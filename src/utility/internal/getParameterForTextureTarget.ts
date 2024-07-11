@@ -10,7 +10,6 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * Get the constant value representing the context property of the given texture binding point.
  * @param target - The texture binding point.
  * @returns The constant value.
- * @see [`bindTexture`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture)
  * @internal
  */
 export default function getParameterForTextureTarget(target: TextureTarget) {

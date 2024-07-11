@@ -1,6 +1,9 @@
 import type BlendFunction from "../constants/BlendFunction.js";
 
-/** A set of a source and a destination blend function. */
+/**
+ * A set of a source and a destination blend function.
+ * @public
+ */
 export default interface BlendFunctionSet {
 	/** The source blend function. */
 	0: BlendFunction;

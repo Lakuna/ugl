@@ -33,7 +33,7 @@ export default class MatrixAttribute extends Attribute {
 	/**
 	 * Set the value of this attribute.
 	 * @param value - The value to pass to the attribute.
-	 * @see [`vertexAttribPointer`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer | vertexAttribPointer}
 	 * @internal
 	 */
 	protected override setterInternal(value: AttributeValue) {

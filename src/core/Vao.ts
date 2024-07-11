@@ -13,11 +13,14 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
 import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 
-/** A vertex attribute array; a collection of attribute state. */
+/**
+ * A vertex attribute array; a collection of attribute state.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject | WebGLVertexArrayObject}
+ * @public
+ */
 export default class Vao extends ContextDependent {
 	/**
 	 * The currently-bound VAO cache.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
 	 * @internal
 	 */
 	private static bindingsCache?: Map<
@@ -37,7 +40,6 @@ export default class Vao extends ContextDependent {
 	/**
 	 * Get the currently-bound VAO.
 	 * @param gl - The rendering context.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
 	 * @internal
 	 */
 	public static getBound(gl: WebGL2RenderingContext) {
@@ -59,7 +61,7 @@ export default class Vao extends ContextDependent {
 	 * Bind a VAO.
 	 * @param gl - The rendering context.
 	 * @param vao - The VAO.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray | bindVertexArray}
 	 * @internal
 	 */
 	public static bindGl(
@@ -80,7 +82,6 @@ export default class Vao extends ContextDependent {
 	 * Unbind the VAO that is bound.
 	 * @param gl - The rendering context.
 	 * @param vao - The VAO to unbind, or `undefined` to unbind any VAO.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
 	 * @internal
 	 */
 	public static unbindGl(
@@ -101,9 +102,7 @@ export default class Vao extends ContextDependent {
 	 * @param program - The shader program associated with the VAO.
 	 * @param attributes - The attributes to attach to the VAO.
 	 * @param indices - The indices to attach to the VAO.
-	 * @see [`createVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray)
-	 * @throws {@link UnsupportedOperationError}
-	 * @throws {@link BadValueError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
 	public constructor(
 		program: Program,
@@ -122,6 +121,10 @@ export default class Vao extends ContextDependent {
 		// Set the initial attribute values.
 		this.attributeCache = new Map<string, AttributeValue>();
 		for (const name in attributes) {
+			if (!Object.hasOwn(attributes, name)) {
+				continue;
+			}
+
 			const value = attributes[name];
 			if (typeof value === "undefined") {
 				throw new BadValueError();
@@ -136,11 +139,10 @@ export default class Vao extends ContextDependent {
 	}
 
 	/** The shader program associated with this VAO. */
-	public readonly program;
+	public readonly program: Program;
 
 	/**
 	 * The API interface of this VAO.
-	 * @see [`WebGLVertexArrayObject`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject)
 	 * @internal
 	 */
 	public readonly internal;
@@ -155,16 +157,15 @@ export default class Vao extends ContextDependent {
 	 * Set the value of an attribute in this VAO.
 	 * @param name - The name of the attribute.
 	 * @param value - The value to pass to the attribute.
-	 * @throws {@link BadValueError}
 	 */
-	public setAttribute(name: string, value: AttributeValue | Buffer) {
+	public setAttribute(name: string, value: AttributeValue | Buffer): void {
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
 			throw new BadValueError();
 		}
 
 		this.bind();
-		attribute.value = value;
+		attribute.setValue(value);
 		this.attributeCache.set(
 			name,
 			"buffer" in value ? value : { buffer: value }
@@ -177,12 +178,11 @@ export default class Vao extends ContextDependent {
 	 */
 	private indicesCache?: ElementArrayBuffer;
 
-	/** Get the indices of this VAO. */
+	/** The indices of this VAO. */
 	public get indices(): ElementArrayBuffer | undefined {
 		return this.indicesCache;
 	}
 
-	/** Set the indices of this VAO. */
 	public set indices(value: ElementArrayBuffer) {
 		this.bind();
 		value.bind();
@@ -195,14 +195,15 @@ export default class Vao extends ContextDependent {
 	 * @param primitive - The type of primitive to rasterize.
 	 * @param offset - The number of elements to skip when rasterizing arrays, or the number of indices to skip when rasterizing elements.
 	 * @param framebuffer - The framebuffer to rasterize to, or `null` for the default framebuffer (canvas).
-	 * @throws {@link BadValueError}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays | drawArrays}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | drawElements}
 	 */
 	public draw(
 		uniforms?: UniformMap,
-		primitive = Primitive.TRIANGLES,
+		primitive: Primitive = Primitive.TRIANGLES,
 		offset = 0,
 		framebuffer: Framebuffer | null = null
-	) {
+	): void {
 		// Bind the correct framebuffer.
 		if (framebuffer === null) {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);
@@ -223,6 +224,10 @@ export default class Vao extends ContextDependent {
 		// Set uniforms.
 		if (typeof uniforms !== "undefined") {
 			for (const name in uniforms) {
+				if (!Object.hasOwn(uniforms, name)) {
+					continue;
+				}
+
 				const uniform = this.program.uniforms.get(name);
 				const value = uniforms[name];
 				if (typeof uniform === "undefined" || typeof value === "undefined") {
@@ -270,7 +275,6 @@ export default class Vao extends ContextDependent {
 
 	/**
 	 * Bind this VAO.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
 	 * @internal
 	 */
 	public bind() {
@@ -279,7 +283,6 @@ export default class Vao extends ContextDependent {
 
 	/**
 	 * Unbind this VAO.
-	 * @see [`bindVertexArray`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray)
 	 * @internal
 	 */
 	public unbind() {

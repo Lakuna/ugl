@@ -3,7 +3,7 @@ import getErrorCodeMessage from "./internal/getErrorCodeMessage.js";
 
 /**
  * A WebGL error.
- * @see [`getError`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError)
+ * @public
  */
 export default class WebglError extends Error {
 	/**

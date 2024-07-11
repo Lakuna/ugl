@@ -1,6 +1,6 @@
 /**
  * Formats for a renderbuffer.
- * @see [`renderbufferStorage`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage)
+ * @public
  */
 enum RenderbufferFormat {
 	/** 4 bits each for red, green, blue, and alpha. */
@@ -69,10 +69,7 @@ enum RenderbufferFormat {
 	/** 8 bits each for red, green, blue, and alpha. */
 	RGBA8 = 0x8058,
 
-	/**
-	 * 8 bits each for red, green, blue, and alpha.
-	 * @see [`EXT_sRGB`](https://developer.mozilla.org/en-US/docs/Web/API/EXT_sRGB)
-	 */
+	/** 8 bits each for red, green, blue, and alpha. */
 	SRGB8_ALPHA8 = 0x8c43,
 
 	/** 10 bits each for red, green, and blue, and 2 bits for alpha. */
@@ -113,51 +110,29 @@ enum RenderbufferFormat {
 
 	/**
 	 * A 32-bit floating-point number each for red, green, and blue.
-	 * @see [WEBGL_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_color_buffer_float)
-	 * @deprecated Use `EXT_color_buffer_float` instead.
+	 * @deprecated Use the constant from {@link Extension.ExtColorBufferFloat} instead.
 	 */
 	RGB32F_EXT = 0x8815,
 
-	/**
-	 * A 16-bit floating-point number for red.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 16-bit floating-point number for red. */
 	R16F = 0x822d,
 
-	/**
-	 * A 16-bit floating-point number each for red and green.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 16-bit floating-point number each for red and green. */
 	RG16F = 0x822f,
 
-	/**
-	 * A 16-bit floating-point number each for red, green, blue, and alpha.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 16-bit floating-point number each for red, green, blue, and alpha. */
 	RGBA16F = 0x881a,
 
-	/**
-	 * A 32-bit floating-point number for red.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 32-bit floating-point number for red. */
 	R32F = 0x822e,
 
-	/**
-	 * A 32-bit floating-point number each for red and green.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 32-bit floating-point number each for red and green. */
 	RG32F = 0x8230,
 
-	/**
-	 * A 32-bit floating-point number each for red, green, blue, and alpha.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** A 32-bit floating-point number each for red, green, blue, and alpha. */
 	RGBA32F = 0x8814,
 
-	/**
-	 * An 11-bit floating-point number each for red and green, and a 10-bit floating-point number for blue.
-	 * @see [EXT_color_buffer_float](https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float)
-	 */
+	/** An 11-bit floating-point number each for red and green, and a 10-bit floating-point number for blue. */
 	R11F_G11F_B10F = 0x8c3a
 }
 

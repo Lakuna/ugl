@@ -1,6 +1,9 @@
 import type Rectangle from "./Rectangle.js";
 
-/** A rectangular prism. */
+/**
+ * A rectangular prism.
+ * @public
+ */
 export default interface Prism extends Rectangle {
 	/** The Z-coordinate of the prism. */
 	4: number;

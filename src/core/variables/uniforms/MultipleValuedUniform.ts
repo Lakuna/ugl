@@ -8,7 +8,6 @@ import UnsupportedOperationError from "../../../utility/UnsupportedOperationErro
 export default abstract class MultipleValuedUniform extends Uniform {
 	/**
 	 * Set the value of this uniform if the value is not iterable.
-	 * @throws {@link UnsupportedOperationError}
 	 * @internal
 	 */
 	public override setter() {

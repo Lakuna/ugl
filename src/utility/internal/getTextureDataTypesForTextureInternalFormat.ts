@@ -7,7 +7,6 @@ import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUnc
  * Get a list of data types that can be supplied to the given texture internal format.
  * @param internalFormat - The texture internal format.
  * @returns A list of data types. If the return value is not null, it is guaranteed to contain at least one data type. The first data type in the list is a sensible default.
- * @see [`glTexImage2D`](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml)
  * @internal
  */
 export default function getTextureDataTypesForTextureInternalFormat(

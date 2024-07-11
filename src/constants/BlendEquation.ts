@@ -1,6 +1,6 @@
 /**
  * Blending equations.
- * @see [`blendEquation`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation)
+ * @public
  */
 enum BlendEquation {
 	/** Add the destination to the source. */

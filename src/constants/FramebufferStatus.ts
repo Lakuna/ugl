@@ -1,6 +1,6 @@
 /**
  * Framebuffer statuses.
- * @see [`checkFramebufferStatus`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/checkFramebufferStatus)
+ * @public
  */
 enum FramebufferStatus {
 	/** The framebuffer is ready to display. */

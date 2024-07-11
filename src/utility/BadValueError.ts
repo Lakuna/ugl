@@ -1,4 +1,7 @@
-/** An error that occurs when attempting to use an invalid value for an operation. */
+/**
+ * An error that occurs when attempting to use an invalid value for an operation.
+ * @public
+ */
 export default class BadValueError extends Error {
 	/**
 	 * Creates a bad value error.

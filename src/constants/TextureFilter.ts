@@ -1,6 +1,6 @@
 /**
  * Minification and magnification filters for textures.
- * @see [`texParameter`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter)
+ * @public
  */
 enum TextureFilter {
 	/** Choose one pixel from the largest mip. */

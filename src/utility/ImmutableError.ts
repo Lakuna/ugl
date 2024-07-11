@@ -1,4 +1,7 @@
-/** An error resulting from attempting to modify an immutable value. */
+/**
+ * An error resulting from attempting to modify an immutable value.
+ * @public
+ */
 export default class ImmutableError extends Error {
 	/**
 	 * Creates a texture format error.

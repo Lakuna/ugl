@@ -1,7 +1,10 @@
 // WebGL extension objects don't use camel case.
 /* eslint-disable camelcase */
 
-/** WebGL extension implementations. */
+/**
+ * WebGL extension implementations.
+ * @public
+ */
 export type ExtensionObject =
 	| ANGLE_instanced_arrays
 	| EXT_blend_minmax

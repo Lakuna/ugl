@@ -7,7 +7,8 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
 /**
  * A WebGL2 shader.
- * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader | WebGLShader}
+ * @public
  */
 export default class Shader extends ContextDependent {
 	/**
@@ -15,11 +16,9 @@ export default class Shader extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @param type - The type.
 	 * @param source - The source code.
-	 * @throws {@link UnsupportedOperationError}
-	 * @throws {@link ShaderCompileError}
-	 * @see [`createShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader)
-	 * @see [`shaderSource`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource)
-	 * @see [`compileShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader | createShader}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource | shaderSource}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader | compileShader}
 	 */
 	public constructor(context: Context, type: ShaderType, source: string) {
 		super(context);
@@ -43,35 +42,35 @@ export default class Shader extends ContextDependent {
 
 	/**
 	 * The API interface of this shader.
-	 * @see [`WebGLShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader | WebGLShader}
 	 * @internal
 	 */
 	public readonly internal;
 
 	/** The type of this shader. */
-	public readonly type;
+	public readonly type: ShaderType;
 
 	/** The source code of this shader. */
-	public readonly source;
+	public readonly source: string;
 
-	/** Get the compilation status of this shader. */
+	/** The compilation status of this shader. */
 	public get compileStatus() {
 		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
 	}
 
 	/**
-	 * Get the information log of this shader.
-	 * @see [`getShaderInfoLog`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog)
+	 * The information log of this shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog | getShaderInfoLog}
 	 */
-	public get infoLog() {
+	public get infoLog(): string | null {
 		return this.gl.getShaderInfoLog(this.internal);
 	}
 
 	/**
 	 * Delete this shader.
-	 * @see [`deleteShader`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteShader)
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteShader | deleteShader}
 	 */
-	public delete() {
+	public delete(): void {
 		this.gl.deleteShader(this.internal);
 	}
 }

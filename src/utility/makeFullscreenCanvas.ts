@@ -15,8 +15,9 @@ const recursiveFullscreen = (element: HTMLElement) => {
 /**
  * Create a canvas that fills the entire browser window, destroying all other content in the document body in the process.
  * @returns A canvas that fills the entire browser window.
+ * @public
  */
-export default function makeFullscreenCanvas() {
+export default function makeFullscreenCanvas(): HTMLCanvasElement {
 	if (typeof document === "undefined") {
 		throw new UnsupportedOperationError();
 	}
