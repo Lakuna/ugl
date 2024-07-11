@@ -14,14 +14,14 @@ export default config(
 			// N/A
 
 			// Suggestions
-			complexity: "off", // ?
+			complexity: "off",
 			"id-length": "off",
-			"max-depth": "off", // ?
-			"max-lines": "off", // ?
-			"max-lines-per-function": "off", // ?
-			"max-nested-callbacks": "off", // ?
-			"max-params": "off", // ?
-			"max-statements": "off", // ?
+			"max-depth": "off",
+			"max-lines": "off",
+			"max-lines-per-function": "off",
+			"max-nested-callbacks": "off",
+			"max-params": "off",
+			"max-statements": "off",
 			"no-bitwise": "off",
 			"no-continue": "off",
 			"no-div-regex": "off",
