@@ -3,6 +3,7 @@ import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import getExtensionForRenderbufferFormat from "../utility/internal/getExtensionForRenderbufferFormat.js";
 
 /**
  * An object that contains an image and is optimized as a rendering target.
@@ -114,6 +115,12 @@ export default class Renderbuffer extends ContextDependent {
 			throw new UnsupportedOperationError();
 		}
 		this.internal = renderbuffer;
+
+		// Enable the extension that is required for the given format, if any.
+		const extension = getExtensionForRenderbufferFormat(format);
+		if (extension !== null) {
+			this.context.enableExtension(extension);
+		}
 
 		this.bind();
 		this.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
