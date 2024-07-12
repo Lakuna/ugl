@@ -16,10 +16,10 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
+				IndexBuffer,
 				Framebuffer,
 				FramebufferAttachment,
-				PolygonDirection,
+				Face,
 				Program,
 				Renderbuffer,
 				RenderbufferFormat,
@@ -684,7 +684,7 @@ void main() {
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
 				const texcoordBuffer = new Buffer(context, texcoordData);
-				const indexBuffer = new ElementArrayBuffer(context, indexData);
+				const indexBuffer = new IndexBuffer(context, indexData);
 
 				// Create VAOs.
 				const vao = new Vao(
@@ -774,7 +774,7 @@ void main() {
 					// Set global state, bind the framebuffer, clear the canvas.
 					context.viewport = [0, 0, framebuffer.width, framebuffer.height];
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 					context.clear([0, 0, 1, 1], 1, false, framebuffer);
 
@@ -797,7 +797,7 @@ void main() {
 					// Set global state, bind the framebuffer, clear the canvas.
 					context.fitViewport();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 					context.clear([0, 0, 0, 0], 1, false);
 

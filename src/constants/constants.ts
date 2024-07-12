@@ -377,7 +377,7 @@ export const STENCIL_BACK_REF = 0x8ca3;
 export const STENCIL_BACK_VALUE_MASK = 0x8ca4;
 
 /**
- * The winding orientation that is considered the front face of a polygon.
+ * The rotational orientation that is considered the front face of a polygon.
  * @internal
  */
 export const FRONT_FACE = 0x0b46;

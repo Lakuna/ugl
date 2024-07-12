@@ -13,13 +13,7 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import {
-				Buffer,
-				Context,
-				PolygonDirection,
-				Program,
-				Vao
-			} from "../dist/index.js";
+			import { Buffer, Context, Face, Program, Vao } from "../dist/index.js";
 
 			// https://umath.lakuna.pw/
 			function createMatrix4Like() {
@@ -367,7 +361,7 @@ void main() {
 					// Resize the drawing buffer, set global state.
 					context.resize();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 
 					// Clear the canvas.

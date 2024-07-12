@@ -16,8 +16,8 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
-				PolygonDirection,
+				IndexBuffer,
+				Face,
 				Program,
 				Vao
 			} from "../dist/index.js";
@@ -589,7 +589,7 @@ void main() {
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
 				const normalBuffer = new Buffer(context, normalData);
-				const indexBuffer = new ElementArrayBuffer(context, indexData);
+				const indexBuffer = new IndexBuffer(context, indexData);
 
 				// Create VAOs.
 				const vao = new Vao(
@@ -616,7 +616,7 @@ void main() {
 					// Resize the drawing buffer, set global state, clear the canvas.
 					context.resize();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 					context.clear([0, 0, 0, 0], 1, false);
 

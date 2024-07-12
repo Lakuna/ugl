@@ -1,5 +1,5 @@
 /**
- * Winding orientations.
+ * Rotational orientations.
  * @public
  */
 const enum Orientation {

@@ -928,13 +928,13 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * The winding orientation of front-facing polygons.
+	 * The rotational orientation of front-facing polygons.
 	 * @internal
 	 */
 	private frontFaceCache?: Orientation;
 
 	/**
-	 * The winding orientation of front-facing polygons.
+	 * The rotational orientation of front-facing polygons.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
 	 */
 	public get frontFace(): Orientation {

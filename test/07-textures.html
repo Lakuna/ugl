@@ -16,8 +16,8 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
-				PolygonDirection,
+				IndexBuffer,
+				Face,
 				Program,
 				Texture2d,
 				Vao
@@ -255,7 +255,7 @@ void main() {
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
 				const texcoordBuffer = new Buffer(context, texcoordData);
-				const indexBuffer = new ElementArrayBuffer(context, indexData);
+				const indexBuffer = new IndexBuffer(context, indexData);
 
 				// Create VAOs, bind indices.
 				const vao = new Vao(
@@ -277,7 +277,7 @@ void main() {
 					// Resize the drawing buffer, set global state.
 					context.resize();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 
 					// Clear the canvas.

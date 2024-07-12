@@ -16,10 +16,10 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
+				IndexBuffer,
 				Framebuffer,
 				FramebufferAttachment,
-				PolygonDirection,
+				Face,
 				Primitive,
 				Program,
 				Texture2d,
@@ -815,18 +815,12 @@ void main() {
 				// Create buffers.
 				const planePositionBuffer = new Buffer(context, planePositionData);
 				const planeTexcoordBuffer = new Buffer(context, planeTexcoordData);
-				const planeIndexBuffer = new ElementArrayBuffer(
-					context,
-					planeIndexData
-				);
+				const planeIndexBuffer = new IndexBuffer(context, planeIndexData);
 				const cubePositionBuffer = new Buffer(context, cubePositionData);
 				const cubeTexcoordBuffer = new Buffer(context, cubeTexcoordData);
-				const cubeIndexBuffer = new ElementArrayBuffer(context, cubeIndexData);
+				const cubeIndexBuffer = new IndexBuffer(context, cubeIndexData);
 				const frustumPositionBuffer = new Buffer(context, frustumPositionData);
-				const frustumIndexBuffer = new ElementArrayBuffer(
-					context,
-					frustumIndexData
-				);
+				const frustumIndexBuffer = new IndexBuffer(context, frustumIndexData);
 
 				// Create VAOs, bind indices.
 				const planeVao = new Vao(
@@ -936,7 +930,7 @@ void main() {
 					// Set global state, bind the framebuffer, clear the canvas.
 					context.viewport = [0, 0, framebuffer.width, framebuffer.height];
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.FRONT;
+					context.cullFace = Face.FRONT;
 					context.doDepthTest = true;
 					context.clear([0, 0, 0, 0], 1, false, framebuffer);
 
@@ -964,7 +958,7 @@ void main() {
 					// Set global state, bind the framebuffer, clear the canvas.
 					context.fitViewport();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 					context.clear([0, 0, 0, 0], 1, false);
 

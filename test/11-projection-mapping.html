@@ -16,8 +16,8 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
-				PolygonDirection,
+				IndexBuffer,
+				Face,
 				Primitive,
 				Program,
 				Texture2d,
@@ -750,18 +750,12 @@ void main() {
 				// Create buffers.
 				const planePositionBuffer = new Buffer(context, planePositionData);
 				const planeTexcoordBuffer = new Buffer(context, planeTexcoordData);
-				const planeIndexBuffer = new ElementArrayBuffer(
-					context,
-					planeIndexData
-				);
+				const planeIndexBuffer = new IndexBuffer(context, planeIndexData);
 				const cubePositionBuffer = new Buffer(context, cubePositionData);
 				const cubeTexcoordBuffer = new Buffer(context, cubeTexcoordData);
-				const cubeIndexBuffer = new ElementArrayBuffer(context, cubeIndexData);
+				const cubeIndexBuffer = new IndexBuffer(context, cubeIndexData);
 				const frustumPositionBuffer = new Buffer(context, frustumPositionData);
-				const frustumIndexBuffer = new ElementArrayBuffer(
-					context,
-					frustumIndexData
-				);
+				const frustumIndexBuffer = new IndexBuffer(context, frustumIndexData);
 
 				// Create VAOs, bind indices.
 				const planeVao = new Vao(
@@ -833,7 +827,7 @@ void main() {
 					// Resize the drawing buffer, set global state.
 					context.resize();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 
 					// Clear the canvas.

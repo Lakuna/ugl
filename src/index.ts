@@ -1,3 +1,4 @@
+// Constants
 export { default as AttributeType } from "./constants/AttributeType.js";
 export { default as BlendEquation } from "./constants/BlendEquation.js";
 export { default as BlendFunction } from "./constants/BlendFunction.js";
@@ -6,9 +7,11 @@ export { default as CubeFace } from "./constants/CubeFace.js";
 export { default as DataType } from "./constants/DataType.js";
 export { default as ErrorCode } from "./constants/ErrorCode.js";
 export { default as Extension } from "./constants/Extension.js";
+export { default as Face } from "./constants/Face.js";
 export { default as FramebufferAttachment } from "./constants/FramebufferAttachment.js";
 export { default as FramebufferStatus } from "./constants/FramebufferStatus.js";
-export { default as Face } from "./constants/Face.js";
+export { default as MergeOrder } from "./constants/MergeOrder.js";
+export { default as Orientation } from "./constants/Orientation.js";
 export { default as Primitive } from "./constants/Primitive.js";
 export { default as RenderbufferFormat } from "./constants/RenderbufferFormat.js";
 export { default as ShaderType } from "./constants/ShaderType.js";
@@ -16,34 +19,44 @@ export { default as TestFunction } from "./constants/TestFunction.js";
 export { default as TextureCompareMode } from "./constants/TextureCompareMode.js";
 export { default as TextureCompressedSizedInternalFormat } from "./constants/TextureCompressedSizedInternalFormat.js";
 export { default as TextureCompressedUnsizedInternalFormat } from "./constants/TextureCompressedUnsizedInternalFormat.js";
-export { default as TextureFilter } from "./constants/TextureFilter.js";
 export { default as TextureDataType } from "./constants/TextureDataType.js";
+export { default as TextureFilter } from "./constants/TextureFilter.js";
 export { default as TextureUncompressedSizedInternalFormat } from "./constants/TextureUncompressedSizedInternalFormat.js";
 export { default as TextureUncompressedUnsizedInternalFormat } from "./constants/TextureUncompressedUnsizedInternalFormat.js";
-export { default as WrapMode } from "./constants/WrapMode.js";
-export { default as MergeOrder } from "./constants/MergeOrder.js";
 export { default as UniformType } from "./constants/UniformType.js";
-export { default as Orientation } from "./constants/Orientation.js";
+export { default as WrapMode } from "./constants/WrapMode.js";
+
+// Core - Buffers
 export { default as Buffer } from "./core/buffers/Buffer.js";
 export { default as BufferParent } from "./core/buffers/BufferParent.js";
-export { default as ElementArrayBuffer } from "./core/buffers/IndexBuffer.js";
+export { default as IndexBuffer } from "./core/buffers/IndexBuffer.js";
+
+// Core - Internal
 export { default as ApiInterface } from "./core/internal/ApiInterface.js";
 export { default as ContextDependent } from "./core/internal/ContextDependent.js";
+
+// Core - Textures
 export { default as Texture } from "./core/textures/Texture.js";
 export { default as Texture2d } from "./core/textures/Texture2d.js";
 export { default as Texture2dArray } from "./core/textures/Texture2dArray.js";
 export { default as Texture3d } from "./core/textures/Texture3d.js";
 export { default as TextureCubemap } from "./core/textures/TextureCubemap.js";
+
+// Core - Variables
 export { default as Attribute } from "./core/variables/attributes/Attribute.js";
 export { default as Uniform } from "./core/variables/uniforms/Uniform.js";
 export { default as Variable } from "./core/variables/Variable.js";
 export { default as Varying } from "./core/variables/Varying.js";
+
+// Core
 export { default as Context } from "./core/Context.js";
 export { default as Framebuffer } from "./core/Framebuffer.js";
 export { default as Program } from "./core/Program.js";
 export { default as Renderbuffer } from "./core/Renderbuffer.js";
 export { default as Shader } from "./core/Shader.js";
 export { default as Vao } from "./core/Vao.js";
+
+// Types
 export type { AttributeMap } from "./types/AttributeMap.js";
 export type { default as AttributeValue } from "./types/AttributeValue.js";
 export type { default as BlendEquationSet } from "./types/BlendEquationSet.js";
@@ -63,6 +76,8 @@ export type { TextureUnsizedInternalFormat } from "./types/TextureUnsizedInterna
 export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";
 export type { default as Vector } from "./types/Vector.js";
+
+// Utility
 export { default as BadValueError } from "./utility/BadValueError.js";
 export { default as ImmutableError } from "./utility/ImmutableError.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";

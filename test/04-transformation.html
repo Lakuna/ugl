@@ -16,7 +16,7 @@
 			import {
 				Buffer,
 				Context,
-				ElementArrayBuffer,
+				IndexBuffer,
 				Program,
 				Vao
 			} from "../dist/index.js";
@@ -284,7 +284,7 @@ void main() {
 
 				// Create buffers.
 				const positionBuffer = new Buffer(context, positionData);
-				const indexBuffer = new ElementArrayBuffer(context, indexData);
+				const indexBuffer = new IndexBuffer(context, indexData);
 
 				// Create VAOs, bind indices.
 				const rectVao = new Vao(

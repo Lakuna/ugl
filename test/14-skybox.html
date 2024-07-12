@@ -16,9 +16,8 @@
 			import {
 				Buffer,
 				Context,
-				CubemapFace,
-				ElementArrayBuffer,
-				PolygonDirection,
+				IndexBuffer,
+				Face,
 				Program,
 				TestFunction,
 				TextureCubemap,
@@ -809,12 +808,9 @@ void main() {
 				// Create buffers.
 				const cubePositionBuffer = new Buffer(context, cubePositionData);
 				const cubeNormalBuffer = new Buffer(context, cubeNormalData);
-				const cubeIndexBuffer = new ElementArrayBuffer(context, cubeIndexData);
+				const cubeIndexBuffer = new IndexBuffer(context, cubeIndexData);
 				const planePositionBuffer = new Buffer(context, planePositionData);
-				const planeIndexBuffer = new ElementArrayBuffer(
-					context,
-					planeIndexData
-				);
+				const planeIndexBuffer = new IndexBuffer(context, planeIndexData);
 
 				// Create VAOs.
 				const cubeVao = new Vao(
@@ -855,7 +851,7 @@ void main() {
 					// Resize the drawing buffer, set global state, clear the canvas.
 					context.resize();
 					context.doCullFace = true;
-					context.cullFace = PolygonDirection.BACK;
+					context.cullFace = Face.BACK;
 					context.doDepthTest = true;
 					context.depthFunction = TestFunction.LEQUAL;
 					context.clear([0, 0, 0, 0], 1, false);
