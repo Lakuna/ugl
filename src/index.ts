@@ -1,5 +1,4 @@
 // Constants
-export { default as AttributeType } from "./constants/AttributeType.js";
 export { default as BlendEquation } from "./constants/BlendEquation.js";
 export { default as BlendFunction } from "./constants/BlendFunction.js";
 export { default as BufferUsage } from "./constants/BufferUsage.js";
@@ -20,7 +19,7 @@ export { default as TextureCompareMode } from "./constants/TextureCompareMode.js
 export { default as TextureDataType } from "./constants/TextureDataType.js";
 export { default as TextureFilter } from "./constants/TextureFilter.js";
 export { default as TextureFormat } from "./constants/TextureFormat.js";
-export { default as UniformType } from "./constants/UniformType.js";
+export { default as VariableType } from "./constants/VariableType.js";
 export { default as WrapMode } from "./constants/WrapMode.js";
 
 // Core - Buffers

@@ -1,7 +1,6 @@
-import type AttributeType from "../../constants/AttributeType.js";
 import ContextDependent from "../internal/ContextDependent.js";
 import type Program from "../Program.js";
-import type UniformType from "../../constants/UniformType.js";
+import type VariableType from "../../constants/VariableType.js";
 
 /**
  * A variable in a WebGL shader program.
@@ -42,7 +41,7 @@ export default abstract class Variable extends ContextDependent {
 	}
 
 	/** The type of this variable. */
-	public get type(): UniformType | AttributeType {
+	public get type(): VariableType {
 		return this.activeInfo.type;
 	}
 
