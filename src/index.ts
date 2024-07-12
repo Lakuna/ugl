@@ -67,7 +67,6 @@ export type { default as Rectangle } from "./types/Rectangle.js";
 export type { default as Stencil } from "./types/Stencil.js";
 export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";
-export type { default as Vector } from "./types/Vector.js";
 
 // Utility
 export { default as BadValueError } from "./utility/BadValueError.js";
