@@ -24,8 +24,7 @@
 				Program,
 				Texture2d,
 				TextureFilter,
-				TextureUncompressedSizedInternalFormat,
-				TextureUncompressedUnsizedInternalFormat,
+				TextureFormat,
 				Vao
 			} from "../dist/index.js";
 
@@ -857,7 +856,7 @@ void main() {
 
 				// Texture initialization.
 				const texture = new Texture2d(context);
-				texture.format = TextureUncompressedUnsizedInternalFormat.LUMINANCE;
+				texture.format = TextureFormat.LUMINANCE;
 				texture.setMip(
 					new Uint8Array([0x80, 0xc0, 0xc0, 0x80]),
 					void 0,
@@ -868,8 +867,7 @@ void main() {
 				texture.magFilter = TextureFilter.NEAREST;
 
 				const projTex = new Texture2d(context);
-				projTex.format =
-					TextureUncompressedSizedInternalFormat.DEPTH_COMPONENT32F;
+				projTex.format = TextureFormat.DEPTH_COMPONENT32F;
 				projTex.setMip(void 0, void 0, void 0, [0, 0, 0x400, 0x400]);
 				projTex.minFilter = TextureFilter.NEAREST;
 				projTex.magFilter = TextureFilter.NEAREST;

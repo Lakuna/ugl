@@ -7,11 +7,11 @@ import FramebufferTarget from "../../constants/FramebufferTarget.js";
 import type MipmapTarget from "../../constants/MipmapTarget.js";
 import type Rectangle from "../../types/Rectangle.js";
 import Texture from "./Texture.js";
+import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import type TextureDataType from "../../constants/TextureDataType.js";
 import type TextureFormat from "../../constants/TextureFormat.js";
-import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
 import TextureTarget from "../../constants/TextureTarget.js";
-import isTextureFormatCompressed from "../../utility/internal/isTextureFormatCompressed.js";
+import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataFormatCompressed.js";
 
 /**
  * A cube mapped texture.
@@ -97,14 +97,14 @@ export default class TextureCubemap extends Texture {
 	public constructor(
 		context: Context,
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dim: number
 	);
 
 	public constructor(
 		context: Context,
 		levels?: number,
-		format?: TextureSizedInternalFormat,
+		format?: TextureFormat,
 		dim?: number
 	) {
 		if (
@@ -130,7 +130,7 @@ export default class TextureCubemap extends Texture {
 	 */
 	protected override makeImmutableFormatInternal(
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dims: [number]
 	): void {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[0]);
@@ -234,13 +234,13 @@ export default class TextureCubemap extends Texture {
 		target: MipmapTarget,
 		level: number,
 		bounds: Rectangle,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		buffer: Buffer,
 		size: number,
 		offset: number
 	) {
-		const isCompressed = isTextureFormatCompressed(format);
+		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Bind the buffer.
 		buffer.bind(BufferTarget.PIXEL_UNPACK_BUFFER);
@@ -328,7 +328,7 @@ export default class TextureCubemap extends Texture {
 		target: MipmapTarget,
 		level: number,
 		bounds: Rectangle | undefined,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		data?: TexImageSource
 	) {
@@ -409,13 +409,13 @@ export default class TextureCubemap extends Texture {
 		target: MipmapTarget,
 		level: number,
 		bounds: Rectangle,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
 	) {
-		const isCompressed = isTextureFormatCompressed(format);
+		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {

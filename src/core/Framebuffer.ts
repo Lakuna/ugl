@@ -22,7 +22,7 @@ import type Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
-import getMipmapTargetForCubemapFace from "../utility/internal/getMipmapTargetForCubemapFace.js";
+import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
 
 /**
@@ -372,7 +372,7 @@ export default class Framebuffer extends ContextDependent {
 			const mipmapTarget =
 				typeof face === "undefined"
 					? MipmapTarget.TEXTURE_2D
-					: getMipmapTargetForCubemapFace(face);
+					: getMipmapTargetForCubeFace(face);
 
 			// Attach an entire texture.
 			this.gl.framebufferTexture2D(

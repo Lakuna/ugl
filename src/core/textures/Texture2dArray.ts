@@ -7,11 +7,11 @@ import type MipmapTarget from "../../constants/MipmapTarget.js";
 import type Prism from "../../types/Prism.js";
 import type Rectangle from "../../types/Rectangle.js";
 import Texture from "./Texture.js";
+import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import type TextureDataType from "../../constants/TextureDataType.js";
 import type TextureFormat from "../../constants/TextureFormat.js";
-import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
 import TextureTarget from "../../constants/TextureTarget.js";
-import isTextureFormatCompressed from "../../utility/internal/isTextureFormatCompressed.js";
+import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataFormatCompressed.js";
 
 /**
  * A two-dimensional array texture.
@@ -39,7 +39,7 @@ export default class Texture2dArray extends Texture {
 	public constructor(
 		context: Context,
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		width: number,
 		height: number,
 		depth: number
@@ -48,7 +48,7 @@ export default class Texture2dArray extends Texture {
 	public constructor(
 		context: Context,
 		levels?: number,
-		format?: TextureSizedInternalFormat,
+		format?: TextureFormat,
 		width?: number,
 		height?: number,
 		depth?: number
@@ -82,7 +82,7 @@ export default class Texture2dArray extends Texture {
 	 */
 	protected override makeImmutableFormatInternal(
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dims: [number, number, number]
 	) {
 		this.gl.texStorage3D(
@@ -172,13 +172,13 @@ export default class Texture2dArray extends Texture {
 		target: MipmapTarget.TEXTURE_2D_ARRAY,
 		level: number,
 		bounds: Prism,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		buffer: Buffer,
 		size: number,
 		offset: number
 	) {
-		const isCompressed = isTextureFormatCompressed(format);
+		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Bind the buffer.
 		buffer.bind(BufferTarget.PIXEL_UNPACK_BUFFER);
@@ -272,7 +272,7 @@ export default class Texture2dArray extends Texture {
 		target: MipmapTarget.TEXTURE_2D_ARRAY,
 		level: number,
 		bounds: Prism | undefined,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		data?: TexImageSource
 	) {
@@ -352,13 +352,13 @@ export default class Texture2dArray extends Texture {
 		target: MipmapTarget.TEXTURE_2D_ARRAY,
 		level: number,
 		bounds: Prism,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
 	) {
-		const isCompressed = isTextureFormatCompressed(format);
+		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {

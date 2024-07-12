@@ -2,7 +2,6 @@
 
 <html lang="en-US">
 	<head>
-		<!-- TODO: Title of test. -->
 		<title>Template</title>
 
 		<!-- Prevent the browser console from complaining. -->
@@ -14,28 +13,15 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import { Context } from "../dist/index.js";
-
 			// Vanilla WebGL2 implementation.
 			function raw(canvas) {
 				const gl = canvas.getContext("webgl2");
-
-				// TODO: Raw initialization function.
-
-				return function () {
-					// TODO: Raw update function.
-				};
+				return function () {};
 			}
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = new Context(canvas);
-
-				// TODO: μGL initialization function.
-
-				return function () {
-					// TODO: μGL update function.
-				};
+				return function () {};
 			}
 
 			// Start after the canvases finish loading.

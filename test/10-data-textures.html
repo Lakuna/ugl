@@ -21,7 +21,7 @@
 				Program,
 				Texture2d,
 				TextureFilter,
-				TextureUncompressedSizedInternalFormat,
+				TextureFormat,
 				Vao
 			} from "../dist/index.js";
 
@@ -259,7 +259,7 @@ void main() {
 
 				// Texture initialization.
 				const texture = new Texture2d(context);
-				texture.format = TextureUncompressedSizedInternalFormat.R8;
+				texture.format = TextureFormat.R8;
 				texture.setMip(
 					new Uint8Array([0x80, 0x40, 0x80, 0x00, 0xc0, 0x00]),
 					0,

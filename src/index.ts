@@ -17,12 +17,9 @@ export { default as RenderbufferFormat } from "./constants/RenderbufferFormat.js
 export { default as ShaderType } from "./constants/ShaderType.js";
 export { default as TestFunction } from "./constants/TestFunction.js";
 export { default as TextureCompareMode } from "./constants/TextureCompareMode.js";
-export { default as TextureCompressedSizedInternalFormat } from "./constants/TextureCompressedSizedInternalFormat.js";
-export { default as TextureCompressedUnsizedInternalFormat } from "./constants/TextureCompressedUnsizedInternalFormat.js";
 export { default as TextureDataType } from "./constants/TextureDataType.js";
 export { default as TextureFilter } from "./constants/TextureFilter.js";
-export { default as TextureUncompressedSizedInternalFormat } from "./constants/TextureUncompressedSizedInternalFormat.js";
-export { default as TextureUncompressedUnsizedInternalFormat } from "./constants/TextureUncompressedUnsizedInternalFormat.js";
+export { default as TextureFormat } from "./constants/TextureFormat.js";
 export { default as UniformType } from "./constants/UniformType.js";
 export { default as WrapMode } from "./constants/WrapMode.js";
 
@@ -68,11 +65,6 @@ export type { ExtensionObject } from "./types/ExtensionObject.js";
 export type { default as Prism } from "./types/Prism.js";
 export type { default as Rectangle } from "./types/Rectangle.js";
 export type { default as Stencil } from "./types/Stencil.js";
-export type { TextureCompressedInternalFormat } from "./types/TextureCompressedInternalFormat.js";
-export type { TextureInternalFormat } from "./types/TextureInternalFormat.js";
-export type { TextureSizedInternalFormat } from "./types/TextureSizedInternalFormat.js";
-export type { TextureUncompressedInternalFormat } from "./types/TextureUncompressedInternalFormat.js";
-export type { TextureUnsizedInternalFormat } from "./types/TextureUnsizedInternalFormat.js";
 export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";
 export type { default as Vector } from "./types/Vector.js";

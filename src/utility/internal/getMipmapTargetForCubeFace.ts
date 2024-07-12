@@ -9,7 +9,7 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * @returns The mipmap target.
  * @internal
  */
-export default function getMipmapTargetForCubemapFace(
+export default function getMipmapTargetForCubeFace(
 	face?: CubeFace,
 	target: TextureTarget = TextureTarget.TEXTURE_CUBE_MAP
 ) {

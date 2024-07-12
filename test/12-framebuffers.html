@@ -25,7 +25,7 @@
 				RenderbufferFormat,
 				Texture2d,
 				TextureFilter,
-				TextureUncompressedSizedInternalFormat,
+				TextureFormat,
 				Vao
 			} from "../dist/index.js";
 
@@ -698,11 +698,11 @@ void main() {
 
 				// Texture initialization.
 				const redTexture = new Texture2d(context);
-				redTexture.format = TextureUncompressedSizedInternalFormat.R8;
+				redTexture.format = TextureFormat.R8;
 				redTexture.setMip(new Uint8Array([0xff]), void 0, void 0, [0, 0, 1, 1]);
 
 				const greenTexture = new Texture2d(context);
-				greenTexture.format = TextureUncompressedSizedInternalFormat.RG8;
+				greenTexture.format = TextureFormat.RG8;
 				greenTexture.setMip(
 					new Uint8Array([0x00, 0xff]),
 					void 0,

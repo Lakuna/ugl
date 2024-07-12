@@ -23,7 +23,7 @@
 		"declarationMap": true,
 		"outDir": "dist",
 		"sourceMap": true,
-		"stripInternal": true,
+		"stripInternal": true, // Remove if switching to [API Extractor](https://api-extractor.com/).
 
 		// JavaScript Support
 		// N/A

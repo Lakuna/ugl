@@ -24,21 +24,20 @@ import type Prism from "../../types/Prism.js";
 import type Rectangle from "../../types/Rectangle.js";
 import type TestFunction from "../../constants/TestFunction.js";
 import type TextureCompareMode from "../../constants/TextureCompareMode.js";
+import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import TextureDataType from "../../constants/TextureDataType.js";
 import TextureFilter from "../../constants/TextureFilter.js";
-import type TextureFormat from "../../constants/TextureFormat.js";
+import TextureFormat from "../../constants/TextureFormat.js";
 import TextureFormatError from "../../utility/TextureFormatError.js";
-import type { TextureInternalFormat } from "../../types/TextureInternalFormat.js";
-import type { TextureSizedInternalFormat } from "../../types/TextureSizedInternalFormat.js";
 import type TextureTarget from "../../constants/TextureTarget.js";
-import TextureUncompressedUnsizedInternalFormat from "../../constants/TextureUncompressedUnsizedInternalFormat.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import type WrapMode from "../../constants/WrapMode.js";
-import getExtensionForTextureInternalFormat from "../../utility/internal/getExtensionForTextureInternalFormat.js";
-import getMipmapTargetForCubemapFace from "../../utility/internal/getMipmapTargetForCubemapFace.js";
+import getExtensionForTextureFormat from "../../utility/internal/getExtensionForTextureFormat.js";
+import getMipmapTargetForCubeFace from "../../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForTextureTarget from "../../utility/internal/getParameterForTextureTarget.js";
-import getTextureDataTypesForTextureInternalFormat from "../../utility/internal/getTextureDataTypesForTextureInternalFormat.js";
-import getTextureFormatForTextureInternalFormat from "../../utility/internal/getTextureFormatForTextureInternalFormat.js";
+import getTextureDataFormatForTextureFormat from "../../utility/internal/getTextureDataFormatForTextureFormat.js";
+import getTextureDataTypesForTextureFormat from "../../utility/internal/getTextureDataTypesForTextureFormat.js";
+import isTextureFormatSized from "../../utility/internal/isTextureDataFormatSized.js";
 
 /**
  * A randomly-accessible array of data.
@@ -356,7 +355,7 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		target: TextureTarget,
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dims: number[]
 	);
 
@@ -364,7 +363,7 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		target: TextureTarget,
 		levels?: number,
-		format?: TextureSizedInternalFormat,
+		format?: TextureFormat,
 		dims?: number[]
 	) {
 		super(context);
@@ -409,13 +408,13 @@ export default abstract class Texture extends ContextDependent {
 	 * The format of this texture.
 	 * @internal
 	 */
-	private formatCache?: TextureInternalFormat;
+	private formatCache?: TextureFormat;
 
 	/** The format of this texture. */
-	public get format(): TextureInternalFormat {
+	public get format(): TextureFormat {
 		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
 		if (typeof this.formatCache === "undefined") {
-			this.formatCache = TextureUncompressedUnsizedInternalFormat.RGBA;
+			this.formatCache = TextureFormat.RGBA;
 		}
 
 		return this.formatCache;
@@ -432,7 +431,7 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Enable the extension that is required for the given format, if any.
-		const extension = getExtensionForTextureInternalFormat(value);
+		const extension = getExtensionForTextureFormat(value);
 		if (extension !== null) {
 			this.context.enableExtension(extension);
 		}
@@ -507,11 +506,16 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public makeImmutableFormat(
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dims: number[]
 	): void {
 		if (this.isImmutableFormat) {
 			return;
+		}
+
+		// Immutable-format textures must use a sized format.
+		if (!isTextureFormatSized(format)) {
+			throw new TextureFormatError();
 		}
 
 		this.makeImmutableFormatInternal(levels, format, dims);
@@ -531,7 +535,7 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	protected abstract makeImmutableFormatInternal(
 		levels: number,
-		format: TextureSizedInternalFormat,
+		format: TextureFormat,
 		dims: number[]
 	): void;
 
@@ -630,9 +634,7 @@ export default abstract class Texture extends ContextDependent {
 		const level = requestedLevel ?? 0;
 
 		// Ensure that the data type and internal format are compatible.
-		const expectedDataTypes = getTextureDataTypesForTextureInternalFormat(
-			this.format
-		);
+		const expectedDataTypes = getTextureDataTypesForTextureFormat(this.format);
 		const type =
 			requestedType ?? expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
 		if (expectedDataTypes !== null && !expectedDataTypes.includes(type)) {
@@ -676,10 +678,10 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Determine the compatible data format.
-		const format = getTextureFormatForTextureInternalFormat(this.format);
+		const format = getTextureDataFormatForTextureFormat(this.format);
 
 		// Determine the proper mipmap target.
-		const target = getMipmapTargetForCubemapFace(face, this.target);
+		const target = getMipmapTargetForCubeFace(face, this.target);
 
 		// Bind this texture.
 		this.bind();
@@ -792,7 +794,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		bounds: Prism | Rectangle,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		buffer: Buffer,
 		size: number,
@@ -813,7 +815,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		bounds: Prism | Rectangle | undefined,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		data?: TexImageSource
 	): void;
@@ -834,7 +836,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		bounds: Prism | Rectangle,
-		format: TextureFormat,
+		format: TextureDataFormat,
 		type: TextureDataType,
 		array: ArrayBufferView,
 		offset?: number,
