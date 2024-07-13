@@ -42,13 +42,13 @@
 		"target": "esnext",
 
 		// Projects
-		"composite": true
+		"composite": true,
 
 		// Output Formatting
 		// N/A
 
 		// Completeness
-		// N/A
+		"skipLibCheck": true
 
 		// Command Line
 		// N/A
