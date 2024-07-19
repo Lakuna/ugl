@@ -102,20 +102,24 @@ export default class Program extends ContextDependent {
 	/**
 	 * Create a shader program from the given shader source code.
 	 * @param context - The rendering context.
-	 * @param vertexShaderSource - The vertex shader's source code.
-	 * @param fragmentShaderSource - The fragment shader's source code.
+	 * @param vss - The vertex shader's source code.
+	 * @param fss - The fragment shader's source code.
 	 * @returns The shader program.
 	 */
 	public static fromSource(
 		context: Context,
-		vertexShaderSource: string,
-		fragmentShaderSource: string
+		vss: string,
+		fss: string
 	): Program {
-		return new Program(
-			context,
-			new Shader(context, ShaderType.VERTEX_SHADER, vertexShaderSource),
-			new Shader(context, ShaderType.FRAGMENT_SHADER, fragmentShaderSource)
-		);
+		const vs = new Shader(context, ShaderType.VERTEX_SHADER, vss);
+		const fs = new Shader(context, ShaderType.FRAGMENT_SHADER, fss);
+
+		const out = new Program(context, vs, fs);
+
+		vs.delete();
+		fs.delete();
+
+		return out;
 	}
 
 	/**
