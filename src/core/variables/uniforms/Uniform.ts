@@ -25,7 +25,9 @@ export default abstract class Uniform extends Variable {
 			this.activeInfo.name
 		);
 		if (!location) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support uniform locations."
+			);
 		}
 		this.location = location;
 	}

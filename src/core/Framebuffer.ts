@@ -134,8 +134,7 @@ export default class Framebuffer extends ContextDependent {
 				// For `DRAW_FRAMEBUFFER`, update `FRAMEBUFFER` too (`FRAMEBUFFER_BINDING` always returns `DRAW_FRAMEBUFFER_BINDING`).
 				contextBindingsCache.set(FramebufferTarget.FRAMEBUFFER, framebuffer);
 				break;
-			default:
-				throw new RangeError();
+			default: // Don't update anything else for `READ_FRAMEBUFFER`.
 		}
 	}
 
@@ -173,7 +172,9 @@ export default class Framebuffer extends ContextDependent {
 
 		const framebuffer = this.gl.createFramebuffer();
 		if (framebuffer === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support framebuffers."
+			);
 		}
 		this.internal = framebuffer;
 		this.targetCache = FramebufferTarget.FRAMEBUFFER;

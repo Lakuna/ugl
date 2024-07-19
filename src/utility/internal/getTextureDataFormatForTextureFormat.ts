@@ -202,8 +202,7 @@ export default function getTextureDataFormatForTextureFormat(
 		case TextureFormat.COMPRESSED_RED_GREEN_RGTC2_EXT:
 			return TextureDataFormat.COMPRESSED_RED_GREEN_RGTC2_EXT;
 		case TextureFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT:
+		default: // Not possible as long as TypeScript is obeyed.
 			return TextureDataFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT;
-		default:
-			throw new RangeError();
 	}
 }

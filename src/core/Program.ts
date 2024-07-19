@@ -165,7 +165,9 @@ export default class Program extends ContextDependent {
 		// Create the shader program.
 		const program = this.gl.createProgram();
 		if (program === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support shader programs."
+			);
 		}
 		this.internal = program;
 

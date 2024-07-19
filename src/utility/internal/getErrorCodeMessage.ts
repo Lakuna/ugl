@@ -23,6 +23,6 @@ export default function getErrorCodeMessage(code: ErrorCode) {
 		case ErrorCode.OUT_OF_MEMORY:
 			return "Not enough memory is left to execute the command.";
 		default:
-			throw new RangeError();
+			return "Unknown error code.";
 	}
 }

@@ -370,7 +370,9 @@ export default abstract class Texture extends ContextDependent {
 
 		const texture = this.gl.createTexture();
 		if (texture === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support textures."
+			);
 		}
 		this.internal = texture;
 		this.target = target;
@@ -427,7 +429,9 @@ export default abstract class Texture extends ContextDependent {
 
 		// Immutable-format textures cannot have their format changed (duh).
 		if (this.isImmutableFormat) {
-			throw new ImmutableError();
+			throw new ImmutableError(
+				"Cannot set the format of an immutable-format texture."
+			);
 		}
 
 		// Enable the extension that is required for the given format, if any.
@@ -515,7 +519,9 @@ export default abstract class Texture extends ContextDependent {
 
 		// Immutable-format textures must use a sized format.
 		if (!isTextureFormatSized(format)) {
-			throw new TextureFormatError();
+			throw new TextureFormatError(
+				"Cannot use an unsized format for immutable-format textures."
+			);
 		}
 
 		this.makeImmutableFormatInternal(levels, format, dims);
@@ -638,7 +644,9 @@ export default abstract class Texture extends ContextDependent {
 		const type =
 			requestedType ?? expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
 		if (expectedDataTypes !== null && !expectedDataTypes.includes(type)) {
-			throw new TextureFormatError();
+			throw new TextureFormatError(
+				`Data type \`${type.toString()}\` is not compatible with format \`${this.format.toString()}\`.`
+			);
 		}
 
 		// Ensure that the specified bounds (if any) are no bigger than the mip.
@@ -689,13 +697,19 @@ export default abstract class Texture extends ContextDependent {
 		// Update the mip data.
 		if (data === null || data instanceof Framebuffer) {
 			if (typeof shape1 === "number") {
-				throw new TypeError();
+				// Not possible if TypeScript is obeyed.
+				throw new TypeError(
+					"Must specify an area to set a mip from a framebuffer."
+				);
 			}
 
 			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
 		} else if (data instanceof Buffer) {
 			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
-				throw new TypeError();
+				// Not possible if TypeScript is obeyed.
+				throw new TypeError(
+					"Must specify a size and an offset to set a mip from a buffer."
+				);
 			}
 
 			// Automatically set bounds to entire mip if they don't exist.
@@ -716,7 +730,10 @@ export default abstract class Texture extends ContextDependent {
 				(typeof shape1 !== "number" && typeof shape1 !== "undefined") ||
 				typeof shape2 === "boolean"
 			) {
-				throw new TypeError();
+				// Not possible if TypeScript is obeyed.
+				throw new TypeError(
+					"Array size and offset must be numbers if defined."
+				);
 			}
 
 			// Automatically set bounds to entire mip if they don't exist.
@@ -954,7 +971,9 @@ export default abstract class Texture extends ContextDependent {
 		if (
 			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
 		) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support anisotropic filtering."
+			);
 		}
 
 		this.bind();
@@ -972,7 +991,9 @@ export default abstract class Texture extends ContextDependent {
 		if (
 			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
 		) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support anisotropic filtering."
+			);
 		}
 
 		this.bind();

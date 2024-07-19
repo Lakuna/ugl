@@ -91,14 +91,11 @@ export default class Context extends ApiInterface {
 			super(source);
 		} else {
 			const gl = source.getContext("webgl2", options);
-			if (gl === null) {
+			// Second clause is necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`.
+			if (gl === null || !(gl instanceof WebGL2RenderingContext)) {
 				throw new UnsupportedOperationError(
 					"The environment does not support WebGL2."
 				);
-			}
-			// This is necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`.
-			if (!(gl instanceof WebGL2RenderingContext)) {
-				throw new UnsupportedOperationError();
 			}
 			super(gl);
 		}
@@ -173,7 +170,9 @@ export default class Context extends ApiInterface {
 		}
 
 		if (value < 0 || value >= this.maxCombinedTextureImageUnits) {
-			throw new BadValueError();
+			throw new BadValueError(
+				`Invalid texture unit (${value.toString()} must be positive and below ${this.maxCombinedTextureImageUnits.toString()}).`
+			);
 		}
 
 		this.gl.activeTexture(value + TEXTURE0);
@@ -1009,7 +1008,7 @@ export default class Context extends ApiInterface {
 	 */
 	public fitDrawingBuffer(): boolean {
 		if (this.canvas instanceof OffscreenCanvas) {
-			return false;
+			return false; // Cannot resize an offscreen canvas.
 		}
 
 		// Get physical size.
@@ -1039,10 +1038,6 @@ export default class Context extends ApiInterface {
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(rectangle?: Rectangle): boolean {
-		if (this.canvas instanceof OffscreenCanvas) {
-			throw new UnsupportedOperationError();
-		}
-
 		const out = this.fitDrawingBuffer();
 
 		if (typeof rectangle === "undefined") {

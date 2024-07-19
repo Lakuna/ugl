@@ -37,7 +37,9 @@ export default abstract class BufferParent extends ContextDependent {
 
 		const buffer = this.gl.createBuffer();
 		if (buffer === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support buffers."
+			);
 		}
 		this.internal = buffer;
 		this.targetCache = target;

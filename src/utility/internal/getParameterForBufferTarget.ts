@@ -33,8 +33,7 @@ export default function getParameterForBufferTarget(target: BufferTarget) {
 		case BufferTarget.TRANSFORM_FEEDBACK_BUFFER:
 			return TRANSFORM_FEEDBACK_BUFFER_BINDING;
 		case BufferTarget.UNIFORM_BUFFER:
+		default: // Not possible as long as TypeScript is obeyed.
 			return UNIFORM_BUFFER_BINDING;
-		default:
-			throw new RangeError();
 	}
 }

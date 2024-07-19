@@ -34,8 +34,10 @@ import VariableType from "../../../constants/VariableType.js";
  */
 export default function createUniform(program: Program, index: number) {
 	const activeInfo = program.gl.getActiveUniform(program.internal, index);
-	if (!activeInfo) {
-		throw new UnsupportedOperationError();
+	if (activeInfo === null) {
+		throw new UnsupportedOperationError(
+			"The environment does not support active information."
+		);
 	}
 
 	switch (activeInfo.type as VariableType) {
@@ -98,6 +100,9 @@ export default function createUniform(program: Program, index: number) {
 		case VariableType.FLOAT_MAT4x3:
 			return new FloatMatrix4x3Uniform(program, activeInfo);
 		default:
-			throw new UnsupportedOperationError();
+			// Not possible as long as this function is only called internally.
+			throw new UnsupportedOperationError(
+				`The type \`${activeInfo.type.toString()}\` is not valid for uniforms.`
+			);
 	}
 }

@@ -23,6 +23,6 @@ export default function getParameterForTextureTarget(target: TextureTarget) {
 		case TextureTarget.TEXTURE_CUBE_MAP:
 			return TEXTURE_BINDING_CUBE_MAP;
 		default:
-			throw new RangeError();
+			throw new RangeError("Unknown texture target.");
 	}
 }

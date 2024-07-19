@@ -114,7 +114,9 @@ export default class Vao extends ContextDependent {
 
 		const vao = this.gl.createVertexArray();
 		if (vao === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support VAOs."
+			);
 		}
 		this.internal = vao;
 
@@ -127,7 +129,7 @@ export default class Vao extends ContextDependent {
 
 			const value = attributes[name];
 			if (typeof value === "undefined") {
-				throw new BadValueError();
+				throw new BadValueError("Cannot pass `undefined` to an attribute.");
 			}
 			this.setAttribute(name, value);
 		}
@@ -161,7 +163,7 @@ export default class Vao extends ContextDependent {
 	public setAttribute(name: string, value: AttributeValue | Buffer): void {
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
-			throw new BadValueError(`No attribute named "${name}"`);
+			throw new BadValueError(`No attribute named \`${name}\`.`);
 		}
 
 		this.bind();
@@ -233,10 +235,10 @@ export default class Vao extends ContextDependent {
 				}
 
 				const uniform = this.program.uniforms.get(name);
-				const value = uniforms[name];
 				if (typeof uniform === "undefined") {
-					throw new BadValueError(`No uniform named "${name}"`);
+					throw new BadValueError(`No uniform named \`${name}\`.`);
 				}
+				const value = uniforms[name];
 				if (typeof value === "undefined") {
 					throw new BadValueError("Cannot pass `undefined` to a uniform.");
 				}

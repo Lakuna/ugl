@@ -15,8 +15,10 @@ import VariableType from "../../../constants/VariableType.js";
  */
 export default function createAttribute(program: Program, index: number) {
 	const activeInfo = program.gl.getActiveAttrib(program.internal, index);
-	if (!activeInfo) {
-		throw new UnsupportedOperationError();
+	if (activeInfo === null) {
+		throw new UnsupportedOperationError(
+			"The environment does not support active information."
+		);
 	}
 
 	switch (activeInfo.type as VariableType) {
@@ -45,6 +47,9 @@ export default function createAttribute(program: Program, index: number) {
 		case VariableType.FLOAT_MAT4:
 			return new MatrixAttribute(program, activeInfo, 4);
 		default:
-			throw new UnsupportedOperationError();
+			// Not possible as long as this function is only called internally.
+			throw new UnsupportedOperationError(
+				`The type \`${activeInfo.type.toString()}\` is not valid for attributes.`
+			);
 	}
 }

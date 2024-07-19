@@ -22,7 +22,9 @@ export default class Varying extends Variable {
 			index
 		);
 		if (!activeInfo) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support active information."
+			);
 		}
 		this.activeInfo = activeInfo;
 	}

@@ -112,7 +112,9 @@ export default class Renderbuffer extends ContextDependent {
 
 		const renderbuffer = this.gl.createRenderbuffer();
 		if (renderbuffer === null) {
-			throw new UnsupportedOperationError();
+			throw new UnsupportedOperationError(
+				"The environment does not support renderbuffers."
+			);
 		}
 		this.internal = renderbuffer;
 
