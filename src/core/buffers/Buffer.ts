@@ -4,8 +4,10 @@ import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 
+// TODO: Rename to `Vbo`.
+
 /**
- * An array of binary data to be used as anything other than an element array buffer.
+ * An array of binary data to be used as a vertex buffer object. Must contain unsigned integers.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */

@@ -5,8 +5,10 @@ import type Context from "../Context.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
 import Vao from "../Vao.js";
 
+// TODO: Rename to `Ebo`.
+
 /**
- * An array of binary data to be used as an element array buffer. Must contain unsigned integers.
+ * An array of binary data to be used as an element buffer object. Must contain unsigned integers.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */

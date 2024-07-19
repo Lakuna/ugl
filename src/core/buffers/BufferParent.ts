@@ -6,6 +6,8 @@ import type DataType from "../../constants/DataType.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 
+// TODO: Rename to `Buffer`.
+
 /**
  * An array of binary data.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}

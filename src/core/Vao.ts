@@ -5,7 +5,7 @@ import type Buffer from "./buffers/Buffer.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
-import type IndexBuffer from "./buffers/IndexBuffer.js";
+import IndexBuffer from "./buffers/IndexBuffer.js";
 import Primitive from "../constants/Primitive.js";
 import type Program from "./Program.js";
 import type { UniformMap } from "../types/UniformMap.js";
@@ -176,16 +176,20 @@ export default class Vao extends ContextDependent {
 	 * The indices of this VAO.
 	 * @internal
 	 */
-	private indicesCache?: IndexBuffer;
+	private indicesCache: IndexBuffer | undefined;
 
 	/** The indices of this VAO. */
 	public get indices(): IndexBuffer | undefined {
 		return this.indicesCache;
 	}
 
-	public set indices(value: IndexBuffer) {
+	public set indices(value) {
 		this.bind();
-		value.bind();
+		if (typeof value === "undefined") {
+			IndexBuffer.unbindGl(this.gl, this);
+		} else {
+			value.bind();
+		}
 		this.indicesCache = value;
 	}
 
