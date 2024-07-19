@@ -161,7 +161,7 @@ export default class Vao extends ContextDependent {
 	public setAttribute(name: string, value: AttributeValue | Buffer): void {
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
-			throw new BadValueError();
+			throw new BadValueError(`No attribute named "${name}"`);
 		}
 
 		this.bind();
@@ -234,8 +234,11 @@ export default class Vao extends ContextDependent {
 
 				const uniform = this.program.uniforms.get(name);
 				const value = uniforms[name];
-				if (typeof uniform === "undefined" || typeof value === "undefined") {
-					throw new BadValueError();
+				if (typeof uniform === "undefined") {
+					throw new BadValueError(`No uniform named "${name}"`);
+				}
+				if (typeof value === "undefined") {
+					throw new BadValueError("Cannot pass `undefined` to a uniform.");
 				}
 				uniform.value = value;
 			}
