@@ -23,6 +23,7 @@ import {
 	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 	MAX_DRAW_BUFFERS,
+	MAX_VIEWPORT_DIMS,
 	RASTERIZER_DISCARD,
 	SCISSOR_BOX,
 	SCISSOR_TEST,
@@ -223,7 +224,7 @@ export default class Context extends ApiInterface {
 		return new Uint8Array([
 			this.gl.getParameter(BLEND_EQUATION_RGB),
 			this.gl.getParameter(BLEND_EQUATION_ALPHA)
-		]) as unknown as BlendEquationSet;
+		]) as Uint8Array & BlendEquationSet;
 	}
 
 	/**
@@ -248,10 +249,8 @@ export default class Context extends ApiInterface {
 
 			this.gl.blendEquation(value);
 
-			this.blendEquationCache = new Uint8Array([
-				value,
-				value
-			]) as unknown as BlendEquationSet;
+			this.blendEquationCache = new Uint8Array([value, value]) as Uint8Array &
+				BlendEquationSet;
 
 			return;
 		}
@@ -270,7 +269,7 @@ export default class Context extends ApiInterface {
 		this.blendEquationCache = new Uint8Array([
 			value[0],
 			value[1]
-		]) as unknown as BlendEquationSet;
+		]) as Uint8Array & BlendEquationSet;
 	}
 
 	/** The RGB blend equation. */
@@ -324,7 +323,7 @@ export default class Context extends ApiInterface {
 			this.gl.getParameter(BLEND_DST_RGB),
 			this.gl.getParameter(BLEND_SRC_ALPHA),
 			this.gl.getParameter(BLEND_DST_ALPHA)
-		]) as unknown as BlendFunctionFullSet;
+		]) as Uint8Array & BlendFunctionFullSet;
 	}
 
 	/**
@@ -356,7 +355,7 @@ export default class Context extends ApiInterface {
 				value[1],
 				value[2],
 				value[3]
-			]) as unknown as BlendFunctionFullSet;
+			]) as Uint8Array & BlendFunctionFullSet;
 
 			return;
 		}
@@ -379,7 +378,7 @@ export default class Context extends ApiInterface {
 			value[1],
 			value[0],
 			value[1]
-		]) as unknown as BlendFunctionFullSet;
+		]) as Uint8Array & BlendFunctionFullSet;
 	}
 
 	/** The source RGB blend function. */
@@ -760,6 +759,27 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
+	 * The maximum dimensions of the viewport.
+	 * @internal
+	 */
+	private maxViewportDimsCache?: Rectangle;
+
+	/** The maximum dimensions of the viewport. */
+	public get maxViewportDims(): Rectangle {
+		if (typeof this.maxViewportDimsCache === "undefined") {
+			const dims = this.gl.getParameter(MAX_VIEWPORT_DIMS) as [number, number];
+			this.maxViewportDimsCache = new Int32Array([
+				0,
+				0,
+				dims[0],
+				dims[1]
+			]) as Int32Array & Rectangle;
+		}
+
+		return this.maxViewportDimsCache;
+	}
+
+	/**
 	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
 	 * @internal
 	 */
@@ -782,6 +802,15 @@ export default class Context extends ApiInterface {
 			this.viewport[3] === value[3]
 		) {
 			return;
+		}
+
+		if (
+			value[0] + value[2] > this.maxViewportDims[0] ||
+			value[1] + value[3] > this.maxViewportDims[1]
+		) {
+			throw new RangeError(
+				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`
+			);
 		}
 
 		this.gl.viewport(value[0], value[1], value[2], value[3]);

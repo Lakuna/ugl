@@ -543,3 +543,9 @@ export const TEXTURE_WRAP_R = 0x8072;
  * @internal
  */
 export const MAX_COMBINED_TEXTURE_IMAGE_UNITS = 0x8b4d;
+
+/**
+ * The maximum dimensions of the viewport.
+ * @internal
+ */
+export const MAX_VIEWPORT_DIMS = 0x0d3a;

@@ -37,6 +37,6 @@ export default class Varying extends Variable {
 
 	/** The value that is stored in this varying. */
 	public override get value(): void {
-		return void this; // TODO
+		return void this; // TODO: Add transform feedback support.
 	}
 }
