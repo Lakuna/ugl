@@ -23,9 +23,9 @@ export { default as VariableType } from "./constants/VariableType.js";
 export { default as WrapMode } from "./constants/WrapMode.js";
 
 // Core - Buffers
-export { default as Buffer } from "./core/buffers/Buffer.js";
-export { default as BufferParent } from "./core/buffers/BufferParent.js";
-export { default as IndexBuffer } from "./core/buffers/IndexBuffer.js";
+export { default as Ebo } from "./core/buffers/Ebo.js";
+export { default as GlBuffer } from "./core/buffers/GlBuffer.js";
+export { default as Vbo } from "./core/buffers/Vbo.js";
 
 // Core - Internal
 export { default as ApiInterface } from "./core/internal/ApiInterface.js";

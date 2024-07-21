@@ -1,4 +1,3 @@
-import type Buffer from "../buffers/Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import type Context from "../Context.js";
 import CubeFace from "../../constants/CubeFace.js";
@@ -11,6 +10,7 @@ import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import type TextureDataType from "../../constants/TextureDataType.js";
 import type TextureFormat from "../../constants/TextureFormat.js";
 import TextureTarget from "../../constants/TextureTarget.js";
+import type Vbo from "../buffers/Vbo.js";
 import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataFormatCompressed.js";
 
 /**
@@ -236,7 +236,7 @@ export default class TextureCubemap extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
-		buffer: Buffer,
+		buffer: Vbo,
 		size: number,
 		offset: number
 	) {

@@ -1,9 +1,9 @@
 import type AttributeValue from "../../../types/AttributeValue.js";
-import type Buffer from "../../buffers/Buffer.js";
 import BufferTarget from "../../../constants/BufferTarget.js";
 import type Program from "../../Program.js";
 import Vao from "../../Vao.js";
 import Variable from "../Variable.js";
+import type Vbo from "../../buffers/Vbo.js";
 
 /**
  * An input variable for a vertex shader.
@@ -101,7 +101,7 @@ export default abstract class Attribute extends Variable {
 	 * @param value - The new value for this attribute.
 	 * @internal
 	 */
-	public setValue(value: AttributeValue | Buffer): void {
+	public setValue(value: AttributeValue | Vbo): void {
 		// Update even if the cached value is the same as the given value, since the data in the buffer could have updated.
 		this.enabled = true;
 		const realValue = "buffer" in value ? value : { buffer: value };

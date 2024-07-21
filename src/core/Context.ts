@@ -807,8 +807,8 @@ export default class Context extends ApiInterface {
 		}
 
 		if (
-			value[0] + value[2] > this.maxViewportDims[0] ||
-			value[1] + value[3] > this.maxViewportDims[1]
+			value[0] + value[2] > this.maxViewportDims[2] ||
+			value[1] + value[3] > this.maxViewportDims[3]
 		) {
 			throw new RangeError(
 				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`

@@ -14,9 +14,9 @@
 		<!-- Test script. -->
 		<script type="module">
 			import {
-				Buffer,
+				Vbo,
 				Context,
-				IndexBuffer,
+				Ebo,
 				Framebuffer,
 				FramebufferAttachment,
 				Face,
@@ -682,9 +682,9 @@ void main() {
 				const program = Program.fromSource(context, vss, fss);
 
 				// Create buffers.
-				const positionBuffer = new Buffer(context, positionData);
-				const texcoordBuffer = new Buffer(context, texcoordData);
-				const indexBuffer = new IndexBuffer(context, indexData);
+				const positionBuffer = new Vbo(context, positionData);
+				const texcoordBuffer = new Vbo(context, texcoordData);
+				const indexBuffer = new Ebo(context, indexData);
 
 				// Create VAOs.
 				const vao = new Vao(

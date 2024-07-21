@@ -1,18 +1,16 @@
-import BufferParent from "./BufferParent.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
+import GlBuffer from "./GlBuffer.js";
 import Vao from "../Vao.js";
-
-// TODO: Rename to `Ebo`.
 
 /**
  * An array of binary data to be used as an element buffer object. Must contain unsigned integers.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class IndexBuffer extends BufferParent {
+export default class Ebo extends GlBuffer {
 	/**
 	 * The currently-bound element array buffer cache.
 	 * @internal
@@ -28,7 +26,7 @@ export default class IndexBuffer extends BufferParent {
 	 * @internal
 	 */
 	private static getBindingsCache() {
-		return (IndexBuffer.bindingsCache ??= new Map());
+		return (Ebo.bindingsCache ??= new Map());
 	}
 
 	/**
@@ -43,7 +41,7 @@ export default class IndexBuffer extends BufferParent {
 		vao: WebGLVertexArrayObject | null
 	) {
 		// Get the buffer bindings cache.
-		const bindingsCache = IndexBuffer.getBindingsCache();
+		const bindingsCache = Ebo.getBindingsCache();
 
 		// Get the bound buffer.
 		let boundBuffer = bindingsCache.get(vao);
@@ -71,7 +69,7 @@ export default class IndexBuffer extends BufferParent {
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (IndexBuffer.getBound(gl, vao) === buffer) {
+		if (Ebo.getBound(gl, vao) === buffer) {
 			return;
 		}
 
@@ -80,7 +78,7 @@ export default class IndexBuffer extends BufferParent {
 
 		// Bind the buffer to the target.
 		gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
-		IndexBuffer.getBindingsCache().set(vao, buffer);
+		Ebo.getBindingsCache().set(vao, buffer);
 	}
 
 	/**
@@ -96,15 +94,12 @@ export default class IndexBuffer extends BufferParent {
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (
-			typeof buffer !== "undefined" &&
-			IndexBuffer.getBound(gl, vao) !== buffer
-		) {
+		if (typeof buffer !== "undefined" && Ebo.getBound(gl, vao) !== buffer) {
 			return;
 		}
 
 		// Unbind the buffer.
-		IndexBuffer.bindGl(gl, vao, null);
+		Ebo.bindGl(gl, vao, null);
 	}
 
 	/**
@@ -140,11 +135,7 @@ export default class IndexBuffer extends BufferParent {
 	 * @internal
 	 */
 	public override bind(vao?: Vao) {
-		IndexBuffer.bindGl(
-			this.gl,
-			vao?.internal ?? Vao.getBound(this.gl),
-			this.internal
-		);
+		Ebo.bindGl(this.gl, vao?.internal ?? Vao.getBound(this.gl), this.internal);
 	}
 
 	/**
@@ -153,7 +144,7 @@ export default class IndexBuffer extends BufferParent {
 	 * @internal
 	 */
 	public override unbind(vao?: Vao) {
-		IndexBuffer.unbindGl(
+		Ebo.unbindGl(
 			this.gl,
 			vao?.internal ?? Vao.getBound(this.gl),
 			this.internal

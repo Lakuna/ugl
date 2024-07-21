@@ -14,9 +14,9 @@
 		<!-- Test script. -->
 		<script type="module">
 			import {
-				Buffer,
+				Vbo,
 				Context,
-				IndexBuffer,
+				Ebo,
 				Face,
 				Program,
 				TestFunction,
@@ -806,11 +806,11 @@ void main() {
 				const skyboxProgram = Program.fromSource(context, skyboxVss, skyboxFss);
 
 				// Create buffers.
-				const cubePositionBuffer = new Buffer(context, cubePositionData);
-				const cubeNormalBuffer = new Buffer(context, cubeNormalData);
-				const cubeIndexBuffer = new IndexBuffer(context, cubeIndexData);
-				const planePositionBuffer = new Buffer(context, planePositionData);
-				const planeIndexBuffer = new IndexBuffer(context, planeIndexData);
+				const cubePositionBuffer = new Vbo(context, cubePositionData);
+				const cubeNormalBuffer = new Vbo(context, cubeNormalData);
+				const cubeIndexBuffer = new Ebo(context, cubeIndexData);
+				const planePositionBuffer = new Vbo(context, planePositionData);
+				const planeIndexBuffer = new Ebo(context, planeIndexData);
 
 				// Create VAOs.
 				const cubeVao = new Vao(

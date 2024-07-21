@@ -14,9 +14,9 @@
 		<!-- Test script. -->
 		<script type="module">
 			import {
-				Buffer,
+				Vbo,
 				Context,
-				IndexBuffer,
+				Ebo,
 				Face,
 				Primitive,
 				Program,
@@ -748,14 +748,14 @@ void main() {
 				const solidProgram = Program.fromSource(context, solidVss, solidFss);
 
 				// Create buffers.
-				const planePositionBuffer = new Buffer(context, planePositionData);
-				const planeTexcoordBuffer = new Buffer(context, planeTexcoordData);
-				const planeIndexBuffer = new IndexBuffer(context, planeIndexData);
-				const cubePositionBuffer = new Buffer(context, cubePositionData);
-				const cubeTexcoordBuffer = new Buffer(context, cubeTexcoordData);
-				const cubeIndexBuffer = new IndexBuffer(context, cubeIndexData);
-				const frustumPositionBuffer = new Buffer(context, frustumPositionData);
-				const frustumIndexBuffer = new IndexBuffer(context, frustumIndexData);
+				const planePositionBuffer = new Vbo(context, planePositionData);
+				const planeTexcoordBuffer = new Vbo(context, planeTexcoordData);
+				const planeIndexBuffer = new Ebo(context, planeIndexData);
+				const cubePositionBuffer = new Vbo(context, cubePositionData);
+				const cubeTexcoordBuffer = new Vbo(context, cubeTexcoordData);
+				const cubeIndexBuffer = new Ebo(context, cubeIndexData);
+				const frustumPositionBuffer = new Vbo(context, frustumPositionData);
+				const frustumIndexBuffer = new Ebo(context, frustumIndexData);
 
 				// Create VAOs, bind indices.
 				const planeVao = new Vao(

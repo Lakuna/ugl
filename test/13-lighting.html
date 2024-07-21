@@ -13,14 +13,7 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import {
-				Buffer,
-				Context,
-				IndexBuffer,
-				Face,
-				Program,
-				Vao
-			} from "../dist/index.js";
+			import { Vbo, Context, Ebo, Face, Program, Vao } from "../dist/index.js";
 
 			// https://umath.lakuna.pw/
 			function createMatrix4Like() {
@@ -587,9 +580,9 @@ void main() {
 				const program = Program.fromSource(context, vss, fss);
 
 				// Create buffers.
-				const positionBuffer = new Buffer(context, positionData);
-				const normalBuffer = new Buffer(context, normalData);
-				const indexBuffer = new IndexBuffer(context, indexData);
+				const positionBuffer = new Vbo(context, positionData);
+				const normalBuffer = new Vbo(context, normalData);
+				const indexBuffer = new Ebo(context, indexData);
 
 				// Create VAOs.
 				const vao = new Vao(

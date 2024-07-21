@@ -1,16 +1,16 @@
 import type { AttributeMap } from "../types/AttributeMap.js";
 import type AttributeValue from "../types/AttributeValue.js";
 import BadValueError from "../utility/BadValueError.js";
-import type Buffer from "./buffers/Buffer.js";
 import ContextDependent from "./internal/ContextDependent.js";
+import Ebo from "./buffers/Ebo.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
-import IndexBuffer from "./buffers/IndexBuffer.js";
 import Primitive from "../constants/Primitive.js";
 import type Program from "./Program.js";
 import type { UniformMap } from "../types/UniformMap.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
+import type Vbo from "./buffers/Vbo.js";
 import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 
 /**
@@ -107,7 +107,7 @@ export default class Vao extends ContextDependent {
 	public constructor(
 		program: Program,
 		attributes?: AttributeMap,
-		indices?: IndexBuffer
+		indices?: Ebo
 	) {
 		super(program.context);
 		this.program = program;
@@ -160,7 +160,7 @@ export default class Vao extends ContextDependent {
 	 * @param name - The name of the attribute.
 	 * @param value - The value to pass to the attribute.
 	 */
-	public setAttribute(name: string, value: AttributeValue | Buffer): void {
+	public setAttribute(name: string, value: AttributeValue | Vbo): void {
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
 			throw new BadValueError(`No attribute named \`${name}\`.`);
@@ -178,17 +178,17 @@ export default class Vao extends ContextDependent {
 	 * The indices of this VAO.
 	 * @internal
 	 */
-	private indicesCache: IndexBuffer | undefined;
+	private indicesCache: Ebo | undefined;
 
 	/** The indices of this VAO. */
-	public get indices(): IndexBuffer | undefined {
+	public get indices(): Ebo | undefined {
 		return this.indicesCache;
 	}
 
 	public set indices(value) {
 		this.bind();
 		if (typeof value === "undefined") {
-			IndexBuffer.unbindGl(this.gl, this);
+			Ebo.unbindGl(this.gl, this);
 		} else {
 			value.bind();
 		}

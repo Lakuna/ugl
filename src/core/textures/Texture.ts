@@ -12,7 +12,6 @@ import {
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
 } from "../../constants/constants.js";
-import Buffer from "../buffers/Buffer.js";
 import type Context from "../Context.js";
 import ContextDependent from "../internal/ContextDependent.js";
 import type CubeFace from "../../constants/CubeFace.js";
@@ -31,6 +30,7 @@ import TextureFormat from "../../constants/TextureFormat.js";
 import TextureFormatError from "../../utility/TextureFormatError.js";
 import type TextureTarget from "../../constants/TextureTarget.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import Vbo from "../buffers/Vbo.js";
 import type WrapMode from "../../constants/WrapMode.js";
 import getExtensionForTextureFormat from "../../utility/internal/getExtensionForTextureFormat.js";
 import getMipmapTargetForCubeFace from "../../utility/internal/getMipmapTargetForCubeFace.js";
@@ -577,7 +577,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param offset - The offset in bytes from the start of the buffer to start copying at.
 	 */
 	public setMip(
-		buffer: Buffer,
+		buffer: Vbo,
 		level: number | undefined,
 		face: CubeFace | undefined,
 		bounds: Prism | Rectangle | undefined,
@@ -628,7 +628,7 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	public setMip(
-		data?: Framebuffer | null | Buffer | TexImageSource | ArrayBufferView,
+		data?: Framebuffer | null | Vbo | TexImageSource | ArrayBufferView,
 		requestedLevel?: number,
 		face?: CubeFace,
 		requestedBounds?: Prism | Rectangle,
@@ -704,7 +704,7 @@ export default abstract class Texture extends ContextDependent {
 			}
 
 			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
-		} else if (data instanceof Buffer) {
+		} else if (data instanceof Vbo) {
 			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
 				// Not possible if TypeScript is obeyed.
 				throw new TypeError(
@@ -813,7 +813,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
-		buffer: Buffer,
+		buffer: Vbo,
 		size: number,
 		offset: number
 	): void;
