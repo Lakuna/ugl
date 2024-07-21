@@ -1,3 +1,5 @@
+// TODO: Variable value caching.
+
 import ContextDependent from "../internal/ContextDependent.js";
 import type Program from "../Program.js";
 import type VariableType from "../../constants/VariableType.js";
