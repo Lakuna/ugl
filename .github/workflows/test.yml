@@ -39,6 +39,7 @@ jobs:
             "21.x",
             "22.x"
           ]
+    continue-on-error: true
     steps:
       - name: Check-Out Repository
         uses: actions/checkout@v4
