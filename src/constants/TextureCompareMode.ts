@@ -2,7 +2,7 @@
  * Comparison modes for textures.
  * @public
  */
-const enum TextureCompareMode {
+enum TextureCompareMode {
 	/** No compare mode. */
 	NONE = 0,
 

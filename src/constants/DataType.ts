@@ -2,7 +2,7 @@
  * Types of data that can be stored as components in a buffer.
  * @public
  */
-const enum DataType {
+enum DataType {
 	/** An 8-bit signed integer with values in the range `[-0x80,0x80)`. */
 	BYTE = 0x1400,
 

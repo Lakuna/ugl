@@ -2,7 +2,7 @@
  * Types of shaders.
  * @public
  */
-const enum ShaderType {
+enum ShaderType {
 	/** A fragment shader, which runs once for each fragment and computes the color of the fragment. */
 	FRAGMENT_SHADER = 0x8b30,
 

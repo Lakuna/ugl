@@ -2,7 +2,7 @@
  * WebGL error codes.
  * @public
  */
-const enum ErrorCode {
+enum ErrorCode {
 	/** No error has been recorded. */
 	NO_ERROR = 0,
 

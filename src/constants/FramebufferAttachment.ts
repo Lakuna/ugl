@@ -2,7 +2,7 @@
  * Non-color framebuffer attachments.
  * @public
  */
-const enum FramebufferAttachment {
+enum FramebufferAttachment {
 	/** The depth attachment. */
 	Depth = -1,
 

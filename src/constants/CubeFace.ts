@@ -2,7 +2,7 @@
  * Faces of a cubemapped texture.
  * @public
  */
-const enum CubeFace {
+enum CubeFace {
 	/** The face on the X-axis in the positive direction. */
 	PositiveX,
 

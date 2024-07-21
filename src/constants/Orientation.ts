@@ -2,7 +2,7 @@
  * Rotational orientations.
  * @public
  */
-const enum Orientation {
+enum Orientation {
 	/** Clockwise. */
 	CW = 0x0900,
 

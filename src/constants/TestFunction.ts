@@ -2,7 +2,7 @@
  * Testing functions.
  * @public
  */
-const enum TestFunction {
+enum TestFunction {
 	/** Never passes. */
 	NEVER = 0x0200,
 

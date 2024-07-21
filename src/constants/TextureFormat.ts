@@ -2,7 +2,7 @@
  * Internal formats for textures. In the WebGL API, these are typically passed to functions with the parameter name `internalFormat`.
  * @public
  */
-const enum TextureFormat {
+enum TextureFormat {
 	// Uncompressed, unsized internal formats.
 
 	/** Color renderable and texture filterable. `format` must be `RGB`. `type` must be `UNSIGNED_BYTE` or `UNSIGNED_SHORT_5_6_5`. */

@@ -2,7 +2,7 @@
  * Formats for a renderbuffer.
  * @public
  */
-const enum RenderbufferFormat {
+enum RenderbufferFormat {
 	/** 4 bits each for red, green, blue, and alpha. */
 	RGBA4 = 0x8056,
 

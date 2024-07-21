@@ -2,7 +2,7 @@
  * WebGL extensions.
  * @public
  */
-const enum Extension {
+enum Extension {
 	/**
 	 * Allows the user to draw the same object (or groups of similar objects) multiple times if they share the same vertex data, primitive count, and type.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ANGLE_instanced_arrays | ANGLE_instanced_arrays}

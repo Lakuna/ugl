@@ -2,7 +2,7 @@
  * Types of attributes.
  * @public
  */
-const enum VariableType {
+enum VariableType {
 	// Attribute or Uniform Types
 
 	/** A 32-bit signed floating-point value. */
