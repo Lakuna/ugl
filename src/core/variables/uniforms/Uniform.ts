@@ -76,12 +76,36 @@ export default abstract class Uniform extends Variable {
 	}
 
 	public set value(value: UniformValue) {
-		// Update even if the cached value is the same as the given value, since the data in the iterable could have updated.
 		if (typeof value !== "number" && Symbol.iterator in value) {
+			// TODO: Check if comparing to cached values actually makes setting iterable uniforms faster on average.
+			if (
+				typeof this.value !== "undefined" &&
+				typeof this.value !== "number" &&
+				Symbol.iterator in this.value
+			) {
+				const curIter = this.value[Symbol.iterator]();
+				let doesMatch = true;
+				for (const component of value) {
+					if (component !== curIter.next().value) {
+						doesMatch = false;
+						break;
+					}
+				}
+
+				if (doesMatch) {
+					return;
+				}
+			}
+
 			this.iterableSetter(value);
 		} else {
+			if (this.value === value) {
+				return;
+			}
+
 			this.setter(value);
 		}
+
 		this.valueCache = value;
 	}
 }

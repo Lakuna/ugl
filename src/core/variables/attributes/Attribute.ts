@@ -97,14 +97,29 @@ export default abstract class Attribute extends Variable {
 	}
 
 	/**
-	 * Set the value of this attribute.
+	 * Set the value of this attribute. Should only be called from within `Vao`.
 	 * @param value - The new value for this attribute.
 	 * @internal
 	 */
-	public setValue(value: AttributeValue | Vbo): void {
-		// Update even if the cached value is the same as the given value, since the data in the buffer could have updated.
-		this.enabled = true;
+	public setValue(value: AttributeValue | Vbo | undefined): void {
+		if (typeof value === "undefined") {
+			this.enabled = false;
+			delete this.valueCache;
+			return;
+		}
+
 		const realValue = "buffer" in value ? value : { buffer: value };
+		if (
+			this.value?.buffer === realValue.buffer &&
+			this.value.normalized === realValue.normalized &&
+			this.value.offset === realValue.offset &&
+			this.value.size === realValue.size &&
+			this.value.stride === realValue.stride
+		) {
+			return;
+		}
+
+		this.enabled = true;
 		realValue.buffer.bind(BufferTarget.ARRAY_BUFFER);
 		this.setterInternal(realValue);
 		this.valueCache = realValue;
