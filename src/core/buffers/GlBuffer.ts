@@ -31,6 +31,8 @@ export default abstract class GlBuffer extends ContextDependent {
 		isHalf = false,
 		target = BufferTarget.ARRAY_BUFFER
 	) {
+		// TODO: Add `@throws` documentation.
+
 		super(context);
 
 		const buffer = this.gl.createBuffer();

@@ -14,6 +14,8 @@ import VariableType from "../../../constants/VariableType.js";
  * @internal
  */
 export default function createAttribute(program: Program, index: number) {
+	// TODO: Add `@throws` documentation.
+
 	const activeInfo = program.gl.getActiveAttrib(program.internal, index);
 	if (activeInfo === null) {
 		throw new UnsupportedOperationError(

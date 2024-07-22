@@ -33,6 +33,8 @@ import VariableType from "../../../constants/VariableType.js";
  * @internal
  */
 export default function createUniform(program: Program, index: number) {
+	// TODO: Add `@throws` documentation.
+
 	const activeInfo = program.gl.getActiveUniform(program.internal, index);
 	if (activeInfo === null) {
 		throw new UnsupportedOperationError(

@@ -104,6 +104,8 @@ export default class Program extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @param vss - The vertex shader's source code.
 	 * @param fss - The fragment shader's source code.
+	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
+	 * @throws {@link UnsupportedOperationError} if a shader program cannot be created.
 	 * @returns The shader program.
 	 */
 	public static fromSource(
@@ -130,6 +132,8 @@ export default class Program extends ContextDependent {
 	 * @param attributeLocations - A map of attribute names to their desired locations.
 	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
 	 * @param feedbackMode - The mode to use when capturing transform feedback varyings.
+	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
+	 * @throws {@link UnsupportedOperationError} if a shader program cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}

@@ -11,6 +11,8 @@ export default abstract class MultipleValuedUniform extends Uniform {
 	 * @internal
 	 */
 	public override setter() {
+		// TODO: Add `@throws` documentation.
+
 		throw new UnsupportedOperationError(
 			`${this.name} cannot be set to a non-iterable value.`
 		);

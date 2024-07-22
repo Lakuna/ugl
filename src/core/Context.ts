@@ -1,4 +1,3 @@
-// TODO: Document which functions are capable of throwing errors and why.
 // TODO: Ensure that parameters are never set over their limits; warn if set over the common level of support: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits.
 // TODO: Remove various checks for production builds: https://webpack.js.org/plugins/define-plugin/.
 
@@ -80,6 +79,7 @@ export default class Context extends ApiInterface {
 	 * Create a WebGL2 rendering context.
 	 * @param canvas - The canvas of the rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
+	 * @throws {@link UnsupportedOperationError} Thrown if a WebGL2 context cannot be created.
 	 */
 	public constructor(
 		canvas: HTMLCanvasElement | OffscreenCanvas,
@@ -160,6 +160,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * The active texture unit.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture | activeTexture}
+	 * @throws {@link BadValueError} if set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public get activeTexture(): number {
@@ -411,7 +412,10 @@ export default class Context extends ApiInterface {
 		return this.gl.getError();
 	}
 
-	/** Throw a JavaScript error if a WebGL error has occurred. */
+	/**
+	 * Throw a JavaScript error if a WebGL error has occurred.
+	 * @throws {@link WebglError} if a WebGL error has occurred.
+	 */
 	public throwIfError(): void {
 		const code: ErrorCode = this.error;
 		if (code !== ErrorCode.NO_ERROR) {
@@ -790,6 +794,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport | viewport}
+	 * @throws {@link BadValueError} if set larger than `MAX_VIEWPORT_DIMS`.
 	 */
 	public get viewport(): Rectangle {
 		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
@@ -810,7 +815,7 @@ export default class Context extends ApiInterface {
 			value[0] + value[2] > this.maxViewportDims[2] ||
 			value[1] + value[3] > this.maxViewportDims[3]
 		) {
-			throw new RangeError(
+			throw new BadValueError(
 				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`
 			);
 		}
@@ -1058,7 +1063,10 @@ export default class Context extends ApiInterface {
 		return false;
 	}
 
-	/** Resize this rendering context's viewport to match the size of its current drawing buffer. */
+	/**
+	 * Resize this rendering context's viewport to match the size of its current drawing buffer.
+	 * @throws {@link BadValueError} if the canvas is larger than `MAX_VIEWPORT_DIMS`.
+	 */
 	public fitViewport(): void {
 		this.viewport = [0, 0, this.canvas.width, this.canvas.height];
 	}
@@ -1066,6 +1074,7 @@ export default class Context extends ApiInterface {
 	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
 	 * @param rectangle - The rectangle that represents the viewport, or `undefined` to match the viewport to the drawing buffer.
+	 * @throws {@link BadValueError} if the rectangle (or canvas) is larger than `MAX_VIEWPORT_DIMS`.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(rectangle?: Rectangle): boolean {

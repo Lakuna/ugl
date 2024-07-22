@@ -99,6 +99,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param format - The format of the renderbuffer.
 	 * @param width - The width of the renderbuffer.
 	 * @param height - The height of the renderbuffer.
+	 * @throws {@link UnsupportedOperationError} if a renderbuffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer | createRenderbuffer}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
 	 */

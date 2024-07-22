@@ -109,6 +109,8 @@ export default class Vao extends ContextDependent {
 		attributes?: AttributeMap,
 		indices?: Ebo
 	) {
+		// TODO: Add `@throws` documentation.
+
 		super(program.context);
 		this.program = program;
 
@@ -161,6 +163,8 @@ export default class Vao extends ContextDependent {
 	 * @param value - The value to pass to the attribute.
 	 */
 	public setAttribute(name: string, value: AttributeValue | Vbo): void {
+		// TODO: Add `@throws` documentation.
+
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
 			throw new BadValueError(`No attribute named \`${name}\`.`);
@@ -210,6 +214,8 @@ export default class Vao extends ContextDependent {
 		offset = 0,
 		framebuffer: Framebuffer | null = null
 	): void {
+		// TODO: Add `@throws` documentation.
+
 		// Bind the correct framebuffer.
 		if (framebuffer === null) {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);

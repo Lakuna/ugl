@@ -21,6 +21,8 @@ export default class Shader extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader | compileShader}
 	 */
 	public constructor(context: Context, type: ShaderType, source: string) {
+		// TODO: Add `@throws` documentation.
+
 		super(context);
 
 		const shader = this.gl.createShader(type);

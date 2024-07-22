@@ -15,6 +15,8 @@ export default class Varying extends Variable {
 	 * @internal
 	 */
 	public constructor(program: Program, index: number) {
+		// TODO: Add `@throws` documentation.
+
 		super(program);
 
 		const activeInfo = this.context.gl.getTransformFeedbackVarying(

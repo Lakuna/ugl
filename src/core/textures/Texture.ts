@@ -215,6 +215,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @returns The texture.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public static getBound(
@@ -253,6 +254,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param texture - The texture.
 	 * @returns The used texture unit.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture | bindTexture}
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public static bindGl(
@@ -301,6 +303,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
 	 * @param target - The binding point.
 	 * @param texture - The texture, or `undefined` for any texture.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public static unbindGl(
@@ -366,6 +369,8 @@ export default abstract class Texture extends ContextDependent {
 		format?: TextureFormat,
 		dims?: number[]
 	) {
+		// TODO: Add `@throws` documentation.
+
 		super(context);
 
 		const texture = this.gl.createTexture();
@@ -423,6 +428,8 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	public set format(value) {
+		// TODO: Add `@throws` documentation.
+
 		if (value === this.format) {
 			return;
 		}
@@ -513,6 +520,8 @@ export default abstract class Texture extends ContextDependent {
 		format: TextureFormat,
 		dims: number[]
 	): void {
+		// TODO: Add `@throws` documentation.
+
 		if (this.isImmutableFormat) {
 			return;
 		}
@@ -637,6 +646,8 @@ export default abstract class Texture extends ContextDependent {
 		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
 		shape2?: number | boolean // Meaning depends on data type; see overloads.
 	) {
+		// TODO: Add `@throws` documentation.
+
 		const level = requestedLevel ?? 0;
 
 		// Ensure that the data type and internal format are compatible.
@@ -968,6 +979,8 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The preferred anisotropy of this texture. */
 	public get maxAnisotropy(): number {
+		// TODO: Add `@throws` documentation.
+
 		if (
 			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
 		) {
@@ -984,6 +997,8 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	public set maxAnisotropy(value) {
+		// TODO: Add `@throws` documentation.
+
 		if (this.maxAnisotropy === value) {
 			return;
 		}
@@ -1272,6 +1287,7 @@ export default abstract class Texture extends ContextDependent {
 	 * Bind this texture to its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @returns The used texture unit.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public bind(textureUnit?: number) {
@@ -1286,6 +1302,7 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Unbind this texture from its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
 	public unbind(textureUnit?: number) {

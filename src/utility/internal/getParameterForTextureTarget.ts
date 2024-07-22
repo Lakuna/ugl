@@ -13,6 +13,8 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * @internal
  */
 export default function getParameterForTextureTarget(target: TextureTarget) {
+	// TODO: Add `@throws` documentation.
+
 	switch (target) {
 		case TextureTarget.TEXTURE_2D:
 			return TEXTURE_BINDING_2D;

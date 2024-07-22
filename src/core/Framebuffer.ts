@@ -166,6 +166,7 @@ export default class Framebuffer extends ContextDependent {
 	 * Create a framebuffer.
 	 * @param context - The rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
+	 * @throws {@link UnsupportedOperationError} if a framebuffer cannot be created.
 	 */
 	public constructor(context: Context) {
 		super(context);
@@ -274,6 +275,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param _ - An unused value.
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
+	 * @throws {@link BadValueError} if the size of the texture does not match the size of any existing attachment to the framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D | framebufferTexture2D}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer | framebufferTextureLayer}
 	 */
@@ -292,6 +294,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param face - The face of the cubemapped texture to attach.
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
+	 * @throws {@link BadValueError} if the size of the texture does not match the size of any existing attachment to the framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D | framebufferTexture2D}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer | framebufferTextureLayer}
 	 */
@@ -307,6 +310,7 @@ export default class Framebuffer extends ContextDependent {
 	 * Attach a renderbuffer to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
 	 * @param renderbuffer - The renderbuffer to attach.
+	 * @throws {@link BadValueError} if the size of the renderbuffer does not match the size of any existing attachment to the framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer | framebufferRenderbuffer}
 	 */
 	public attach(

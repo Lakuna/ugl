@@ -112,6 +112,8 @@ export default class Texture3d extends Texture {
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	) {
+		// TODO: Add `@throws` documentation.
+
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;

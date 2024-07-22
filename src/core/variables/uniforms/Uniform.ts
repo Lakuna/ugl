@@ -17,6 +17,8 @@ export default abstract class Uniform extends Variable {
 	 * @internal
 	 */
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
+		// TODO: Add `@throws` documentation.
+
 		super(program);
 		this.activeInfo = activeInfo;
 
