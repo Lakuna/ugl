@@ -78,25 +78,7 @@ export default abstract class Uniform extends Variable {
 
 	public set value(value: UniformValue) {
 		if (typeof value !== "number" && Symbol.iterator in value) {
-			if (
-				typeof this.value !== "undefined" &&
-				typeof this.value !== "number" &&
-				Symbol.iterator in this.value
-			) {
-				const curIter = this.value[Symbol.iterator]();
-				let doesMatch = true;
-				for (const component of value) {
-					if (component !== curIter.next().value) {
-						doesMatch = false;
-						break;
-					}
-				}
-
-				if (doesMatch) {
-					return;
-				}
-			}
-
+			// It is slow to compare every value between two iterables, so always update iterable values.
 			this.iterableSetter(value);
 		} else {
 			if (this.value === value) {
