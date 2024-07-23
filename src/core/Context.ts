@@ -1,6 +1,3 @@
-// TODO: Ensure that parameters are never set over their limits; warn if set over the common level of support: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits.
-// TODO: Remove various checks for production builds: https://webpack.js.org/plugins/define-plugin/.
-
 import {
 	ACTIVE_TEXTURE,
 	BLEND,

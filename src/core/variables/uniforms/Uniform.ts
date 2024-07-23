@@ -78,7 +78,6 @@ export default abstract class Uniform extends Variable {
 
 	public set value(value: UniformValue) {
 		if (typeof value !== "number" && Symbol.iterator in value) {
-			// TODO: Check if comparing to cached values actually makes setting iterable uniforms faster on average.
 			if (
 				typeof this.value !== "undefined" &&
 				typeof this.value !== "number" &&
