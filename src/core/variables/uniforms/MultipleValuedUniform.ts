@@ -8,11 +8,10 @@ import UnsupportedOperationError from "../../../utility/UnsupportedOperationErro
 export default abstract class MultipleValuedUniform extends Uniform {
 	/**
 	 * Set the value of this uniform if the value is not iterable.
+	 * @throws {@link UnsupportedOperationError} always.
 	 * @internal
 	 */
-	public override setter() {
-		// TODO: Add `@throws` documentation.
-
+	public override setter(): never {
 		throw new UnsupportedOperationError(
 			`${this.name} cannot be set to a non-iterable value.`
 		);

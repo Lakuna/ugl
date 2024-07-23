@@ -79,7 +79,7 @@ export default class Context extends ApiInterface {
 	 * Create a WebGL2 rendering context.
 	 * @param canvas - The canvas of the rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
-	 * @throws {@link UnsupportedOperationError} Thrown if a WebGL2 context cannot be created.
+	 * @throws {@link UnsupportedOperationError} if a WebGL2 context cannot be created.
 	 */
 	public constructor(
 		canvas: HTMLCanvasElement | OffscreenCanvas,
@@ -417,7 +417,7 @@ export default class Context extends ApiInterface {
 	 * @throws {@link WebglError} if a WebGL error has occurred.
 	 */
 	public throwIfError(): void {
-		const code: ErrorCode = this.error;
+		const code = this.error;
 		if (code !== ErrorCode.NO_ERROR) {
 			throw new WebglError(code);
 		}

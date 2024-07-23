@@ -11,12 +11,11 @@ export default class Varying extends Variable {
 	 * Create a transform feedback varying.
 	 * @param program - The shader program that this transform feedback varying belongs to.
 	 * @param index - The index of this transform feedback varying.
+	 * @throws {@link UnsupportedOperationError} if the active information of the varying cannot be retrieved.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying | getTransformFeedbackVarying}
 	 * @internal
 	 */
 	public constructor(program: Program, index: number) {
-		// TODO: Add `@throws` documentation.
-
 		super(program);
 
 		const activeInfo = this.context.gl.getTransformFeedbackVarying(

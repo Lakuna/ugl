@@ -13,12 +13,11 @@ export default abstract class Uniform extends Variable {
 	 * Create a uniform.
 	 * @param program - The shader program that the uniform belongs to.
 	 * @param activeInfo - The information of the uniform.
+	 * @throws {@link UnsupportedOperationError} if the location of the uniform cannot be retrieved.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
 	 * @internal
 	 */
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
-		// TODO: Add `@throws` documentation.
-
 		super(program);
 		this.activeInfo = activeInfo;
 

@@ -339,6 +339,7 @@ export default abstract class Texture extends ContextDependent {
 	 * Create a texture.
 	 * @param context - The rendering context.
 	 * @param target - The target binding point of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
 	 */
@@ -351,6 +352,8 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
+	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
 	 */
@@ -369,8 +372,6 @@ export default abstract class Texture extends ContextDependent {
 		format?: TextureFormat,
 		dims?: number[]
 	) {
-		// TODO: Add `@throws` documentation.
-
 		super(context);
 
 		const texture = this.gl.createTexture();
@@ -417,7 +418,10 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private formatCache?: TextureFormat;
 
-	/** The format of this texture. */
+	/**
+	 * The format of this texture.
+	 * @throws {@link ImmutableError} if the format of an immutable-format texture is changed.
+	 */
 	public get format(): TextureFormat {
 		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
 		if (typeof this.formatCache === "undefined") {
@@ -428,8 +432,6 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	public set format(value) {
-		// TODO: Add `@throws` documentation.
-
 		if (value === this.format) {
 			return;
 		}
@@ -514,14 +516,13 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
+	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 */
 	public makeImmutableFormat(
 		levels: number,
 		format: TextureFormat,
 		dims: number[]
 	): void {
-		// TODO: Add `@throws` documentation.
-
 		if (this.isImmutableFormat) {
 			return;
 		}
@@ -563,6 +564,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
 		framebuffer: Framebuffer | null,
@@ -584,6 +586,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param size - The number of bytes of data to copy from the buffer.
 	 * @param offset - The offset in bytes from the start of the buffer to start copying at.
+	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
 		buffer: Vbo,
@@ -604,6 +607,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param type - The type of the given data. Must be compatible with the format of the given data.
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
+	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
 		data?: TexImageSource,
@@ -624,6 +628,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param unpackAlignment - The alignment to use when unpacking the data, or `undefined` to let this be automatically determined.
 	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
 	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
+	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
 		array: ArrayBufferView,
@@ -646,8 +651,6 @@ export default abstract class Texture extends ContextDependent {
 		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
 		shape2?: number | boolean // Meaning depends on data type; see overloads.
 	) {
-		// TODO: Add `@throws` documentation.
-
 		const level = requestedLevel ?? 0;
 
 		// Ensure that the data type and internal format are compatible.
@@ -977,10 +980,11 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	private maxAnisotropyCache?: number;
 
-	/** The preferred anisotropy of this texture. */
+	/**
+	 * The preferred anisotropy of this texture.
+	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
+	 */
 	public get maxAnisotropy(): number {
-		// TODO: Add `@throws` documentation.
-
 		if (
 			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
 		) {
@@ -997,8 +1001,6 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	public set maxAnisotropy(value) {
-		// TODO: Add `@throws` documentation.
-
 		if (this.maxAnisotropy === value) {
 			return;
 		}

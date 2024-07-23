@@ -16,13 +16,13 @@ export default class Shader extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @param type - The type.
 	 * @param source - The source code.
+	 * @throws {@link UnsupportedOperationError} if a shader cannot be created.
+	 * @throws {@link ShaderCompileError} if the shader fails to compile.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader | createShader}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource | shaderSource}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader | compileShader}
 	 */
 	public constructor(context: Context, type: ShaderType, source: string) {
-		// TODO: Add `@throws` documentation.
-
 		super(context);
 
 		const shader = this.gl.createShader(type);

@@ -1,3 +1,4 @@
+import BadValueError from "../../utility/BadValueError.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import type Context from "../Context.js";
 import CubeFace from "../../constants/CubeFace.js";
@@ -82,6 +83,7 @@ export default class TextureCubemap extends Texture {
 	/**
 	 * Create a cube mapped texture.
 	 * @param context - The rendering context of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(context: Context);
@@ -92,6 +94,8 @@ export default class TextureCubemap extends Texture {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dim - The width and height of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
+	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
@@ -143,6 +147,7 @@ export default class TextureCubemap extends Texture {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @throws {@link BadValueError} if the area that is being updated is too small to contain the selected portion of the framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexSubImage2D | copyTexSubImage2D}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/copyTexImage2D | copyTexImage2D}
 	 * @internal
@@ -160,8 +165,6 @@ export default class TextureCubemap extends Texture {
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	) {
-		// TODO: Add `@throws` documentation.
-
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;
@@ -174,7 +177,7 @@ export default class TextureCubemap extends Texture {
 
 		// Ensure that the area being copied is no larger than the area being written to.
 		if (frameDim > dim) {
-			throw new RangeError("Bounds are too small.");
+			throw new BadValueError("Bounds are too small.");
 		}
 
 		// Bind the framebuffer.

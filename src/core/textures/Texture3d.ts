@@ -1,3 +1,4 @@
+import BadValueError from "../../utility/BadValueError.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import type Context from "../Context.js";
 import Framebuffer from "../Framebuffer.js";
@@ -22,6 +23,7 @@ export default class Texture3d extends Texture {
 	/**
 	 * Create a three-dimensional texture.
 	 * @param context - The rendering context of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(context: Context);
@@ -34,6 +36,8 @@ export default class Texture3d extends Texture {
 	 * @param width - The width of the texture.
 	 * @param height - The height of the texture.
 	 * @param depth - The depth of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
+	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
@@ -102,6 +106,7 @@ export default class Texture3d extends Texture {
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
 	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
 	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @throws {@link BadValueError} if the area that is being updated is too small to contain the selected portion of the framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/copyTexSubImage3D | copyTexSubImage3D}
 	 * @internal
 	 */
@@ -112,8 +117,6 @@ export default class Texture3d extends Texture {
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	) {
-		// TODO: Add `@throws` documentation.
-
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;
@@ -130,7 +133,7 @@ export default class Texture3d extends Texture {
 
 		// Ensure that the area being copied is no larger than the area being written to.
 		if (frameWidth * frameHeight > width * height * depth) {
-			throw new RangeError("Bounds are too small.");
+			throw new BadValueError("Bounds are too small.");
 		}
 
 		// Bind the framebuffer.

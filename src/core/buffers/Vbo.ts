@@ -136,6 +136,7 @@ export default class Vbo extends GlBuffer {
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the buffer at.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
 	public constructor(

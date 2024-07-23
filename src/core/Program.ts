@@ -106,6 +106,8 @@ export default class Program extends ContextDependent {
 	 * @param fss - The fragment shader's source code.
 	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
 	 * @throws {@link UnsupportedOperationError} if a shader program cannot be created.
+	 * @throws {@link UnsupportedOperationError} if a shader cannot be created.
+	 * @throws {@link ShaderCompileError} if a shader fails to compile.
 	 * @returns The shader program.
 	 */
 	public static fromSource(

@@ -102,6 +102,8 @@ export default class Vao extends ContextDependent {
 	 * @param program - The shader program associated with the VAO.
 	 * @param attributes - The attributes to attach to the VAO.
 	 * @param indices - The indices to attach to the VAO.
+	 * @throws {@link UnsupportedOperationError} if a VAO cannot be created.
+	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
 	public constructor(
@@ -109,8 +111,6 @@ export default class Vao extends ContextDependent {
 		attributes?: AttributeMap,
 		indices?: Ebo
 	) {
-		// TODO: Add `@throws` documentation.
-
 		super(program.context);
 		this.program = program;
 
@@ -161,10 +161,9 @@ export default class Vao extends ContextDependent {
 	 * Set the value of an attribute in this VAO.
 	 * @param name - The name of the attribute.
 	 * @param value - The value to pass to the attribute.
+	 * @throws {@link BadValueError} if an unknown attribute is specified.
 	 */
 	public setAttribute(name: string, value: AttributeValue | Vbo): void {
-		// TODO: Add `@throws` documentation.
-
 		const attribute = this.program.attributes.get(name);
 		if (typeof attribute === "undefined") {
 			throw new BadValueError(`No attribute named \`${name}\`.`);
@@ -207,6 +206,7 @@ export default class Vao extends ContextDependent {
 	 * @param framebuffer - The framebuffer to rasterize to, or `null` for the default framebuffer (canvas).
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays | drawArrays}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | drawElements}
+	 * @throws {@link BadValueError} if a uniform is passed `undefined` as a value or if an unknown uniform is specified.
 	 */
 	public draw(
 		uniforms?: UniformMap,
@@ -214,8 +214,6 @@ export default class Vao extends ContextDependent {
 		offset = 0,
 		framebuffer: Framebuffer | null = null
 	): void {
-		// TODO: Add `@throws` documentation.
-
 		// Bind the correct framebuffer.
 		if (framebuffer === null) {
 			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);

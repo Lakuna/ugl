@@ -13,8 +13,6 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * @internal
  */
 export default function getParameterForTextureTarget(target: TextureTarget) {
-	// TODO: Add `@throws` documentation.
-
 	switch (target) {
 		case TextureTarget.TEXTURE_2D:
 			return TEXTURE_BINDING_2D;
@@ -23,8 +21,7 @@ export default function getParameterForTextureTarget(target: TextureTarget) {
 		case TextureTarget.TEXTURE_3D:
 			return TEXTURE_BINDING_3D;
 		case TextureTarget.TEXTURE_CUBE_MAP:
+		default: // Impossible as long as this function is only called internally.
 			return TEXTURE_BINDING_CUBE_MAP;
-		default:
-			throw new RangeError("Unknown texture target.");
 	}
 }

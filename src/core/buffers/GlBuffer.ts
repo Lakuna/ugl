@@ -20,6 +20,7 @@ export default abstract class GlBuffer extends ContextDependent {
 	 * @param offset - The index of the element to start reading the buffer at.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
 	 * @param target - The target binding point of the buffer.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 * @internal
 	 */
@@ -31,8 +32,6 @@ export default abstract class GlBuffer extends ContextDependent {
 		isHalf = false,
 		target = BufferTarget.ARRAY_BUFFER
 	) {
-		// TODO: Add `@throws` documentation.
-
 		super(context);
 
 		const buffer = this.gl.createBuffer();

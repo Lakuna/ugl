@@ -10,12 +10,11 @@ import VariableType from "../../../constants/VariableType.js";
  * @param program - The shader program that the attribute belongs to.
  * @param index - The index of the attribute.
  * @returns The attribute.
+ * @throws {@link UnsupportedOperationError} if the active information of the attribute cannot be retrieved.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
  * @internal
  */
 export default function createAttribute(program: Program, index: number) {
-	// TODO: Add `@throws` documentation.
-
 	const activeInfo = program.gl.getActiveAttrib(program.internal, index);
 	if (activeInfo === null) {
 		throw new UnsupportedOperationError(
@@ -47,11 +46,7 @@ export default function createAttribute(program: Program, index: number) {
 		case VariableType.FLOAT_MAT3:
 			return new MatrixAttribute(program, activeInfo, 3);
 		case VariableType.FLOAT_MAT4:
+		default: // Not possible as long as this function is only called internally.
 			return new MatrixAttribute(program, activeInfo, 4);
-		default:
-			// Not possible as long as this function is only called internally.
-			throw new UnsupportedOperationError(
-				`The type \`${activeInfo.type.toString()}\` is not valid for attributes.`
-			);
 	}
 }
