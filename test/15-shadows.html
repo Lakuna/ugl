@@ -825,21 +825,21 @@ void main() {
 				const planeVao = new Vao(
 					program,
 					{
-						a_position: { buffer: planePositionBuffer, size: 2 },
-						a_texcoord: { buffer: planeTexcoordBuffer, size: 2 }
+						a_position: { vbo: planePositionBuffer, size: 2 },
+						a_texcoord: { vbo: planeTexcoordBuffer, size: 2 }
 					},
 					planeIndexBuffer
 				);
 				const solidPlaneVao = new Vao(
 					solidProgram,
-					{ a_position: { buffer: planePositionBuffer, size: 2 } },
+					{ a_position: { vbo: planePositionBuffer, size: 2 } },
 					planeIndexBuffer
 				);
 				const cubeVao = new Vao(
 					program,
 					{
 						a_position: cubePositionBuffer,
-						a_texcoord: { buffer: cubeTexcoordBuffer, size: 2 }
+						a_texcoord: { vbo: cubeTexcoordBuffer, size: 2 }
 					},
 					cubeIndexBuffer
 				);

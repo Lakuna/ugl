@@ -820,7 +820,7 @@ void main() {
 				);
 				const planeVao = new Vao(
 					skyboxProgram,
-					{ a_position: { buffer: planePositionBuffer, size: 2 } },
+					{ a_position: { vbo: planePositionBuffer, size: 2 } },
 					planeIndexBuffer
 				);
 

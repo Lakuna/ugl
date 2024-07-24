@@ -81,10 +81,6 @@ export default abstract class Uniform extends Variable {
 			// It is slow to compare every value between two iterables, so always update iterable values.
 			this.iterableSetter(value);
 		} else {
-			if (this.value === value) {
-				return;
-			}
-
 			this.setter(value);
 		}
 

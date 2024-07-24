@@ -16,7 +16,7 @@ export default class FloatAttribute extends Attribute {
 		this.gl.vertexAttribPointer(
 			this.location,
 			value.size ?? 3,
-			value.buffer.type,
+			value.vbo.type,
 			value.normalized ?? false,
 			value.stride ?? 0,
 			value.offset ?? 0

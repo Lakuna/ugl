@@ -261,8 +261,8 @@ void main() {
 				const vao = new Vao(
 					program,
 					{
-						a_position: { buffer: positionBuffer, size: 2 },
-						a_texcoord: { buffer: texcoordBuffer, size: 2 }
+						a_position: { vbo: positionBuffer, size: 2 },
+						a_texcoord: { vbo: texcoordBuffer, size: 2 }
 					},
 					indexBuffer
 				);

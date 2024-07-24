@@ -16,7 +16,7 @@ export default class IntegerAttribute extends Attribute {
 		this.gl.vertexAttribIPointer(
 			this.location,
 			value.size ?? 3,
-			value.buffer.type,
+			value.vbo.type,
 			value.stride ?? 0,
 			value.offset ?? 0
 		);

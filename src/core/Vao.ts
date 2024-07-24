@@ -101,16 +101,12 @@ export default class Vao extends ContextDependent {
 	 * Create a VAO.
 	 * @param program - The shader program associated with the VAO.
 	 * @param attributes - The attributes to attach to the VAO.
-	 * @param indices - The indices to attach to the VAO.
+	 * @param ebo - The element buffer object to attach to the VAO.
 	 * @throws {@link UnsupportedOperationError} if a VAO cannot be created.
 	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
-	public constructor(
-		program: Program,
-		attributes?: AttributeMap,
-		indices?: Ebo
-	) {
+	public constructor(program: Program, attributes?: AttributeMap, ebo?: Ebo) {
 		super(program.context);
 		this.program = program;
 
@@ -136,10 +132,8 @@ export default class Vao extends ContextDependent {
 			this.setAttribute(name, value);
 		}
 
-		// Set the initial indices.
-		if (typeof indices !== "undefined") {
-			this.indices = indices;
-		}
+		// Set the initial EBO.
+		this.ebo = ebo;
 	}
 
 	/** The shader program associated with this VAO. */
@@ -171,31 +165,33 @@ export default class Vao extends ContextDependent {
 
 		this.bind();
 		attribute.setValue(value);
-		this.attributeCache.set(
-			name,
-			"buffer" in value ? value : { buffer: value }
-		);
+		this.attributeCache.set(name, "vbo" in value ? value : { vbo: value });
 	}
 
 	/**
-	 * The indices of this VAO.
+	 * The element buffer object of this VAO.
 	 * @internal
 	 */
-	private indicesCache: Ebo | undefined;
+	private eboCache?: Ebo;
 
-	/** The indices of this VAO. */
-	public get indices(): Ebo | undefined {
-		return this.indicesCache;
+	/** The element buffer object that is attached to this VAO. */
+	public get ebo(): Ebo | undefined {
+		return this.eboCache;
 	}
 
-	public set indices(value) {
+	public set ebo(value) {
 		this.bind();
+
+		// Remove EBO.
 		if (typeof value === "undefined") {
-			Ebo.unbindGl(this.gl, this);
-		} else {
-			value.bind();
+			Ebo.unbindGl(this.gl, this.internal);
+			delete this.eboCache;
+			return;
 		}
-		this.indicesCache = value;
+
+		// Add or update EBO.
+		value.bind();
+		this.eboCache = value;
 	}
 
 	/**
@@ -251,8 +247,8 @@ export default class Vao extends ContextDependent {
 		}
 
 		// Rasterize.
-		if (typeof this.indices === "undefined") {
-			// No indices; must determine the proper number of elements to rasterize.
+		if (typeof this.ebo === "undefined") {
+			// No EBO; must determine the proper number of elements to rasterize.
 			let firstAttribute: AttributeValue | undefined = void 0;
 			for (const value of this.attributeCache.values()) {
 				if (typeof value === "undefined") {
@@ -270,8 +266,7 @@ export default class Vao extends ContextDependent {
 
 			// Determine the shape of the data.
 			const elementCount =
-				firstAttribute.buffer.size /
-				getSizeOfDataType(firstAttribute.buffer.type);
+				firstAttribute.vbo.size / getSizeOfDataType(firstAttribute.vbo.type);
 			const elementsPerIndex = firstAttribute.size ?? 3;
 
 			// Rasterize arrays.
@@ -279,11 +274,11 @@ export default class Vao extends ContextDependent {
 			return;
 		}
 
-		// Indices exist. Rasterize elements.
-		const indexSize = getSizeOfDataType(this.indices.type);
-		const indexCount = this.indices.size / indexSize;
+		// EBO exists. Rasterize elements.
+		const indexSize = getSizeOfDataType(this.ebo.type);
+		const indexCount = this.ebo.size / indexSize;
 		const byteOffset = offset * indexSize;
-		this.gl.drawElements(primitive, indexCount, this.indices.type, byteOffset);
+		this.gl.drawElements(primitive, indexCount, this.ebo.type, byteOffset);
 	}
 
 	/**

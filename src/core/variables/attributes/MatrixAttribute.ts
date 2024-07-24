@@ -40,12 +40,12 @@ export default class MatrixAttribute extends Attribute {
 		const normalized = value.normalized ?? false;
 		const stride = value.stride ?? 0;
 		const offset = value.offset ?? 0;
-		const actualStride = stride || getSizeOfDataType(value.buffer.type);
+		const actualStride = stride || getSizeOfDataType(value.vbo.type);
 		for (let i = 0; i < this.dim; i++) {
 			this.gl.vertexAttribPointer(
 				this.location + i,
 				this.dim,
-				value.buffer.type,
+				value.vbo.type,
 				normalized,
 				stride,
 				offset + actualStride * this.dim * i

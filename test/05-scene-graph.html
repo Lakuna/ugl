@@ -284,7 +284,7 @@ void main() {
 				// Create VAOs, bind indices.
 				const rectVao = new Vao(
 					program,
-					{ a_position: { buffer: positionBuffer, size: 2 } },
+					{ a_position: { vbo: positionBuffer, size: 2 } },
 					indexBuffer
 				);
 
