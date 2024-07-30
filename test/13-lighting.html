@@ -421,10 +421,10 @@ void main() {
 	float specularBrightness = pointBrightness >= 0.0
 		? pow(dot(normal, halfVector), u_dullness)
 		: 0.0;
+	float brightness = pointBrightness + specularBrightness;
 
 	outColor = u_color;
-	outColor.rgb *= pointBrightness;
-	outColor.rgb += specularBrightness;
+	outColor.rgb *= brightness;
 }
 `;
 
@@ -565,7 +565,7 @@ void main() {
 					gl.uniform3fv(lightPosLoc, [1, 1.4, 2]);
 					gl.uniform3fv(camPosLoc, camPos);
 					gl.uniform4fv(colorLoc, [1, 1, 1, 1]);
-					gl.uniform1f(dullnessLoc, 5);
+					gl.uniform1f(dullnessLoc, 10);
 
 					// Rasterize.
 					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
@@ -634,7 +634,7 @@ void main() {
 						u_lightPos: [1, 1.4, 2],
 						u_camPos: camPos,
 						u_color: [1, 1, 1, 1],
-						u_dullness: 5
+						u_dullness: 10
 					});
 				};
 			}
