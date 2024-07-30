@@ -31,6 +31,31 @@
 			}
 
 			// https://umath.lakuna.pw/
+			function fromValues(x, y, z, out) {
+				out[0] = x;
+				out[1] = y;
+				out[2] = z;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function normalize(vector, out) {
+				const x = vector[0];
+				const y = vector[1];
+				const z = vector[2];
+
+				let len = x * x + y * y + z * z;
+				if (len > 0) {
+					len = 1 / Math.sqrt(len);
+				}
+
+				out[0] = x * len;
+				out[1] = y * len;
+				out[2] = z * len;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
 			function identity(out) {
 				out[0] = 1;
 				out[1] = 0;
@@ -406,6 +431,7 @@ in vec3 v_normal;
 in vec3 v_dirToLight;
 in vec3 v_dirToCam;
 
+uniform vec3 u_reverseLightDir;
 uniform vec4 u_color;
 uniform float u_dullness;
 
@@ -417,11 +443,9 @@ void main() {
 	vec3 dirToCam = normalize(v_dirToCam);
 	vec3 halfVector = normalize(dirToLight + dirToCam);
 
-	float pointBrightness = dot(normal, dirToLight);
-	float specularBrightness = pointBrightness >= 0.0
-		? pow(dot(normal, halfVector), u_dullness)
-		: 0.0;
-	float brightness = pointBrightness + specularBrightness;
+	float diffuseBrightness = dot(normal, u_reverseLightDir);
+	float specularBrightness = pow(max(dot(normal, halfVector), 0.0), u_dullness);
+	float brightness = diffuseBrightness + specularBrightness;
 
 	outColor = u_color;
 	outColor.rgb *= brightness;
@@ -482,6 +506,10 @@ void main() {
 				const normalMatLoc = gl.getUniformLocation(program, "u_normalMat");
 				const lightPosLoc = gl.getUniformLocation(program, "u_lightPos");
 				const camPosLoc = gl.getUniformLocation(program, "u_camPos");
+				const reverseLightDirLoc = gl.getUniformLocation(
+					program,
+					"u_reverseLightDir"
+				);
 				const colorLoc = gl.getUniformLocation(program, "u_color");
 				const dullnessLoc = gl.getUniformLocation(program, "u_dullness");
 
@@ -510,6 +538,10 @@ void main() {
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 				// Transformation initialization.
+				const lightPos = createVector3Like();
+				fromValues(1, 1.4, 2, lightPos);
+				const reverseLightDir = createVector3Like();
+				normalize(lightPos, reverseLightDir);
 				const camMat = createMatrix4Like();
 				identity(camMat);
 				rotateX(camMat, -Math.PI / 5, camMat);
@@ -562,10 +594,11 @@ void main() {
 					gl.uniformMatrix4fv(viewProjMatLoc, false, viewProjMat);
 					gl.uniformMatrix4fv(worldMatLoc, false, worldMat);
 					gl.uniformMatrix3fv(normalMatLoc, false, normalMat);
-					gl.uniform3fv(lightPosLoc, [1, 1.4, 2]);
+					gl.uniform3fv(lightPosLoc, lightPos);
 					gl.uniform3fv(camPosLoc, camPos);
-					gl.uniform4fv(colorLoc, [1, 1, 1, 1]);
-					gl.uniform1f(dullnessLoc, 10);
+					gl.uniform3fv(reverseLightDirLoc, reverseLightDir);
+					gl.uniform4fv(colorLoc, [0.5, 0.5, 0.5, 1]);
+					gl.uniform1f(dullnessLoc, 8);
 
 					// Rasterize.
 					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
@@ -592,6 +625,10 @@ void main() {
 				);
 
 				// Transformation initialization.
+				const lightPos = createVector3Like();
+				fromValues(1, 1.4, 2, lightPos);
+				const reverseLightDir = createVector3Like();
+				normalize(lightPos, reverseLightDir);
 				const camMat = createMatrix4Like();
 				identity(camMat);
 				rotateX(camMat, -Math.PI / 5, camMat);
@@ -631,10 +668,11 @@ void main() {
 						u_viewProjMat: viewProjMat,
 						u_worldMat: worldMat,
 						u_normalMat: normalMat,
-						u_lightPos: [1, 1.4, 2],
+						u_lightPos: lightPos,
 						u_camPos: camPos,
-						u_color: [1, 1, 1, 1],
-						u_dullness: 10
+						u_reverseLightDir: reverseLightDir,
+						u_color: [0.5, 0.5, 0.5, 1],
+						u_dullness: 8
 					});
 				};
 			}
