@@ -1061,26 +1061,40 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Resize this rendering context's viewport to match the size of its current drawing buffer.
-	 * @throws {@link BadValueError} if the canvas is larger than `MAX_VIEWPORT_DIMS`.
+	 * Resize this rendering context's viewport to match the size of a drawing buffer.
+	 * @param framebuffer - The framebuffer to fit the size of, or `undefined` for the default framebuffer (canvas).
+	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 */
-	public fitViewport(): void {
-		this.viewport = [0, 0, this.canvas.width, this.canvas.height];
+	public fitViewport(framebuffer?: Framebuffer): void {
+		this.viewport =
+			typeof framebuffer === "undefined"
+				? [0, 0, this.canvas.width, this.canvas.height]
+				: [0, 0, framebuffer.width, framebuffer.height];
 	}
 
 	/**
-	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
-	 * @param rectangle - The rectangle that represents the viewport, or `undefined` to match the viewport to the drawing buffer.
-	 * @throws {@link BadValueError} if the rectangle (or canvas) is larger than `MAX_VIEWPORT_DIMS`.
+	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given framebuffer.
+	 * @param framebuffer - The framebuffer to fit the size of, or `undefined` for the default framebuffer (canvas).
+	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
-	public resize(rectangle?: Rectangle): boolean {
+	public resize(framebuffer?: Framebuffer): boolean;
+
+	/**
+	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
+	 * @param rectangle - The rectangle that represents the viewport.
+	 * @throws {@link BadValueError} if the rectangle is larger than `MAX_VIEWPORT_DIMS`.
+	 * @returns Whether or not the drawing buffer was resized.
+	 */
+	public resize(rectangle: Rectangle): boolean;
+
+	public resize(shape?: Rectangle | Framebuffer): boolean {
 		const out = this.fitDrawingBuffer();
 
-		if (typeof rectangle === "undefined") {
-			this.fitViewport();
+		if (typeof shape === "undefined" || shape instanceof Framebuffer) {
+			this.fitViewport(shape);
 		} else {
-			this.viewport = rectangle;
+			this.viewport = shape;
 		}
 
 		return out;
