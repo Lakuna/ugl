@@ -17,6 +17,7 @@ import {
 	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
 	DEPTH_TEST,
+	DEPTH_WRITEMASK,
 	DITHER,
 	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
@@ -631,6 +632,26 @@ export default class Context extends ApiInterface {
 			this.gl.disable(DEPTH_TEST);
 		}
 		this.doDepthTestCache = value;
+	}
+
+	/**
+	 * Whether or not the depth buffer can be written to.
+	 * @internal
+	 */
+	private depthMaskCache?: boolean;
+
+	/** Whether or not the depth buffer can be written to. */
+	public get depthMask(): boolean {
+		return (this.depthMaskCache ??= this.gl.getParameter(DEPTH_WRITEMASK));
+	}
+
+	public set depthMask(value) {
+		if (this.depthMask === value) {
+			return;
+		}
+
+		this.gl.depthMask(value);
+		this.depthMaskCache = value;
 	}
 
 	/**

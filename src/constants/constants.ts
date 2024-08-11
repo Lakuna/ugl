@@ -197,6 +197,12 @@ export const COLOR_BUFFER_BIT = 0x00004000;
 export const DEPTH_BUFFER_BIT = 0x00000100;
 
 /**
+ * Whether or not the depth write mask is enabled.
+ * @internal
+ */
+export const DEPTH_WRITEMASK = 0x0b72;
+
+/**
  * Used to clear the stencil buffer.
  * @internal
  */
