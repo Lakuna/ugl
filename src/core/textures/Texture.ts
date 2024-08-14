@@ -779,7 +779,6 @@ export default abstract class Texture extends ContextDependent {
 		delete this.baseLevelCache;
 		delete this.comparisonFunctionCache;
 		delete this.comparisonModeCache;
-		delete this.formatCache;
 		delete this.magFilterCache;
 		delete this.maxAnisotropyCache;
 		delete this.maxLevelCache;
