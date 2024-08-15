@@ -108,7 +108,18 @@ export default abstract class Attribute extends Variable {
 			return;
 		}
 
-		const realValue = "vbo" in value ? value : { vbo: value };
+		const realValue = "vbo" in value ? { ...value } : { vbo: value };
+
+		if (
+			realValue.vbo === this.value?.vbo &&
+			realValue.size === this.value.size &&
+			realValue.stride === this.value.stride &&
+			realValue.offset === this.value.offset &&
+			realValue.normalized === this.value.normalized
+		) {
+			return;
+		}
+
 		this.enabled = true;
 		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER);
 		this.setterInternal(realValue);

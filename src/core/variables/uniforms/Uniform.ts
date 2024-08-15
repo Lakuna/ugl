@@ -1,5 +1,5 @@
 import type Program from "../../Program.js";
-import type Texture from "../../textures/Texture.js";
+import Texture from "../../textures/Texture.js";
 import type { UniformValue } from "../../../types/UniformValue.js";
 import UnsupportedOperationError from "../../../utility/UnsupportedOperationError.js";
 import Variable from "../Variable.js";
@@ -78,12 +78,51 @@ export default abstract class Uniform extends Variable {
 
 	public set value(value: UniformValue) {
 		if (typeof value !== "number" && Symbol.iterator in value) {
-			// It is slow to compare every value between two iterables, so always update iterable values.
+			const newValueArray = [...value] as number[] | Texture[];
+			if (
+				typeof this.value !== "undefined" &&
+				typeof this.value !== "number" &&
+				Symbol.iterator in this.value
+			) {
+				const oldValueArray = [...this.value] as number[] | Texture[];
+				if (newValueArray.length === oldValueArray.length) {
+					let matches = true;
+					for (let i = 0; i < newValueArray.length; i++) {
+						// Checking against a cached texture value is done within `SamplerUniform`.
+						if (
+							newValueArray[i] instanceof Texture ||
+							oldValueArray[i] instanceof Texture
+						) {
+							break;
+						}
+
+						if (newValueArray[i] !== oldValueArray[i]) {
+							matches = false;
+							break;
+						}
+					}
+
+					if (matches) {
+						return;
+					}
+				}
+			}
+
 			this.iterableSetter(value);
-		} else {
-			this.setter(value);
+			this.valueCache = newValueArray;
+			return;
 		}
 
+		// Checking against a cached texture value is done within `SamplerUniform`.
+		if (
+			typeof value === "number" &&
+			typeof this.value === "number" &&
+			value === this.value
+		) {
+			return;
+		}
+
+		this.setter(value);
 		this.valueCache = value;
 	}
 }
