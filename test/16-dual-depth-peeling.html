@@ -337,9 +337,10 @@ void main() {
 	if (fragDepth == nearestDepth) {
 		outFrontColor.rgb += u_color.rgb * u_color.a * alphaMultiplier;
 		outFrontColor.a = 1.0 - alphaMultiplier * (1.0 - u_color.a);
-	} else {
-		outBackColor += u_color;
+		return;
 	}
+
+	outBackColor += u_color;
 }
 `;
 
@@ -372,12 +373,14 @@ void main() {
 
 			const finalFss = `\
 #version 300 es
-precision highp float;
+
+precision mediump float;
 
 uniform sampler2D u_frontColorTex;
 uniform sampler2D u_backColorTex;
 
 out vec4 fragColor;
+
 void main() {
 	ivec2 fragCoord = ivec2(gl_FragCoord.xy);
 	vec4 frontColor = texelFetch(u_frontColorTex, fragCoord, 0);
