@@ -1,0 +1,920 @@
+<!doctype html>
+
+<html lang="en-US">
+	<head>
+		<title>Dual Depth Peeling</title>
+
+		<!-- Prevent the browser console from complaining. -->
+		<meta charset="utf-8" />
+		<link rel="icon" href="./assets/favicon.ico" />
+
+		<!-- Spector.js. -->
+		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
+
+		<!-- Test script. -->
+		<script type="module">
+			// https://umath.lakuna.pw/
+			function createMatrix4Like() {
+				return new Float32Array(16);
+			}
+
+			// https://umath.lakuna.pw/
+			function identity(out) {
+				out[0] = 1;
+				out[1] = 0;
+				out[2] = 0;
+				out[3] = 0;
+				out[4] = 0;
+				out[5] = 1;
+				out[6] = 0;
+				out[7] = 0;
+				out[8] = 0;
+				out[9] = 0;
+				out[10] = 1;
+				out[11] = 0;
+				out[12] = 0;
+				out[13] = 0;
+				out[14] = 0;
+				out[15] = 1;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function rotateY(matrix, radians, out) {
+				const s = Math.sin(radians);
+				const c = Math.cos(radians);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a20 = matrix[8];
+				const a21 = matrix[9];
+				const a22 = matrix[10];
+				const a23 = matrix[11];
+
+				if (out != matrix) {
+					out[4] = matrix[4];
+					out[5] = matrix[5];
+					out[6] = matrix[6];
+					out[7] = matrix[7];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c - a20 * s;
+				out[1] = a01 * c - a21 * s;
+				out[2] = a02 * c - a22 * s;
+				out[3] = a03 * c - a23 * s;
+				out[8] = a00 * s + a20 * c;
+				out[9] = a01 * s + a21 * c;
+				out[10] = a02 * s + a22 * c;
+				out[11] = a03 * s + a23 * c;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function perspective(fov, aspect, near, far, out) {
+				const f = 1 / Math.tan(fov / 2);
+
+				out[0] = f / aspect;
+				out[1] = 0;
+				out[2] = 0;
+				out[3] = 0;
+				out[4] = 0;
+				out[5] = f;
+				out[6] = 0;
+				out[7] = 0;
+				out[8] = 0;
+				out[9] = 0;
+				out[11] = -1;
+				out[12] = 0;
+				out[13] = 0;
+				out[15] = 0;
+
+				if (far != null && far != Infinity) {
+					const nf = 1 / (near - far);
+					out[10] = (far + near) * nf;
+					out[14] = 2 * far * near * nf;
+				} else {
+					out[10] = -1;
+					out[14] = -2 * near;
+				}
+
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function createVector3Like() {
+				return new Float32Array(3);
+			}
+
+			// https://umath.lakuna.pw/
+			function fromValues(x, y, z, out) {
+				out[0] = x;
+				out[1] = y;
+				out[2] = z;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			const epsilon = 0.000001;
+
+			// https://umath.lakuna.pw/
+			function lookAt(eye, center, up, out) {
+				const eyex = eye[0];
+				const eyey = eye[1];
+				const eyez = eye[2];
+
+				const upx = up[0];
+				const upy = up[1];
+				const upz = up[2];
+
+				const centerx = center[0];
+				const centery = center[1];
+				const centerz = center[2];
+
+				if (
+					Math.abs(eyex - centerx) < epsilon &&
+					Math.abs(eyey - centery) < epsilon &&
+					Math.abs(eyez - centerz) < epsilon
+				) {
+					return identity(out);
+				}
+
+				let z0 = eyex - centerx;
+				let z1 = eyey - centery;
+				let z2 = eyez - centerz;
+				let len = 1 / Math.hypot(z0, z1, z2);
+				z0 *= len;
+				z1 *= len;
+				z2 *= len;
+
+				let x0 = upy * z2 - upz * z1;
+				let x1 = upz * z0 - upx * z2;
+				let x2 = upx * z1 - upy * z0;
+				len = Math.hypot(x0, x1, x2);
+				if (len > 0) {
+					len = 1 / len;
+					x0 *= len;
+					x1 *= len;
+					x2 *= len;
+				} else {
+					x0 = 0;
+					x1 = 0;
+					x2 = 0;
+				}
+
+				let y0 = z1 * x2 - z2 * x1;
+				let y1 = z2 * x0 - z0 * x2;
+				let y2 = z0 * x1 - z1 * x0;
+				len = Math.hypot(y0, y1, y2);
+				if (len > 0) {
+					len = 1 / len;
+					y0 *= len;
+					y1 *= len;
+					y2 *= len;
+				} else {
+					y0 = 0;
+					y1 = 0;
+					y2 = 0;
+				}
+
+				out[0] = x0;
+				out[1] = y0;
+				out[2] = z0;
+				out[3] = 0;
+				out[4] = x1;
+				out[5] = y1;
+				out[6] = z1;
+				out[7] = 0;
+				out[8] = x2;
+				out[9] = y2;
+				out[10] = z2;
+				out[11] = 0;
+				out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+				out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+				out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+				out[15] = 1;
+				return out;
+			}
+
+			// https://umath.lakuna.pw/
+			function multiply(a, b, out) {
+				const a00 = a[0];
+				const a01 = a[1];
+				const a02 = a[2];
+				const a03 = a[3];
+				const a10 = a[4];
+				const a11 = a[5];
+				const a12 = a[6];
+				const a13 = a[7];
+				const a20 = a[8];
+				const a21 = a[9];
+				const a22 = a[10];
+				const a23 = a[11];
+				const a30 = a[12];
+				const a31 = a[13];
+				const a32 = a[14];
+				const a33 = a[15];
+
+				let b0 = b[0];
+				let b1 = b[1];
+				let b2 = b[2];
+				let b3 = b[3];
+				out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+				out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+				out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+				out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+				b0 = b[4];
+				b1 = b[5];
+				b2 = b[6];
+				b3 = b[7];
+				out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+				out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+				out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+				out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+				b0 = b[8];
+				b1 = b[9];
+				b2 = b[10];
+				b3 = b[11];
+				out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+				out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+				out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+				out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+				b0 = b[12];
+				b1 = b[13];
+				b2 = b[14];
+				b3 = b[15];
+				out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+				out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+				out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+				out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+				return out;
+			}
+
+			const depthPeelVsSource = `\
+#version 300 es
+
+layout(std140, column_major) uniform;
+
+layout(location=0) in vec4 position;
+uniform mat4 modelMatrix;
+
+uniform mat4 uViewProj;
+
+void main() {
+	vec4 worldPosition = modelMatrix * position;
+	gl_Position = uViewProj * worldPosition;
+}
+`;
+
+			const depthPeelFsSource = `\
+#version 300 es
+precision highp float;
+precision highp sampler2D;
+
+#define MAX_DEPTH 99999.0
+
+layout(std140, column_major) uniform;
+
+uniform sampler2D uDepth;
+uniform sampler2D uFrontColor;
+
+uniform vec4 uColor;
+
+layout(location=0) out vec2 depth;  // RG32F, R - negative front depth, G - back depth
+layout(location=1) out vec4 frontColor;
+layout(location=2) out vec4 backColor;
+
+void main() {
+	float fragDepth = gl_FragCoord.z;   // 0 - 1
+
+	ivec2 fragCoord = ivec2(gl_FragCoord.xy);
+	vec2 lastDepth = texelFetch(uDepth, fragCoord, 0).rg;
+	vec4 lastFrontColor = texelFetch(uFrontColor, fragCoord, 0);
+
+	depth.rg = vec2(-MAX_DEPTH);
+
+	frontColor = lastFrontColor;
+
+	backColor = vec4(0.0);
+
+	float nearestDepth = - lastDepth.x;
+	float furthestDepth = lastDepth.y;
+	float alphaMultiplier = 1.0 - lastFrontColor.a;
+
+	if (fragDepth < nearestDepth || fragDepth > furthestDepth) {
+		return;
+	}
+
+	if (fragDepth > nearestDepth && fragDepth < furthestDepth) {
+		depth.rg = vec2(-fragDepth, fragDepth);
+		return;
+	}
+
+	vec4 baseColor = uColor;
+
+	vec4 color = vec4(baseColor.rgb, uColor.a);
+
+	if (fragDepth == nearestDepth) {
+		frontColor.rgb += color.rgb * color.a * alphaMultiplier;
+		frontColor.a = 1.0 - alphaMultiplier * (1.0 - color.a);
+	} else {
+		backColor += color;
+	}
+}
+`;
+
+			const quadVsSource = `\
+#version 300 es
+
+layout(location=0) in vec4 aPosition;
+
+void main() {
+	gl_Position = aPosition;
+}
+`;
+
+			const blendBackFsSource = `\
+#version 300 es
+precision highp float;
+
+uniform sampler2D uBackColor;
+
+out vec4 fragColor;
+void main() {
+	fragColor = texelFetch(uBackColor, ivec2(gl_FragCoord.xy), 0);
+	if (fragColor.a == 0.0) {
+		discard;
+	}
+}
+`;
+
+			const finalFsSource = `\
+#version 300 es
+precision highp float;
+
+uniform sampler2D uFrontColor;
+uniform sampler2D uBackColor;
+
+out vec4 fragColor;
+void main() {
+	ivec2 fragCoord = ivec2(gl_FragCoord.xy);
+	vec4 frontColor = texelFetch(uFrontColor, fragCoord, 0);
+	vec4 backColor = texelFetch(uBackColor, fragCoord, 0);
+	float alphaMultiplier = 1.0 - frontColor.a;
+
+	fragColor = vec4(
+		frontColor.rgb + alphaMultiplier * backColor.rgb,
+		frontColor.a + backColor.a
+	);
+}
+`;
+
+			// XY plane/quad.
+			const planePositionData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
+			const planeIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+			// Vanilla WebGL2 implementation.
+			function raw(canvas) {
+				const gl = canvas.getContext("webgl2");
+				canvas.width = canvas.clientWidth;
+				canvas.height = canvas.clientHeight;
+				gl.viewport(0, 0, canvas.width, canvas.height);
+
+				gl.enable(gl.BLEND);
+				gl.depthMask(false);
+				gl.disable(gl.CULL_FACE);
+
+				gl.getExtension("EXT_color_buffer_float"); // TODO: Enable automatically?
+				gl.getExtension("EXT_float_blend"); // TODO: Enable automatically?
+
+				const redMat = identity(createMatrix4Like());
+				rotateY(redMat, Math.PI / 4, redMat);
+
+				const red = [1, 0, 0, 0.5];
+
+				const greenMat = identity(createMatrix4Like());
+				rotateY(greenMat, -Math.PI / 4, greenMat);
+
+				const green = [0, 1, 0, 0.5];
+
+				const depthPeelVertexShader = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(depthPeelVertexShader, depthPeelVsSource);
+				gl.compileShader(depthPeelVertexShader);
+
+				if (!gl.getShaderParameter(depthPeelVertexShader, gl.COMPILE_STATUS)) {
+					console.error(gl.getShaderInfoLog(depthPeelVertexShader));
+				}
+
+				const depthPeelFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(depthPeelFragmentShader, depthPeelFsSource);
+				gl.compileShader(depthPeelFragmentShader);
+
+				if (
+					!gl.getShaderParameter(depthPeelFragmentShader, gl.COMPILE_STATUS)
+				) {
+					console.error(gl.getShaderInfoLog(depthPeelFragmentShader));
+				}
+
+				const depthPeelProgram = gl.createProgram();
+				gl.attachShader(depthPeelProgram, depthPeelVertexShader);
+				gl.attachShader(depthPeelProgram, depthPeelFragmentShader);
+				gl.linkProgram(depthPeelProgram);
+
+				if (!gl.getProgramParameter(depthPeelProgram, gl.LINK_STATUS)) {
+					console.error(gl.getProgramInfoLog(depthPeelProgram));
+				}
+
+				const fullScreenQuadVertexShader = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(fullScreenQuadVertexShader, quadVsSource);
+				gl.compileShader(fullScreenQuadVertexShader);
+
+				if (
+					!gl.getShaderParameter(fullScreenQuadVertexShader, gl.COMPILE_STATUS)
+				) {
+					console.error(gl.getShaderInfoLog(fullScreenQuadVertexShader));
+				}
+
+				const finalFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(finalFragmentShader, finalFsSource);
+				gl.compileShader(finalFragmentShader);
+
+				if (!gl.getShaderParameter(finalFragmentShader, gl.COMPILE_STATUS)) {
+					console.error(gl.getShaderInfoLog(finalFragmentShader));
+				}
+
+				const blendBackFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(blendBackFragmentShader, blendBackFsSource);
+				gl.compileShader(blendBackFragmentShader);
+
+				if (
+					!gl.getShaderParameter(blendBackFragmentShader, gl.COMPILE_STATUS)
+				) {
+					console.error(gl.getShaderInfoLog(blendBackFragmentShader));
+				}
+
+				const finalProgram = gl.createProgram();
+				gl.attachShader(finalProgram, fullScreenQuadVertexShader);
+				gl.attachShader(finalProgram, finalFragmentShader);
+				gl.linkProgram(finalProgram);
+
+				if (!gl.getProgramParameter(finalProgram, gl.LINK_STATUS)) {
+					console.error(gl.getProgramInfoLog(finalProgram));
+				}
+
+				const blendBackProgram = gl.createProgram();
+				gl.attachShader(blendBackProgram, fullScreenQuadVertexShader);
+				gl.attachShader(blendBackProgram, blendBackFragmentShader);
+				gl.linkProgram(blendBackProgram);
+
+				if (!gl.getProgramParameter(blendBackProgram, gl.LINK_STATUS)) {
+					console.error(gl.getProgramInfoLog(blendBackProgram));
+				}
+
+				// TODO: `getUniformBlockIndex`, `uniformBlockBinding`, Uniform Buffer Objects.
+
+				const depthPeelModelMatrixLocation = gl.getUniformLocation(
+					depthPeelProgram,
+					"modelMatrix"
+				);
+				const depthPeelViewProjLocation = gl.getUniformLocation(
+					depthPeelProgram,
+					"uViewProj"
+				);
+				const depthPeelDepthLocation = gl.getUniformLocation(
+					depthPeelProgram,
+					"uDepth"
+				);
+				const depthPeelFrontColorLocation = gl.getUniformLocation(
+					depthPeelProgram,
+					"uFrontColor"
+				);
+				const depthPeelColorLocation = gl.getUniformLocation(
+					depthPeelProgram,
+					"uColor"
+				);
+
+				const finalFrontColorLocation = gl.getUniformLocation(
+					finalProgram,
+					"uFrontColor"
+				);
+				const finalBackColorLocation = gl.getUniformLocation(
+					finalProgram,
+					"uBackColor"
+				);
+
+				const blendBackColorLocation = gl.getUniformLocation(
+					blendBackProgram,
+					"uBackColor"
+				);
+
+				const depthPeelBuffers = [
+					gl.createFramebuffer(),
+					gl.createFramebuffer()
+				];
+
+				const colorBuffers = [gl.createFramebuffer(), gl.createFramebuffer()];
+
+				const blendBackBuffer = gl.createFramebuffer();
+
+				for (let i = 0; i < 2; i++) {
+					gl.bindFramebuffer(gl.FRAMEBUFFER, depthPeelBuffers[i]);
+					const o = i * 3;
+
+					const depthTarget = gl.createTexture();
+					gl.activeTexture(gl.TEXTURE0 + o);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RG32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RG,
+						gl.FLOAT,
+						null
+					);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT0,
+						gl.TEXTURE_2D,
+						depthTarget,
+						0
+					);
+
+					const frontColorTarget = gl.createTexture();
+					gl.activeTexture(gl.TEXTURE1 + o);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA16F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.HALF_FLOAT,
+						null
+					);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT1,
+						gl.TEXTURE_2D,
+						frontColorTarget,
+						0
+					);
+
+					const backColorTarget = gl.createTexture();
+					gl.activeTexture(gl.TEXTURE2 + o);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA16F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.HALF_FLOAT,
+						null
+					);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT2,
+						gl.TEXTURE_2D,
+						backColorTarget,
+						0
+					);
+
+					gl.bindFramebuffer(gl.FRAMEBUFFER, colorBuffers[i]);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT0,
+						gl.TEXTURE_2D,
+						frontColorTarget,
+						0
+					);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT1,
+						gl.TEXTURE_2D,
+						backColorTarget,
+						0
+					);
+				}
+
+				gl.bindFramebuffer(gl.FRAMEBUFFER, blendBackBuffer);
+
+				const blendBackTarget = gl.createTexture();
+				gl.activeTexture(gl.TEXTURE6);
+				gl.bindTexture(gl.TEXTURE_2D, blendBackTarget);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA16F,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight,
+					0,
+					gl.RGBA,
+					gl.HALF_FLOAT,
+					null
+				);
+				gl.framebufferTexture2D(
+					gl.FRAMEBUFFER,
+					gl.COLOR_ATTACHMENT0,
+					gl.TEXTURE_2D,
+					blendBackTarget,
+					0
+				);
+
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+				const numVertices = planeIndexData.length;
+
+				const sphereArray = gl.createVertexArray();
+				gl.bindVertexArray(sphereArray);
+
+				const positionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, planePositionData, gl.STATIC_DRAW);
+				gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+				gl.enableVertexAttribArray(0);
+
+				const indices = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, planeIndexData, gl.STATIC_DRAW);
+
+				const quadArray = gl.createVertexArray();
+				gl.bindVertexArray(quadArray);
+
+				const quadPositionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+				gl.bufferData(
+					gl.ARRAY_BUFFER,
+					new Float32Array([-1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1]),
+					gl.STATIC_DRAW
+				);
+				gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+				gl.enableVertexAttribArray(0);
+
+				const projMatrix = perspective(
+					Math.PI / 2,
+					canvas.width / canvas.height,
+					0.1,
+					10.0,
+					createMatrix4Like()
+				);
+
+				const viewMatrix = createMatrix4Like();
+				const eyePosition = fromValues(0, 2, 2, createVector3Like());
+				lookAt(eyePosition, [0, 0, 0], [0, 1, 0], viewMatrix);
+
+				const viewProjMatrix = multiply(
+					projMatrix,
+					viewMatrix,
+					createMatrix4Like()
+				);
+
+				const lightPosition = fromValues(1, 1, 2, createVector3Like());
+
+				const texture = gl.createTexture();
+				gl.activeTexture(gl.TEXTURE9);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(
+					gl.TEXTURE_2D,
+					gl.TEXTURE_MIN_FILTER,
+					gl.LINEAR_MIPMAP_LINEAR
+				);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+				const levels = Math.floor(Math.log2(Math.max(1, 1))) + 1;
+				gl.texStorage2D(gl.TEXTURE_2D, levels, gl.RGBA8, 1, 1);
+				gl.texSubImage2D(
+					gl.TEXTURE_2D,
+					0,
+					0,
+					0,
+					1,
+					1,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					new Uint8Array([0xff, 0xff, 0xff, 0xff])
+				);
+				gl.generateMipmap(gl.TEXTURE_2D);
+
+				gl.useProgram(finalProgram);
+				gl.uniform1i(finalBackColorLocation, 6);
+				gl.useProgram(depthPeelProgram);
+
+				const DEPTH_CLEAR_VALUE = -99999.0;
+				const MAX_DEPTH = 1.0;
+				const MIN_DEPTH = 0.0;
+
+				const NUM_PASS = 4;
+
+				return function () {
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, blendBackBuffer);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					gl.bindFramebuffer(gl.FRAMEBUFFER, depthPeelBuffers[0]);
+					gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+					gl.clearColor(DEPTH_CLEAR_VALUE, DEPTH_CLEAR_VALUE, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelBuffers[1]);
+					gl.clearColor(-MIN_DEPTH, MAX_DEPTH, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorBuffers[0]);
+					gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorBuffers[1]);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					// draw depth for first pass to peel
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelBuffers[0]);
+					gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+					gl.blendEquation(gl.MAX);
+
+					gl.useProgram(depthPeelProgram);
+					gl.uniform1i(depthPeelDepthLocation, 3);
+					gl.uniform1i(depthPeelFrontColorLocation, 4);
+					gl.bindVertexArray(sphereArray);
+
+					gl.uniformMatrix4fv(depthPeelViewProjLocation, false, viewProjMatrix);
+					gl.uniform4fv(depthPeelColorLocation, red);
+					gl.uniformMatrix4fv(depthPeelModelMatrixLocation, false, redMat);
+
+					gl.drawElements(
+						gl.TRIANGLES,
+						planeIndexData.length,
+						gl.UNSIGNED_BYTE,
+						0
+					);
+
+					gl.uniform4fv(depthPeelColorLocation, green);
+					gl.uniformMatrix4fv(depthPeelModelMatrixLocation, false, greenMat);
+
+					gl.drawElements(
+						gl.TRIANGLES,
+						planeIndexData.length,
+						gl.UNSIGNED_BYTE,
+						0
+					);
+
+					let readId, writeId;
+					let offsetRead, offsetBack;
+
+					for (let pass = 0; pass < NUM_PASS; pass++) {
+						readId = pass % 2;
+						writeId = 1 - readId; // ping-pong: 0 or 1
+
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelBuffers[writeId]);
+						gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+						gl.clearColor(DEPTH_CLEAR_VALUE, DEPTH_CLEAR_VALUE, 0, 0);
+						gl.clear(gl.COLOR_BUFFER_BIT);
+
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorBuffers[writeId]);
+						gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+						gl.clearColor(0, 0, 0, 0);
+						gl.clear(gl.COLOR_BUFFER_BIT);
+
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelBuffers[writeId]);
+						gl.drawBuffers([
+							gl.COLOR_ATTACHMENT0,
+							gl.COLOR_ATTACHMENT1,
+							gl.COLOR_ATTACHMENT2
+						]);
+						gl.blendEquation(gl.MAX);
+
+						// update texture uniform
+						offsetRead = readId * 3;
+						gl.useProgram(depthPeelProgram);
+						gl.uniform1i(depthPeelDepthLocation, offsetRead);
+						gl.uniform1i(depthPeelFrontColorLocation, offsetRead + 1);
+
+						// draw geometry
+						gl.bindVertexArray(sphereArray);
+						gl.uniform4fv(depthPeelColorLocation, red);
+						gl.uniformMatrix4fv(depthPeelModelMatrixLocation, false, redMat);
+						gl.drawElements(
+							gl.TRIANGLES,
+							planeIndexData.length,
+							gl.UNSIGNED_BYTE,
+							0
+						);
+						gl.uniform4fv(depthPeelColorLocation, green);
+						gl.uniformMatrix4fv(depthPeelModelMatrixLocation, false, greenMat);
+						gl.drawElements(
+							gl.TRIANGLES,
+							planeIndexData.length,
+							gl.UNSIGNED_BYTE,
+							0
+						);
+
+						// blend back color separately
+						offsetBack = writeId * 3;
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, blendBackBuffer);
+						gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+						gl.blendEquation(gl.FUNC_ADD);
+						gl.blendFuncSeparate(
+							gl.SRC_ALPHA,
+							gl.ONE_MINUS_SRC_ALPHA,
+							gl.ONE,
+							gl.ONE_MINUS_SRC_ALPHA
+						);
+						gl.useProgram(blendBackProgram);
+						gl.uniform1i(blendBackColorLocation, offsetBack + 2);
+						gl.bindVertexArray(quadArray);
+						gl.drawArrays(gl.TRIANGLES, 0, 6);
+					}
+
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 1);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+					gl.useProgram(finalProgram);
+					gl.uniform1i(finalFrontColorLocation, offsetBack + 1);
+
+					gl.bindVertexArray(quadArray);
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
+				};
+			}
+
+			// μGL implementation.
+			function ugl(canvas) {
+				return function () {};
+			}
+
+			// Start after the canvases finish loading.
+			addEventListener("load", () => {
+				// Set up Spector.js.
+				new SPECTOR.Spector().displayUI();
+
+				// Set up both rendering contexts, get separate update functions.
+				const rawUpdate = raw(document.querySelector("canvas#raw"));
+				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
+
+				// Create a combined update function.
+				function update(now) {
+					requestAnimationFrame(update);
+
+					// Update both canvases on every frame.
+					rawUpdate(now);
+					uglUpdate(now);
+				}
+				requestAnimationFrame(update);
+			});
+		</script>
+
+		<!-- Canvas visibility style. -->
+		<style>
+			/* Make canvases more visible. */
+			canvas {
+				border: 1px solid black;
+				width: 512px;
+				height: 512px;
+			}
+
+			/** Display canvases below the Spector.js UI. */
+			div#canvas-wrapper {
+				text-align: center;
+				padding-top: 120px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="canvas-wrapper">
+			<canvas id="raw"></canvas>
+			<canvas id="ugl"></canvas>
+		</div>
+	</body>
+</html>
