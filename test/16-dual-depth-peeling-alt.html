@@ -1513,7 +1513,6 @@ void main() {
 				new SPECTOR.Spector().displayUI();
 
 				// Set up both rendering contexts, get separate update functions.
-				const rawUpdate = raw(document.querySelector("canvas#raw"));
 				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
 
 				// Create a combined update function.
@@ -1521,7 +1520,6 @@ void main() {
 					requestAnimationFrame(update);
 
 					// Update both canvases on every frame.
-					rawUpdate(now);
 					uglUpdate(now);
 				}
 				requestAnimationFrame(update);
@@ -1546,7 +1544,6 @@ void main() {
 	</head>
 	<body>
 		<div id="canvas-wrapper">
-			<canvas id="raw"></canvas>
 			<canvas id="ugl"></canvas>
 		</div>
 	</body>

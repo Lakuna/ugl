@@ -18,10 +18,11 @@ import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
 import MipmapTarget from "../constants/MipmapTarget.js";
 import Renderbuffer from "./Renderbuffer.js";
-import type Texture from "./textures/Texture.js";
+import Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
 
@@ -349,6 +350,15 @@ export default class Framebuffer extends ContextDependent {
 				break;
 			default:
 				attachmentValue += COLOR_ATTACHMENT0;
+		}
+
+		// Enable the extensions that are required for the attachment.
+		if (data instanceof Texture) {
+			for (const extension of getExtensionsForFramebufferAttachmentFormat(
+				data.format
+			)) {
+				this.context.enableExtension(extension);
+			}
 		}
 
 		// Bind this framebuffer.
