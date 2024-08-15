@@ -23,7 +23,6 @@
 				TextureFormat,
 				TextureFilter,
 				WrapMode,
-				TextureDataType,
 				Framebuffer,
 				BlendEquation,
 				BlendFunction
@@ -580,12 +579,12 @@ void main() {
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.RGBA16F,
+					gl.RGBA32F,
 					gl.drawingBufferWidth,
 					gl.drawingBufferHeight,
 					0,
 					gl.RGBA,
-					gl.HALF_FLOAT,
+					gl.FLOAT,
 					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -599,12 +598,12 @@ void main() {
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.RGBA16F,
+					gl.RGBA32F,
 					gl.drawingBufferWidth,
 					gl.drawingBufferHeight,
 					0,
 					gl.RGBA,
-					gl.HALF_FLOAT,
+					gl.FLOAT,
 					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -637,12 +636,12 @@ void main() {
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.RGBA16F,
+					gl.RGBA32F,
 					gl.drawingBufferWidth,
 					gl.drawingBufferHeight,
 					0,
 					gl.RGBA,
-					gl.HALF_FLOAT,
+					gl.FLOAT,
 					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -656,12 +655,12 @@ void main() {
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.RGBA16F,
+					gl.RGBA32F,
 					gl.drawingBufferWidth,
 					gl.drawingBufferHeight,
 					0,
 					gl.RGBA,
-					gl.HALF_FLOAT,
+					gl.FLOAT,
 					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -675,12 +674,12 @@ void main() {
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
-					gl.RGBA16F,
+					gl.RGBA32F,
 					gl.drawingBufferWidth,
 					gl.drawingBufferHeight,
 					0,
 					gl.RGBA,
-					gl.HALF_FLOAT,
+					gl.FLOAT,
 					null
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -823,12 +822,12 @@ void main() {
 						gl.texImage2D(
 							gl.TEXTURE_2D,
 							0,
-							gl.RGBA16F,
+							gl.RGBA32F,
 							gl.drawingBufferWidth,
 							gl.drawingBufferHeight,
 							0,
 							gl.RGBA,
-							gl.HALF_FLOAT,
+							gl.FLOAT,
 							null
 						);
 
@@ -837,12 +836,12 @@ void main() {
 						gl.texImage2D(
 							gl.TEXTURE_2D,
 							0,
-							gl.RGBA16F,
+							gl.RGBA32F,
 							gl.drawingBufferWidth,
 							gl.drawingBufferHeight,
 							0,
 							gl.RGBA,
-							gl.HALF_FLOAT,
+							gl.FLOAT,
 							null
 						);
 
@@ -865,12 +864,12 @@ void main() {
 						gl.texImage2D(
 							gl.TEXTURE_2D,
 							0,
-							gl.RGBA16F,
+							gl.RGBA32F,
 							gl.drawingBufferWidth,
 							gl.drawingBufferHeight,
 							0,
 							gl.RGBA,
-							gl.HALF_FLOAT,
+							gl.FLOAT,
 							null
 						);
 
@@ -879,12 +878,12 @@ void main() {
 						gl.texImage2D(
 							gl.TEXTURE_2D,
 							0,
-							gl.RGBA16F,
+							gl.RGBA32F,
 							gl.drawingBufferWidth,
 							gl.drawingBufferHeight,
 							0,
 							gl.RGBA,
-							gl.HALF_FLOAT,
+							gl.FLOAT,
 							null
 						);
 
@@ -893,12 +892,12 @@ void main() {
 						gl.texImage2D(
 							gl.TEXTURE_2D,
 							0,
-							gl.RGBA16F,
+							gl.RGBA32F,
 							gl.drawingBufferWidth,
 							gl.drawingBufferHeight,
 							0,
 							gl.RGBA,
-							gl.HALF_FLOAT,
+							gl.FLOAT,
 							null
 						);
 					}
@@ -1178,28 +1177,26 @@ void main() {
 				depthTarget0.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
 
 				const frontColorTarget0 = new Texture2d(gl);
-				frontColorTarget0.format = TextureFormat.RGBA16F;
-				frontColorTarget0.setMip(
-					void 0,
+				frontColorTarget0.format = TextureFormat.RGBA32F;
+				frontColorTarget0.setMip(void 0, 0, void 0, [
 					0,
-					void 0,
-					[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-					TextureDataType.HALF_FLOAT
-				);
+					0,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight
+				]);
 				frontColorTarget0.magFilter = TextureFilter.NEAREST;
 				frontColorTarget0.minFilter = TextureFilter.NEAREST;
 				frontColorTarget0.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
 				frontColorTarget0.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
 
 				const backColorTarget0 = new Texture2d(gl);
-				backColorTarget0.format = TextureFormat.RGBA16F;
-				backColorTarget0.setMip(
-					void 0,
+				backColorTarget0.format = TextureFormat.RGBA32F;
+				backColorTarget0.setMip(void 0, 0, void 0, [
 					0,
-					void 0,
-					[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-					TextureDataType.HALF_FLOAT
-				);
+					0,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight
+				]);
 				backColorTarget0.magFilter = TextureFilter.NEAREST;
 				backColorTarget0.minFilter = TextureFilter.NEAREST;
 				backColorTarget0.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
@@ -1220,42 +1217,39 @@ void main() {
 				depthTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
 
 				const frontColorTarget1 = new Texture2d(gl);
-				frontColorTarget1.format = TextureFormat.RGBA16F;
-				frontColorTarget1.setMip(
-					void 0,
+				frontColorTarget1.format = TextureFormat.RGBA32F;
+				frontColorTarget1.setMip(void 0, 0, void 0, [
 					0,
-					void 0,
-					[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-					TextureDataType.HALF_FLOAT
-				);
+					0,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight
+				]);
 				frontColorTarget1.magFilter = TextureFilter.NEAREST;
 				frontColorTarget1.minFilter = TextureFilter.NEAREST;
 				frontColorTarget1.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
 				frontColorTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
 
 				const backColorTarget1 = new Texture2d(gl);
-				backColorTarget1.format = TextureFormat.RGBA16F;
-				backColorTarget1.setMip(
-					void 0,
+				backColorTarget1.format = TextureFormat.RGBA32F;
+				backColorTarget1.setMip(void 0, 0, void 0, [
 					0,
-					void 0,
-					[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-					TextureDataType.HALF_FLOAT
-				);
+					0,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight
+				]);
 				backColorTarget1.magFilter = TextureFilter.NEAREST;
 				backColorTarget1.minFilter = TextureFilter.NEAREST;
 				backColorTarget1.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
 				backColorTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
 
 				const blendBackTarget = new Texture2d(gl);
-				blendBackTarget.format = TextureFormat.RGBA16F;
-				blendBackTarget.setMip(
-					void 0,
+				blendBackTarget.format = TextureFormat.RGBA32F;
+				blendBackTarget.setMip(void 0, 0, void 0, [
 					0,
-					void 0,
-					[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-					TextureDataType.HALF_FLOAT
-				);
+					0,
+					gl.drawingBufferWidth,
+					gl.drawingBufferHeight
+				]);
 				blendBackTarget.magFilter = TextureFilter.NEAREST;
 				blendBackTarget.minFilter = TextureFilter.NEAREST;
 				blendBackTarget.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
@@ -1303,21 +1297,19 @@ void main() {
 							gl.drawingBufferHeight
 						]);
 
-						frontColorTarget0.setMip(
-							void 0,
+						frontColorTarget0.setMip(void 0, 0, void 0, [
 							0,
-							void 0,
-							[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-							TextureDataType.HALF_FLOAT
-						);
+							0,
+							gl.drawingBufferWidth,
+							gl.drawingBufferHeight
+						]);
 
-						backColorTarget0.setMip(
-							void 0,
+						backColorTarget0.setMip(void 0, 0, void 0, [
 							0,
-							void 0,
-							[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-							TextureDataType.HALF_FLOAT
-						);
+							0,
+							gl.drawingBufferWidth,
+							gl.drawingBufferHeight
+						]);
 
 						depthTarget1.setMip(void 0, 0, void 0, [
 							0,
@@ -1326,29 +1318,26 @@ void main() {
 							gl.drawingBufferHeight
 						]);
 
-						frontColorTarget1.setMip(
-							void 0,
+						frontColorTarget1.setMip(void 0, 0, void 0, [
 							0,
-							void 0,
-							[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-							TextureDataType.HALF_FLOAT
-						);
+							0,
+							gl.drawingBufferWidth,
+							gl.drawingBufferHeight
+						]);
 
-						backColorTarget1.setMip(
-							void 0,
+						backColorTarget1.setMip(void 0, 0, void 0, [
 							0,
-							void 0,
-							[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-							TextureDataType.HALF_FLOAT
-						);
+							0,
+							gl.drawingBufferWidth,
+							gl.drawingBufferHeight
+						]);
 
-						blendBackTarget.setMip(
-							void 0,
+						blendBackTarget.setMip(void 0, 0, void 0, [
 							0,
-							void 0,
-							[0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight],
-							TextureDataType.HALF_FLOAT
-						);
+							0,
+							gl.drawingBufferWidth,
+							gl.drawingBufferHeight
+						]);
 					}
 
 					const w = canvas.width;
