@@ -283,7 +283,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Do nothing if the binding is already correct.
 		if (Texture.getBound(context, textureUnit, target) === texture) {
-			return textureUnit;
+			return (context.activeTexture = textureUnit);
 		}
 
 		// Bind the texture to the target.
@@ -1293,13 +1293,12 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	public bind(textureUnit?: number) {
-		// Must set active texture unit again in order to avoid some race condition.
-		return (this.context.activeTexture = Texture.bindGl(
+		return Texture.bindGl(
 			this.context,
 			textureUnit,
 			this.target,
 			this.internal
-		));
+		);
 	}
 
 	/**
