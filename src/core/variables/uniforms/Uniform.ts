@@ -66,10 +66,10 @@ export default abstract class Uniform extends Variable {
 	public abstract iterableSetter(value: Iterable<number | Texture>): void;
 
 	/**
-	 * The value that is stored in this variable.
+	 * The value that is stored in this uniform.
 	 * @internal
 	 */
-	private valueCache?: UniformValue;
+	protected valueCache?: UniformValue;
 
 	/** The value that is stored in this uniform. */
 	public get value(): UniformValue | undefined {
@@ -77,52 +77,14 @@ export default abstract class Uniform extends Variable {
 	}
 
 	public set value(value: UniformValue) {
+		this.program.bind();
+
 		if (typeof value !== "number" && Symbol.iterator in value) {
-			const newValueArray = [...value] as number[] | Texture[];
-			if (
-				typeof this.value !== "undefined" &&
-				typeof this.value !== "number" &&
-				Symbol.iterator in this.value
-			) {
-				const oldValueArray = [...this.value] as number[] | Texture[];
-				if (newValueArray.length === oldValueArray.length) {
-					let matches = true;
-					for (let i = 0; i < newValueArray.length; i++) {
-						// Checking against a cached texture value is done within `SamplerUniform`.
-						if (
-							newValueArray[i] instanceof Texture ||
-							oldValueArray[i] instanceof Texture
-						) {
-							break;
-						}
-
-						if (newValueArray[i] !== oldValueArray[i]) {
-							matches = false;
-							break;
-						}
-					}
-
-					if (matches) {
-						return;
-					}
-				}
-			}
-
 			this.iterableSetter(value);
-			this.valueCache = newValueArray;
-			return;
+		} else {
+			this.setter(value);
 		}
 
-		// Checking against a cached texture value is done within `SamplerUniform`.
-		if (
-			typeof value === "number" &&
-			typeof this.value === "number" &&
-			value === this.value
-		) {
-			return;
-		}
-
-		this.setter(value);
 		this.valueCache = value;
 	}
 }

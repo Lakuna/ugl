@@ -13,6 +13,16 @@ export default class FloatAttribute extends Attribute {
 	 * @internal
 	 */
 	protected override setterInternal(value: AttributeValue) {
+		if (
+			value.size === this.value?.size &&
+			value.vbo === this.value?.vbo &&
+			value.normalized === this.value.normalized &&
+			value.stride === this.value.stride &&
+			value.offset === this.value.offset
+		) {
+			return;
+		}
+
 		this.gl.vertexAttribPointer(
 			this.location,
 			value.size ?? 3,
@@ -21,5 +31,7 @@ export default class FloatAttribute extends Attribute {
 			value.stride ?? 0,
 			value.offset ?? 0
 		);
+
+		this.valueCache = value;
 	}
 }
