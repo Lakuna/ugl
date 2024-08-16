@@ -252,6 +252,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @param texture - The texture.
+	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated is the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
 	 * @returns The used texture unit.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture | bindTexture}
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
@@ -261,7 +262,8 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		requestedTextureUnit: number | undefined,
 		target: TextureTarget,
-		texture: WebGLTexture | null
+		texture: WebGLTexture | null,
+		queryOnly = false
 	) {
 		// Default to the most desirable texture unit.
 		const textureUnit =
@@ -283,7 +285,10 @@ export default abstract class Texture extends ContextDependent {
 
 		// Do nothing if the binding is already correct.
 		if (Texture.getBound(context, textureUnit, target) === texture) {
-			return (context.activeTexture = textureUnit);
+			if (!queryOnly) {
+				context.activeTexture = textureUnit;
+			}
+			return textureUnit;
 		}
 
 		// Bind the texture to the target.
@@ -466,9 +471,16 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Set the width of this texture.
 	 * @param value - The new width of the texture.
+	 * @throws {@link ImmutableError} if this texture is immutable-format.
 	 * @internal
 	 */
 	protected setWidth(value: number): void {
+		if (this.isImmutableFormat) {
+			throw new ImmutableError(
+				"Cannot update the width of an immutable-format texture."
+			);
+		}
+
 		this.dims[0] = value;
 	}
 
@@ -480,9 +492,16 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Set the height of this texture.
 	 * @param value - The new height of the texture.
+	 * @throws {@link ImmutableError} if this texture is immutable-format.
 	 * @internal
 	 */
 	protected setHeight(value: number): void {
+		if (this.isImmutableFormat) {
+			throw new ImmutableError(
+				"Cannot update the height of an immutable-format texture."
+			);
+		}
+
 		this.dims[1] = value;
 	}
 
@@ -494,9 +513,16 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Set the depth of this texture.
 	 * @param value - The new width of the texture.
+	 * @throws {@link ImmutableError} if this texture is immutable-format.
 	 * @internal
 	 */
 	protected setDepth(value: number): void {
+		if (this.isImmutableFormat) {
+			throw new ImmutableError(
+				"Cannot update the depth of an immutable-format texture."
+			);
+		}
+
 		this.dims[2] = value;
 	}
 
@@ -513,31 +539,35 @@ export default abstract class Texture extends ContextDependent {
 
 	/**
 	 * Make this texture into an immutable-format texture.
-	 * @param levels - The number of levels in the texture.
-	 * @param format - The internal format of the texture.
-	 * @param dims - The dimensions of the texture.
+	 * @param levels - The number of levels in the texture, or `undefined` for one level.
+	 * @param format - The internal format of the texture, or `undefined` to keep the current format (defaults to `RGBA`).
+	 * @param dims - The dimensions of the texture, or `undefined` to keep the current dimensions.
 	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 */
 	public makeImmutableFormat(
-		levels: number,
-		format: TextureFormat,
-		dims: number[]
+		levels?: number,
+		format?: TextureFormat,
+		dims?: number[]
 	): void {
 		if (this.isImmutableFormat) {
 			return;
 		}
 
+		const actualLevels = levels ?? 1;
+		const actualFormat = format ?? this.format;
+		const actualDims = dims ?? this.dims;
+
 		// Immutable-format textures must use a sized format.
-		if (!isTextureFormatSized(format)) {
+		if (!isTextureFormatSized(actualFormat)) {
 			throw new TextureFormatError(
 				"Cannot use an unsized format for immutable-format textures."
 			);
 		}
 
-		this.makeImmutableFormatInternal(levels, format, dims);
-		this.format = format;
-		for (let i = 0; i < dims.length; i++) {
-			this.dims[i] = dims[i] ?? 0;
+		this.makeImmutableFormatInternal(actualLevels, actualFormat, actualDims);
+		this.format = actualFormat;
+		for (let i = 0; i < actualDims.length; i++) {
+			this.dims[i] = actualDims[i] ?? 0;
 		}
 		this.isImmutableFormatCache = true;
 	}
@@ -1288,16 +1318,18 @@ export default abstract class Texture extends ContextDependent {
 	/**
 	 * Bind this texture to its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
+	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated is the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
 	 * @returns The used texture unit.
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
-	public bind(textureUnit?: number) {
+	public bind(textureUnit?: number, queryOnly = false) {
 		return Texture.bindGl(
 			this.context,
 			textureUnit,
 			this.target,
-			this.internal
+			this.internal,
+			queryOnly
 		);
 	}
 

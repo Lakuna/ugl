@@ -23,7 +23,7 @@ export default class SamplerUniform extends IntegerUniform {
 				texture.generateMipmap();
 			}
 
-			textureUnits.push(texture.bind());
+			textureUnits.push(texture.bind(void 0, true));
 		}
 
 		// Can only accept one value.
@@ -58,7 +58,7 @@ export default class SamplerUniform extends IntegerUniform {
 			value.generateMipmap();
 		}
 
-		const textureUnit = value.bind();
+		const textureUnit = value.bind(void 0, true);
 		if (textureUnit === this.scalarValueCache) {
 			return;
 		}
