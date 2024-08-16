@@ -29,8 +29,8 @@ export default class SamplerUniform extends IntegerUniform {
 		// Can only accept one value.
 		const [textureUnit] = [...textureUnits];
 		if (
-			typeof textureUnit === "undefined" ||
-			textureUnit === this.scalarValueCache
+			textureUnit === this.scalarValueCache ||
+			typeof textureUnit === "undefined"
 		) {
 			return;
 		}
