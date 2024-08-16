@@ -49,18 +49,6 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 		// Can only accept twelve values.
 		const [i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11] = [...value];
 		if (
-			typeof i0 === "undefined" ||
-			typeof i1 === "undefined" ||
-			typeof i2 === "undefined" ||
-			typeof i3 === "undefined" ||
-			typeof i4 === "undefined" ||
-			typeof i5 === "undefined" ||
-			typeof i6 === "undefined" ||
-			typeof i7 === "undefined" ||
-			typeof i8 === "undefined" ||
-			typeof i9 === "undefined" ||
-			typeof i10 === "undefined" ||
-			typeof i11 === "undefined" ||
 			(i0 === this.matrixValueCache[0] &&
 				i1 === this.matrixValueCache[1] &&
 				i2 === this.matrixValueCache[2] &&
@@ -72,7 +60,19 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 				i8 === this.matrixValueCache[8] &&
 				i9 === this.matrixValueCache[9] &&
 				i10 === this.matrixValueCache[10] &&
-				i11 === this.matrixValueCache[11])
+				i11 === this.matrixValueCache[11]) ||
+			typeof i0 === "undefined" ||
+			typeof i1 === "undefined" ||
+			typeof i2 === "undefined" ||
+			typeof i3 === "undefined" ||
+			typeof i4 === "undefined" ||
+			typeof i5 === "undefined" ||
+			typeof i6 === "undefined" ||
+			typeof i7 === "undefined" ||
+			typeof i8 === "undefined" ||
+			typeof i9 === "undefined" ||
+			typeof i10 === "undefined" ||
+			typeof i11 === "undefined"
 		) {
 			return;
 		}

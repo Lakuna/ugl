@@ -36,12 +36,12 @@ export default abstract class Vector3Uniform extends MultipleValuedUniform {
 		// Can only accept three values.
 		const [x, y, z] = [...value];
 		if (
-			typeof x === "undefined" ||
-			typeof y === "undefined" ||
-			typeof z === "undefined" ||
 			(x === this.vectorValueCache[0] &&
 				y === this.vectorValueCache[1] &&
-				z === this.vectorValueCache[2])
+				z === this.vectorValueCache[2]) ||
+			typeof x === "undefined" ||
+			typeof y === "undefined" ||
+			typeof z === "undefined"
 		) {
 			return;
 		}

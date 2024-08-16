@@ -36,18 +36,18 @@ export default abstract class MatrixUniform6 extends MatrixUniform {
 		// Can only accept six values.
 		const [i0, i1, i2, i3, i4, i5] = [...value];
 		if (
-			typeof i0 === "undefined" ||
-			typeof i1 === "undefined" ||
-			typeof i2 === "undefined" ||
-			typeof i3 === "undefined" ||
-			typeof i4 === "undefined" ||
-			typeof i5 === "undefined" ||
 			(i0 === this.matrixValueCache[0] &&
 				i1 === this.matrixValueCache[1] &&
 				i2 === this.matrixValueCache[2] &&
 				i3 === this.matrixValueCache[3] &&
 				i4 === this.matrixValueCache[4] &&
-				i5 === this.matrixValueCache[5])
+				i5 === this.matrixValueCache[5]) ||
+			typeof i0 === "undefined" ||
+			typeof i1 === "undefined" ||
+			typeof i2 === "undefined" ||
+			typeof i3 === "undefined" ||
+			typeof i4 === "undefined" ||
+			typeof i5 === "undefined"
 		) {
 			return;
 		}

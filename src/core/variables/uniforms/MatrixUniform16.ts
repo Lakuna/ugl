@@ -70,22 +70,6 @@ export default abstract class MatrixUniform16 extends MatrixUniform {
 			i15
 		] = [...value];
 		if (
-			typeof i0 === "undefined" ||
-			typeof i1 === "undefined" ||
-			typeof i2 === "undefined" ||
-			typeof i3 === "undefined" ||
-			typeof i4 === "undefined" ||
-			typeof i5 === "undefined" ||
-			typeof i6 === "undefined" ||
-			typeof i7 === "undefined" ||
-			typeof i8 === "undefined" ||
-			typeof i9 === "undefined" ||
-			typeof i10 === "undefined" ||
-			typeof i11 === "undefined" ||
-			typeof i12 === "undefined" ||
-			typeof i13 === "undefined" ||
-			typeof i14 === "undefined" ||
-			typeof i15 === "undefined" ||
 			(i0 === this.matrixValueCache[0] &&
 				i1 === this.matrixValueCache[1] &&
 				i2 === this.matrixValueCache[2] &&
@@ -101,7 +85,23 @@ export default abstract class MatrixUniform16 extends MatrixUniform {
 				i12 === this.matrixValueCache[12] &&
 				i13 === this.matrixValueCache[13] &&
 				i14 === this.matrixValueCache[14] &&
-				i15 === this.matrixValueCache[15])
+				i15 === this.matrixValueCache[15]) ||
+			typeof i0 === "undefined" ||
+			typeof i1 === "undefined" ||
+			typeof i2 === "undefined" ||
+			typeof i3 === "undefined" ||
+			typeof i4 === "undefined" ||
+			typeof i5 === "undefined" ||
+			typeof i6 === "undefined" ||
+			typeof i7 === "undefined" ||
+			typeof i8 === "undefined" ||
+			typeof i9 === "undefined" ||
+			typeof i10 === "undefined" ||
+			typeof i11 === "undefined" ||
+			typeof i12 === "undefined" ||
+			typeof i13 === "undefined" ||
+			typeof i14 === "undefined" ||
+			typeof i15 === "undefined"
 		) {
 			return;
 		}

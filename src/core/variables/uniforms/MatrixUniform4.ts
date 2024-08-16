@@ -36,14 +36,14 @@ export default abstract class MatrixUniform4 extends MatrixUniform {
 		// Can only accept four values.
 		const [i0, i1, i2, i3] = [...value];
 		if (
-			typeof i0 === "undefined" ||
-			typeof i1 === "undefined" ||
-			typeof i2 === "undefined" ||
-			typeof i3 === "undefined" ||
 			(i0 === this.matrixValueCache[0] &&
 				i1 === this.matrixValueCache[1] &&
 				i2 === this.matrixValueCache[2] &&
-				i3 === this.matrixValueCache[3])
+				i3 === this.matrixValueCache[3]) ||
+			typeof i0 === "undefined" ||
+			typeof i1 === "undefined" ||
+			typeof i2 === "undefined" ||
+			typeof i3 === "undefined"
 		) {
 			return;
 		}

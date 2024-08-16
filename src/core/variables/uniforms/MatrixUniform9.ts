@@ -46,15 +46,6 @@ export default abstract class MatrixUniform9 extends MatrixUniform {
 		// Can only accept nine values.
 		const [i0, i1, i2, i3, i4, i5, i6, i7, i8] = [...value];
 		if (
-			typeof i0 === "undefined" ||
-			typeof i1 === "undefined" ||
-			typeof i2 === "undefined" ||
-			typeof i3 === "undefined" ||
-			typeof i4 === "undefined" ||
-			typeof i5 === "undefined" ||
-			typeof i6 === "undefined" ||
-			typeof i7 === "undefined" ||
-			typeof i8 === "undefined" ||
 			(i0 === this.matrixValueCache[0] &&
 				i1 === this.matrixValueCache[1] &&
 				i2 === this.matrixValueCache[2] &&
@@ -63,7 +54,16 @@ export default abstract class MatrixUniform9 extends MatrixUniform {
 				i5 === this.matrixValueCache[5] &&
 				i6 === this.matrixValueCache[6] &&
 				i7 === this.matrixValueCache[7] &&
-				i8 === this.matrixValueCache[8])
+				i8 === this.matrixValueCache[8]) ||
+			typeof i0 === "undefined" ||
+			typeof i1 === "undefined" ||
+			typeof i2 === "undefined" ||
+			typeof i3 === "undefined" ||
+			typeof i4 === "undefined" ||
+			typeof i5 === "undefined" ||
+			typeof i6 === "undefined" ||
+			typeof i7 === "undefined" ||
+			typeof i8 === "undefined"
 		) {
 			return;
 		}

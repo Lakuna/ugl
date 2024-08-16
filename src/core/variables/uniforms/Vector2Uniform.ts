@@ -36,9 +36,9 @@ export default abstract class Vector2Uniform extends MultipleValuedUniform {
 		// Can only accept two values.
 		const [x, y] = [...value];
 		if (
+			(x === this.vectorValueCache[0] && y === this.vectorValueCache[1]) ||
 			typeof x === "undefined" ||
-			typeof y === "undefined" ||
-			(x === this.vectorValueCache[0] && y === this.vectorValueCache[1])
+			typeof y === "undefined"
 		) {
 			return;
 		}

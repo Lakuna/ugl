@@ -36,14 +36,14 @@ export default abstract class Vector4Uniform extends MultipleValuedUniform {
 		// Can only accept four values.
 		const [x, y, z, w] = [...value];
 		if (
-			typeof x === "undefined" ||
-			typeof y === "undefined" ||
-			typeof z === "undefined" ||
-			typeof w === "undefined" ||
 			(x === this.vectorValueCache[0] &&
 				y === this.vectorValueCache[1] &&
 				z === this.vectorValueCache[2] &&
-				w === this.vectorValueCache[3])
+				w === this.vectorValueCache[3]) ||
+			typeof x === "undefined" ||
+			typeof y === "undefined" ||
+			typeof z === "undefined" ||
+			typeof w === "undefined"
 		) {
 			return;
 		}
