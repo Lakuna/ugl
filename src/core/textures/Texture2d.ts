@@ -20,7 +20,7 @@ import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataF
  */
 export default class Texture2d extends Texture {
 	/**
-	 * Create a two-dimensional texture from the data in the image at the given URL.
+	 * Create a two-dimensional texture from the data in the image at the given URL. The texture is initially filled with magenta and is later filled with the image once it loads.
 	 * @param context - The rendering context of the texture.
 	 * @param url - The URL of the image.
 	 * @returns The texture.
@@ -46,6 +46,39 @@ export default class Texture2d extends Texture {
 		image.src = url;
 
 		return out;
+	}
+
+	/**
+	 * Create a two-dimensional texture from the data in the image at the given URL.
+	 * @param context - The rendering context of the texture.
+	 * @param url - The URL of the image.
+	 * @returns The texture.
+	 */
+	public static fromImageUrlPromise(
+		context: Context,
+		url: string
+	): Promise<Texture2d> {
+		// Create a new 2D texture.
+		const out = new Texture2d(context);
+
+		// Fill it with one magenta texel until the image loads.
+		out.setMip(
+			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
+			0,
+			void 0,
+			[0, 0, 1, 1]
+		);
+
+		// Load the image.
+		return new Promise((resolve) => {
+			const image = new Image();
+			image.addEventListener("load", () => {
+				out.setMip(image);
+				resolve(out);
+			});
+			image.crossOrigin = ""; // CORS
+			image.src = url;
+		});
 	}
 
 	/**
