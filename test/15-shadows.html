@@ -15,7 +15,7 @@
 		<script type="module">
 			import {
 				Vbo,
-				Context,
+				getContext,
 				Ebo,
 				Framebuffer,
 				FramebufferAttachment,
@@ -805,7 +805,7 @@ void main() {
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = new Context(canvas);
+				const context = getContext(canvas);
 
 				// Vertex shader, fragment shader, shader program, get variable locations.
 				const program = Program.fromSource(context, vss, fss);

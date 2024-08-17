@@ -73,6 +73,7 @@ export type { UniformValue } from "./types/UniformValue.js";
 // Utility
 export { default as BadValueError } from "./utility/BadValueError.js";
 export { default as ImmutableError } from "./utility/ImmutableError.js";
+export { default as getContext } from "./utility/getContext.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
 export { default as ProgramLinkError } from "./utility/ProgramLinkError.js";
 export { default as ShaderCompileError } from "./utility/ShaderCompileError.js";

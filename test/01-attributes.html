@@ -13,7 +13,7 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import { Vbo, Context, Ebo, Program, Vao } from "../dist/index.js";
+			import { Vbo, getContext, Ebo, Program, Vao } from "../dist/index.js";
 
 			const vss = `\
 #version 300 es
@@ -114,7 +114,7 @@ void main() {
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = new Context(canvas);
+				const context = getContext(canvas);
 
 				// Vertex shader, fragment shader, shader program, get variable locations.
 				const program = Program.fromSource(context, vss, fss);
