@@ -289,11 +289,10 @@
 
 in vec4 a_position;
 
-uniform mat4 u_worldMat;
-uniform mat4 u_viewProjMat;
+uniform mat4 u_worldViewProjMat;
 
 void main() {
-	gl_Position = u_viewProjMat * u_worldMat * a_position;
+	gl_Position = u_worldViewProjMat * a_position;
 }
 `;
 
@@ -304,6 +303,7 @@ precision mediump float;
 
 uniform sampler2D u_depthTex;
 uniform sampler2D u_frontColorTex;
+uniform sampler2D u_backColorTex;
 uniform vec4 u_color;
 
 layout(location = 0) out vec2 outDepth;
@@ -311,62 +311,48 @@ layout(location = 1) out vec4 outFrontColor;
 layout(location = 2) out vec4 outBackColor;
 
 void main() {
-	float fragDepth = gl_FragCoord.z;
+	float depth = gl_FragCoord.z;
 	ivec2 fragCoord = ivec2(gl_FragCoord.xy);
+	
 	vec2 lastDepth = texelFetch(u_depthTex, fragCoord, 0).rg;
 	vec4 lastFrontColor = texelFetch(u_frontColorTex, fragCoord, 0);
+	vec4 lastBackColor = texelFetch(u_backColorTex, fragCoord, 0);
 
-	outDepth.rg = vec2(-1.000001);
+	float nearDepth = -lastDepth.r;
+	float farDepth = lastDepth.g;
+
+	outDepth = vec2(-1.000001);
 	outFrontColor = lastFrontColor;
-	outBackColor = vec4(0.0);
+	outBackColor = lastBackColor;
 
-	float nearestDepth = -lastDepth.x;
-	float furthestDepth = lastDepth.y;
-	float alphaMultiplier = 1.0 - lastFrontColor.a;
-
-	if (fragDepth < nearestDepth || fragDepth > furthestDepth) {
+	if (depth < nearDepth || depth > farDepth) {
 		return;
 	}
 
-	if (fragDepth > nearestDepth && fragDepth < furthestDepth) {
-		outDepth.rg = vec2(-fragDepth, fragDepth);
+	if (depth > nearDepth && depth < farDepth) {
+		outDepth = vec2(-depth, depth);
 		return;
 	}
 
-	if (fragDepth == nearestDepth) {
-		outFrontColor.rgb += u_color.rgb * u_color.a * alphaMultiplier;
-		outFrontColor.a = 1.0 - alphaMultiplier * (1.0 - u_color.a);
+	if (depth == nearDepth) {
+		outFrontColor += (1.0 - lastFrontColor.a) * u_color.a;
+		outFrontColor.rgb *= u_color.rgb;
 		return;
 	}
 
-	outBackColor += u_color;
+	float alphaFactor = 1.0 - u_color.a;
+	outBackColor.rgb = u_color.a * u_color.rgb + alphaFactor * outBackColor.rgb;
+	outBackColor.a = u_color.a + alphaFactor * outBackColor.a;
 }
 `;
 
-			const quadVss = `\
+			const finalVss = `\
 #version 300 es
 
 in vec4 a_position;
 
 void main() {
 	gl_Position = a_position;
-}
-`;
-
-			const blendBackFss = `\
-#version 300 es
-
-precision mediump float;
-
-uniform sampler2D u_backColorTex;
-
-out vec4 outColor;
-
-void main() {
-	outColor = texelFetch(u_backColorTex, ivec2(gl_FragCoord.xy), 0);
-	if (outColor.a == 0.0) {
-		discard;
-	}
 }
 `;
 
@@ -378,18 +364,16 @@ precision mediump float;
 uniform sampler2D u_frontColorTex;
 uniform sampler2D u_backColorTex;
 
-out vec4 fragColor;
+out vec4 outColor;
 
 void main() {
 	ivec2 fragCoord = ivec2(gl_FragCoord.xy);
+
 	vec4 frontColor = texelFetch(u_frontColorTex, fragCoord, 0);
 	vec4 backColor = texelFetch(u_backColorTex, fragCoord, 0);
-	float alphaMultiplier = 1.0 - frontColor.a;
 
-	fragColor = vec4(
-		frontColor.rgb + alphaMultiplier * backColor.rgb,
-		frontColor.a + backColor.a
-	);
+	outColor.rgb = frontColor.rgb + (1.0 - frontColor.a) * backColor.rgb;
+	outColor.a = frontColor.a + backColor.a;
 }
 `;
 
@@ -421,12 +405,12 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(depthPeelFs));
 				}
 
-				// Quad vertex shader.
-				const quadVs = gl.createShader(gl.VERTEX_SHADER);
-				gl.shaderSource(quadVs, quadVss);
-				gl.compileShader(quadVs);
-				if (!gl.getShaderParameter(quadVs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(quadVs));
+				// Final vertex shader.
+				const finalVs = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(finalVs, finalVss);
+				gl.compileShader(finalVs);
+				if (!gl.getShaderParameter(finalVs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(finalVs));
 				}
 
 				// Final fragment shader.
@@ -435,14 +419,6 @@ void main() {
 				gl.compileShader(finalFs);
 				if (!gl.getShaderParameter(finalFs, gl.COMPILE_STATUS)) {
 					throw new Error(gl.getShaderInfoLog(finalFs));
-				}
-
-				// Blend back fragment shader.
-				const blendBackFs = gl.createShader(gl.FRAGMENT_SHADER);
-				gl.shaderSource(blendBackFs, blendBackFss);
-				gl.compileShader(blendBackFs);
-				if (!gl.getShaderParameter(blendBackFs, gl.COMPILE_STATUS)) {
-					throw new Error(gl.getShaderInfoLog(blendBackFs));
 				}
 
 				// Depth peeling shader program.
@@ -456,37 +432,23 @@ void main() {
 
 				// Final shader program.
 				const finalProgram = gl.createProgram();
-				gl.attachShader(finalProgram, quadVs);
+				gl.attachShader(finalProgram, finalVs);
 				gl.attachShader(finalProgram, finalFs);
 				gl.linkProgram(finalProgram);
 				if (!gl.getProgramParameter(finalProgram, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(finalProgram));
 				}
 
-				// Blend back shader program.
-				const blendBackProgram = gl.createProgram();
-				gl.attachShader(blendBackProgram, quadVs);
-				gl.attachShader(blendBackProgram, blendBackFs);
-				gl.linkProgram(blendBackProgram);
-				if (!gl.getProgramParameter(blendBackProgram, gl.LINK_STATUS)) {
-					throw new Error(gl.getProgramInfoLog(blendBackProgram));
-				}
-
 				// Delete shaders.
 				gl.deleteShader(depthPeelVs);
 				gl.deleteShader(depthPeelFs);
-				gl.deleteShader(quadVs);
+				gl.deleteShader(finalVs);
 				gl.deleteShader(finalFs);
-				gl.deleteShader(blendBackFs);
 
 				// Get variable locations.
-				const depthPeelWorldMatLoc = gl.getUniformLocation(
+				const depthPeelWorldViewProjMatLoc = gl.getUniformLocation(
 					depthPeelProgram,
-					"u_worldMat"
-				);
-				const depthPeelViewProjMatLoc = gl.getUniformLocation(
-					depthPeelProgram,
-					"u_viewProjMat"
+					"u_worldViewProjMat"
 				);
 				const depthPeelDepthTexLoc = gl.getUniformLocation(
 					depthPeelProgram,
@@ -495,6 +457,10 @@ void main() {
 				const depthPeelFrontColorTexLoc = gl.getUniformLocation(
 					depthPeelProgram,
 					"u_frontColorTex"
+				);
+				const depthPeelBackColorTexLoc = gl.getUniformLocation(
+					depthPeelProgram,
+					"u_backColorTex"
 				);
 				const depthPeelColorLoc = gl.getUniformLocation(
 					depthPeelProgram,
@@ -513,14 +479,6 @@ void main() {
 					"u_backColorTex"
 				);
 				const finalPosLoc = gl.getAttribLocation(finalProgram, "a_position");
-				const blendBackBackColorTexLoc = gl.getUniformLocation(
-					blendBackProgram,
-					"u_backColorTex"
-				);
-				const blendBackPosLoc = gl.getAttribLocation(
-					blendBackProgram,
-					"a_position"
-				);
 
 				// Create buffers.
 				const planePositionBuffer = gl.createBuffer();
@@ -546,146 +504,121 @@ void main() {
 				gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
 
-				const blendBackPlaneVao = gl.createVertexArray();
-				gl.bindVertexArray(blendBackPlaneVao);
-				gl.enableVertexAttribArray(blendBackPosLoc);
-				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
-				gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndexBuffer);
+				const createTarget = () => {
+					const target = gl.createTexture();
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, target);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+					return target;
+				};
 
 				// Texture initialization.
-				const depthTarget0 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE0);
-				gl.bindTexture(gl.TEXTURE_2D, depthTarget0);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RG32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RG,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				const depthTarget0 = createTarget();
+				const frontColorTarget0 = createTarget();
+				const backColorTarget0 = createTarget();
+				const depthTarget1 = createTarget();
+				const frontColorTarget1 = createTarget();
+				const backColorTarget1 = createTarget();
 
-				const frontColorTarget0 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE1);
-				gl.bindTexture(gl.TEXTURE_2D, frontColorTarget0);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RGBA,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				const resizeTargets = () => {
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget0);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
 
-				const backColorTarget0 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE2);
-				gl.bindTexture(gl.TEXTURE_2D, backColorTarget0);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RGBA,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget0);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
 
-				const depthTarget1 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE3);
-				gl.bindTexture(gl.TEXTURE_2D, depthTarget1);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RG32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RG,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget0);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
 
-				const frontColorTarget1 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE4);
-				gl.bindTexture(gl.TEXTURE_2D, frontColorTarget1);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RGBA,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget1);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
 
-				const backColorTarget1 = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE5);
-				gl.bindTexture(gl.TEXTURE_2D, backColorTarget1);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RGBA,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget1);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
 
-				const blendBackTarget = gl.createTexture();
-				gl.activeTexture(gl.TEXTURE6);
-				gl.bindTexture(gl.TEXTURE_2D, blendBackTarget);
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA32F,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight,
-					0,
-					gl.RGBA,
-					gl.FLOAT,
-					null
-				);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget1);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA32F,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight,
+						0,
+						gl.RGBA,
+						gl.FLOAT,
+						null
+					);
+				};
+
+				resizeTargets();
 
 				// Framebuffer initialization.
 				const depthPeelFbo0 = gl.createFramebuffer();
@@ -707,23 +640,6 @@ void main() {
 				gl.framebufferTexture2D(
 					gl.FRAMEBUFFER,
 					gl.COLOR_ATTACHMENT2,
-					gl.TEXTURE_2D,
-					backColorTarget0,
-					0
-				);
-
-				const colorFbo0 = gl.createFramebuffer();
-				gl.bindFramebuffer(gl.FRAMEBUFFER, colorFbo0);
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT0,
-					gl.TEXTURE_2D,
-					frontColorTarget0,
-					0
-				);
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT1,
 					gl.TEXTURE_2D,
 					backColorTarget0,
 					0
@@ -753,45 +669,120 @@ void main() {
 					0
 				);
 
-				const colorFbo1 = gl.createFramebuffer();
-				gl.bindFramebuffer(gl.FRAMEBUFFER, colorFbo1);
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT0,
-					gl.TEXTURE_2D,
-					frontColorTarget1,
-					0
-				);
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT1,
-					gl.TEXTURE_2D,
-					backColorTarget1,
-					0
-				);
-
-				const blendBackFbo = gl.createFramebuffer();
-				gl.bindFramebuffer(gl.FRAMEBUFFER, blendBackFbo);
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT0,
-					gl.TEXTURE_2D,
-					blendBackTarget,
-					0
-				);
-
 				// Transformation initialization.
+				const red = fromValues4(1, 0, 0, 0.25, createVector4Like());
 				const redMat = identity(createMatrix4Like());
 				rotateY(redMat, Math.PI / 4, redMat);
+				const redViewProjMat = createMatrix4Like();
+
+				const green = fromValues4(0, 1, 0, 0.25, createVector4Like());
 				const greenMat = identity(createMatrix4Like());
 				rotateY(greenMat, -Math.PI / 4, greenMat);
-				const red = fromValues4(1, 0, 0, 0.5, createVector4Like());
-				const green = fromValues4(0, 1, 0, 0.5, createVector4Like());
+				const greenViewProjMat = createMatrix4Like();
+
+				const blue = fromValues4(0, 0, 1, 0.25, createVector4Like());
+				const blueMat = identity(createMatrix4Like());
+				const blueViewProjMat = createMatrix4Like();
+
 				const projMat = createMatrix4Like();
-				const viewMat = createMatrix4Like();
-				const eyePos = fromValues(0, 2, 2, createVector3Like());
-				lookAt(eyePos, [0, 0, 0], [0, 1, 0], viewMat);
+				const viewMat = lookAt(
+					[0, 2, 2],
+					[0, 0, 0],
+					[0, 1, 0],
+					createMatrix4Like()
+				);
 				const viewProjMat = createMatrix4Like();
+
+				const resizeViewProj = () => {
+					const w = canvas.width;
+					const h = canvas.height;
+					perspective(Math.PI / 2, w / (h || 1), 1, 5, projMat);
+					multiply(projMat, viewMat, viewProjMat);
+					multiply(viewProjMat, redMat, redViewProjMat);
+					multiply(viewProjMat, greenMat, greenViewProjMat);
+					multiply(viewProjMat, blueMat, blueViewProjMat);
+				};
+
+				resizeViewProj();
+
+				const drawScene = (
+					depthTarget,
+					frontColorTarget,
+					backColorTarget,
+					depthPeelFbo
+				) => {
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo);
+
+					gl.useProgram(depthPeelProgram);
+
+					gl.bindVertexArray(depthPeelPlaneVao);
+
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget);
+					gl.uniform1i(depthPeelBackColorTexLoc, 0);
+					gl.uniform4fv(depthPeelColorLoc, red);
+					gl.activeTexture(gl.TEXTURE1);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget);
+					gl.uniform1i(depthPeelDepthTexLoc, 1);
+					gl.activeTexture(gl.TEXTURE2);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget);
+					gl.uniform1i(depthPeelFrontColorTexLoc, 2);
+					gl.uniformMatrix4fv(
+						depthPeelWorldViewProjMatLoc,
+						false,
+						redViewProjMat
+					);
+					gl.drawElements(
+						gl.TRIANGLES,
+						planeIndexData.length,
+						gl.UNSIGNED_BYTE,
+						0
+					);
+
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget);
+					gl.uniform1i(depthPeelBackColorTexLoc, 0);
+					gl.uniform4fv(depthPeelColorLoc, green);
+					gl.activeTexture(gl.TEXTURE1);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget);
+					gl.uniform1i(depthPeelDepthTexLoc, 1);
+					gl.activeTexture(gl.TEXTURE2);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget);
+					gl.uniform1i(depthPeelFrontColorTexLoc, 2);
+					gl.uniformMatrix4fv(
+						depthPeelWorldViewProjMatLoc,
+						false,
+						greenViewProjMat
+					);
+					gl.drawElements(
+						gl.TRIANGLES,
+						planeIndexData.length,
+						gl.UNSIGNED_BYTE,
+						0
+					);
+
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget);
+					gl.uniform1i(depthPeelBackColorTexLoc, 0);
+					gl.uniform4fv(depthPeelColorLoc, blue);
+					gl.activeTexture(gl.TEXTURE1);
+					gl.bindTexture(gl.TEXTURE_2D, depthTarget);
+					gl.uniform1i(depthPeelDepthTexLoc, 1);
+					gl.activeTexture(gl.TEXTURE2);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget);
+					gl.uniform1i(depthPeelFrontColorTexLoc, 2);
+					gl.uniformMatrix4fv(
+						depthPeelWorldViewProjMatLoc,
+						false,
+						blueViewProjMat
+					);
+					gl.drawElements(
+						gl.TRIANGLES,
+						planeIndexData.length,
+						gl.UNSIGNED_BYTE,
+						0
+					);
+				};
 
 				return function () {
 					// Resize the drawing buffer.
@@ -803,265 +794,85 @@ void main() {
 						canvas.height = canvas.clientHeight;
 						gl.viewport(0, 0, canvas.width, canvas.height);
 
-						gl.activeTexture(gl.TEXTURE0);
-						gl.bindTexture(gl.TEXTURE_2D, depthTarget0);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RG32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RG,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE1);
-						gl.bindTexture(gl.TEXTURE_2D, frontColorTarget0);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RGBA32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RGBA,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE2);
-						gl.bindTexture(gl.TEXTURE_2D, backColorTarget0);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RGBA32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RGBA,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE3);
-						gl.bindTexture(gl.TEXTURE_2D, depthTarget1);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RG32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RG,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE4);
-						gl.bindTexture(gl.TEXTURE_2D, frontColorTarget1);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RGBA32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RGBA,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE5);
-						gl.bindTexture(gl.TEXTURE_2D, backColorTarget1);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RGBA32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RGBA,
-							gl.FLOAT,
-							null
-						);
-
-						gl.activeTexture(gl.TEXTURE6);
-						gl.bindTexture(gl.TEXTURE_2D, blendBackTarget);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							gl.RGBA32F,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight,
-							0,
-							gl.RGBA,
-							gl.FLOAT,
-							null
-						);
+						resizeTargets();
+						resizeViewProj();
 					}
-
-					// Transformation update.
-					perspective(
-						Math.PI / 2,
-						canvas.width / (canvas.height || 1),
-						1,
-						5,
-						projMat
-					);
-					multiply(projMat, viewMat, viewProjMat);
-
-					// Initialize the min-max depth buffer.
 
 					// Set global state.
 					gl.enable(gl.BLEND);
 					gl.blendEquation(gl.MAX);
 					gl.depthMask(false);
 					gl.disable(gl.CULL_FACE);
-					gl.clearColor(0, 0, 0, 0);
 
-					// Bind the framebuffer.
-					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, blendBackFbo);
-
-					// Clear the canvas.
-					gl.clear(gl.COLOR_BUFFER_BIT);
-
-					// Bind the framebuffer.
-					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFbo0);
-					gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
-
-					// Clear the canvas.
-					gl.clear(gl.COLOR_BUFFER_BIT);
-
-					// Bind the framebuffer.
-					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFbo1);
-
-					// Clear the canvas.
-					gl.clear(gl.COLOR_BUFFER_BIT);
-
-					// Set global state.
-					gl.clearColor(0, 1, 0, 0);
-
-					// Bind the framebuffer.
+					// Initialize the min-max depth framebuffers.
 					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo1);
-
-					// Clear the canvas.
+					gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+					gl.clearColor(epsilon, 1 + epsilon, 0, 0);
 					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Set global state.
-					gl.clearColor(-(1 + epsilon), -(1 + epsilon), 0, 0);
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo1);
+					gl.drawBuffers([gl.NONE, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Bind the framebuffer.
 					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo0);
 					gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-
-					// Clear the canvas.
+					gl.clearColor(-(1 + epsilon), -(1 + epsilon), 0, 0);
 					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Use the program.
-					gl.useProgram(depthPeelProgram);
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo0);
+					gl.drawBuffers([gl.NONE, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2]);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Bind the VAO.
-					gl.bindVertexArray(depthPeelPlaneVao);
-
-					// Set uniform values.
-					gl.uniform1i(depthPeelDepthTexLoc, 3);
-					gl.uniform1i(depthPeelFrontColorTexLoc, 4);
-					gl.uniformMatrix4fv(depthPeelViewProjMatLoc, false, viewProjMat);
-					gl.uniform4fv(depthPeelColorLoc, red);
-					gl.uniformMatrix4fv(depthPeelWorldMatLoc, false, redMat);
-
-					// Render.
-					gl.drawElements(
-						gl.TRIANGLES,
-						planeIndexData.length,
-						gl.UNSIGNED_BYTE,
-						0
-					);
-
-					// Set uniform values.
-					gl.uniform4fv(depthPeelColorLoc, green);
-					gl.uniformMatrix4fv(depthPeelWorldMatLoc, false, greenMat);
-
-					// Render.
-					gl.drawElements(
-						gl.TRIANGLES,
-						planeIndexData.length,
-						gl.UNSIGNED_BYTE,
-						0
+					gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo0);
+					gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+					drawScene(
+						depthTarget1,
+						frontColorTarget1,
+						backColorTarget1,
+						depthPeelFbo0
 					);
 
 					// Dual depth peeling ping-pong.
-					const passCount = 1;
+					const passCount = 2;
 					for (let i = 0; i < passCount; i++) {
 						const depthPeelFbo = i % 2 === 0 ? depthPeelFbo1 : depthPeelFbo0;
-						const colorFbo = i % 2 === 0 ? colorFbo1 : colorFbo0;
-						const depthTarget = i % 2 === 0 ? 0 : 3;
-						const frontColorTarget = i % 2 === 0 ? 1 : 4;
-						const backColorTarget = i % 2 === 0 ? 5 : 2;
+						const depthTarget = i % 2 === 0 ? depthTarget0 : depthTarget1;
+						const frontColorTarget =
+							i % 2 === 0 ? frontColorTarget0 : frontColorTarget1;
+						const backColorTarget =
+							i % 2 === 0 ? backColorTarget0 : backColorTarget1;
 
-						// Set global state.
 						gl.blendEquation(gl.MAX);
-						gl.clearColor(0, 0, 0, 0);
 
-						// Bind the framebuffer.
-						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFbo);
-						gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
-
-						// Clear the canvas.
-						gl.clear(gl.COLOR_BUFFER_BIT);
-
-						// Set global state.
-						gl.clearColor(-(1 + epsilon), -(1 + epsilon), 0, 0);
-
-						// Bind the framebuffer.
 						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo);
 						gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-
-						// Clear the canvas.
+						gl.clearColor(-(1 + epsilon), -(1 + epsilon), 0, 0);
 						gl.clear(gl.COLOR_BUFFER_BIT);
 
-						// Bind the framebuffer.
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo);
+						gl.drawBuffers([
+							gl.NONE,
+							gl.COLOR_ATTACHMENT1,
+							gl.COLOR_ATTACHMENT2
+						]);
+						gl.clearColor(0, 0, 0, 0);
+						gl.clear(gl.COLOR_BUFFER_BIT);
+
+						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, depthPeelFbo);
 						gl.drawBuffers([
 							gl.COLOR_ATTACHMENT0,
 							gl.COLOR_ATTACHMENT1,
 							gl.COLOR_ATTACHMENT2
 						]);
-
-						// Use the program.
-						gl.useProgram(depthPeelProgram);
-
-						// Bind the VAO.
-						gl.bindVertexArray(depthPeelPlaneVao);
-
-						// Set uniform values.
-						gl.uniform1i(depthPeelDepthTexLoc, depthTarget);
-						gl.uniform1i(depthPeelFrontColorTexLoc, frontColorTarget);
-						gl.uniform4fv(depthPeelColorLoc, red);
-						gl.uniformMatrix4fv(depthPeelWorldMatLoc, false, redMat);
-
-						// Render.
-						gl.drawElements(
-							gl.TRIANGLES,
-							planeIndexData.length,
-							gl.UNSIGNED_BYTE,
-							0
+						drawScene(
+							depthTarget,
+							frontColorTarget,
+							backColorTarget,
+							depthPeelFbo
 						);
 
-						// Set uniform values.
-						gl.uniform4fv(depthPeelColorLoc, green);
-						gl.uniformMatrix4fv(depthPeelWorldMatLoc, false, greenMat);
-
-						// Render
-						gl.drawElements(
-							gl.TRIANGLES,
-							planeIndexData.length,
-							gl.UNSIGNED_BYTE,
-							0
-						);
-
-						// Set global state.
 						gl.blendEquation(gl.FUNC_ADD);
 						gl.blendFuncSeparate(
 							gl.SRC_ALPHA,
@@ -1069,54 +880,29 @@ void main() {
 							gl.ONE,
 							gl.ONE_MINUS_SRC_ALPHA
 						);
-
-						// Bind the framebuffer.
-						gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, blendBackFbo);
-						gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
-
-						// Use the program.
-						gl.useProgram(blendBackProgram);
-
-						// Bind the VAO.
-						gl.bindVertexArray(blendBackPlaneVao);
-
-						// Set uniform values.
-						gl.uniform1i(blendBackBackColorTexLoc, backColorTarget);
-
-						// Render.
-						gl.drawElements(
-							gl.TRIANGLES,
-							planeIndexData.length,
-							gl.UNSIGNED_BYTE,
-							0
-						);
 					}
 
 					// Final.
+					const frontColorTarget =
+						passCount % 2 === 0 ? frontColorTarget0 : frontColorTarget1;
+					const backColorTarget =
+						passCount % 2 === 0 ? backColorTarget0 : backColorTarget1;
 
-					const frontColorTarget = passCount % 2 === 0 ? 1 : 4;
-
-					// Set global state.
-					gl.clearColor(0, 0, 0, 0);
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-					// Bind the framebuffer.
 					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-					// Clear the canvas.
+					gl.clearColor(0, 0, 0, 0);
 					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Use the program.
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 					gl.useProgram(finalProgram);
-
-					// Bind the VAO.
 					gl.bindVertexArray(finalPlaneVao);
-
-					// Set uniform values.
-					gl.uniform1i(finalBackColorTexLoc, 6);
-					gl.uniform1i(finalFrontColorTexLoc, frontColorTarget);
-
-					// Render.
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, backColorTarget);
+					gl.uniform1i(finalBackColorTexLoc, 0);
+					gl.activeTexture(gl.TEXTURE1);
+					gl.bindTexture(gl.TEXTURE_2D, frontColorTarget);
+					gl.uniform1i(finalFrontColorTexLoc, 1);
 					gl.drawElements(
 						gl.TRIANGLES,
 						planeIndexData.length,
@@ -1135,8 +921,7 @@ void main() {
 					depthPeelVss,
 					depthPeelFss
 				);
-				const finalProgram = Program.fromSource(gl, quadVss, finalFss);
-				const blendBackProgram = Program.fromSource(gl, quadVss, blendBackFss);
+				const finalProgram = Program.fromSource(gl, finalVss, finalFss);
 
 				const planePositionBuffer = new Vbo(gl, planePositionData);
 				const planeIndexBuffer = new Ebo(gl, planeIndexData);
@@ -1155,209 +940,188 @@ void main() {
 					planeIndexBuffer
 				);
 
-				const blendBackPlaneVao = new Vao(
-					blendBackProgram,
-					// eslint-disable-next-line camelcase
-					{ a_position: { size: 2, vbo: planePositionBuffer } },
-					planeIndexBuffer
-				);
+				const createTarget = (targetGl) => {
+					const target = new Texture2d(targetGl);
+					target.format = TextureFormat.RGBA32F;
+					target.magFilter = TextureFilter.NEAREST;
+					target.minFilter = TextureFilter.NEAREST;
+					return target;
+				};
 
-				// Red channel holds the negative front depth, green channel holds the back depth.
-				const depthTarget0 = new Texture2d(gl);
-				depthTarget0.format = TextureFormat.RG32F;
-				depthTarget0.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				depthTarget0.magFilter = TextureFilter.NEAREST;
-				depthTarget0.minFilter = TextureFilter.NEAREST;
-				depthTarget0.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				depthTarget0.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+				const depthTarget0 = createTarget(gl);
+				const frontColorTarget0 = createTarget(gl);
+				const backColorTarget0 = createTarget(gl);
+				const depthTarget1 = createTarget(gl);
+				const frontColorTarget1 = createTarget(gl);
+				const backColorTarget1 = createTarget(gl);
 
-				const frontColorTarget0 = new Texture2d(gl);
-				frontColorTarget0.format = TextureFormat.RGBA32F;
-				frontColorTarget0.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				frontColorTarget0.magFilter = TextureFilter.NEAREST;
-				frontColorTarget0.minFilter = TextureFilter.NEAREST;
-				frontColorTarget0.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				frontColorTarget0.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+				const resizeTargets = () => {
+					depthTarget0.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
 
-				const backColorTarget0 = new Texture2d(gl);
-				backColorTarget0.format = TextureFormat.RGBA32F;
-				backColorTarget0.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				backColorTarget0.magFilter = TextureFilter.NEAREST;
-				backColorTarget0.minFilter = TextureFilter.NEAREST;
-				backColorTarget0.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				backColorTarget0.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+					frontColorTarget0.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
 
-				// Red channel holds the negative front depth, green channel holds the back depth.
-				const depthTarget1 = new Texture2d(gl);
-				depthTarget1.format = TextureFormat.RG32F;
-				depthTarget1.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				depthTarget1.magFilter = TextureFilter.NEAREST;
-				depthTarget1.minFilter = TextureFilter.NEAREST;
-				depthTarget1.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				depthTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+					backColorTarget0.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
 
-				const frontColorTarget1 = new Texture2d(gl);
-				frontColorTarget1.format = TextureFormat.RGBA32F;
-				frontColorTarget1.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				frontColorTarget1.magFilter = TextureFilter.NEAREST;
-				frontColorTarget1.minFilter = TextureFilter.NEAREST;
-				frontColorTarget1.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				frontColorTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+					depthTarget1.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
 
-				const backColorTarget1 = new Texture2d(gl);
-				backColorTarget1.format = TextureFormat.RGBA32F;
-				backColorTarget1.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				backColorTarget1.magFilter = TextureFilter.NEAREST;
-				backColorTarget1.minFilter = TextureFilter.NEAREST;
-				backColorTarget1.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				backColorTarget1.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+					frontColorTarget1.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
 
-				const blendBackTarget = new Texture2d(gl);
-				blendBackTarget.format = TextureFormat.RGBA32F;
-				blendBackTarget.setMip(void 0, 0, void 0, [
-					0,
-					0,
-					gl.drawingBufferWidth,
-					gl.drawingBufferHeight
-				]);
-				blendBackTarget.magFilter = TextureFilter.NEAREST;
-				blendBackTarget.minFilter = TextureFilter.NEAREST;
-				blendBackTarget.wrapSFunction = WrapMode.CLAMP_TO_EDGE;
-				blendBackTarget.wrapTFunction = WrapMode.CLAMP_TO_EDGE;
+					backColorTarget1.setMip(void 0, 0, void 0, [
+						0,
+						0,
+						gl.drawingBufferWidth,
+						gl.drawingBufferHeight
+					]);
+				};
+
+				resizeTargets();
 
 				const depthPeelFbo0 = new Framebuffer(gl);
 				depthPeelFbo0.attach(0, depthTarget0);
 				depthPeelFbo0.attach(1, frontColorTarget0);
 				depthPeelFbo0.attach(2, backColorTarget0);
 
-				const colorFbo0 = new Framebuffer(gl);
-				colorFbo0.attach(0, frontColorTarget0);
-				colorFbo0.attach(1, backColorTarget0);
-
 				const depthPeelFbo1 = new Framebuffer(gl);
 				depthPeelFbo1.attach(0, depthTarget1);
 				depthPeelFbo1.attach(1, frontColorTarget1);
 				depthPeelFbo1.attach(2, backColorTarget1);
 
-				const colorFbo1 = new Framebuffer(gl);
-				colorFbo1.attach(0, frontColorTarget1);
-				colorFbo1.attach(1, backColorTarget1);
-
-				const blendBackFbo = new Framebuffer(gl);
-				blendBackFbo.attach(0, blendBackTarget);
-
+				const red = fromValues4(1, 0, 0, 0.25, createVector4Like());
 				const redMat = identity(createMatrix4Like());
 				rotateY(redMat, Math.PI / 4, redMat);
+				const redViewProjMat = createMatrix4Like();
+
+				const green = fromValues4(0, 1, 0, 0.25, createVector4Like());
 				const greenMat = identity(createMatrix4Like());
 				rotateY(greenMat, -Math.PI / 4, greenMat);
-				const red = fromValues4(1, 0, 0, 0.5, createVector4Like());
-				const green = fromValues4(0, 1, 0, 0.5, createVector4Like());
+				const greenViewProjMat = createMatrix4Like();
+
+				const blue = fromValues4(0, 0, 1, 0.25, createVector4Like());
+				const blueMat = identity(createMatrix4Like());
+				const blueViewProjMat = createMatrix4Like();
+
 				const projMat = createMatrix4Like();
-				const viewMat = createMatrix4Like();
-				const eyePos = fromValues(0, 2, 2, createVector3Like());
-				lookAt(eyePos, [0, 0, 0], [0, 1, 0], viewMat);
+				const viewMat = lookAt(
+					[0, 2, 2],
+					[0, 0, 0],
+					[0, 1, 0],
+					createMatrix4Like()
+				);
 				const viewProjMat = createMatrix4Like();
 
-				return function () {
-					if (gl.resize()) {
-						depthTarget0.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						frontColorTarget0.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						backColorTarget0.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						depthTarget1.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						frontColorTarget1.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						backColorTarget1.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-
-						blendBackTarget.setMip(void 0, 0, void 0, [
-							0,
-							0,
-							gl.drawingBufferWidth,
-							gl.drawingBufferHeight
-						]);
-					}
-
+				const resizeViewProj = () => {
 					const w = canvas.width;
 					const h = canvas.height;
 					perspective(Math.PI / 2, w / (h || 1), 1, 5, projMat);
 					multiply(projMat, viewMat, viewProjMat);
+					multiply(viewProjMat, redMat, redViewProjMat);
+					multiply(viewProjMat, greenMat, greenViewProjMat);
+					multiply(viewProjMat, blueMat, blueViewProjMat);
+				};
+
+				resizeViewProj();
+
+				const drawScene = (
+					depthTarget,
+					frontColorTarget,
+					backColorTarget,
+					depthPeelFbo
+				) => {
+					depthPeelPlaneVao.draw(
+						{
+							// eslint-disable-next-line camelcase
+							u_backColorTex: backColorTarget,
+							// eslint-disable-next-line camelcase
+							u_color: red,
+							// eslint-disable-next-line camelcase
+							u_depthTex: depthTarget,
+							// eslint-disable-next-line camelcase
+							u_frontColorTex: frontColorTarget,
+							// eslint-disable-next-line camelcase
+							u_worldViewProjMat: redViewProjMat
+						},
+						void 0,
+						void 0,
+						depthPeelFbo
+					);
+					depthPeelPlaneVao.draw(
+						{
+							// eslint-disable-next-line camelcase
+							u_backColorTex: backColorTarget,
+							// eslint-disable-next-line camelcase
+							u_color: green,
+							// eslint-disable-next-line camelcase
+							u_depthTex: depthTarget,
+							// eslint-disable-next-line camelcase
+							u_frontColorTex: frontColorTarget,
+							// eslint-disable-next-line camelcase
+							u_worldViewProjMat: greenViewProjMat
+						},
+						void 0,
+						void 0,
+						depthPeelFbo
+					);
+					depthPeelPlaneVao.draw(
+						{
+							// eslint-disable-next-line camelcase
+							u_backColorTex: backColorTarget,
+							// eslint-disable-next-line camelcase
+							u_color: blue,
+							// eslint-disable-next-line camelcase
+							u_depthTex: depthTarget,
+							// eslint-disable-next-line camelcase
+							u_frontColorTex: frontColorTarget,
+							// eslint-disable-next-line camelcase
+							u_worldViewProjMat: blueViewProjMat
+						},
+						void 0,
+						void 0,
+						depthPeelFbo
+					);
+				};
+
+				return function () {
+					if (gl.resize()) {
+						resizeTargets();
+						resizeViewProj();
+					}
 
 					gl.doBlend = true;
 					gl.blendEquation = BlendEquation.MAX;
 					gl.depthMask = false;
 					gl.doCullFace = false;
 
-					gl.clear([0, 0, 0, 0], false, false, blendBackFbo);
+					// Initialize the min-max depth framebuffers.
+					depthPeelFbo1.drawBuffers = [0];
+					gl.clear([epsilon, 1 + epsilon, 0, 0], false, false, depthPeelFbo1);
 
-					colorFbo0.drawBuffers = [0, 1];
-					gl.clear([0, 0, 0, 0], false, false, colorFbo0);
-
-					gl.clear([0, 0, 0, 0], false, false, colorFbo1);
-
-					gl.clear([0, 1, 0, 0], false, false, depthPeelFbo1);
+					depthPeelFbo1.drawBuffers = [1, 2];
+					gl.clear([0, 0, 0, 0], false, false, depthPeelFbo1);
 
 					depthPeelFbo0.drawBuffers = [0];
 					gl.clear(
@@ -1366,56 +1130,30 @@ void main() {
 						false,
 						depthPeelFbo0
 					);
-					depthPeelPlaneVao.draw(
-						{
-							// eslint-disable-next-line camelcase
-							u_color: red,
-							// eslint-disable-next-line camelcase
-							u_depthTex: depthTarget1,
-							// eslint-disable-next-line camelcase
-							u_frontColorTex: frontColorTarget1,
-							// eslint-disable-next-line camelcase
-							u_viewProjMat: viewProjMat,
-							// eslint-disable-next-line camelcase
-							u_worldMat: redMat
-						},
-						void 0,
-						void 0,
-						depthPeelFbo0
-					);
-					depthPeelPlaneVao.draw(
-						{
-							// eslint-disable-next-line camelcase
-							u_color: green,
-							// eslint-disable-next-line camelcase
-							u_depthTex: depthTarget1,
-							// eslint-disable-next-line camelcase
-							u_frontColorTex: frontColorTarget1,
-							// eslint-disable-next-line camelcase
-							u_viewProjMat: viewProjMat,
-							// eslint-disable-next-line camelcase
-							u_worldMat: greenMat
-						},
-						void 0,
-						void 0,
+
+					depthPeelFbo0.drawBuffers = [1, 2];
+					gl.clear([0, 0, 0, 0], false, false, depthPeelFbo0);
+
+					depthPeelFbo0.drawBuffers = [0];
+					drawScene(
+						depthTarget1,
+						frontColorTarget1,
+						backColorTarget1,
 						depthPeelFbo0
 					);
 
 					// Dual depth peeling ping-pong.
-					const passCount = 1;
+					const passCount = 2;
 					for (let i = 0; i < passCount; i++) {
 						const depthPeelFbo = i % 2 === 0 ? depthPeelFbo1 : depthPeelFbo0;
-						const colorFbo = i % 2 === 0 ? colorFbo1 : colorFbo0;
 						const depthTarget = i % 2 === 0 ? depthTarget0 : depthTarget1;
 						const frontColorTarget =
 							i % 2 === 0 ? frontColorTarget0 : frontColorTarget1;
 						const backColorTarget =
-							i % 2 === 0 ? backColorTarget1 : backColorTarget0;
+							i % 2 === 0 ? backColorTarget0 : backColorTarget1;
 
+						// TODO: Can remove?
 						gl.blendEquation = BlendEquation.MAX;
-
-						colorFbo.drawBuffers = [0, 1];
-						gl.clear([0, 0, 0, 0], false, false, colorFbo);
 
 						depthPeelFbo.drawBuffers = [0];
 						gl.clear(
@@ -1425,42 +1163,18 @@ void main() {
 							depthPeelFbo
 						);
 
+						depthPeelFbo.drawBuffers = [1, 2];
+						gl.clear([0, 0, 0, 0], false, false, depthPeelFbo);
+
 						depthPeelFbo.drawBuffers = [0, 1, 2];
-						depthPeelPlaneVao.draw(
-							{
-								// eslint-disable-next-line camelcase
-								u_color: red,
-								// eslint-disable-next-line camelcase
-								u_depthTex: depthTarget,
-								// eslint-disable-next-line camelcase
-								u_frontColorTex: frontColorTarget,
-								// eslint-disable-next-line camelcase
-								u_viewProjMat: viewProjMat,
-								// eslint-disable-next-line camelcase
-								u_worldMat: redMat
-							},
-							void 0,
-							void 0,
-							depthPeelFbo
-						);
-						depthPeelPlaneVao.draw(
-							{
-								// eslint-disable-next-line camelcase
-								u_color: green,
-								// eslint-disable-next-line camelcase
-								u_depthTex: depthTarget,
-								// eslint-disable-next-line camelcase
-								u_frontColorTex: frontColorTarget,
-								// eslint-disable-next-line camelcase
-								u_viewProjMat: viewProjMat,
-								// eslint-disable-next-line camelcase
-								u_worldMat: greenMat
-							},
-							void 0,
-							void 0,
+						drawScene(
+							depthTarget,
+							frontColorTarget,
+							backColorTarget,
 							depthPeelFbo
 						);
 
+						// TODO: Can remove?
 						gl.blendEquation = BlendEquation.FUNC_ADD;
 						gl.blendFunction = [
 							BlendFunction.SRC_ALPHA,
@@ -1468,20 +1182,13 @@ void main() {
 							BlendFunction.ONE,
 							BlendFunction.ONE_MINUS_SRC_ALPHA
 						];
-
-						blendBackFbo.drawBuffers = [0];
-						blendBackPlaneVao.draw(
-							// eslint-disable-next-line camelcase
-							{ u_backColorTex: backColorTarget },
-							void 0,
-							void 0,
-							blendBackFbo
-						);
 					}
 
-					// Final.
+					// Final render.
 					const frontColorTarget =
 						passCount % 2 === 0 ? frontColorTarget0 : frontColorTarget1;
+					const backColorTarget =
+						passCount % 2 === 0 ? backColorTarget0 : backColorTarget1;
 
 					gl.blendFunction = [
 						BlendFunction.ONE,
@@ -1489,10 +1196,9 @@ void main() {
 					];
 
 					gl.clear([0, 0, 0, 0], false, false);
-
 					finalPlaneVao.draw({
 						// eslint-disable-next-line camelcase
-						u_backColorTex: blendBackTarget,
+						u_backColorTex: backColorTarget,
 						// eslint-disable-next-line camelcase
 						u_frontColorTex: frontColorTarget
 					});

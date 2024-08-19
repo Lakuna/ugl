@@ -473,13 +473,25 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	public set drawBuffers(value) {
+		// Reorder the input value so that WebGL doesn't warn.
+		const realValue = [] as (number | boolean)[];
+		for (const i of value) {
+			if (typeof i === "number") {
+				realValue[i] = i;
+			}
+		}
+		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
+			realValue[i] ??= false;
+		}
+
+		// Compare the reordered input to the cached value.
 		if (
 			typeof this.drawBuffers !== "undefined" &&
-			this.drawBuffers.length === value.length
+			this.drawBuffers.length === realValue.length
 		) {
 			let matches = true;
-			for (let i = 0; i < value.length; i++) {
-				if (this.drawBuffers[i] !== value[i]) {
+			for (let i = 0; i < realValue.length; i++) {
+				if (this.drawBuffers[i] !== realValue[i]) {
 					matches = false;
 					break;
 				}
@@ -491,19 +503,19 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		const out = [];
-		for (const buffer of value) {
+		for (const buffer of realValue) {
 			out.push(
-				buffer === true
-					? BACK
-					: buffer === false
-						? NONE
-						: COLOR_ATTACHMENT0 + buffer
+				typeof buffer === "number"
+					? COLOR_ATTACHMENT0 + buffer
+					: buffer
+						? BACK
+						: NONE
 			);
 		}
 
 		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
 
 		this.gl.drawBuffers(out);
-		this.drawBuffersCache = value;
+		this.drawBuffersCache = realValue;
 	}
 }
