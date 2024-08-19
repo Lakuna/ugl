@@ -477,15 +477,15 @@ export default class Framebuffer extends ContextDependent {
 			typeof this.drawBuffers !== "undefined" &&
 			this.drawBuffers.length === value.length
 		) {
-			let mismatch = false;
+			let matches = true;
 			for (let i = 0; i < value.length; i++) {
-				if (this.drawBuffers[i] === value[i]) {
-					mismatch = true;
+				if (this.drawBuffers[i] !== value[i]) {
+					matches = false;
 					break;
 				}
 			}
 
-			if (!mismatch) {
+			if (matches) {
 				return;
 			}
 		}
