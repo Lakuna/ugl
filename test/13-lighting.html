@@ -13,14 +13,7 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import {
-				Vbo,
-				getContext,
-				Ebo,
-				Face,
-				Program,
-				Vao
-			} from "../dist/index.js";
+			import { Vbo, Context, Ebo, Face, Program, Vao } from "../dist/index.js";
 
 			// https://umath.lakuna.pw/
 			function createMatrix4Like() {
@@ -614,7 +607,7 @@ void main() {
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = getContext(canvas);
+				const context = Context.get(canvas);
 
 				// Vertex shader, fragment shader, shader program, get variable locations.
 				const program = Program.fromSource(context, vss, fss);

@@ -68,8 +68,67 @@ import WebglError from "../utility/WebglError.js";
  */
 export default class Context extends ApiInterface {
 	/**
+	 * A map of canvases and rendering contexts to existing `Context`s.
+	 * @internal
+	 */
+	private static existingContexts?: Map<
+		HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+		unknown // `Context` was used before it was defined.
+	>;
+
+	/**
+	 * Get a map of canvases and rendering contexts to existing `Context`s.
+	 * @returns A map of canvases and rendering contexts to existing `Context`s.
+	 * @internal
+	 */
+	private static getExistingContexts() {
+		return (Context.existingContexts ??= new Map());
+	}
+
+	/**
+	 * Create a `Context` or get an existing `Context` if one already exists for the given rendering context. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
+	 * @param gl - The rendering context.
+	 * @returns A rendering context.
+	 * @public
+	 */
+	public static get(gl: WebGL2RenderingContext): Context;
+
+	/**
+	 * Create a `Context` or get an existing `Context` if one already exists for the given canvas. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
+	 * @param canvas - The canvas of the rendering context.
+	 * @param options - The options to create the rendering context with if necessary.
+	 * @returns A rendering context.
+	 * @public
+	 */
+	public static get(
+		canvas: HTMLCanvasElement | OffscreenCanvas,
+		options?: WebGLContextAttributes
+	): Context;
+
+	public static get(
+		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+		options?: WebGLContextAttributes
+	): Context {
+		const existingContexts = Context.getExistingContexts() as Map<
+			HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+			Context
+		>;
+		const existingContext = existingContexts.get(source);
+		if (typeof existingContext !== "undefined") {
+			return existingContext;
+		}
+
+		// Use `as` to cheat and reduce code size. Second argument is ignored if `source` is a `WebGL2RenderingContext`.
+		const out = new Context(source as HTMLCanvasElement, options);
+		existingContexts.set(out.canvas, out);
+		existingContexts.set(out.gl, out);
+		return out;
+	}
+
+	/**
 	 * Create a wrapper for a WebGL2 rendering context.
 	 * @param gl - The rendering context.
+	 * @throws {@link DuplicateContextError} if a `Context` already exists for `gl`.
 	 */
 	public constructor(gl: WebGL2RenderingContext);
 
@@ -78,6 +137,7 @@ export default class Context extends ApiInterface {
 	 * @param canvas - The canvas of the rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
 	 * @throws {@link UnsupportedOperationError} if a WebGL2 context cannot be created.
+	 * @throws {@link DuplicateContextError} if a `Context` already exists for `canvas`.
 	 */
 	public constructor(
 		canvas: HTMLCanvasElement | OffscreenCanvas,
@@ -88,6 +148,12 @@ export default class Context extends ApiInterface {
 		source: WebGL2RenderingContext | HTMLCanvasElement | OffscreenCanvas,
 		options?: WebGLContextAttributes
 	) {
+		if (Context.getExistingContexts().has(source)) {
+			throw new Error(
+				"A `Context` already exists for that canvas. Consider using `Context.get` instead."
+			);
+		}
+
 		if (source instanceof WebGL2RenderingContext) {
 			super(source);
 		} else {

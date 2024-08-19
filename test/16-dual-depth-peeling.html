@@ -14,7 +14,7 @@
 		<!-- Test script. -->
 		<script type="module">
 			import {
-				getContext,
+				Context,
 				Program,
 				Vbo,
 				Ebo,
@@ -1128,7 +1128,7 @@ void main() {
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const gl = getContext(canvas);
+				const gl = Context.get(canvas);
 
 				const depthPeelProgram = Program.fromSource(
 					gl,

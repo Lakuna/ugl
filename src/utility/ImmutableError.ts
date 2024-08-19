@@ -4,7 +4,7 @@
  */
 export default class ImmutableError extends Error {
 	/**
-	 * Creates a texture format error.
+	 * Creates an immutable error.
 	 * @param message - The message of the error.
 	 * @internal
 	 */
