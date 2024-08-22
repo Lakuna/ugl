@@ -448,6 +448,7 @@ export default class Framebuffer extends ContextDependent {
 	/**
 	 * The current draw buffers. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers | drawBuffers}
+	 * @throws {@link BadValueError} if too many draw buffers are specified for the current environment.
 	 */
 	public get drawBuffers(): (number | boolean)[] {
 		if (typeof this.drawBuffersCache !== "undefined") {
@@ -473,6 +474,13 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	public set drawBuffers(value) {
+		// Throw an error if too many buffers are specified.
+		if (value.length > this.context.maxDrawBuffers) {
+			throw new BadValueError(
+				`Invalid draw buffers (${value.toString()} must have no more than ${this.context.maxDrawBuffers.toString()} elements).`
+			);
+		}
+
 		// Reorder the input value so that WebGL doesn't warn.
 		const realValue = [] as (number | boolean)[];
 		for (const i of value) {
