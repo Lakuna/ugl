@@ -8,31 +8,27 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="./assets/favicon.ico" />
 
-		<!-- Spector.js. -->
-		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
-
 		<!-- Test script. -->
 		<script type="module">
 			import {
-				Vbo,
 				Context,
 				Ebo,
-				Face,
 				Primitive,
 				Program,
 				Texture2d,
 				TextureFilter,
 				TextureFormat,
-				Vao
+				Vao,
+				Vbo
 			} from "../dist/index.js";
 
-			// https://umath.lakuna.pw/
-			function createMatrix4Like() {
-				return new Float32Array(16);
-			}
+			// μMath
 
-			// https://umath.lakuna.pw/
-			function identity(out) {
+			const createMatrix4Like = () => {
+				return new Float32Array(16);
+			};
+
+			const identity = (out) => {
 				out[0] = 1;
 				out[1] = 0;
 				out[2] = 0;
@@ -50,159 +46,9 @@
 				out[14] = 0;
 				out[15] = 1;
 				return out;
-			}
+			};
 
-			// https://umath.lakuna.pw/
-			function perspective(fov, aspect, near, far, out) {
-				const f = 1 / Math.tan(fov / 2);
-
-				out[0] = f / aspect;
-				out[1] = 0;
-				out[2] = 0;
-				out[3] = 0;
-				out[4] = 0;
-				out[5] = f;
-				out[6] = 0;
-				out[7] = 0;
-				out[8] = 0;
-				out[9] = 0;
-				out[11] = -1;
-				out[12] = 0;
-				out[13] = 0;
-				out[15] = 0;
-
-				if (far != null && far != Infinity) {
-					const nf = 1 / (near - far);
-					out[10] = (far + near) * nf;
-					out[14] = 2 * far * near * nf;
-				} else {
-					out[10] = -1;
-					out[14] = -2 * near;
-				}
-
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function rotateX(matrix, radians, out) {
-				const s = Math.sin(radians);
-				const c = Math.cos(radians);
-
-				const a10 = matrix[4];
-				const a11 = matrix[5];
-				const a12 = matrix[6];
-				const a13 = matrix[7];
-				const a20 = matrix[8];
-				const a21 = matrix[9];
-				const a22 = matrix[10];
-				const a23 = matrix[11];
-
-				if (out != matrix) {
-					out[0] = matrix[0];
-					out[1] = matrix[1];
-					out[2] = matrix[2];
-					out[3] = matrix[3];
-					out[12] = matrix[12];
-					out[13] = matrix[13];
-					out[14] = matrix[14];
-					out[15] = matrix[15];
-				}
-
-				out[4] = a10 * c + a20 * s;
-				out[5] = a11 * c + a21 * s;
-				out[6] = a12 * c + a22 * s;
-				out[7] = a13 * c + a23 * s;
-				out[8] = a20 * c - a10 * s;
-				out[9] = a21 * c - a11 * s;
-				out[10] = a22 * c - a12 * s;
-				out[11] = a23 * c - a13 * s;
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function rotateY(matrix, radians, out) {
-				const s = Math.sin(radians);
-				const c = Math.cos(radians);
-
-				const a00 = matrix[0];
-				const a01 = matrix[1];
-				const a02 = matrix[2];
-				const a03 = matrix[3];
-				const a20 = matrix[8];
-				const a21 = matrix[9];
-				const a22 = matrix[10];
-				const a23 = matrix[11];
-
-				if (out != matrix) {
-					out[4] = matrix[4];
-					out[5] = matrix[5];
-					out[6] = matrix[6];
-					out[7] = matrix[7];
-					out[12] = matrix[12];
-					out[13] = matrix[13];
-					out[14] = matrix[14];
-					out[15] = matrix[15];
-				}
-
-				out[0] = a00 * c - a20 * s;
-				out[1] = a01 * c - a21 * s;
-				out[2] = a02 * c - a22 * s;
-				out[3] = a03 * c - a23 * s;
-				out[8] = a00 * s + a20 * c;
-				out[9] = a01 * s + a21 * c;
-				out[10] = a02 * s + a22 * c;
-				out[11] = a03 * s + a23 * c;
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function translate(matrix, vector, out) {
-				const x = vector[0];
-				const y = vector[1];
-				const z = vector[2];
-
-				if (out == matrix) {
-					out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
-					out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
-					out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
-					out[15] = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
-				} else {
-					const a00 = matrix[0];
-					const a01 = matrix[1];
-					const a02 = matrix[2];
-					const a03 = matrix[3];
-					const a10 = matrix[4];
-					const a11 = matrix[5];
-					const a12 = matrix[6];
-					const a13 = matrix[7];
-					const a20 = matrix[8];
-					const a21 = matrix[9];
-					const a22 = matrix[10];
-					const a23 = matrix[11];
-
-					out[0] = a00;
-					out[1] = a01;
-					out[2] = a02;
-					out[3] = a03;
-					out[4] = a10;
-					out[5] = a11;
-					out[6] = a12;
-					out[7] = a13;
-					out[8] = a20;
-					out[9] = a21;
-					out[10] = a22;
-					out[11] = a23;
-					out[12] = a00 * x + a10 * y + a20 * z + matrix[12];
-					out[13] = a01 * x + a11 * y + a21 * z + matrix[13];
-					out[14] = a02 * x + a12 * y + a22 * z + matrix[14];
-					out[15] = a03 * x + a13 * y + a23 * z + matrix[15];
-				}
-
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function invert(matrix, out) {
+			const invert = (matrix, out) => {
 				const a00 = matrix[0];
 				const a01 = matrix[1];
 				const a02 = matrix[2];
@@ -236,7 +82,7 @@
 				let det =
 					b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 				if (!det) {
-					throw new Error();
+					throw new SingularMatrixError();
 				}
 				det = 1 / det;
 
@@ -257,10 +103,9 @@
 				out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
 				out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 				return out;
-			}
+			};
 
-			// https://umath.lakuna.pw/
-			function multiply(a, b, out) {
+			const multiply = (a, b, out) => {
 				const a00 = a[0];
 				const a01 = a[1];
 				const a02 = a[2];
@@ -311,10 +156,109 @@
 				out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
 				out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 				return out;
-			}
+			};
 
-			// https://umath.lakuna.pw/
-			function scale(matrix, vector, out) {
+			const perspective = (fov, aspect, near, far, out) => {
+				const f = 1 / Math.tan(fov / 2);
+
+				out[0] = f / aspect;
+				out[1] = 0;
+				out[2] = 0;
+				out[3] = 0;
+				out[4] = 0;
+				out[5] = f;
+				out[6] = 0;
+				out[7] = 0;
+				out[8] = 0;
+				out[9] = 0;
+				out[11] = -1;
+				out[12] = 0;
+				out[13] = 0;
+				out[15] = 0;
+
+				if (far === Infinity) {
+					out[10] = -1;
+					out[14] = -2 * near;
+				} else {
+					const nf = 1 / (near - far);
+					out[10] = (far + near) * nf;
+					out[14] = 2 * far * near * nf;
+				}
+
+				return out;
+			};
+
+			const rotateX = (matrix, r, out) => {
+				const s = Math.sin(r);
+				const c = Math.cos(r);
+
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+				const a20 = matrix[8];
+				const a21 = matrix[9];
+				const a22 = matrix[10];
+				const a23 = matrix[11];
+
+				if (out !== matrix) {
+					out[0] = matrix[0];
+					out[1] = matrix[1];
+					out[2] = matrix[2];
+					out[3] = matrix[3];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[4] = a10 * c + a20 * s;
+				out[5] = a11 * c + a21 * s;
+				out[6] = a12 * c + a22 * s;
+				out[7] = a13 * c + a23 * s;
+				out[8] = a20 * c - a10 * s;
+				out[9] = a21 * c - a11 * s;
+				out[10] = a22 * c - a12 * s;
+				out[11] = a23 * c - a13 * s;
+				return out;
+			};
+
+			const rotateY = (matrix, r, out) => {
+				const s = Math.sin(r);
+				const c = Math.cos(r);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a20 = matrix[8];
+				const a21 = matrix[9];
+				const a22 = matrix[10];
+				const a23 = matrix[11];
+
+				if (out !== matrix) {
+					out[4] = matrix[4];
+					out[5] = matrix[5];
+					out[6] = matrix[6];
+					out[7] = matrix[7];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c - a20 * s;
+				out[1] = a01 * c - a21 * s;
+				out[2] = a02 * c - a22 * s;
+				out[3] = a03 * c - a23 * s;
+				out[8] = a00 * s + a20 * c;
+				out[9] = a01 * s + a21 * c;
+				out[10] = a02 * s + a22 * c;
+				out[11] = a03 * s + a23 * c;
+				return out;
+			};
+
+			const scale = (matrix, vector, out) => {
 				const x = vector[0];
 				const y = vector[1];
 				const z = vector[2];
@@ -336,7 +280,52 @@
 				out[14] = matrix[14];
 				out[15] = matrix[15];
 				return out;
-			}
+			};
+
+			const translate = (matrix, vector, out) => {
+				const x = vector[0];
+				const y = vector[1];
+				const z = vector[2];
+
+				if (out === matrix) {
+					out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+					out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+					out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+					out[15] = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
+				} else {
+					const a00 = matrix[0];
+					const a01 = matrix[1];
+					const a02 = matrix[2];
+					const a03 = matrix[3];
+					const a10 = matrix[4];
+					const a11 = matrix[5];
+					const a12 = matrix[6];
+					const a13 = matrix[7];
+					const a20 = matrix[8];
+					const a21 = matrix[9];
+					const a22 = matrix[10];
+					const a23 = matrix[11];
+
+					out[0] = a00;
+					out[1] = a01;
+					out[2] = a02;
+					out[3] = a03;
+					out[4] = a10;
+					out[5] = a11;
+					out[6] = a12;
+					out[7] = a13;
+					out[8] = a20;
+					out[9] = a21;
+					out[10] = a22;
+					out[11] = a23;
+					out[12] = a00 * x + a10 * y + a20 * z + matrix[12];
+					out[13] = a01 * x + a11 * y + a21 * z + matrix[13];
+					out[14] = a02 * x + a12 * y + a22 * z + matrix[14];
+					out[15] = a03 * x + a13 * y + a23 * z + matrix[15];
+				}
+
+				return out;
+			};
 
 			const vss = `\
 #version 300 es
@@ -345,7 +334,7 @@ in vec4 a_position;
 in vec2 a_texcoord;
 
 uniform mat4 u_world;
-uniform mat4 u_camViewProj;
+uniform mat4 u_viewProj;
 uniform mat4 u_texMat;
 
 out vec2 v_texcoord;
@@ -353,7 +342,7 @@ out vec4 v_projTexcoord;
 
 void main() {
 	vec4 worldPos = u_world * a_position;
-	gl_Position = u_camViewProj * worldPos;
+	gl_Position = u_viewProj * worldPos;
 	v_texcoord = a_texcoord;
 	v_projTexcoord = u_texMat * worldPos;
 }
@@ -380,7 +369,7 @@ void main() {
 		&& projTexcoord.x <= 1.0
 		&& projTexcoord.y >= 0.0
 		&& projTexcoord.y <= 1.0;
-
+	
 	vec4 projTexColor = texture(u_projTex, projTexcoord);
 	vec4 texColor = texture(u_texture, v_texcoord) * u_color;
 	outColor = inProj ? projTexColor : texColor;
@@ -393,10 +382,10 @@ void main() {
 in vec4 a_position;
 
 uniform mat4 u_world;
-uniform mat4 u_camViewProj;
+uniform mat4 u_viewProj;
 
 void main() {
-	gl_Position = u_camViewProj * u_world * a_position;
+	gl_Position = u_viewProj * u_world * a_position;
 }
 `;
 
@@ -441,7 +430,6 @@ void main() {
 			function raw(canvas) {
 				const gl = canvas.getContext("webgl2");
 
-				// Vertex shader.
 				const vs = gl.createShader(gl.VERTEX_SHADER);
 				gl.shaderSource(vs, vss);
 				gl.compileShader(vs);
@@ -449,7 +437,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(vs));
 				}
 
-				// Fragment shader.
 				const fs = gl.createShader(gl.FRAGMENT_SHADER);
 				gl.shaderSource(fs, fss);
 				gl.compileShader(fs);
@@ -457,7 +444,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(fs));
 				}
 
-				// Shader program.
 				const program = gl.createProgram();
 				gl.attachShader(program, vs);
 				gl.attachShader(program, fs);
@@ -465,8 +451,9 @@ void main() {
 				if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(program));
 				}
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-				// Vertex shader.
 				const solidVs = gl.createShader(gl.VERTEX_SHADER);
 				gl.shaderSource(solidVs, solidVss);
 				gl.compileShader(solidVs);
@@ -474,7 +461,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(solidVs));
 				}
 
-				// Fragment shader.
 				const solidFs = gl.createShader(gl.FRAGMENT_SHADER);
 				gl.shaderSource(solidFs, solidFss);
 				gl.compileShader(solidFs);
@@ -482,7 +468,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(solidFs));
 				}
 
-				// Shader program.
 				const solidProgram = gl.createProgram();
 				gl.attachShader(solidProgram, solidVs);
 				gl.attachShader(solidProgram, solidFs);
@@ -490,27 +475,27 @@ void main() {
 				if (!gl.getProgramParameter(solidProgram, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(solidProgram));
 				}
+				gl.deleteShader(solidVs);
+				gl.deleteShader(solidFs);
 
-				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
 				const texcoordLoc = gl.getAttribLocation(program, "a_texcoord");
 				const worldMatLoc = gl.getUniformLocation(program, "u_world");
-				const camViewProjMatLoc = gl.getUniformLocation(
-					program,
-					"u_camViewProj"
-				);
+				const viewProjMatLoc = gl.getUniformLocation(program, "u_viewProj");
 				const texMatLoc = gl.getUniformLocation(program, "u_texMat");
 				const colorLoc = gl.getUniformLocation(program, "u_color");
-				const textureLoc = gl.getUniformLocation(program, "u_texture");
+				const texLoc = gl.getUniformLocation(program, "u_texture");
 				const projTexLoc = gl.getUniformLocation(program, "u_projTex");
-				const solidPosLoc = gl.getAttribLocation(solidProgram, "a_position");
-				const solidMatLoc = gl.getUniformLocation(solidProgram, "u_world");
-				const solidCamViewProjMatLoc = gl.getUniformLocation(
+				const solidPositionLoc = gl.getAttribLocation(
 					solidProgram,
-					"u_camViewProj"
+					"a_position"
+				);
+				const solidWorldMatLoc = gl.getUniformLocation(solidProgram, "u_world");
+				const solidViewProjMatLoc = gl.getUniformLocation(
+					solidProgram,
+					"u_viewProj"
 				);
 
-				// Create buffers.
 				const planePositionBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, planePositionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, planePositionData, gl.STATIC_DRAW);
@@ -547,7 +532,6 @@ void main() {
 					gl.STATIC_DRAW
 				);
 
-				// Create VAOs.
 				const planeVao = gl.createVertexArray();
 				gl.bindVertexArray(planeVao);
 				gl.enableVertexAttribArray(positionLoc);
@@ -570,15 +554,14 @@ void main() {
 
 				const frustumVao = gl.createVertexArray();
 				gl.bindVertexArray(frustumVao);
-				gl.enableVertexAttribArray(solidPosLoc);
+				gl.enableVertexAttribArray(solidPositionLoc);
 				gl.bindBuffer(gl.ARRAY_BUFFER, frustumPositionBuffer);
-				gl.vertexAttribPointer(solidPosLoc, 3, gl.FLOAT, false, 0, 0);
+				gl.vertexAttribPointer(solidPositionLoc, 3, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, frustumIndexBuffer);
 
-				// Texture initialization.
 				const texture = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, texture);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
@@ -592,6 +575,7 @@ void main() {
 				);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
 				const projTex = gl.createTexture();
 				gl.bindTexture(gl.TEXTURE_2D, projTex);
 				gl.texImage2D(
@@ -621,7 +605,6 @@ void main() {
 				image.crossOrigin = "";
 				image.src = "./assets/peppers.png";
 
-				// Transformation initialization.
 				const planeMat = createMatrix4Like();
 				identity(planeMat);
 				rotateX(planeMat, (Math.PI * 3) / 2, planeMat);
@@ -651,30 +634,23 @@ void main() {
 				const camViewMat = createMatrix4Like();
 				const camViewProjMat = createMatrix4Like();
 
-				return function (now) {
-					// Resize the drawing buffer.
+				return (now) => {
 					canvas.width = canvas.clientWidth;
 					canvas.height = canvas.clientHeight;
-
-					// Set global state.
 					gl.viewport(0, 0, canvas.width, canvas.height);
-					gl.clearColor(0, 0, 0, 0);
+
 					gl.enable(gl.CULL_FACE);
 					gl.cullFace(gl.BACK);
-					gl.enable(gl.DEPTH_TEST);
-					gl.clearDepth(1);
 
-					// Clear the canvas.
+					gl.enable(gl.DEPTH_TEST);
+
+					gl.clearColor(0, 0, 0, 0);
+					gl.clearDepth(1);
 					gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-					// Transformation update.
-					perspective(
-						Math.PI / 4,
-						canvas.width / (canvas.height || 1),
-						0.1,
-						5,
-						camProjMat
-					);
+					const w = canvas.width;
+					const h = canvas.height;
+					perspective(Math.PI / 4, w / (h || 1), 0.1, 5, camProjMat);
 					identity(camCamMat);
 					rotateY(camCamMat, now * 0.0003, camCamMat);
 					rotateX(camCamMat, -Math.PI / 5, camCamMat);
@@ -682,87 +658,67 @@ void main() {
 					invert(camCamMat, camViewMat);
 					multiply(camProjMat, camViewMat, camViewProjMat);
 
-					// Use the program.
-					gl.useProgram(program);
-
-					// Bind the VAO.
-					gl.bindVertexArray(planeVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(worldMatLoc, false, planeMat);
-					gl.uniformMatrix4fv(camViewProjMatLoc, false, camViewProjMat);
-					gl.uniformMatrix4fv(texMatLoc, false, texMat);
-					gl.uniform4fv(colorLoc, [1, 0, 0, 1]);
 					gl.activeTexture(gl.TEXTURE0);
 					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.uniform1i(textureLoc, 0);
+
 					gl.activeTexture(gl.TEXTURE1);
 					gl.bindTexture(gl.TEXTURE_2D, projTex);
-					gl.uniform1i(projTexLoc, 1);
 
-					// Rasterize.
+					gl.useProgram(program);
+					gl.uniform4fv(colorLoc, [1, 0, 0, 1]);
+					gl.uniform1i(projTexLoc, 1);
+					gl.uniformMatrix4fv(texMatLoc, false, texMat);
+					gl.uniform1i(texLoc, 0);
+					gl.uniformMatrix4fv(viewProjMatLoc, false, camViewProjMat);
+					gl.uniformMatrix4fv(worldMatLoc, false, planeMat);
+					gl.bindVertexArray(planeVao);
 					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
 
-					// Use the program.
-					gl.useProgram(program);
-
-					// Bind the VAO.
-					gl.bindVertexArray(cubeVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(worldMatLoc, false, cubeMat);
-					gl.uniformMatrix4fv(camViewProjMatLoc, false, camViewProjMat);
-					gl.uniformMatrix4fv(texMatLoc, false, texMat);
-					gl.uniform4fv(colorLoc, [0, 1, 0, 1]);
 					gl.activeTexture(gl.TEXTURE0);
 					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.uniform1i(textureLoc, 0);
+
 					gl.activeTexture(gl.TEXTURE1);
 					gl.bindTexture(gl.TEXTURE_2D, projTex);
-					gl.uniform1i(projTexLoc, 1);
 
-					// Rasterize.
+					gl.useProgram(program);
+					gl.uniform4fv(colorLoc, [0, 1, 0, 1]);
+					gl.uniform1i(projTexLoc, 1);
+					gl.uniformMatrix4fv(texMatLoc, false, texMat);
+					gl.uniform1i(texLoc, 0);
+					gl.uniformMatrix4fv(viewProjMatLoc, false, camViewProjMat);
+					gl.uniformMatrix4fv(worldMatLoc, false, cubeMat);
+					gl.bindVertexArray(cubeVao);
 					gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
 
-					// Use the program.
 					gl.useProgram(solidProgram);
-
-					// Bind the VAO.
+					gl.uniformMatrix4fv(solidViewProjMatLoc, false, camViewProjMat);
+					gl.uniformMatrix4fv(solidWorldMatLoc, false, frustumMat);
 					gl.bindVertexArray(frustumVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(solidMatLoc, false, frustumMat);
-					gl.uniformMatrix4fv(solidCamViewProjMatLoc, false, camViewProjMat);
-
-					// Rasterize.
 					gl.drawElements(gl.LINES, 24, gl.UNSIGNED_BYTE, 0);
 				};
 			}
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = Context.get(canvas);
+				const gl = Context.get(canvas);
 
-				// Vertex shader, fragment shader, shader program, get variable locations.
-				const program = Program.fromSource(context, vss, fss);
-				const solidProgram = Program.fromSource(context, solidVss, solidFss);
+				const program = Program.fromSource(gl, vss, fss);
+				const solidProgram = Program.fromSource(gl, solidVss, solidFss);
 
-				// Create buffers.
-				const planePositionBuffer = new Vbo(context, planePositionData);
-				const planeTexcoordBuffer = new Vbo(context, planeTexcoordData);
-				const planeIndexBuffer = new Ebo(context, planeIndexData);
-				const cubePositionBuffer = new Vbo(context, cubePositionData);
-				const cubeTexcoordBuffer = new Vbo(context, cubeTexcoordData);
-				const cubeIndexBuffer = new Ebo(context, cubeIndexData);
-				const frustumPositionBuffer = new Vbo(context, frustumPositionData);
-				const frustumIndexBuffer = new Ebo(context, frustumIndexData);
+				const planePositionBuffer = new Vbo(gl, planePositionData);
+				const planeTexcoordBuffer = new Vbo(gl, planeTexcoordData);
+				const planeIndexBuffer = new Ebo(gl, planeIndexData);
+				const cubePositionBuffer = new Vbo(gl, cubePositionData);
+				const cubeTexcoordBuffer = new Vbo(gl, cubeTexcoordData);
+				const cubeIndexBuffer = new Ebo(gl, cubeIndexData);
+				const frustumPositionBuffer = new Vbo(gl, frustumPositionData);
+				const frustumIndexBuffer = new Ebo(gl, frustumIndexData);
 
-				// Create VAOs, bind indices.
 				const planeVao = new Vao(
 					program,
 					{
-						a_position: { vbo: planePositionBuffer, size: 2 },
-						a_texcoord: { vbo: planeTexcoordBuffer, size: 2 }
+						a_position: { size: 2, vbo: planePositionBuffer },
+						a_texcoord: { size: 2, vbo: planeTexcoordBuffer }
 					},
 					planeIndexBuffer
 				);
@@ -770,7 +726,7 @@ void main() {
 					program,
 					{
 						a_position: cubePositionBuffer,
-						a_texcoord: { vbo: cubeTexcoordBuffer, size: 2 }
+						a_texcoord: { size: 2, vbo: cubeTexcoordBuffer }
 					},
 					cubeIndexBuffer
 				);
@@ -780,8 +736,7 @@ void main() {
 					frustumIndexBuffer
 				);
 
-				// Texture initialization.
-				const texture = new Texture2d(context);
+				const texture = new Texture2d(gl);
 				texture.format = TextureFormat.LUMINANCE;
 				texture.setMip(
 					new Uint8Array([0x80, 0xc0, 0xc0, 0x80]),
@@ -791,9 +746,8 @@ void main() {
 				);
 				texture.minFilter = TextureFilter.NEAREST;
 				texture.magFilter = TextureFilter.NEAREST;
-				const projTex = Texture2d.fromImageUrl(context, "./assets/peppers.png");
+				const projTex = Texture2d.fromImageUrl(gl, `./assets/peppers.png`);
 
-				// Transformation initialization.
 				const planeMat = createMatrix4Like();
 				identity(planeMat);
 				rotateX(planeMat, (Math.PI * 3) / 2, planeMat);
@@ -823,24 +777,15 @@ void main() {
 				const camViewMat = createMatrix4Like();
 				const camViewProjMat = createMatrix4Like();
 
-				return function (now) {
-					// Resize the drawing buffer, set global state.
-					context.resize();
-					context.doCullFace = true;
-					context.cullFace = Face.BACK;
-					context.doDepthTest = true;
+				return (now) => {
+					gl.resize();
+					gl.doCullFace = true;
+					gl.doDepthTest = true;
+					gl.clear();
 
-					// Clear the canvas.
-					context.clear([0, 0, 0, 0], 1, false);
-
-					// Transformation update.
-					perspective(
-						Math.PI / 4,
-						canvas.width / (canvas.height || 1),
-						0.1,
-						5,
-						camProjMat
-					);
+					const w = canvas.width;
+					const h = canvas.height;
+					perspective(Math.PI / 4, w / (h || 1), 0.1, 5, camProjMat);
 					identity(camCamMat);
 					rotateY(camCamMat, now * 0.0003, camCamMat);
 					rotateX(camCamMat, -Math.PI / 5, camCamMat);
@@ -848,27 +793,26 @@ void main() {
 					invert(camCamMat, camViewMat);
 					multiply(camProjMat, camViewMat, camViewProjMat);
 
-					// Set uniform values, rasterize.
 					planeVao.draw({
-						u_world: planeMat,
-						u_camViewProj: camViewProjMat,
-						u_texMat: texMat,
 						u_color: [1, 0, 0, 1],
+						u_projTex: projTex,
+						u_texMat: texMat,
 						u_texture: texture,
-						u_projTex: projTex
+						u_viewProj: camViewProjMat,
+						u_world: planeMat
 					});
 
 					cubeVao.draw({
-						u_world: cubeMat,
-						u_camViewProj: camViewProjMat,
-						u_texMat: texMat,
 						u_color: [0, 1, 0, 1],
+						u_projTex: projTex,
+						u_texMat: texMat,
 						u_texture: texture,
-						u_projTex: projTex
+						u_viewProj: camViewProjMat,
+						u_world: cubeMat
 					});
 
 					frustumVao.draw(
-						{ u_world: frustumMat, u_camViewProj: camViewProjMat },
+						{ u_viewProj: camViewProjMat, u_world: frustumMat },
 						Primitive.LINES
 					);
 				};
@@ -876,9 +820,6 @@ void main() {
 
 			// Start after the canvases finish loading.
 			addEventListener("load", () => {
-				// Set up Spector.js.
-				new SPECTOR.Spector().displayUI();
-
 				// Set up both rendering contexts, get separate update functions.
 				const rawUpdate = raw(document.querySelector("canvas#raw"));
 				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
@@ -897,24 +838,22 @@ void main() {
 
 		<!-- Canvas visibility style. -->
 		<style>
-			/* Make canvases more visible. */
-			canvas {
-				border: 1px solid black;
-				width: 512px;
-				height: 512px;
+			body {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
 			}
 
-			/** Display canvases below the Spector.js UI. */
-			div#canvas-wrapper {
-				text-align: center;
-				padding-top: 120px;
+			canvas {
+				border: 1px solid black;
+				width: 100%;
+				aspect-ratio: 3 / 2;
+				max-height: 90vh;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="canvas-wrapper">
-			<canvas id="raw"></canvas>
-			<canvas id="ugl"></canvas>
-		</div>
+		<canvas id="raw"></canvas>
+		<canvas id="ugl"></canvas>
 	</body>
 </html>

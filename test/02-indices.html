@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Attributes</title>
+		<title>Indices</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -10,7 +10,7 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import { Context, Program, Vao, Vbo } from "../dist/index.js";
+			import { Context, Ebo, Program, Vao, Vbo } from "../dist/index.js";
 
 			const vss = `\
 #version 300 es
@@ -34,7 +34,9 @@ void main() {
 }
 `;
 
-			const positionData = new Float32Array([0, 0.5, 0, 0, 0.7, 0]);
+			const positionData = new Float32Array([0, 0.5, 0, 0, 0.7, 0, 0.7, 0.5]);
+
+			const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
 			function raw(canvas) {
@@ -70,11 +72,16 @@ void main() {
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
 
+				const indexBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
+
 				const rectVao = gl.createVertexArray();
 				gl.bindVertexArray(rectVao);
 				gl.enableVertexAttribArray(positionLoc);
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 				return () => {
 					canvas.width = canvas.clientWidth;
@@ -86,7 +93,7 @@ void main() {
 
 					gl.useProgram(program);
 					gl.bindVertexArray(rectVao);
-					gl.drawArrays(gl.TRIANGLES, 0, 3);
+					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
 				};
 			}
 
@@ -97,10 +104,13 @@ void main() {
 				const program = Program.fromSource(gl, vss, fss);
 
 				const positionBuffer = new Vbo(gl, positionData);
+				const indexBuffer = new Ebo(gl, indexData);
 
-				const rectVao = new Vao(program, {
-					a_position: { size: 2, vbo: positionBuffer }
-				});
+				const rectVao = new Vao(
+					program,
+					{ a_position: { size: 2, vbo: positionBuffer } },
+					indexBuffer
+				);
 
 				return () => {
 					gl.resize();

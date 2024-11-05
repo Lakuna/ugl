@@ -224,9 +224,6 @@ export default class Vao extends ContextDependent {
 		// Bind the correct shader program.
 		this.program.bind();
 
-		// Bind this VAO.
-		this.bind();
-
 		// Set uniforms.
 		if (typeof uniforms !== "undefined") {
 			for (const name in uniforms) {
@@ -245,6 +242,9 @@ export default class Vao extends ContextDependent {
 				uniform.value = value;
 			}
 		}
+
+		// Bind this VAO.
+		this.bind();
 
 		// Rasterize.
 		if (typeof this.ebo === "undefined") {

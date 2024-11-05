@@ -1,0 +1,373 @@
+<!doctype html>
+
+<html lang="en-US">
+	<head>
+		<title>Orthographic 3D</title>
+
+		<!-- Prevent the browser console from complaining. -->
+		<meta charset="utf-8" />
+		<link rel="icon" href="./assets/favicon.ico" />
+
+		<!-- Test script. -->
+		<script type="module">
+			import { Context, Program, Vao, Vbo } from "../dist/index.js";
+
+			// μMath
+
+			const createMatrix4Like = () => {
+				return new Float32Array(16);
+			};
+
+			const ortho = (left, right, bottom, top, near, far, out) => {
+				const lr = 1 / (left - right);
+				const bt = 1 / (bottom - top);
+				const nf = 1 / (near - far);
+
+				out[0] = -2 * lr;
+				out[1] = 0;
+				out[2] = 0;
+				out[3] = 0;
+				out[4] = 0;
+				out[5] = -2 * bt;
+				out[6] = 0;
+				out[7] = 0;
+				out[8] = 0;
+				out[9] = 0;
+				out[10] = 2 * nf;
+				out[11] = 0;
+				out[12] = (left + right) * lr;
+				out[13] = (top + bottom) * bt;
+				out[14] = (far + near) * nf;
+				out[15] = 1;
+				return out;
+			};
+
+			const rotateX = (matrix, r, out) => {
+				const s = Math.sin(r);
+				const c = Math.cos(r);
+
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+				const a20 = matrix[8];
+				const a21 = matrix[9];
+				const a22 = matrix[10];
+				const a23 = matrix[11];
+
+				if (out !== matrix) {
+					out[0] = matrix[0];
+					out[1] = matrix[1];
+					out[2] = matrix[2];
+					out[3] = matrix[3];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[4] = a10 * c + a20 * s;
+				out[5] = a11 * c + a21 * s;
+				out[6] = a12 * c + a22 * s;
+				out[7] = a13 * c + a23 * s;
+				out[8] = a20 * c - a10 * s;
+				out[9] = a21 * c - a11 * s;
+				out[10] = a22 * c - a12 * s;
+				out[11] = a23 * c - a13 * s;
+				return out;
+			};
+
+			const rotateZ = (matrix, r, out) => {
+				const s = Math.sin(r);
+				const c = Math.cos(r);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+
+				if (out !== matrix) {
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c + a10 * s;
+				out[1] = a01 * c + a11 * s;
+				out[2] = a02 * c + a12 * s;
+				out[3] = a03 * c + a13 * s;
+				out[4] = a10 * c - a00 * s;
+				out[5] = a11 * c - a01 * s;
+				out[6] = a12 * c - a02 * s;
+				out[7] = a13 * c - a03 * s;
+				return out;
+			};
+
+			const translate = (matrix, vector, out) => {
+				const x = vector[0];
+				const y = vector[1];
+				const z = vector[2];
+
+				if (out === matrix) {
+					out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+					out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+					out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+					out[15] = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
+				} else {
+					const a00 = matrix[0];
+					const a01 = matrix[1];
+					const a02 = matrix[2];
+					const a03 = matrix[3];
+					const a10 = matrix[4];
+					const a11 = matrix[5];
+					const a12 = matrix[6];
+					const a13 = matrix[7];
+					const a20 = matrix[8];
+					const a21 = matrix[9];
+					const a22 = matrix[10];
+					const a23 = matrix[11];
+
+					out[0] = a00;
+					out[1] = a01;
+					out[2] = a02;
+					out[3] = a03;
+					out[4] = a10;
+					out[5] = a11;
+					out[6] = a12;
+					out[7] = a13;
+					out[8] = a20;
+					out[9] = a21;
+					out[10] = a22;
+					out[11] = a23;
+					out[12] = a00 * x + a10 * y + a20 * z + matrix[12];
+					out[13] = a01 * x + a11 * y + a21 * z + matrix[13];
+					out[14] = a02 * x + a12 * y + a22 * z + matrix[14];
+					out[15] = a03 * x + a13 * y + a23 * z + matrix[15];
+				}
+
+				return out;
+			};
+
+			const vss = `\
+#version 300 es
+
+in vec4 a_position;
+in vec4 a_color;
+
+uniform mat4 u_world;
+
+out vec4 v_color;
+
+void main() {
+	gl_Position = u_world * a_position;
+	v_color = a_color;
+}
+`;
+
+			const fss = `\
+#version 300 es
+
+precision mediump float;
+
+in vec4 v_color;
+
+out vec4 outColor;
+
+void main() {
+	outColor = v_color;
+}
+`;
+
+			const positionData = new Float32Array([
+				0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0, 30, 0, 0,
+				30, 30, 0, 100, 0, 0, 30, 30, 0, 100, 30, 0, 100, 0, 0, 30, 60, 0, 30,
+				90, 0, 67, 60, 0, 30, 90, 0, 67, 90, 0, 67, 60, 0, 0, 0, 30, 30, 0, 30,
+				0, 150, 30, 0, 150, 30, 30, 0, 30, 30, 150, 30, 30, 0, 30, 100, 0, 30,
+				30, 30, 30, 30, 30, 30, 100, 0, 30, 100, 30, 30, 30, 60, 30, 67, 60, 30,
+				30, 90, 30, 30, 90, 30, 67, 60, 30, 67, 90, 30, 0, 0, 0, 100, 0, 0, 100,
+				0, 30, 0, 0, 0, 100, 0, 30, 0, 0, 30, 100, 0, 0, 100, 30, 0, 100, 30,
+				30, 100, 0, 0, 100, 30, 30, 100, 0, 30, 30, 30, 0, 30, 30, 30, 100, 30,
+				30, 30, 30, 0, 100, 30, 30, 100, 30, 0, 30, 30, 0, 30, 60, 30, 30, 30,
+				30, 30, 30, 0, 30, 60, 0, 30, 60, 30, 30, 60, 0, 67, 60, 30, 30, 60, 30,
+				30, 60, 0, 67, 60, 0, 67, 60, 30, 67, 60, 0, 67, 90, 30, 67, 60, 30, 67,
+				60, 0, 67, 90, 0, 67, 90, 30, 30, 90, 0, 30, 90, 30, 67, 90, 30, 30, 90,
+				0, 67, 90, 30, 67, 90, 0, 30, 90, 0, 30, 150, 30, 30, 90, 30, 30, 90, 0,
+				30, 150, 0, 30, 150, 30, 0, 150, 0, 0, 150, 30, 30, 150, 30, 0, 150, 0,
+				30, 150, 30, 30, 150, 0, 0, 0, 0, 0, 0, 30, 0, 150, 30, 0, 0, 0, 0, 150,
+				30, 0, 150, 0
+			]);
+
+			const colorData = new Uint8Array([
+				200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
+				200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
+				200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
+				200, 70, 120, 200, 70, 120, 200, 70, 120, 80, 70, 200, 80, 70, 200, 80,
+				70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70,
+				200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200,
+				80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 70,
+				200, 210, 70, 200, 210, 70, 200, 210, 70, 200, 210, 70, 200, 210, 70,
+				200, 210, 200, 200, 70, 200, 200, 70, 200, 200, 70, 200, 200, 70, 200,
+				200, 70, 200, 200, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210,
+				100, 70, 210, 100, 70, 210, 100, 70, 210, 160, 70, 210, 160, 70, 210,
+				160, 70, 210, 160, 70, 210, 160, 70, 210, 160, 70, 70, 180, 210, 70,
+				180, 210, 70, 180, 210, 70, 180, 210, 70, 180, 210, 70, 180, 210, 100,
+				70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100,
+				70, 210, 76, 210, 100, 76, 210, 100, 76, 210, 100, 76, 210, 100, 76,
+				210, 100, 76, 210, 100, 140, 210, 80, 140, 210, 80, 140, 210, 80, 140,
+				210, 80, 140, 210, 80, 140, 210, 80, 90, 130, 110, 90, 130, 110, 90,
+				130, 110, 90, 130, 110, 90, 130, 110, 90, 130, 110, 160, 160, 220, 160,
+				160, 220, 160, 160, 220, 160, 160, 220, 160, 160, 220, 160, 160, 220
+			]);
+
+			// Vanilla WebGL2 implementation.
+			function raw(canvas) {
+				const gl = canvas.getContext("webgl2");
+
+				const vs = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(vs, vss);
+				gl.compileShader(vs);
+				if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(vs));
+				}
+
+				const fs = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(fs, fss);
+				gl.compileShader(fs);
+				if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+					throw new Error(gl.getShaderInfoLog(fs));
+				}
+
+				const program = gl.createProgram();
+				gl.attachShader(program, vs);
+				gl.attachShader(program, fs);
+				gl.linkProgram(program);
+				if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+					throw new Error(gl.getProgramInfoLog(program));
+				}
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
+
+				const positionLoc = gl.getAttribLocation(program, "a_position");
+				const colorLoc = gl.getAttribLocation(program, "a_color");
+				const worldMatLoc = gl.getUniformLocation(program, "u_world");
+
+				const positionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
+
+				const colorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, colorData, gl.STATIC_DRAW);
+
+				const fVao = gl.createVertexArray();
+				gl.bindVertexArray(fVao);
+				gl.enableVertexAttribArray(positionLoc);
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+				gl.enableVertexAttribArray(colorLoc);
+				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+				gl.vertexAttribPointer(colorLoc, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+
+				const matrix = createMatrix4Like();
+
+				return (now) => {
+					canvas.width = canvas.clientWidth;
+					canvas.height = canvas.clientHeight;
+					gl.viewport(0, 0, canvas.width, canvas.height);
+
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					const w = canvas.width;
+					const h = canvas.height;
+					ortho(0, w, 0, h, 0, 1000, matrix);
+					translate(matrix, [w / 2, h / 2, -500], matrix);
+					rotateZ(matrix, now * 0.001, matrix);
+					rotateX(matrix, now * 0.0007, matrix);
+
+					gl.useProgram(program);
+					gl.uniformMatrix4fv(worldMatLoc, false, matrix);
+					gl.bindVertexArray(fVao);
+					gl.drawArrays(gl.TRIANGLES, 0, 96);
+				};
+			}
+
+			// μGL implementation.
+			function ugl(canvas) {
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vss, fss);
+
+				const positionBuffer = new Vbo(gl, positionData);
+				const colorBuffer = new Vbo(gl, colorData);
+
+				const fVao = new Vao(program, {
+					a_color: { normalized: true, vbo: colorBuffer },
+					a_position: positionBuffer
+				});
+
+				const matrix = createMatrix4Like();
+
+				return (now) => {
+					gl.resize();
+					gl.clear();
+
+					const w = canvas.width;
+					const h = canvas.height;
+					ortho(0, w, 0, h, 0, 1000, matrix);
+					translate(matrix, [w / 2, h / 2, -500], matrix);
+					rotateZ(matrix, now * 0.001, matrix);
+					rotateX(matrix, now * 0.0007, matrix);
+
+					fVao.draw({ u_world: matrix });
+				};
+			}
+
+			// Start after the canvases finish loading.
+			addEventListener("load", () => {
+				// Set up both rendering contexts, get separate update functions.
+				const rawUpdate = raw(document.querySelector("canvas#raw"));
+				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
+
+				// Create a combined update function.
+				function update(now) {
+					requestAnimationFrame(update);
+
+					// Update both canvases on every frame.
+					rawUpdate(now);
+					uglUpdate(now);
+				}
+				requestAnimationFrame(update);
+			});
+		</script>
+
+		<!-- Canvas visibility style. -->
+		<style>
+			body {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+			}
+
+			canvas {
+				border: 1px solid black;
+				width: 100%;
+				aspect-ratio: 3 / 2;
+				max-height: 90vh;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="raw"></canvas>
+		<canvas id="ugl"></canvas>
+	</body>
+</html>

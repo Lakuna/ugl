@@ -2,26 +2,23 @@
 
 <html lang="en-US">
 	<head>
-		<title>Transformation</title>
+		<title>Scene Graph</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
 		<link rel="icon" href="./assets/favicon.ico" />
 
-		<!-- Spector.js. -->
-		<script src="../node_modules/spectorjs/dist/spector.bundle.js"></script>
-
 		<!-- Test script. -->
 		<script type="module">
-			import { Vbo, Context, Ebo, Program, Vao } from "../dist/index.js";
+			import { Context, Ebo, Program, Vao, Vbo } from "../dist/index.js";
 
-			// https://umath.lakuna.pw/
-			function createMatrix4Like() {
+			// μMath
+
+			const createMatrix4Like = () => {
 				return new Float32Array(16);
-			}
+			};
 
-			// https://umath.lakuna.pw/
-			function ortho(left, right, bottom, top, near, far, out) {
+			const ortho = (left, right, bottom, top, near, far, out) => {
 				const lr = 1 / (left - right);
 				const bt = 1 / (bottom - top);
 				const nf = 1 / (near - far);
@@ -43,15 +40,73 @@
 				out[14] = (far + near) * nf;
 				out[15] = 1;
 				return out;
-			}
+			};
 
-			// https://umath.lakuna.pw/
-			function translate(matrix, vector, out) {
+			const rotateZ = (matrix, r, out) => {
+				const s = Math.sin(r);
+				const c = Math.cos(r);
+
+				const a00 = matrix[0];
+				const a01 = matrix[1];
+				const a02 = matrix[2];
+				const a03 = matrix[3];
+				const a10 = matrix[4];
+				const a11 = matrix[5];
+				const a12 = matrix[6];
+				const a13 = matrix[7];
+
+				if (out !== matrix) {
+					out[8] = matrix[8];
+					out[9] = matrix[9];
+					out[10] = matrix[10];
+					out[11] = matrix[11];
+					out[12] = matrix[12];
+					out[13] = matrix[13];
+					out[14] = matrix[14];
+					out[15] = matrix[15];
+				}
+
+				out[0] = a00 * c + a10 * s;
+				out[1] = a01 * c + a11 * s;
+				out[2] = a02 * c + a12 * s;
+				out[3] = a03 * c + a13 * s;
+				out[4] = a10 * c - a00 * s;
+				out[5] = a11 * c - a01 * s;
+				out[6] = a12 * c - a02 * s;
+				out[7] = a13 * c - a03 * s;
+				return out;
+			};
+
+			const scale = (matrix, vector, out) => {
 				const x = vector[0];
 				const y = vector[1];
 				const z = vector[2];
 
-				if (out == matrix) {
+				out[0] = matrix[0] * x;
+				out[1] = matrix[1] * x;
+				out[2] = matrix[2] * x;
+				out[3] = matrix[3] * x;
+				out[4] = matrix[4] * y;
+				out[5] = matrix[5] * y;
+				out[6] = matrix[6] * y;
+				out[7] = matrix[7] * y;
+				out[8] = matrix[8] * z;
+				out[9] = matrix[9] * z;
+				out[10] = matrix[10] * z;
+				out[11] = matrix[11] * z;
+				out[12] = matrix[12];
+				out[13] = matrix[13];
+				out[14] = matrix[14];
+				out[15] = matrix[15];
+				return out;
+			};
+
+			const translate = (matrix, vector, out) => {
+				const x = vector[0];
+				const y = vector[1];
+				const z = vector[2];
+
+				if (out === matrix) {
 					out[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
 					out[13] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
 					out[14] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
@@ -89,78 +144,19 @@
 				}
 
 				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function rotateZ(matrix, radians, out) {
-				const s = Math.sin(radians);
-				const c = Math.cos(radians);
-
-				const a00 = matrix[0];
-				const a01 = matrix[1];
-				const a02 = matrix[2];
-				const a03 = matrix[3];
-				const a10 = matrix[4];
-				const a11 = matrix[5];
-				const a12 = matrix[6];
-				const a13 = matrix[7];
-
-				if (out != matrix) {
-					out[8] = matrix[8];
-					out[9] = matrix[9];
-					out[10] = matrix[10];
-					out[11] = matrix[11];
-					out[12] = matrix[12];
-					out[13] = matrix[13];
-					out[14] = matrix[14];
-					out[15] = matrix[15];
-				}
-
-				out[0] = a00 * c + a10 * s;
-				out[1] = a01 * c + a11 * s;
-				out[2] = a02 * c + a12 * s;
-				out[3] = a03 * c + a13 * s;
-				out[4] = a10 * c - a00 * s;
-				out[5] = a11 * c - a01 * s;
-				out[6] = a12 * c - a02 * s;
-				out[7] = a13 * c - a03 * s;
-				return out;
-			}
-
-			// https://umath.lakuna.pw/
-			function scale(matrix, vector, out) {
-				const x = vector[0];
-				const y = vector[1];
-				const z = vector[2];
-
-				out[0] = matrix[0] * x;
-				out[1] = matrix[1] * x;
-				out[2] = matrix[2] * x;
-				out[3] = matrix[3] * x;
-				out[4] = matrix[4] * y;
-				out[5] = matrix[5] * y;
-				out[6] = matrix[6] * y;
-				out[7] = matrix[7] * y;
-				out[8] = matrix[8] * z;
-				out[9] = matrix[9] * z;
-				out[10] = matrix[10] * z;
-				out[11] = matrix[11] * z;
-				out[12] = matrix[12];
-				out[13] = matrix[13];
-				out[14] = matrix[14];
-				out[15] = matrix[15];
-				return out;
-			}
+			};
 
 			const vss = `\
 #version 300 es
 
 in vec4 a_position;
 
-uniform mat4 u_matrix;
+uniform mat4 u_world;
+
+out vec4 v_color;
 
 void main() {
-	gl_Position = u_matrix * a_position;
+	gl_Position = u_world * a_position;
 }
 `;
 
@@ -177,13 +173,13 @@ void main() {
 `;
 
 			const positionData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
+
 			const indexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
 
 			// Vanilla WebGL2 implementation.
 			function raw(canvas) {
 				const gl = canvas.getContext("webgl2");
 
-				// Vertex shader.
 				const vs = gl.createShader(gl.VERTEX_SHADER);
 				gl.shaderSource(vs, vss);
 				gl.compileShader(vs);
@@ -191,7 +187,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(vs));
 				}
 
-				// Fragment shader.
 				const fs = gl.createShader(gl.FRAGMENT_SHADER);
 				gl.shaderSource(fs, fss);
 				gl.compileShader(fs);
@@ -199,7 +194,6 @@ void main() {
 					throw new Error(gl.getShaderInfoLog(fs));
 				}
 
-				// Shader program.
 				const program = gl.createProgram();
 				gl.attachShader(program, vs);
 				gl.attachShader(program, fs);
@@ -207,12 +201,12 @@ void main() {
 				if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 					throw new Error(gl.getProgramInfoLog(program));
 				}
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-				// Get variable locations.
 				const positionLoc = gl.getAttribLocation(program, "a_position");
-				const matLoc = gl.getUniformLocation(program, "u_matrix");
+				const worldMatLoc = gl.getUniformLocation(program, "u_world");
 
-				// Create buffers.
 				const positionBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, positionData, gl.STATIC_DRAW);
@@ -221,7 +215,6 @@ void main() {
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
 
-				// Create VAOs.
 				const rectVao = gl.createVertexArray();
 				gl.bindVertexArray(rectVao);
 				gl.enableVertexAttribArray(positionLoc);
@@ -229,95 +222,74 @@ void main() {
 				gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-				// Transformation initialization.
 				const matrix = createMatrix4Like();
 
-				return function (now) {
-					// Resize the drawing buffer.
+				return (now) => {
 					canvas.width = canvas.clientWidth;
 					canvas.height = canvas.clientHeight;
-
-					// Set global state.
 					gl.viewport(0, 0, canvas.width, canvas.height);
-					gl.clearColor(0, 0, 0, 0);
 
-					// Clear the canvas.
+					gl.clearColor(0, 0, 0, 0);
 					gl.clear(gl.COLOR_BUFFER_BIT);
 
-					// Transformation update.
-					const halfWidth = canvas.width / 2;
-					const halfHeight = canvas.height / 2;
-					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
-					rotateZ(matrix, now * 0.001, matrix);
-					translate(matrix, [100, 0, 0], matrix);
-					rotateZ(matrix, now * 0.002, matrix);
-					const canvasMin = Math.min(canvas.width, canvas.height);
-					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
-					scale(matrix, [xyScale, xyScale, 1], matrix);
+					const w = canvas.width;
+					const h = canvas.height;
+					const min = Math.min(w, h);
+					ortho(0, w, 0, h, -1, 1, matrix);
+					translate(matrix, [w / 2, min / 5, 0], matrix);
+					scale(matrix, [min / 20, min / 20, 1], matrix);
+					for (let i = 0; i < 20; i++) {
+						translate(matrix, [10 * Math.sin(now * 0.001), 0, 0], matrix);
+						rotateZ(matrix, now * 0.001, matrix);
+						scale(matrix, [0.9, 0.9, 1], matrix);
 
-					// Use the program.
-					gl.useProgram(program);
-
-					// Bind the VAO.
-					gl.bindVertexArray(rectVao);
-
-					// Set uniform values.
-					gl.uniformMatrix4fv(matLoc, false, matrix);
-
-					// Rasterize.
-					gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+						gl.useProgram(program);
+						gl.uniformMatrix4fv(worldMatLoc, false, matrix);
+						gl.bindVertexArray(rectVao);
+						gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+					}
 				};
 			}
 
 			// μGL implementation.
 			function ugl(canvas) {
-				const context = Context.get(canvas);
+				const gl = Context.get(canvas);
 
-				// Vertex shader, fragment shader, shader program, get variable locations.
-				const program = Program.fromSource(context, vss, fss);
+				const program = Program.fromSource(gl, vss, fss);
 
-				// Create buffers.
-				const positionBuffer = new Vbo(context, positionData);
-				const indexBuffer = new Ebo(context, indexData);
+				const positionBuffer = new Vbo(gl, positionData);
+				const indexBuffer = new Ebo(gl, indexData);
 
-				// Create VAOs, bind indices.
 				const rectVao = new Vao(
 					program,
-					{ a_position: { vbo: positionBuffer, size: 2 } },
+					{ a_position: { size: 2, vbo: positionBuffer } },
 					indexBuffer
 				);
 
-				// Transformation initialization.
 				const matrix = createMatrix4Like();
 
-				return function (now) {
-					// Resize the drawing buffer, set global state.
-					context.resize();
+				return (now) => {
+					gl.resize();
+					gl.clear();
 
-					// Clear the canvas.
-					context.clear();
+					const w = canvas.width;
+					const h = canvas.height;
+					const min = Math.min(w, h);
+					ortho(0, w, 0, h, -1, 1, matrix);
+					translate(matrix, [w / 2, min / 5, 0], matrix);
+					scale(matrix, [min / 20, min / 20, 1], matrix);
+					for (let i = 0; i < 20; i++) {
+						translate(matrix, [10 * Math.sin(now * 0.001), 0, 0], matrix);
+						rotateZ(matrix, now * 0.001, matrix);
+						scale(matrix, [0.9, 0.9, 1], matrix);
 
-					// Transformation update.
-					const halfWidth = canvas.width / 2;
-					const halfHeight = canvas.height / 2;
-					ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1, 1, matrix);
-					rotateZ(matrix, now * 0.001, matrix);
-					translate(matrix, [100, 0, 0], matrix);
-					rotateZ(matrix, now * 0.002, matrix);
-					const canvasMin = Math.min(canvas.width, canvas.height);
-					const xyScale = ((1 + Math.cos(now * 0.001) / 2) * canvasMin) / 10;
-					scale(matrix, [xyScale, xyScale, 1], matrix);
-
-					// Set uniform values, rasterize.
-					rectVao.draw({ u_matrix: matrix });
+						rectVao.draw({ u_world: matrix });
+					}
 				};
 			}
 
 			// Start after the canvases finish loading.
 			addEventListener("load", () => {
-				// Set up Spector.js.
-				new SPECTOR.Spector().displayUI();
-
 				// Set up both rendering contexts, get separate update functions.
 				const rawUpdate = raw(document.querySelector("canvas#raw"));
 				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
@@ -336,24 +308,22 @@ void main() {
 
 		<!-- Canvas visibility style. -->
 		<style>
-			/* Make canvases more visible. */
-			canvas {
-				border: 1px solid black;
-				width: 512px;
-				height: 512px;
+			body {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
 			}
 
-			/** Display canvases below the Spector.js UI. */
-			div#canvas-wrapper {
-				text-align: center;
-				padding-top: 120px;
+			canvas {
+				border: 1px solid black;
+				width: 100%;
+				aspect-ratio: 3 / 2;
+				max-height: 90vh;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="canvas-wrapper">
-			<canvas id="raw"></canvas>
-			<canvas id="ugl"></canvas>
-		</div>
+		<canvas id="raw"></canvas>
+		<canvas id="ugl"></canvas>
 	</body>
 </html>

@@ -63,16 +63,14 @@ enum Extension {
 	Srgb = "EXT_sRGB",
 
 	/**
-	 * Exposes 4 BPTC compressed texture formats.
+	 * Exposes 4 BPTC compressed texture formats. Support depends on the system's graphics driver. Not supported by Windows.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/EXT_texture_compression_bptc | EXT_texture_compression_bptc}
-	 * @deprecated Support depends on the system's graphics driver. Not supported by Windows.
 	 */
 	TextureCompressionBptc = "EXT_texture_compression_bptc",
 
 	/**
-	 * Exposes 4 RGTC compressed texture formats.
+	 * Exposes 4 RGTC compressed texture formats. Support depends on the system's graphics driver. Not supported by Windows.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/EXT_texture_compression_rgtc | EXT_texture_compression_rgtc}
-	 * @deprecated Support depends on the system's graphics driver. Not supported by Windows.
 	 */
 	TextureCompressionRgtc = "EXT_texture_compression_rgtc",
 
@@ -155,9 +153,8 @@ enum Extension {
 	VertexArrayObject = "OES_vertex_array_object",
 
 	/**
-	 * Adds support for rendering into multiple views simultaneously.
+	 * Adds support for rendering into multiple views simultaneously. Support depends on the system's graphics driver.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/OVR_multiview2 | OVR_multiview2}
-	 * @deprecated Support depends on the system's graphics driver.
 	 */
 	Multiview2 = "OVR_multiview2",
 
@@ -169,9 +166,8 @@ enum Extension {
 	WebglColorBufferFloat = "WEBGL_color_buffer_float",
 
 	/**
-	 * Exposes adaptive scalable texture compression compressed texture formats to WebGL.
+	 * Exposes adaptive scalable texture compression compressed texture formats to WebGL. Typically available only on Mali ARM GPUs, Intel GPUs, and NVIDIA Tegra chips.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_compressed_texture_astc | WEBGL_compressed_texture_astc}
-	 * @deprecated Typically available only on Mali ARM GPUs, Intel GPUs, and NVIDIA Tegra chips.
 	 */
 	CompressedTextureAstc = "WEBGL_compressed_texture_astc",
 
@@ -188,9 +184,8 @@ enum Extension {
 	CompressedTextureEtc1 = "WEBGL_compressed_texture_etc1",
 
 	/**
-	 * Exposes four PVRTC compressed texture formats.
+	 * Exposes four PVRTC compressed texture formats. Typically only available on mobile devices with PowerVR chipsets.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_compressed_texture_pvrtc | WEBGL_compressed_texture_pvrtc}
-	 * @deprecated Typically only available on mobile devices with PowerVR chipsets.
 	 */
 	CompressedTexturePvrtc = "WEBGL_compressed_texture_pvrtc",
 
@@ -207,16 +202,14 @@ enum Extension {
 	CompressedTextureS3tcSrgb = "WEBGL_compressed_texture_s3tc_srgb",
 
 	/**
-	 * Exposes two constants with information about the graphics driver for debugging purposes.
+	 * Exposes two constants with information about the graphics driver for debugging purposes. Might not be available depending on the privacy settings of the browser.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_debug_renderer_info | WEBGL_debug_renderer_info}
-	 * @deprecated Might not be available depending on the privacy settings of the browser.
 	 */
 	DebugRendererInfo = "WEBGL_debug_renderer_info",
 
 	/**
-	 * Exposes a method to debug shaders from priveliged contexts.
+	 * Exposes a method to debug shaders from priveliged contexts. Might not be available depending on the privacy settings of the browser.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_debug_shaders | WEBGL_debug_shaders}
-	 * @deprecated Might not be available depending on the privacy settings of the browser.
 	 */
 	DebugShaders = "WEBGL_debug_shaders",
 
