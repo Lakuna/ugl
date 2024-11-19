@@ -1,7 +1,7 @@
+import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
-import GlBuffer from "./GlBuffer.js";
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 
 /**
@@ -9,7 +9,7 @@ import getParameterForBufferTarget from "../../utility/internal/getParameterForB
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class Vbo extends GlBuffer {
+export default class VertexBuffer extends Buffer {
 	/**
 	 * The currently-bound buffer cache.
 	 * @internal
@@ -25,7 +25,7 @@ export default class Vbo extends GlBuffer {
 	 * @internal
 	 */
 	private static getBindingsCache() {
-		return (Vbo.bindingsCache ??= new Map());
+		return (VertexBuffer.bindingsCache ??= new Map());
 	}
 
 	/**
@@ -36,7 +36,7 @@ export default class Vbo extends GlBuffer {
 	 */
 	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
 		// Get the full bindings cache.
-		const bindingsCache = Vbo.getBindingsCache();
+		const bindingsCache = VertexBuffer.getBindingsCache();
 
 		// Get the context bindings cache.
 		let contextBindingsCache = bindingsCache.get(gl);
@@ -57,7 +57,7 @@ export default class Vbo extends GlBuffer {
 	 */
 	public static getBound(gl: WebGL2RenderingContext, target: BufferTarget) {
 		// Get the context bindings cache.
-		const contextBindingsCache = Vbo.getContextBindingsCache(gl);
+		const contextBindingsCache = VertexBuffer.getContextBindingsCache(gl);
 
 		// Get the bound buffer.
 		let boundBuffer = contextBindingsCache.get(target);
@@ -84,12 +84,12 @@ export default class Vbo extends GlBuffer {
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Vbo.getBound(gl, target) === buffer) {
+		if (VertexBuffer.getBound(gl, target) === buffer) {
 			return;
 		}
 
 		// Get the context bindings cache.
-		const contextBindingsCache = Vbo.getContextBindingsCache(gl);
+		const contextBindingsCache = VertexBuffer.getContextBindingsCache(gl);
 
 		// Unbind the buffer from all other targets.
 		if (buffer !== null) {
@@ -121,12 +121,12 @@ export default class Vbo extends GlBuffer {
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (buffer && Vbo.getBound(gl, target) !== buffer) {
+		if (buffer && VertexBuffer.getBound(gl, target) !== buffer) {
 			return;
 		}
 
 		// Unbind the buffer.
-		Vbo.bindGl(gl, target, null);
+		VertexBuffer.bindGl(gl, target, null);
 	}
 
 	/**
@@ -159,7 +159,7 @@ export default class Vbo extends GlBuffer {
 			this.target = target;
 		}
 
-		Vbo.bindGl(this.gl, this.target, this.internal);
+		VertexBuffer.bindGl(this.gl, this.target, this.internal);
 	}
 
 	/**
@@ -167,6 +167,6 @@ export default class Vbo extends GlBuffer {
 	 * @internal
 	 */
 	public override unbind() {
-		Vbo.unbindGl(this.gl, this.target, this.internal);
+		VertexBuffer.unbindGl(this.gl, this.target, this.internal);
 	}
 }

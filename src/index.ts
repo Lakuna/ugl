@@ -26,9 +26,9 @@ export { default as VariableType } from "./constants/VariableType.js";
 export { default as WrapMode } from "./constants/WrapMode.js";
 
 // Core - Buffers
-export { default as Ebo } from "./core/buffers/Ebo.js";
-export { default as GlBuffer } from "./core/buffers/GlBuffer.js";
-export { default as Vbo } from "./core/buffers/Vbo.js";
+export { default as Buffer } from "./core/buffers/Buffer.js";
+export { default as ElementBuffer } from "./core/buffers/ElementBuffer.js";
+export { default as VertexBuffer } from "./core/buffers/VertexBuffer.js";
 
 // Core - Internal
 export { default as ApiInterface } from "./core/internal/ApiInterface.js";
@@ -53,7 +53,7 @@ export { default as Framebuffer } from "./core/Framebuffer.js";
 export { default as Program } from "./core/Program.js";
 export { default as Renderbuffer } from "./core/Renderbuffer.js";
 export { default as Shader } from "./core/Shader.js";
-export { default as Vao } from "./core/Vao.js";
+export { default as VertexArray } from "./core/VertexArray.js";
 
 // Types
 export type { AttributeMap } from "./types/AttributeMap.js";

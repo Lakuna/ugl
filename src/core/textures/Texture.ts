@@ -30,7 +30,7 @@ import TextureFormat from "../../constants/TextureFormat.js";
 import TextureFormatError from "../../utility/TextureFormatError.js";
 import type TextureTarget from "../../constants/TextureTarget.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
-import Vbo from "../buffers/Vbo.js";
+import VertexBuffer from "../buffers/VertexBuffer.js";
 import type WrapMode from "../../constants/WrapMode.js";
 import getExtensionForTextureFormat from "../../utility/internal/getExtensionForTextureFormat.js";
 import getMipmapTargetForCubeFace from "../../utility/internal/getMipmapTargetForCubeFace.js";
@@ -615,7 +615,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
-		buffer: Vbo,
+		buffer: VertexBuffer,
 		level: number | undefined,
 		face: CubeFace | undefined,
 		bounds: Prism | Rectangle | undefined,
@@ -668,7 +668,7 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	public setMip(
-		data?: Framebuffer | null | Vbo | TexImageSource | ArrayBufferView,
+		data?: Framebuffer | null | VertexBuffer | TexImageSource | ArrayBufferView,
 		requestedLevel?: number,
 		face?: CubeFace,
 		requestedBounds?: Prism | Rectangle,
@@ -744,7 +744,7 @@ export default abstract class Texture extends ContextDependent {
 			}
 
 			this.setMipFromFramebuffer(target, level, bounds, data, shape1);
-		} else if (data instanceof Vbo) {
+		} else if (data instanceof VertexBuffer) {
 			if (typeof shape1 !== "number" || typeof shape2 !== "number") {
 				// Not possible if TypeScript is obeyed.
 				throw new TypeError(
@@ -852,7 +852,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
-		buffer: Vbo,
+		buffer: VertexBuffer,
 		size: number,
 		offset: number
 	): void;

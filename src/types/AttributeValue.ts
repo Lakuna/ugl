@@ -1,4 +1,4 @@
-import type Vbo from "../core/buffers/Vbo.js";
+import type VertexBuffer from "../core/buffers/VertexBuffer.js";
 
 /**
  * An object that contains information about how to read the data in a buffer.
@@ -6,7 +6,7 @@ import type Vbo from "../core/buffers/Vbo.js";
  */
 export default interface AttributeValue {
 	/** The vertex buffer object to pull components from. */
-	readonly vbo: Vbo;
+	readonly vbo: VertexBuffer;
 
 	/** The number of components to read per vertex attribute. Three components are read per vertex attribute if this is not defined.  */
 	readonly size?: 1 | 2 | 3 | 4;

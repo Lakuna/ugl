@@ -2,7 +2,7 @@ import type { AttributeMap } from "../types/AttributeMap.js";
 import type AttributeValue from "../types/AttributeValue.js";
 import BadValueError from "../utility/BadValueError.js";
 import ContextDependent from "./internal/ContextDependent.js";
-import Ebo from "./buffers/Ebo.js";
+import ElementBuffer from "./buffers/ElementBuffer.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
 import Primitive from "../constants/Primitive.js";
@@ -10,7 +10,7 @@ import type Program from "./Program.js";
 import type { UniformMap } from "../types/UniformMap.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
-import type Vbo from "./buffers/Vbo.js";
+import type VertexBuffer from "./buffers/VertexBuffer.js";
 import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 
 /**
@@ -18,7 +18,7 @@ import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject | WebGLVertexArrayObject}
  * @public
  */
-export default class Vao extends ContextDependent {
+export default class VertexArray extends ContextDependent {
 	/**
 	 * The currently-bound VAO cache.
 	 * @internal
@@ -34,7 +34,7 @@ export default class Vao extends ContextDependent {
 	 * @internal
 	 */
 	private static getBindingsCache() {
-		return (Vao.bindingsCache ??= new Map());
+		return (VertexArray.bindingsCache ??= new Map());
 	}
 
 	/**
@@ -44,7 +44,7 @@ export default class Vao extends ContextDependent {
 	 */
 	public static getBound(gl: WebGL2RenderingContext) {
 		// Get the full bindings cache.
-		const bindingsCache = Vao.getBindingsCache();
+		const bindingsCache = VertexArray.getBindingsCache();
 
 		// Get the bound VAO.
 		let boundVao = bindingsCache.get(gl);
@@ -69,13 +69,13 @@ export default class Vao extends ContextDependent {
 		vao: WebGLVertexArrayObject | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Vao.getBound(gl) === vao) {
+		if (VertexArray.getBound(gl) === vao) {
 			return;
 		}
 
 		// Bind the VAO.
 		gl.bindVertexArray(vao);
-		Vao.getBindingsCache().set(gl, vao);
+		VertexArray.getBindingsCache().set(gl, vao);
 	}
 
 	/**
@@ -89,12 +89,12 @@ export default class Vao extends ContextDependent {
 		vao?: WebGLVertexArrayObject
 	) {
 		// Do nothing if the VAO is already unbound.
-		if (vao && Vao.getBound(gl) !== vao) {
+		if (vao && VertexArray.getBound(gl) !== vao) {
 			return;
 		}
 
 		// Unbind the VAO.
-		Vao.bindGl(gl, null);
+		VertexArray.bindGl(gl, null);
 	}
 
 	/**
@@ -106,7 +106,11 @@ export default class Vao extends ContextDependent {
 	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
-	public constructor(program: Program, attributes?: AttributeMap, ebo?: Ebo) {
+	public constructor(
+		program: Program,
+		attributes?: AttributeMap,
+		ebo?: ElementBuffer
+	) {
 		super(program.context);
 		this.program = program;
 
@@ -157,7 +161,10 @@ export default class Vao extends ContextDependent {
 	 * @param value - The value to pass to the attribute.
 	 * @throws {@link BadValueError} if an unknown attribute is specified.
 	 */
-	public setAttribute(name: string, value: AttributeValue | Vbo): void {
+	public setAttribute(
+		name: string,
+		value: AttributeValue | VertexBuffer
+	): void {
 		const attribute = this.program.attributes.get(name);
 		if (!attribute) {
 			throw new BadValueError(`No attribute named \`${name}\`.`);
@@ -172,10 +179,10 @@ export default class Vao extends ContextDependent {
 	 * The element buffer object of this VAO.
 	 * @internal
 	 */
-	private eboCache?: Ebo;
+	private eboCache?: ElementBuffer;
 
 	/** The element buffer object that is attached to this VAO. */
-	public get ebo(): Ebo | undefined {
+	public get ebo(): ElementBuffer | undefined {
 		return this.eboCache;
 	}
 
@@ -184,7 +191,7 @@ export default class Vao extends ContextDependent {
 
 		// Remove EBO.
 		if (!value) {
-			Ebo.unbindGl(this.gl, this.internal);
+			ElementBuffer.unbindGl(this.gl, this.internal);
 			delete this.eboCache;
 			return;
 		}
@@ -278,7 +285,7 @@ export default class Vao extends ContextDependent {
 	 * @internal
 	 */
 	public bind() {
-		Vao.bindGl(this.gl, this.internal);
+		VertexArray.bindGl(this.gl, this.internal);
 	}
 
 	/**
@@ -286,6 +293,6 @@ export default class Vao extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		Vao.unbindGl(this.gl, this.internal);
+		VertexArray.unbindGl(this.gl, this.internal);
 	}
 }

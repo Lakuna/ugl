@@ -1,9 +1,9 @@
 import type AttributeValue from "../../../types/AttributeValue.js";
 import BufferTarget from "../../../constants/BufferTarget.js";
 import type Program from "../../Program.js";
-import Vao from "../../Vao.js";
 import Variable from "../Variable.js";
-import type Vbo from "../../buffers/Vbo.js";
+import VertexArray from "../../VertexArray.js";
+import type VertexBuffer from "../../buffers/VertexBuffer.js";
 
 /**
  * An input variable for a vertex shader.
@@ -54,7 +54,7 @@ export default abstract class Attribute extends Variable {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray | disableVertexAttribArray}
 	 */
 	public get enabled(): boolean {
-		const vao = Vao.getBound(this.gl);
+		const vao = VertexArray.getBound(this.gl);
 		if (vao === null) {
 			return false;
 		}
@@ -67,7 +67,7 @@ export default abstract class Attribute extends Variable {
 			return;
 		}
 
-		const vao = Vao.getBound(this.gl);
+		const vao = VertexArray.getBound(this.gl);
 
 		// Enable.
 		if (value) {
@@ -101,7 +101,7 @@ export default abstract class Attribute extends Variable {
 	 * @param value - The new value for this attribute.
 	 * @internal
 	 */
-	public setValue(value: AttributeValue | Vbo | undefined): void {
+	public setValue(value: AttributeValue | VertexBuffer | undefined): void {
 		if (!value) {
 			this.enabled = false;
 			delete this.valueCache;

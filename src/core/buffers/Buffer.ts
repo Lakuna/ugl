@@ -11,7 +11,7 @@ import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTyped
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default abstract class GlBuffer extends ContextDependent {
+export default abstract class Buffer extends ContextDependent {
 	/**
 	 * Create a buffer.
 	 * @param context - The rendering context.

@@ -1,16 +1,16 @@
+import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
-import GlBuffer from "./GlBuffer.js";
-import Vao from "../Vao.js";
+import VertexArray from "../VertexArray.js";
 
 /**
  * An array of binary data to be used as an element buffer object. Must contain unsigned integers.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class Ebo extends GlBuffer {
+export default class ElementBuffer extends Buffer {
 	/**
 	 * The currently-bound element array buffer cache.
 	 * @internal
@@ -26,7 +26,7 @@ export default class Ebo extends GlBuffer {
 	 * @internal
 	 */
 	private static getBindingsCache() {
-		return (Ebo.bindingsCache ??= new Map());
+		return (ElementBuffer.bindingsCache ??= new Map());
 	}
 
 	/**
@@ -41,12 +41,12 @@ export default class Ebo extends GlBuffer {
 		vao: WebGLVertexArrayObject | null
 	) {
 		// Get the buffer bindings cache.
-		const bindingsCache = Ebo.getBindingsCache();
+		const bindingsCache = ElementBuffer.getBindingsCache();
 
 		// Get the bound buffer.
 		let boundBuffer = bindingsCache.get(vao);
 		if (typeof boundBuffer === "undefined") {
-			Vao.bindGl(gl, vao);
+			VertexArray.bindGl(gl, vao);
 			boundBuffer = gl.getParameter(
 				ELEMENT_ARRAY_BUFFER_BINDING
 			) as WebGLBuffer | null;
@@ -69,16 +69,16 @@ export default class Ebo extends GlBuffer {
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Ebo.getBound(gl, vao) === buffer) {
+		if (ElementBuffer.getBound(gl, vao) === buffer) {
 			return;
 		}
 
 		// Bind the VAO.
-		Vao.bindGl(gl, vao);
+		VertexArray.bindGl(gl, vao);
 
 		// Bind the buffer to the target.
 		gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
-		Ebo.getBindingsCache().set(vao, buffer);
+		ElementBuffer.getBindingsCache().set(vao, buffer);
 	}
 
 	/**
@@ -94,12 +94,12 @@ export default class Ebo extends GlBuffer {
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (buffer && Ebo.getBound(gl, vao) !== buffer) {
+		if (buffer && ElementBuffer.getBound(gl, vao) !== buffer) {
 			return;
 		}
 
 		// Unbind the buffer.
-		Ebo.bindGl(gl, vao, null);
+		ElementBuffer.bindGl(gl, vao, null);
 	}
 
 	/**
@@ -118,7 +118,7 @@ export default class Ebo extends GlBuffer {
 		offset = 0
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
-		Vao.unbindGl(context.gl);
+		VertexArray.unbindGl(context.gl);
 
 		super(
 			context,
@@ -135,8 +135,12 @@ export default class Ebo extends GlBuffer {
 	 * @param vao - The new VAO to bind to. or `undefined` to bind to the currently-bound VAO.
 	 * @internal
 	 */
-	public override bind(vao?: Vao) {
-		Ebo.bindGl(this.gl, vao?.internal ?? Vao.getBound(this.gl), this.internal);
+	public override bind(vao?: VertexArray) {
+		ElementBuffer.bindGl(
+			this.gl,
+			vao?.internal ?? VertexArray.getBound(this.gl),
+			this.internal
+		);
 	}
 
 	/**
@@ -144,10 +148,10 @@ export default class Ebo extends GlBuffer {
 	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the currently-bound VAO.
 	 * @internal
 	 */
-	public override unbind(vao?: Vao) {
-		Ebo.unbindGl(
+	public override unbind(vao?: VertexArray) {
+		ElementBuffer.unbindGl(
 			this.gl,
-			vao?.internal ?? Vao.getBound(this.gl),
+			vao?.internal ?? VertexArray.getBound(this.gl),
 			this.internal
 		);
 	}

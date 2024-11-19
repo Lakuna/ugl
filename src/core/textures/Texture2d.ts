@@ -10,7 +10,7 @@ import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import type TextureDataType from "../../constants/TextureDataType.js";
 import type TextureFormat from "../../constants/TextureFormat.js";
 import TextureTarget from "../../constants/TextureTarget.js";
-import type Vbo from "../buffers/Vbo.js";
+import type VertexBuffer from "../buffers/VertexBuffer.js";
 import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataFormatCompressed.js";
 
 /**
@@ -242,7 +242,7 @@ export default class Texture2d extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
-		buffer: Vbo,
+		buffer: VertexBuffer,
 		size: number,
 		offset: number
 	): void {
