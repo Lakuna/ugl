@@ -36,14 +36,14 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.14.0",
+		"@eslint/js": "^9.15.0",
 		"@types/eslint": "^9.6.1",
 		"@types/eslint__js": "^8.42.3",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.11",
 		"@types/webxr": "^0.5.20",
-		"eslint": "^9.14.0",
+		"eslint": "^9.15.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-prettier": "^5.2.1",
 		"eslint-plugin-tsdoc": "^0.3.0",
@@ -52,7 +52,7 @@
 		"prettier": "^3.3.3",
 		"typedoc": "^0.26.11",
 		"typescript": "^5.6.3",
-		"typescript-eslint": "^8.13.0"
+		"typescript-eslint": "^8.15.0"
 	},
 	"exports": "./dist/index.js",
 	"typings": "./dist/index.d.ts",
