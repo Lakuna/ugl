@@ -62,7 +62,7 @@ export default class Framebuffer extends ContextDependent {
 
 		// Get the context bindings cache.
 		let contextBindingsCache = bindingsCache.get(gl);
-		if (typeof contextBindingsCache === "undefined") {
+		if (!contextBindingsCache) {
 			contextBindingsCache = new Map();
 			bindingsCache.set(gl, contextBindingsCache);
 		}
@@ -152,10 +152,7 @@ export default class Framebuffer extends ContextDependent {
 		framebuffer?: WebGLFramebuffer
 	) {
 		// Do nothing if the framebuffer is already unbound.
-		if (
-			typeof framebuffer !== "undefined" &&
-			Framebuffer.getBound(gl, target) !== framebuffer
-		) {
+		if (framebuffer && Framebuffer.getBound(gl, target) !== framebuffer) {
 			return;
 		}
 
@@ -236,7 +233,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public bind(target?: FramebufferTarget) {
-		if (typeof target !== "undefined") {
+		if (target) {
 			this.target = target;
 		}
 
@@ -260,13 +257,13 @@ export default class Framebuffer extends ContextDependent {
 	/** The width of this framebuffer. */
 	public get width(): number {
 		const [firstAttachment] = this.attachmentsCache;
-		return typeof firstAttachment === "undefined" ? 0 : firstAttachment.width;
+		return firstAttachment ? firstAttachment.width : 0;
 	}
 
 	/** The height of this framebuffer. */
 	public get height(): number {
 		const [firstAttachment] = this.attachmentsCache;
-		return typeof firstAttachment === "undefined" ? 0 : firstAttachment.height;
+		return firstAttachment ? firstAttachment.height : 0;
 	}
 
 	/**
@@ -384,10 +381,9 @@ export default class Framebuffer extends ContextDependent {
 			);
 		} else {
 			// Get the mipmap binding point of the specified face. `undefined` means that a `Texture2d` is being used.
-			const mipmapTarget =
-				typeof face === "undefined"
-					? MipmapTarget.TEXTURE_2D
-					: getMipmapTargetForCubeFace(face);
+			const mipmapTarget = face
+				? getMipmapTargetForCubeFace(face)
+				: MipmapTarget.TEXTURE_2D;
 
 			// Attach an entire texture.
 			this.gl.framebufferTexture2D(
@@ -493,10 +489,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		// Compare the reordered input to the cached value.
-		if (
-			typeof this.drawBuffers !== "undefined" &&
-			this.drawBuffers.length === realValue.length
-		) {
+		if (this.drawBuffers.length === realValue.length) {
 			let matches = true;
 			for (let i = 0; i < realValue.length; i++) {
 				if (this.drawBuffers[i] !== realValue[i]) {

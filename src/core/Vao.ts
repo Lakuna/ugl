@@ -89,7 +89,7 @@ export default class Vao extends ContextDependent {
 		vao?: WebGLVertexArrayObject
 	) {
 		// Do nothing if the VAO is already unbound.
-		if (typeof vao !== "undefined" && Vao.getBound(gl) !== vao) {
+		if (vao && Vao.getBound(gl) !== vao) {
 			return;
 		}
 
@@ -126,7 +126,7 @@ export default class Vao extends ContextDependent {
 			}
 
 			const value = attributes[name];
-			if (typeof value === "undefined") {
+			if (!value) {
 				throw new BadValueError("Cannot pass `undefined` to an attribute.");
 			}
 			this.setAttribute(name, value);
@@ -159,7 +159,7 @@ export default class Vao extends ContextDependent {
 	 */
 	public setAttribute(name: string, value: AttributeValue | Vbo): void {
 		const attribute = this.program.attributes.get(name);
-		if (typeof attribute === "undefined") {
+		if (!attribute) {
 			throw new BadValueError(`No attribute named \`${name}\`.`);
 		}
 
@@ -183,7 +183,7 @@ export default class Vao extends ContextDependent {
 		this.bind();
 
 		// Remove EBO.
-		if (typeof value === "undefined") {
+		if (!value) {
 			Ebo.unbindGl(this.gl, this.internal);
 			delete this.eboCache;
 			return;
@@ -225,14 +225,14 @@ export default class Vao extends ContextDependent {
 		this.program.bind();
 
 		// Set uniforms.
-		if (typeof uniforms !== "undefined") {
+		if (uniforms) {
 			for (const name in uniforms) {
 				if (!Object.hasOwn(uniforms, name)) {
 					continue;
 				}
 
 				const uniform = this.program.uniforms.get(name);
-				if (typeof uniform === "undefined") {
+				if (!uniform) {
 					throw new BadValueError(`No uniform named \`${name}\`.`);
 				}
 				const value = uniforms[name];
@@ -247,20 +247,12 @@ export default class Vao extends ContextDependent {
 		this.bind();
 
 		// Rasterize.
-		if (typeof this.ebo === "undefined") {
+		if (!this.ebo) {
 			// No EBO; must determine the proper number of elements to rasterize.
-			let firstAttribute: AttributeValue | undefined = void 0;
-			for (const value of this.attributeCache.values()) {
-				if (typeof value === "undefined") {
-					continue;
-				}
-
-				firstAttribute = value;
-				break;
-			}
+			const [firstAttribute] = this.attributeCache.values();
 
 			// No attributes; just return since nothing would be rasterized anyway.
-			if (typeof firstAttribute === "undefined") {
+			if (!firstAttribute) {
 				return;
 			}
 

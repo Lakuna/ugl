@@ -114,7 +114,7 @@ export default class Context extends ApiInterface {
 			Context
 		>;
 		const existingContext = existingContexts.get(source);
-		if (typeof existingContext !== "undefined") {
+		if (existingContext) {
 			return existingContext;
 		}
 
@@ -158,12 +158,17 @@ export default class Context extends ApiInterface {
 			super(source);
 		} else {
 			const gl = source.getContext("webgl2", options);
-			// Second clause is necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`.
-			if (gl === null || !(gl instanceof WebGL2RenderingContext)) {
+			if (!gl) {
 				throw new UnsupportedOperationError(
 					"The environment does not support WebGL2."
 				);
 			}
+
+			// TODO: This block is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
+			if (!(gl instanceof WebGL2RenderingContext)) {
+				throw new Error();
+			}
+
 			super(gl);
 		}
 
@@ -263,7 +268,6 @@ export default class Context extends ApiInterface {
 
 	public set blendColor(value) {
 		if (
-			typeof this.blendColor !== "undefined" &&
 			this.blendColor[0] === value[0] &&
 			this.blendColor[1] === value[1] &&
 			this.blendColor[2] === value[2] &&
@@ -306,11 +310,7 @@ export default class Context extends ApiInterface {
 	public set blendEquation(value: BlendEquation | BlendEquationSet) {
 		// One value.
 		if (typeof value === "number") {
-			if (
-				typeof this.blendEquation !== "undefined" &&
-				this.blendEquation[0] === value &&
-				this.blendEquation[1] === value
-			) {
+			if (this.blendEquation[0] === value && this.blendEquation[1] === value) {
 				return;
 			}
 
@@ -324,7 +324,6 @@ export default class Context extends ApiInterface {
 
 		// Set of values.
 		if (
-			typeof this.blendEquation !== "undefined" &&
 			this.blendEquation[0] === value[0] &&
 			this.blendEquation[1] === value[1]
 		) {
@@ -406,7 +405,6 @@ export default class Context extends ApiInterface {
 		// Full set.
 		if (2 in value) {
 			if (
-				typeof this.blendFunction !== "undefined" &&
 				this.blendFunction[0] === value[0] &&
 				this.blendFunction[1] === value[1] &&
 				this.blendFunction[2] === value[2] &&
@@ -429,7 +427,6 @@ export default class Context extends ApiInterface {
 
 		// Half set.
 		if (
-			typeof this.blendFunction !== "undefined" &&
 			this.blendFunction[0] === value[0] &&
 			this.blendFunction[1] === value[1] &&
 			this.blendFunction[2] === value[0] &&
@@ -503,7 +500,6 @@ export default class Context extends ApiInterface {
 
 	public set clearColor(value) {
 		if (
-			typeof this.clearColor !== "undefined" &&
 			this.clearColor[0] === value[0] &&
 			this.clearColor[1] === value[1] &&
 			this.clearColor[2] === value[2] &&
@@ -579,7 +575,6 @@ export default class Context extends ApiInterface {
 
 	public set colorMask(value) {
 		if (
-			typeof this.colorMask !== "undefined" &&
 			this.colorMask[0] === value[0] &&
 			this.colorMask[1] === value[1] &&
 			this.colorMask[2] === value[2] &&
@@ -835,7 +830,6 @@ export default class Context extends ApiInterface {
 
 	public set scissorBox(value) {
 		if (
-			typeof this.scissorBox !== "undefined" &&
 			this.scissorBox[0] === value[0] &&
 			this.scissorBox[1] === value[1] &&
 			this.scissorBox[2] === value[2] &&
@@ -856,7 +850,7 @@ export default class Context extends ApiInterface {
 
 	/** The maximum dimensions of the viewport. */
 	public get maxViewportDims(): Rectangle {
-		if (typeof this.maxViewportDimsCache === "undefined") {
+		if (!this.maxViewportDimsCache) {
 			const dims = this.gl.getParameter(MAX_VIEWPORT_DIMS) as [number, number];
 			this.maxViewportDimsCache = new Int32Array([
 				0,
@@ -886,7 +880,6 @@ export default class Context extends ApiInterface {
 
 	public set viewport(value) {
 		if (
-			typeof this.viewport !== "undefined" &&
 			this.viewport[0] === value[0] &&
 			this.viewport[1] === value[1] &&
 			this.viewport[2] === value[2] &&
@@ -952,7 +945,6 @@ export default class Context extends ApiInterface {
 
 	public set frontStencil(value) {
 		if (
-			typeof this.frontStencil !== "undefined" &&
 			this.frontStencil[0] === value[0] &&
 			this.frontStencil[1] === value[1] &&
 			this.frontStencil[2] === value[2]
@@ -983,7 +975,6 @@ export default class Context extends ApiInterface {
 
 	public set backStencil(value) {
 		if (
-			typeof this.backStencil !== "undefined" &&
 			this.backStencil[0] === value[0] &&
 			this.backStencil[1] === value[1] &&
 			this.backStencil[2] === value[2]
@@ -1004,11 +995,9 @@ export default class Context extends ApiInterface {
 
 	public set stencil(value) {
 		if (
-			typeof this.frontStencil !== "undefined" &&
 			this.frontStencil[0] === value[0] &&
 			this.frontStencil[1] === value[1] &&
 			this.frontStencil[2] === value[2] &&
-			typeof this.backStencil !== "undefined" &&
 			this.backStencil[0] === value[0] &&
 			this.backStencil[1] === value[1] &&
 			this.backStencil[2] === value[2]
@@ -1153,10 +1142,9 @@ export default class Context extends ApiInterface {
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 */
 	public fitViewport(framebuffer?: Framebuffer): void {
-		this.viewport =
-			typeof framebuffer === "undefined"
-				? [0, 0, this.canvas.width, this.canvas.height]
-				: [0, 0, framebuffer.width, framebuffer.height];
+		this.viewport = framebuffer
+			? [0, 0, framebuffer.width, framebuffer.height]
+			: [0, 0, this.canvas.width, this.canvas.height];
 	}
 
 	/**
@@ -1178,10 +1166,10 @@ export default class Context extends ApiInterface {
 	public resize(shape?: Rectangle | Framebuffer): boolean {
 		const out = this.fitDrawingBuffer();
 
-		if (typeof shape === "undefined" || shape instanceof Framebuffer) {
-			this.fitViewport(shape);
-		} else {
+		if (shape && 0 in shape) {
 			this.viewport = shape;
+		} else {
+			this.fitViewport(shape);
 		}
 
 		return out;

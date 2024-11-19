@@ -40,7 +40,7 @@ export default class Vbo extends GlBuffer {
 
 		// Get the context bindings cache.
 		let contextBindingsCache = bindingsCache.get(gl);
-		if (typeof contextBindingsCache === "undefined") {
+		if (!contextBindingsCache) {
 			contextBindingsCache = new Map();
 			bindingsCache.set(gl, contextBindingsCache);
 		}
@@ -121,7 +121,7 @@ export default class Vbo extends GlBuffer {
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (typeof buffer !== "undefined" && Vbo.getBound(gl, target) !== buffer) {
+		if (buffer && Vbo.getBound(gl, target) !== buffer) {
 			return;
 		}
 
@@ -155,7 +155,7 @@ export default class Vbo extends GlBuffer {
 	 * @internal
 	 */
 	public override bind(target?: BufferTarget) {
-		if (typeof target !== "undefined") {
+		if (target) {
 			this.target = target;
 		}
 

@@ -94,7 +94,7 @@ export default class Ebo extends GlBuffer {
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (typeof buffer !== "undefined" && Ebo.getBound(gl, vao) !== buffer) {
+		if (buffer && Ebo.getBound(gl, vao) !== buffer) {
 			return;
 		}
 

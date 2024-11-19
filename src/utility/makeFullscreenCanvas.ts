@@ -19,7 +19,7 @@ const recursiveFullscreen = (element: HTMLElement) => {
  * @public
  */
 export default function makeFullscreenCanvas(): HTMLCanvasElement {
-	if (typeof document === "undefined") {
+	if (!(document as Document | undefined)) {
 		throw new UnsupportedOperationError(
 			"Cannot make a fullscreen canvas in a headless environment."
 		);

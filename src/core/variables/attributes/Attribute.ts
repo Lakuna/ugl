@@ -102,7 +102,7 @@ export default abstract class Attribute extends Variable {
 	 * @internal
 	 */
 	public setValue(value: AttributeValue | Vbo | undefined): void {
-		if (typeof value === "undefined") {
+		if (!value) {
 			this.enabled = false;
 			delete this.valueCache;
 			return;

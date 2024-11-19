@@ -59,7 +59,7 @@ export default class Texture2dArray extends Texture {
 	) {
 		if (
 			typeof levels === "undefined" ||
-			typeof format === "undefined" ||
+			!format ||
 			typeof width === "undefined" ||
 			typeof height === "undefined" ||
 			typeof depth === "undefined"
@@ -137,10 +137,10 @@ export default class Texture2dArray extends Texture {
 		}
 
 		// Bind the framebuffer.
-		if (typeof framebuffer === "undefined" || framebuffer === null) {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
-		} else {
+		if (framebuffer) {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		} else {
+			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		}
 
 		// Since a 2D framebuffer is being copied to a 3D texture, only a portion of the texture can be updated (resizing the texture is not possible).

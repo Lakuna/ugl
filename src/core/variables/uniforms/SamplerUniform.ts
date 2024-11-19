@@ -11,7 +11,7 @@ export default class SamplerUniform extends IntegerUniform {
 	 */
 	public override iterableSetter(value: Iterable<number> | Iterable<Texture>) {
 		const textureUnits = [];
-		for (const texture of value as Iterable<Texture>) {
+		for (const texture of value) {
 			// If a texture unit was passed, just fall back to integer behavior.
 			if (typeof texture === "number") {
 				super.iterableSetter(value as Iterable<number>);

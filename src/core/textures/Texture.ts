@@ -99,7 +99,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Get the texture unit bindings cache.
 		let textureUnitBindingsCache = contextBindingsCache[textureUnit];
-		if (typeof textureUnitBindingsCache === "undefined") {
+		if (!textureUnitBindingsCache) {
 			textureUnitBindingsCache = new Map();
 			contextBindingsCache[textureUnit] = textureUnitBindingsCache;
 		}
@@ -137,7 +137,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Get the context binding overwrite order.
 		let contextBindingOverwriteOrder = bindingOverwriteOrder.get(gl);
-		if (typeof contextBindingOverwriteOrder === "undefined") {
+		if (!contextBindingOverwriteOrder) {
 			contextBindingOverwriteOrder = new Map();
 			bindingOverwriteOrder.set(gl, contextBindingOverwriteOrder);
 		}
@@ -184,7 +184,7 @@ export default abstract class Texture extends ContextDependent {
 		texture?: WebGLTexture | null
 	) {
 		// Check if the texture is already bound.
-		if (typeof texture !== "undefined" && texture !== null) {
+		if (texture) {
 			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
 				if (Texture.getBound(context, i, target) === texture) {
 					return i;
@@ -321,7 +321,7 @@ export default abstract class Texture extends ContextDependent {
 		if (typeof textureUnit === "number") {
 			// If a specific texture is given, only unbind that texture.
 			if (
-				typeof texture !== "undefined" &&
+				texture &&
 				Texture.getBound(context, textureUnit, target) !== texture
 			) {
 				return;
@@ -390,11 +390,7 @@ export default abstract class Texture extends ContextDependent {
 		this.mipmaps = new Map();
 		this.dims = [];
 		this.isImmutableFormatCache = false;
-		if (
-			typeof levels !== "undefined" &&
-			typeof format !== "undefined" &&
-			typeof dims !== "undefined"
-		) {
+		if (typeof levels === "number" && format && dims) {
 			this.makeImmutableFormat(levels, format, dims);
 		}
 	}
@@ -429,7 +425,7 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public get format(): TextureFormat {
 		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
-		if (typeof this.formatCache === "undefined") {
+		if (!this.formatCache) {
 			this.formatCache = TextureFormat.RGBA;
 		}
 
@@ -696,7 +692,7 @@ export default abstract class Texture extends ContextDependent {
 		// Ensure that the specified bounds (if any) are no bigger than the mip.
 		const mipDims = this.getSizeOfMip(level);
 		let bounds = requestedBounds;
-		if (typeof bounds === "undefined") {
+		if (!bounds) {
 			// Default to the entire mip for immutable-format textures. For mutable-format textures, `texImage[23]D` can be used (no bounds needed).
 			if (this.isImmutableFormat || level > 0) {
 				bounds = [0, 0, mipDims[0] ?? 0, mipDims[1] ?? 0, 0, mipDims[2] ?? 0];
@@ -715,9 +711,9 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Update the unpack alignment.
-		if (typeof unpackAlignment === "number") {
+		if (unpackAlignment) {
 			this.context.unpackAlignment = unpackAlignment;
-		} else if (typeof bounds === "undefined") {
+		} else if (!bounds) {
 			this.context.unpackAlignment = 1; // Most likely value to be able to unpack data with an unknown size.
 		} else if (bounds[3] > 1 || (4 in bounds && bounds[5] > 1)) {
 			// Unpack alignment doesn't matter if there is only one row of data.
@@ -769,9 +765,9 @@ export default abstract class Texture extends ContextDependent {
 				shape1,
 				shape2
 			);
-		} else if (typeof data !== "undefined" && "buffer" in data) {
+		} else if (data && "buffer" in data) {
 			if (
-				(typeof shape1 !== "number" && typeof shape1 !== "undefined") ||
+				(shape1 && typeof shape1 !== "number") ||
 				typeof shape2 === "boolean"
 			) {
 				// Not possible if TypeScript is obeyed.
@@ -799,7 +795,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Mark the mip as having data.
 		let mipmap = this.mipmaps.get(target);
-		if (typeof mipmap === "undefined") {
+		if (!mipmap) {
 			mipmap = new Map();
 			this.mipmaps.set(target, mipmap);
 		}

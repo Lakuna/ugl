@@ -91,7 +91,7 @@ export default class Program extends ContextDependent {
 	 */
 	public static unbindGl(gl: WebGL2RenderingContext, program?: WebGLProgram) {
 		// Do nothing if the program is already unbound.
-		if (typeof program !== "undefined" && Program.getBound(gl) !== program) {
+		if (program && Program.getBound(gl) !== program) {
 			return;
 		}
 
@@ -186,7 +186,7 @@ export default class Program extends ContextDependent {
 		this.fragmentShader = fragmentShader;
 
 		// Bind the attributes to their specified locations, if any.
-		if (typeof attributeLocations !== "undefined") {
+		if (attributeLocations) {
 			for (const [name, location] of attributeLocations) {
 				this.gl.bindAttribLocation(program, location, name);
 			}

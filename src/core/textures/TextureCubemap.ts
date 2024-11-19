@@ -174,7 +174,7 @@ export default class TextureCubemap extends Texture {
 	) {
 		if (
 			typeof levels === "undefined" ||
-			typeof format === "undefined" ||
+			!format ||
 			typeof dim === "undefined"
 		) {
 			super(context, TextureTarget.TEXTURE_CUBE_MAP);
@@ -242,10 +242,10 @@ export default class TextureCubemap extends Texture {
 		}
 
 		// Bind the framebuffer.
-		if (typeof framebuffer === "undefined" || framebuffer === null) {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
-		} else {
+		if (framebuffer) {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		} else {
+			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
 		}
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
@@ -432,7 +432,7 @@ export default class TextureCubemap extends Texture {
 
 		// Mutable-format.
 		const dim: number = Math.max(width, height);
-		if (typeof bounds === "undefined" && typeof data !== "undefined") {
+		if (!bounds && data) {
 			// Undefined bounds. Resize to match data.
 			this.gl.texImage2D(target, level, this.format, format, type, data);
 		} else {

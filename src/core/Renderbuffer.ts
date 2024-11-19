@@ -82,10 +82,7 @@ export default class Renderbuffer extends ContextDependent {
 		renderbuffer?: WebGLRenderbuffer
 	) {
 		// Do nothing if the renderbuffer is already unbound.
-		if (
-			typeof renderbuffer !== "undefined" &&
-			Renderbuffer.getBound(gl) !== renderbuffer
-		) {
+		if (renderbuffer && Renderbuffer.getBound(gl) !== renderbuffer) {
 			return;
 		}
 

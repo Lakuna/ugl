@@ -102,7 +102,7 @@ export default abstract class GlBuffer extends ContextDependent {
 	 */
 	public get data(): ArrayBufferView {
 		// If the data cache isn't set, read the buffer.
-		if (typeof this.dataCache === "undefined") {
+		if (!this.dataCache) {
 			this.bind();
 			this.dataCache = new Float32Array(this.size);
 			this.gl.getBufferSubData(this.target, 0, this.dataCache, this.size);
