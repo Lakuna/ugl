@@ -71,8 +71,15 @@ export default abstract class Uniform extends Variable {
 	 */
 	protected valueCache?: UniformValue;
 
-	/** The value that is stored in this uniform. */
-	public get value(): UniformValue | undefined {
+	/**
+	 * The value that is stored in this uniform.
+	 * @throws Error if the uniform value has not been cached.
+	 */
+	public get value(): UniformValue {
+		if (typeof this.valueCache === "undefined") {
+			throw new Error("Attempted to access uncached uniform value.");
+		}
+
 		return this.valueCache;
 	}
 
