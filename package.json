@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "23.0.0",
+	"version": "23.0.1",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -32,8 +32,7 @@
 		"build": "tsc",
 		"lint": "eslint src",
 		"doc": "typedoc src",
-		"beautify": "prettier . --write",
-		"prepare": "husky"
+		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.15.0",
