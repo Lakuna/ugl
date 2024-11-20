@@ -1,5 +1,5 @@
 import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
-import type Context from "./Context.js";
+import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
@@ -31,21 +31,23 @@ export default class Renderbuffer extends ContextDependent {
 
 	/**
 	 * Get the currently-bound renderbuffer.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @returns The renderbuffer.
 	 * @internal
 	 */
-	public static getBound(gl: WebGL2RenderingContext) {
+	public static getBound(context: Context) {
 		// Get the full bindings cache.
 		const bindingsCache = Renderbuffer.getBindingsCache();
 
 		// Get the bound renderbuffer.
-		let boundRenderbuffer = bindingsCache.get(gl);
+		let boundRenderbuffer = bindingsCache.get(context.gl);
 		if (typeof boundRenderbuffer === "undefined") {
-			boundRenderbuffer = gl.getParameter(
-				RENDERBUFFER_BINDING
-			) as WebGLRenderbuffer | null;
-			bindingsCache.set(gl, boundRenderbuffer);
+			boundRenderbuffer = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(
+						RENDERBUFFER_BINDING
+					) as WebGLRenderbuffer | null);
+			bindingsCache.set(context.gl, boundRenderbuffer);
 		}
 		return boundRenderbuffer;
 	}
@@ -58,36 +60,33 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		renderbuffer: WebGLRenderbuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Renderbuffer.getBound(gl) === renderbuffer) {
+		if (Renderbuffer.getBound(context) === renderbuffer) {
 			return;
 		}
 
 		// Bind the renderbuffer to the target.
-		gl.bindRenderbuffer(RENDERBUFFER, renderbuffer);
-		Renderbuffer.getBindingsCache().set(gl, renderbuffer);
+		context.gl.bindRenderbuffer(RENDERBUFFER, renderbuffer);
+		Renderbuffer.getBindingsCache().set(context.gl, renderbuffer);
 	}
 
 	/**
 	 * Unbind the renderbuffer that is bound.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param renderbuffer - The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
 	 * @internal
 	 */
-	public static unbindGl(
-		gl: WebGL2RenderingContext,
-		renderbuffer?: WebGLRenderbuffer
-	) {
+	public static unbindGl(context: Context, renderbuffer?: WebGLRenderbuffer) {
 		// Do nothing if the renderbuffer is already unbound.
-		if (renderbuffer && Renderbuffer.getBound(gl) !== renderbuffer) {
+		if (renderbuffer && Renderbuffer.getBound(context) !== renderbuffer) {
 			return;
 		}
 
 		// Unbind the renderbuffer.
-		Renderbuffer.bindGl(gl, null);
+		Renderbuffer.bindGl(context, null);
 	}
 
 	/**
@@ -157,7 +156,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public bind() {
-		Renderbuffer.bindGl(this.gl, this.internal);
+		Renderbuffer.bindGl(this.context, this.internal);
 	}
 
 	/**
@@ -165,6 +164,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		Renderbuffer.unbindGl(this.gl, this.internal);
+		Renderbuffer.unbindGl(this.context, this.internal);
 	}
 }

@@ -10,7 +10,7 @@ import {
 	STENCIL_ATTACHMENT
 } from "../constants/constants.js";
 import BadValueError from "../utility/BadValueError.js";
-import type Context from "./Context.js";
+import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type CubeFace from "../constants/CubeFace.js";
 import FramebufferAttachment from "../constants/FramebufferAttachment.js";
@@ -72,24 +72,25 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Get the currently-bound framebuffer for a binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point. Note that `FRAMEBUFFER` will return the same value as `DRAW_FRAMEBUFFER`.
 	 * @returns The framebuffer.
 	 * @internal
 	 */
-	public static getBound(
-		gl: WebGL2RenderingContext,
-		target: FramebufferTarget
-	) {
+	public static getBound(context: Context, target: FramebufferTarget) {
 		// Get the context bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(gl);
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(
+			context.gl
+		);
 
 		// Get the bound framebuffer.
 		let boundFramebuffer = contextBindingsCache.get(target);
 		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer = gl.getParameter(
-				getParameterForFramebufferTarget(target)
-			) as WebGLFramebuffer | null;
+			boundFramebuffer = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(
+						getParameterForFramebufferTarget(target)
+					) as WebGLFramebuffer | null);
 			contextBindingsCache.set(target, boundFramebuffer);
 		}
 		return boundFramebuffer;
@@ -97,27 +98,29 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Bind a framebuffer to a binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @param framebuffer - The framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindFramebuffer | bindFramebuffer}
 	 * @internal
 	 */
 	public static bindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		target: FramebufferTarget,
 		framebuffer: WebGLFramebuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (Framebuffer.getBound(gl, target) === framebuffer) {
+		if (Framebuffer.getBound(context, target) === framebuffer) {
 			return;
 		}
 
 		// Bind the framebuffer to the target.
-		gl.bindFramebuffer(target, framebuffer);
+		context.gl.bindFramebuffer(target, framebuffer);
 
 		// Update the bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(gl);
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(
+			context.gl
+		);
 		contextBindingsCache.set(target, framebuffer);
 		switch (target) {
 			case FramebufferTarget.FRAMEBUFFER:
@@ -141,23 +144,23 @@ export default class Framebuffer extends ContextDependent {
 
 	/**
 	 * Unbind the given framebuffer from the given binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @param framebuffer - The framebuffer, or `undefined` for any framebuffer.
 	 * @internal
 	 */
 	public static unbindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		target: FramebufferTarget,
 		framebuffer?: WebGLFramebuffer
 	) {
 		// Do nothing if the framebuffer is already unbound.
-		if (framebuffer && Framebuffer.getBound(gl, target) !== framebuffer) {
+		if (framebuffer && Framebuffer.getBound(context, target) !== framebuffer) {
 			return;
 		}
 
 		// Unbind the framebuffer.
-		Framebuffer.bindGl(gl, target, null);
+		Framebuffer.bindGl(context, target, null);
 	}
 
 	/**
@@ -237,7 +240,7 @@ export default class Framebuffer extends ContextDependent {
 			this.target = target;
 		}
 
-		Framebuffer.bindGl(this.gl, this.target, this.internal);
+		Framebuffer.bindGl(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -245,7 +248,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		Framebuffer.unbindGl(this.gl, this.target, this.internal);
+		Framebuffer.unbindGl(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -416,9 +419,16 @@ export default class Framebuffer extends ContextDependent {
 
 		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
 
-		const raw = this.gl.getParameter(READ_BUFFER) as number;
-		this.readBufferCache =
-			raw === BACK ? true : raw === NONE ? false : raw - COLOR_ATTACHMENT0;
+		if (typeof this.readBufferCache === "undefined") {
+			if (this.context.doPrefillCache) {
+				this.readBufferCache = true; // `BACK`.
+			} else {
+				const raw = this.gl.getParameter(READ_BUFFER) as number;
+				this.readBufferCache =
+					raw === BACK ? true : raw === NONE ? false : raw - COLOR_ATTACHMENT0;
+			}
+		}
+
 		return this.readBufferCache;
 	}
 
@@ -454,15 +464,22 @@ export default class Framebuffer extends ContextDependent {
 		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
 
 		const out = [];
-		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
-			const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
-			out.push(
-				drawBuffer === BACK
-					? true
-					: drawBuffer === NONE
-						? false
-						: drawBuffer - COLOR_ATTACHMENT0
-			);
+		if (this.context.doPrefillCache) {
+			out.push(0); // For the default framebuffer, the first draw buffer is `BACK` by default; for other framebuffers, it's `COLOR_ATTACHMENT0`.
+			for (let i = 1; i < this.context.maxDrawBuffers; i++) {
+				out.push(false); // In either case, every other draw buffer is `NONE` by default.
+			}
+		} else {
+			for (let i = 0; i < this.context.maxDrawBuffers; i++) {
+				const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
+				out.push(
+					drawBuffer === BACK
+						? true
+						: drawBuffer === NONE
+							? false
+							: drawBuffer - COLOR_ATTACHMENT0
+				);
+			}
 		}
 
 		this.drawBuffersCache = out;

@@ -140,7 +140,7 @@ export default class Texture3d extends Texture {
 		if (framebuffer) {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
+			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
 		}
 
 		// Since a 2D framebuffer is being copied to a 3D texture, only a portion of the texture can be updated (resizing the texture is not possible).

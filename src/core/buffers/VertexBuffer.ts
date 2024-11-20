@@ -1,7 +1,7 @@
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
-import type Context from "../Context.js";
+import Context from "../Context.js";
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 
 /**
@@ -50,46 +50,53 @@ export default class VertexBuffer extends Buffer {
 
 	/**
 	 * Get the currently-bound buffer for a binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @returns The buffer.
 	 * @internal
 	 */
-	public static getBound(gl: WebGL2RenderingContext, target: BufferTarget) {
+	public static getBound(context: Context, target: BufferTarget) {
 		// Get the context bindings cache.
-		const contextBindingsCache = VertexBuffer.getContextBindingsCache(gl);
+		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
+			context.gl
+		);
 
 		// Get the bound buffer.
 		let boundBuffer = contextBindingsCache.get(target);
 		if (typeof boundBuffer === "undefined") {
-			boundBuffer = gl.getParameter(
-				getParameterForBufferTarget(target)
-			) as WebGLBuffer | null;
+			boundBuffer = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(
+						getParameterForBufferTarget(target)
+					) as WebGLBuffer | null);
 			contextBindingsCache.set(target, boundBuffer);
 		}
+
 		return boundBuffer;
 	}
 
 	/**
 	 * Bind a buffer to a binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @param buffer - The buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer | bindBuffer}
 	 * @internal
 	 */
 	public static bindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		target: BufferTarget,
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (VertexBuffer.getBound(gl, target) === buffer) {
+		if (VertexBuffer.getBound(context, target) === buffer) {
 			return;
 		}
 
 		// Get the context bindings cache.
-		const contextBindingsCache = VertexBuffer.getContextBindingsCache(gl);
+		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
+			context.gl
+		);
 
 		// Unbind the buffer from all other targets.
 		if (buffer !== null) {
@@ -98,35 +105,35 @@ export default class VertexBuffer extends Buffer {
 					continue;
 				}
 
-				gl.bindBuffer(otherTarget, null);
+				context.gl.bindBuffer(otherTarget, null);
 				contextBindingsCache.set(otherTarget, null);
 			}
 		}
 
 		// Bind the buffer to the target.
-		gl.bindBuffer(target, buffer);
+		context.gl.bindBuffer(target, buffer);
 		contextBindingsCache.set(target, buffer);
 	}
 
 	/**
 	 * Unbind the buffer that is bound to the given binding point.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param target - The binding point.
 	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
 	 * @internal
 	 */
 	public static unbindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		target: BufferTarget,
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (buffer && VertexBuffer.getBound(gl, target) !== buffer) {
+		if (buffer && VertexBuffer.getBound(context, target) !== buffer) {
 			return;
 		}
 
 		// Unbind the buffer.
-		VertexBuffer.bindGl(gl, target, null);
+		VertexBuffer.bindGl(context, target, null);
 	}
 
 	/**
@@ -159,7 +166,7 @@ export default class VertexBuffer extends Buffer {
 			this.target = target;
 		}
 
-		VertexBuffer.bindGl(this.gl, this.target, this.internal);
+		VertexBuffer.bindGl(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -167,6 +174,6 @@ export default class VertexBuffer extends Buffer {
 	 * @internal
 	 */
 	public override unbind() {
-		VertexBuffer.unbindGl(this.gl, this.target, this.internal);
+		VertexBuffer.unbindGl(this.context, this.target, this.internal);
 	}
 }

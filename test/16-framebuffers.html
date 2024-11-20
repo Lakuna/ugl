@@ -12,7 +12,7 @@
 		<script type="module">
 			import {
 				Context,
-				Ebo,
+				ElementBuffer,
 				Framebuffer,
 				FramebufferAttachment,
 				Program,
@@ -21,8 +21,8 @@
 				Texture2d,
 				TextureFilter,
 				TextureFormat,
-				Vao,
-				Vbo
+				VertexArray,
+				VertexBuffer
 			} from "../dist/index.js";
 
 			// μMath
@@ -615,11 +615,11 @@ void main() {
 
 				const program = Program.fromSource(gl, vss, fss);
 
-				const positionBuffer = new Vbo(gl, positionData);
-				const texcoordBuffer = new Vbo(gl, texcoordData);
-				const indexBuffer = new Ebo(gl, indexData);
+				const positionBuffer = new VertexBuffer(gl, positionData);
+				const texcoordBuffer = new VertexBuffer(gl, texcoordData);
+				const indexBuffer = new ElementBuffer(gl, indexData);
 
-				const cubeVao = new Vao(
+				const cubeVao = new VertexArray(
 					program,
 					{
 						a_position: positionBuffer,

@@ -40,6 +40,7 @@ export default abstract class Buffer extends ContextDependent {
 				"The environment does not support buffers."
 			);
 		}
+
 		this.internal = buffer;
 		this.targetCache = target;
 		this.usageCache = usage;
@@ -220,6 +221,7 @@ export default abstract class Buffer extends ContextDependent {
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
 		}
+
 		this.offsetCache = offset;
 	}
 

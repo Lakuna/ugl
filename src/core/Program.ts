@@ -8,7 +8,7 @@ import {
 	VALIDATE_STATUS
 } from "../constants/constants.js";
 import type Attribute from "./variables/attributes/Attribute.js";
-import type Context from "./Context.js";
+import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import MergeOrder from "../constants/MergeOrder.js";
 import ProgramLinkError from "../utility/ProgramLinkError.js";
@@ -46,57 +46,57 @@ export default class Program extends ContextDependent {
 
 	/**
 	 * Get the currently-bound program.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @internal
 	 */
-	public static getBound(gl: WebGL2RenderingContext) {
+	public static getBound(context: Context) {
 		// Get the full bindings cache.
 		const bindingsCache = Program.getBindingsCache();
 
 		// Get the bound program.
-		let boundProgram = bindingsCache.get(gl);
+		let boundProgram = bindingsCache.get(context.gl);
 		if (typeof boundProgram === "undefined") {
-			boundProgram = gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null;
-			bindingsCache.set(gl, boundProgram);
+			boundProgram = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null);
+			bindingsCache.set(context.gl, boundProgram);
 		}
+
 		return boundProgram;
 	}
 
 	/**
 	 * Bind a program.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param program - The program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram | useProgram}
 	 * @internal
 	 */
-	public static bindGl(
-		gl: WebGL2RenderingContext,
-		program: WebGLProgram | null
-	) {
+	public static bindGl(context: Context, program: WebGLProgram | null) {
 		// Do nothing if the binding is already correct.
-		if (Program.getBound(gl) === program) {
+		if (Program.getBound(context) === program) {
 			return;
 		}
 
 		// Bind the program.
-		gl.useProgram(program);
-		Program.getBindingsCache().set(gl, program);
+		context.gl.useProgram(program);
+		Program.getBindingsCache().set(context.gl, program);
 	}
 
 	/**
 	 * Unbind the program that is bound.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param program - The program to unbind, or `undefined` to unbind any program.
 	 * @internal
 	 */
-	public static unbindGl(gl: WebGL2RenderingContext, program?: WebGLProgram) {
+	public static unbindGl(context: Context, program?: WebGLProgram) {
 		// Do nothing if the program is already unbound.
-		if (program && Program.getBound(gl) !== program) {
+		if (program && Program.getBound(context) !== program) {
 			return;
 		}
 
 		// Unbind the VAO.
-		Program.bindGl(gl, null);
+		Program.bindGl(context, null);
 	}
 
 	/**
@@ -298,7 +298,7 @@ export default class Program extends ContextDependent {
 	 * @internal
 	 */
 	public bind() {
-		Program.bindGl(this.gl, this.internal);
+		Program.bindGl(this.context, this.internal);
 	}
 
 	/**
@@ -306,6 +306,6 @@ export default class Program extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		Program.unbindGl(this.gl, this.internal);
+		Program.unbindGl(this.context, this.internal);
 	}
 }

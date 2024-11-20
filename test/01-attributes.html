@@ -10,7 +10,12 @@
 
 		<!-- Test script. -->
 		<script type="module">
-			import { Context, Program, Vao, Vbo } from "../dist/index.js";
+			import {
+				Context,
+				Program,
+				VertexArray,
+				VertexBuffer
+			} from "../dist/index.js";
 
 			const vss = `\
 #version 300 es
@@ -96,9 +101,9 @@ void main() {
 
 				const program = Program.fromSource(gl, vss, fss);
 
-				const positionBuffer = new Vbo(gl, positionData);
+				const positionBuffer = new VertexBuffer(gl, positionData);
 
-				const rectVao = new Vao(program, {
+				const rectVao = new VertexArray(program, {
 					a_position: { size: 2, vbo: positionBuffer }
 				});
 

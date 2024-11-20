@@ -1,6 +1,7 @@
 import type { AttributeMap } from "../types/AttributeMap.js";
 import type AttributeValue from "../types/AttributeValue.js";
 import BadValueError from "../utility/BadValueError.js";
+import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import ElementBuffer from "./buffers/ElementBuffer.js";
 import Framebuffer from "./Framebuffer.js";
@@ -39,62 +40,59 @@ export default class VertexArray extends ContextDependent {
 
 	/**
 	 * Get the currently-bound VAO.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @internal
 	 */
-	public static getBound(gl: WebGL2RenderingContext) {
+	public static getBound(context: Context) {
 		// Get the full bindings cache.
 		const bindingsCache = VertexArray.getBindingsCache();
 
 		// Get the bound VAO.
-		let boundVao = bindingsCache.get(gl);
+		let boundVao = bindingsCache.get(context.gl);
 		if (typeof boundVao === "undefined") {
-			boundVao = gl.getParameter(
-				VERTEX_ARRAY_BINDING
-			) as WebGLVertexArrayObject | null;
-			bindingsCache.set(gl, boundVao);
+			boundVao = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(
+						VERTEX_ARRAY_BINDING
+					) as WebGLVertexArrayObject | null);
+			bindingsCache.set(context.gl, boundVao);
 		}
+
 		return boundVao;
 	}
 
 	/**
 	 * Bind a VAO.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param vao - The VAO.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray | bindVertexArray}
 	 * @internal
 	 */
-	public static bindGl(
-		gl: WebGL2RenderingContext,
-		vao: WebGLVertexArrayObject | null
-	) {
+	public static bindGl(context: Context, vao: WebGLVertexArrayObject | null) {
 		// Do nothing if the binding is already correct.
-		if (VertexArray.getBound(gl) === vao) {
+		if (VertexArray.getBound(context) === vao) {
 			return;
 		}
 
 		// Bind the VAO.
-		gl.bindVertexArray(vao);
-		VertexArray.getBindingsCache().set(gl, vao);
+		context.gl.bindVertexArray(vao);
+		VertexArray.getBindingsCache().set(context.gl, vao);
 	}
 
 	/**
 	 * Unbind the VAO that is bound.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param vao - The VAO to unbind, or `undefined` to unbind any VAO.
 	 * @internal
 	 */
-	public static unbindGl(
-		gl: WebGL2RenderingContext,
-		vao?: WebGLVertexArrayObject
-	) {
+	public static unbindGl(context: Context, vao?: WebGLVertexArrayObject) {
 		// Do nothing if the VAO is already unbound.
-		if (vao && VertexArray.getBound(gl) !== vao) {
+		if (vao && VertexArray.getBound(context) !== vao) {
 			return;
 		}
 
 		// Unbind the VAO.
-		VertexArray.bindGl(gl, null);
+		VertexArray.bindGl(context, null);
 	}
 
 	/**
@@ -191,7 +189,7 @@ export default class VertexArray extends ContextDependent {
 
 		// Remove EBO.
 		if (!value) {
-			ElementBuffer.unbindGl(this.gl, this.internal);
+			ElementBuffer.unbindGl(this.context, this.internal);
 			delete this.eboCache;
 			return;
 		}
@@ -219,10 +217,10 @@ export default class VertexArray extends ContextDependent {
 	): void {
 		// Bind the correct framebuffer.
 		if (framebuffer === null) {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);
+			Framebuffer.unbindGl(this.context, FramebufferTarget.DRAW_FRAMEBUFFER);
 		} else {
 			Framebuffer.bindGl(
-				this.gl,
+				this.context,
 				FramebufferTarget.DRAW_FRAMEBUFFER,
 				framebuffer.internal
 			);
@@ -285,7 +283,7 @@ export default class VertexArray extends ContextDependent {
 	 * @internal
 	 */
 	public bind() {
-		VertexArray.bindGl(this.gl, this.internal);
+		VertexArray.bindGl(this.context, this.internal);
 	}
 
 	/**
@@ -293,6 +291,6 @@ export default class VertexArray extends ContextDependent {
 	 * @internal
 	 */
 	public unbind() {
-		VertexArray.unbindGl(this.gl, this.internal);
+		VertexArray.unbindGl(this.context, this.internal);
 	}
 }

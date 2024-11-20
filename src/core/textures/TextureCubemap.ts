@@ -245,7 +245,7 @@ export default class TextureCubemap extends Texture {
 		if (framebuffer) {
 			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.READ_FRAMEBUFFER);
+			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
 		}
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.

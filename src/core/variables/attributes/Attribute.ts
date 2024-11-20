@@ -54,7 +54,7 @@ export default abstract class Attribute extends Variable {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/disableVertexAttribArray | disableVertexAttribArray}
 	 */
 	public get enabled(): boolean {
-		const vao = VertexArray.getBound(this.gl);
+		const vao = VertexArray.getBound(this.context);
 		if (vao === null) {
 			return false;
 		}
@@ -67,7 +67,7 @@ export default abstract class Attribute extends Variable {
 			return;
 		}
 
-		const vao = VertexArray.getBound(this.gl);
+		const vao = VertexArray.getBound(this.context);
 
 		// Enable.
 		if (value) {

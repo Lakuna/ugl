@@ -1,7 +1,7 @@
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
-import type Context from "../Context.js";
+import Context from "../Context.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
 import VertexArray from "../VertexArray.js";
 
@@ -31,75 +31,75 @@ export default class ElementBuffer extends Buffer {
 
 	/**
 	 * Get the currently-bound buffer for a VAO.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param vao - The VAO.
 	 * @returns The buffer.
 	 * @internal
 	 */
-	public static getBound(
-		gl: WebGL2RenderingContext,
-		vao: WebGLVertexArrayObject | null
-	) {
+	public static getBound(context: Context, vao: WebGLVertexArrayObject | null) {
 		// Get the buffer bindings cache.
 		const bindingsCache = ElementBuffer.getBindingsCache();
 
 		// Get the bound buffer.
 		let boundBuffer = bindingsCache.get(vao);
 		if (typeof boundBuffer === "undefined") {
-			VertexArray.bindGl(gl, vao);
-			boundBuffer = gl.getParameter(
-				ELEMENT_ARRAY_BUFFER_BINDING
-			) as WebGLBuffer | null;
+			VertexArray.bindGl(context, vao);
+			boundBuffer = context.doPrefillCache
+				? null
+				: (context.gl.getParameter(
+						ELEMENT_ARRAY_BUFFER_BINDING
+					) as WebGLBuffer | null);
 			bindingsCache.set(vao, boundBuffer);
 		}
+
 		return boundBuffer;
 	}
 
 	/**
 	 * Bind an element array buffer to a VAO.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param vao - The VAO.
 	 * @param buffer - The buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindBuffer | bindBuffer}
 	 * @internal
 	 */
 	public static bindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		vao: WebGLVertexArrayObject | null,
 		buffer: WebGLBuffer | null
 	) {
 		// Do nothing if the binding is already correct.
-		if (ElementBuffer.getBound(gl, vao) === buffer) {
+		if (ElementBuffer.getBound(context, vao) === buffer) {
 			return;
 		}
 
 		// Bind the VAO.
-		VertexArray.bindGl(gl, vao);
+		VertexArray.bindGl(context, vao);
 
 		// Bind the buffer to the target.
-		gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
+		context.gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
 		ElementBuffer.getBindingsCache().set(vao, buffer);
 	}
 
 	/**
 	 * Unbind the buffer that is bound to the given VAO.
-	 * @param gl - The rendering context.
+	 * @param context - The rendering context.
 	 * @param vao - The VAO.
 	 * @param buffer - The buffer to unbind, or `undefined` for any buffer.
 	 * @internal
 	 */
 	public static unbindGl(
-		gl: WebGL2RenderingContext,
+		context: Context,
 		vao: WebGLVertexArrayObject | null,
 		buffer?: WebGLBuffer
 	) {
 		// Do nothing if the buffer is already unbound.
-		if (buffer && ElementBuffer.getBound(gl, vao) !== buffer) {
+		if (buffer && ElementBuffer.getBound(context, vao) !== buffer) {
 			return;
 		}
 
 		// Unbind the buffer.
-		ElementBuffer.bindGl(gl, vao, null);
+		ElementBuffer.bindGl(context, vao, null);
 	}
 
 	/**
@@ -118,7 +118,7 @@ export default class ElementBuffer extends Buffer {
 		offset = 0
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
-		VertexArray.unbindGl(context.gl);
+		VertexArray.unbindGl(context);
 
 		super(
 			context,
@@ -137,8 +137,8 @@ export default class ElementBuffer extends Buffer {
 	 */
 	public override bind(vao?: VertexArray) {
 		ElementBuffer.bindGl(
-			this.gl,
-			vao?.internal ?? VertexArray.getBound(this.gl),
+			this.context,
+			vao?.internal ?? VertexArray.getBound(this.context),
 			this.internal
 		);
 	}
@@ -150,8 +150,8 @@ export default class ElementBuffer extends Buffer {
 	 */
 	public override unbind(vao?: VertexArray) {
 		ElementBuffer.unbindGl(
-			this.gl,
-			vao?.internal ?? VertexArray.getBound(this.gl),
+			this.context,
+			vao?.internal ?? VertexArray.getBound(this.context),
 			this.internal
 		);
 	}

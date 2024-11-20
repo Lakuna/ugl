@@ -22,6 +22,7 @@ import {
 	FRONT_FACE,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 	MAX_DRAW_BUFFERS,
+	MAX_TEXTURE_MAX_ANISOTROPY_EXT,
 	MAX_VIEWPORT_DIMS,
 	RASTERIZER_DISCARD,
 	SCISSOR_BOX,
@@ -41,23 +42,24 @@ import {
 } from "../constants/constants.js";
 import ApiInterface from "./internal/ApiInterface.js";
 import BadValueError from "../utility/BadValueError.js";
-import type BlendEquation from "../constants/BlendEquation.js";
+import BlendEquation from "../constants/BlendEquation.js";
 import type BlendEquationSet from "../types/BlendEquationSet.js";
-import type BlendFunction from "../constants/BlendFunction.js";
+import BlendFunction from "../constants/BlendFunction.js";
 import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
 import type BlendFunctionSet from "../types/BlendFunctionSet.js";
 import type Color from "../types/Color.js";
 import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
-import type Extension from "../constants/Extension.js";
+import Extension from "../constants/Extension.js";
 import type { ExtensionObject } from "../types/ExtensionObject.js";
 import Face from "../constants/Face.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
-import type Orientation from "../constants/Orientation.js";
+import type MaxViewport from "../types/MaxViewport.js";
+import Orientation from "../constants/Orientation.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
-import type TestFunction from "../constants/TestFunction.js";
+import TestFunction from "../constants/TestFunction.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import WebglError from "../utility/WebglError.js";
 
@@ -97,17 +99,20 @@ export default class Context extends ApiInterface {
 	 * Create a `Context` or get an existing `Context` if one already exists for the given canvas. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
 	 * @param canvas - The canvas of the rendering context.
 	 * @param options - The options to create the rendering context with if necessary.
+	 * @param doPrefillCache - Whether or not cached values should be prefilled with their default values. It is recommended that this is set to `true` unless the rendering context may have been modified prior to the creation of this object.
 	 * @returns A rendering context.
 	 * @public
 	 */
 	public static get(
 		canvas: HTMLCanvasElement | OffscreenCanvas,
-		options?: WebGLContextAttributes
+		options?: WebGLContextAttributes,
+		doPrefillCache?: boolean
 	): Context;
 
 	public static get(
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
-		options?: WebGLContextAttributes
+		options?: WebGLContextAttributes,
+		doPrefillCache?: boolean
 	): Context {
 		const existingContexts = Context.getExistingContexts() as Map<
 			HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
@@ -119,7 +124,11 @@ export default class Context extends ApiInterface {
 		}
 
 		// Use `as` to cheat and reduce code size. Second argument is ignored if `source` is a `WebGL2RenderingContext`.
-		const out = new Context(source as HTMLCanvasElement, options);
+		const out = new Context(
+			source as HTMLCanvasElement,
+			options,
+			doPrefillCache
+		);
 		existingContexts.set(out.canvas, out);
 		existingContexts.set(out.gl, out);
 		return out;
@@ -135,18 +144,22 @@ export default class Context extends ApiInterface {
 	/**
 	 * Create a WebGL2 rendering context.
 	 * @param canvas - The canvas of the rendering context.
+	 * @param options - The options to create the rendering context with if necessary.
+	 * @param doPrefillCache - Whether or not cached values should be prefilled with their default values. It is recommended that this is set to `true` unless the rendering context may have been modified prior to the creation of this object.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext | getContext}
 	 * @throws {@link UnsupportedOperationError} if a WebGL2 context cannot be created.
 	 * @throws {@link DuplicateContextError} if a `Context` already exists for `canvas`.
 	 */
 	public constructor(
 		canvas: HTMLCanvasElement | OffscreenCanvas,
-		options?: WebGLContextAttributes
+		options?: WebGLContextAttributes,
+		doPrefillCache?: boolean
 	);
 
 	public constructor(
 		source: WebGL2RenderingContext | HTMLCanvasElement | OffscreenCanvas,
-		options?: WebGLContextAttributes
+		options?: WebGLContextAttributes,
+		doPrefillCache = true
 	) {
 		if (Context.getExistingContexts().has(source)) {
 			throw new Error(
@@ -173,11 +186,18 @@ export default class Context extends ApiInterface {
 		}
 
 		this.canvas = this.gl.canvas;
+		this.doPrefillCache = doPrefillCache;
 		this.enabledExtensions = new Map();
 	}
 
 	/** The canvas of this rendering context. */
 	public readonly canvas: HTMLCanvasElement | OffscreenCanvas;
+
+	/**
+	 * Whether or not cached values should be prefilled with their default values.
+	 * @internal
+	 */
+	public readonly doPrefillCache;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
@@ -233,8 +253,9 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	public get activeTexture(): number {
-		return (this.activeTextureCache ??=
-			this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
+		return (this.activeTextureCache ??= this.doPrefillCache
+			? 0
+			: this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
 	}
 
 	public set activeTexture(value) {
@@ -263,7 +284,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor | blendColor}
 	 */
 	public get blendColor(): Color {
-		return (this.blendColorCache ??= this.gl.getParameter(BLEND_COLOR));
+		return (this.blendColorCache ??= this.doPrefillCache
+			? new Float32Array([0, 0, 0, 0])
+			: this.gl.getParameter(BLEND_COLOR));
 	}
 
 	public set blendColor(value) {
@@ -292,10 +315,15 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private makeBlendEquationCache() {
-		return new Uint8Array([
-			this.gl.getParameter(BLEND_EQUATION_RGB),
-			this.gl.getParameter(BLEND_EQUATION_ALPHA)
-		]) as Uint8Array & BlendEquationSet;
+		return this.doPrefillCache
+			? (new Uint8Array([
+					BlendEquation.FUNC_ADD,
+					BlendEquation.FUNC_ADD
+				]) as Uint8Array & BlendEquationSet)
+			: (new Uint8Array([
+					this.gl.getParameter(BLEND_EQUATION_RGB),
+					this.gl.getParameter(BLEND_EQUATION_ALPHA)
+				]) as Uint8Array & BlendEquationSet);
 	}
 
 	/**
@@ -356,7 +384,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not blending is enabled. */
 	public get doBlend(): boolean {
-		return (this.doBlendCache ??= this.gl.isEnabled(BLEND));
+		return (this.doBlendCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(BLEND));
 	}
 
 	public set doBlend(value) {
@@ -384,12 +414,19 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private makeBlendFunctionCache() {
-		return new Uint8Array([
-			this.gl.getParameter(BLEND_SRC_RGB),
-			this.gl.getParameter(BLEND_DST_RGB),
-			this.gl.getParameter(BLEND_SRC_ALPHA),
-			this.gl.getParameter(BLEND_DST_ALPHA)
-		]) as Uint8Array & BlendFunctionFullSet;
+		return this.doPrefillCache
+			? (new Uint8Array([
+					BlendFunction.ONE,
+					BlendFunction.ZERO,
+					BlendFunction.ONE,
+					BlendFunction.ZERO
+				]) as Uint8Array & BlendFunctionFullSet)
+			: (new Uint8Array([
+					this.gl.getParameter(BLEND_SRC_RGB),
+					this.gl.getParameter(BLEND_DST_RGB),
+					this.gl.getParameter(BLEND_SRC_ALPHA),
+					this.gl.getParameter(BLEND_DST_ALPHA)
+				]) as Uint8Array & BlendFunctionFullSet);
 	}
 
 	/**
@@ -495,7 +532,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor | clearColor}
 	 */
 	public get clearColor(): Color {
-		return (this.clearColorCache ??= this.gl.getParameter(COLOR_CLEAR_VALUE));
+		return (this.clearColorCache ??= this.doPrefillCache
+			? new Float32Array([0, 0, 0, 0])
+			: this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
 	public set clearColor(value) {
@@ -523,7 +562,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth | clearDepth}
 	 */
 	public get clearDepth(): number {
-		return (this.clearDepthCache ??= this.gl.getParameter(DEPTH_CLEAR_VALUE));
+		return (this.clearDepthCache ??= this.doPrefillCache
+			? 1
+			: this.gl.getParameter(DEPTH_CLEAR_VALUE));
 	}
 
 	public set clearDepth(value) {
@@ -546,8 +587,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil | clearStencil}
 	 */
 	public get clearStencil(): number {
-		return (this.clearStencilCache ??=
-			this.gl.getParameter(STENCIL_CLEAR_VALUE));
+		return (this.clearStencilCache ??= this.doPrefillCache
+			? 0
+			: this.gl.getParameter(STENCIL_CLEAR_VALUE));
 	}
 
 	public set clearStencil(value) {
@@ -570,7 +612,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask | colorMask}
 	 */
 	public get colorMask(): ColorMask {
-		return (this.colorMaskCache ??= this.gl.getParameter(COLOR_WRITEMASK));
+		return (this.colorMaskCache ??= this.doPrefillCache
+			? [true, true, true, true]
+			: this.gl.getParameter(COLOR_WRITEMASK));
 	}
 
 	public set colorMask(value) {
@@ -593,8 +637,9 @@ export default class Context extends ApiInterface {
 	 */
 	private maxCombinedTextureImageUnitsCache?: number;
 
-	/** The maximum number of texture units that can be used. */
+	/** The maximum number of texture units that can be used. Effectively all systems support at least `8`. */
 	public get maxCombinedTextureImageUnits(): number {
+		// Cannot be prefilled (different for every system).
 		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
 			MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		));
@@ -608,7 +653,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not polygon culling is enabled. */
 	public get doCullFace(): boolean {
-		return (this.doCullFaceCache ??= this.gl.isEnabled(CULL_FACE));
+		return (this.doCullFaceCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(CULL_FACE));
 	}
 
 	public set doCullFace(value) {
@@ -635,7 +682,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
 	 */
 	public get cullFace(): Face {
-		return (this.cullFaceCache ??= this.gl.getParameter(CULL_FACE_MODE));
+		return (this.cullFaceCache ??= this.doPrefillCache
+			? Face.BACK
+			: this.gl.getParameter(CULL_FACE_MODE));
 	}
 
 	public set cullFace(value) {
@@ -655,7 +704,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not dithering is enabled. */
 	public get doDither(): boolean {
-		return (this.doDitherCache ??= this.gl.isEnabled(DITHER));
+		return (this.doDitherCache ??= this.doPrefillCache
+			? true
+			: this.gl.isEnabled(DITHER));
 	}
 
 	public set doDither(value) {
@@ -679,7 +730,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not depth testing is enabled. */
 	public get doDepthTest(): boolean {
-		return (this.doDepthTestCache ??= this.gl.isEnabled(DEPTH_TEST));
+		return (this.doDepthTestCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(DEPTH_TEST));
 	}
 
 	public set doDepthTest(value) {
@@ -703,7 +756,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not the depth buffer can be written to. */
 	public get depthMask(): boolean {
-		return (this.depthMaskCache ??= this.gl.getParameter(DEPTH_WRITEMASK));
+		return (this.depthMaskCache ??= this.doPrefillCache
+			? true
+			: this.gl.getParameter(DEPTH_WRITEMASK));
 	}
 
 	public set depthMask(value) {
@@ -726,7 +781,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc | depthFunc}
 	 */
 	public get depthFunction(): TestFunction {
-		return (this.depthFunctionCache ??= this.gl.getParameter(DEPTH_FUNC));
+		return (this.depthFunctionCache ??= this.doPrefillCache
+			? TestFunction.LESS
+			: this.gl.getParameter(DEPTH_FUNC));
 	}
 
 	public set depthFunction(value) {
@@ -746,8 +803,9 @@ export default class Context extends ApiInterface {
 
 	/** The alignment to use when unpacking pixel data from memory. */
 	public get unpackAlignment(): 1 | 2 | 4 | 8 {
-		return (this.unpackAlignmentCache ??=
-			this.gl.getParameter(UNPACK_ALIGNMENT));
+		return (this.unpackAlignmentCache ??= this.doPrefillCache
+			? 4
+			: this.gl.getParameter(UNPACK_ALIGNMENT));
 	}
 
 	public set unpackAlignment(value) {
@@ -798,7 +856,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not the scissor test is enabled. */
 	public get doScissorTest(): boolean {
-		return (this.doScissorTestCache ??= this.gl.isEnabled(SCISSOR_TEST));
+		return (this.doScissorTestCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(SCISSOR_TEST));
 	}
 
 	public set doScissorTest(value) {
@@ -825,6 +885,7 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor | scissor}
 	 */
 	public get scissorBox(): Rectangle {
+		// Cannot be prefilled (depends on initial canvas size).
 		return (this.scissorBoxCache ??= this.gl.getParameter(SCISSOR_BOX));
 	}
 
@@ -846,21 +907,37 @@ export default class Context extends ApiInterface {
 	 * The maximum dimensions of the viewport.
 	 * @internal
 	 */
-	private maxViewportDimsCache?: Rectangle;
+	private maxViewportDimsCache?: MaxViewport;
 
-	/** The maximum dimensions of the viewport. */
-	public get maxViewportDims(): Rectangle {
-		if (!this.maxViewportDimsCache) {
-			const dims = this.gl.getParameter(MAX_VIEWPORT_DIMS) as [number, number];
-			this.maxViewportDimsCache = new Int32Array([
-				0,
-				0,
-				dims[0],
-				dims[1]
-			]) as Int32Array & Rectangle;
+	/** The maximum dimensions of the viewport. Effectively all systems support at least `[4096, 4096]`. */
+	public get maxViewportDims(): MaxViewport {
+		// Cannot be prefilled (different for every system).
+		return (this.maxViewportDimsCache ??= this.gl.getParameter(
+			MAX_VIEWPORT_DIMS
+		) as Int32Array & MaxViewport);
+	}
+
+	/**
+	 * The maximum available anisotropy.
+	 * @internal
+	 */
+	private maxTextureMaxAnisotropyCache?: number;
+
+	/**
+	 * The maximum available anisotropy.
+	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
+	 */
+	public get maxTextureMaxAnisotropy(): number {
+		if (this.enableExtension(Extension.TextureFilterAnisotropic) === null) {
+			throw new UnsupportedOperationError(
+				"The environment does not support anisotropic filtering."
+			);
 		}
 
-		return this.maxViewportDimsCache;
+		// Cannot be prefilled (different for every system).
+		return (this.maxTextureMaxAnisotropyCache ??= this.gl.getParameter(
+			MAX_TEXTURE_MAX_ANISOTROPY_EXT
+		));
 	}
 
 	/**
@@ -875,6 +952,7 @@ export default class Context extends ApiInterface {
 	 * @throws {@link BadValueError} if set larger than `MAX_VIEWPORT_DIMS`.
 	 */
 	public get viewport(): Rectangle {
+		// Cannot be prefilled (depends on initial canvas size).
 		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
 	}
 
@@ -889,8 +967,8 @@ export default class Context extends ApiInterface {
 		}
 
 		if (
-			value[0] + value[2] > this.maxViewportDims[2] ||
-			value[1] + value[3] > this.maxViewportDims[3]
+			value[0] + value[2] > this.maxViewportDims[0] ||
+			value[1] + value[3] > this.maxViewportDims[1]
 		) {
 			throw new BadValueError(
 				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`
@@ -909,7 +987,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not stencil testing is enabled. */
 	public get doStencilTest(): boolean {
-		return (this.doStencilTestCache ??= this.gl.isEnabled(STENCIL_TEST));
+		return (this.doStencilTestCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(STENCIL_TEST));
 	}
 
 	public set doStencilTest(value) {
@@ -936,11 +1016,13 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
 	public get frontStencil(): Stencil {
-		return (this.frontStencilCache ??= [
-			this.gl.getParameter(STENCIL_FUNC),
-			this.gl.getParameter(STENCIL_REF),
-			this.gl.getParameter(STENCIL_VALUE_MASK)
-		]);
+		return (this.frontStencilCache ??= this.doPrefillCache
+			? [TestFunction.ALWAYS, 0, 0x7fffffff]
+			: [
+					this.gl.getParameter(STENCIL_FUNC),
+					this.gl.getParameter(STENCIL_REF),
+					this.gl.getParameter(STENCIL_VALUE_MASK)
+				]);
 	}
 
 	public set frontStencil(value) {
@@ -966,11 +1048,13 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
 	public get backStencil(): Stencil {
-		return (this.backStencilCache ??= [
-			this.gl.getParameter(STENCIL_BACK_FUNC),
-			this.gl.getParameter(STENCIL_BACK_REF),
-			this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
-		]);
+		return (this.backStencilCache ??= this.doPrefillCache
+			? [TestFunction.ALWAYS, 0, 0x7fffffff]
+			: [
+					this.gl.getParameter(STENCIL_BACK_FUNC),
+					this.gl.getParameter(STENCIL_BACK_REF),
+					this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
+				]);
 	}
 
 	public set backStencil(value) {
@@ -1018,8 +1102,9 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not primitives are discarded immediately before the rasterization stage. */
 	public get doRasterizerDiscard(): boolean {
-		return (this.doRasterizerDiscardCache ??=
-			this.gl.isEnabled(RASTERIZER_DISCARD));
+		return (this.doRasterizerDiscardCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(RASTERIZER_DISCARD));
 	}
 
 	public set doRasterizerDiscard(value) {
@@ -1046,7 +1131,9 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
 	 */
 	public get frontFace(): Orientation {
-		return (this.frontFaceCache ??= this.gl.getParameter(FRONT_FACE));
+		return (this.frontFaceCache ??= this.doPrefillCache
+			? Orientation.CCW
+			: this.gl.getParameter(FRONT_FACE));
 	}
 
 	public set frontFace(value) {
@@ -1066,6 +1153,7 @@ export default class Context extends ApiInterface {
 
 	/** The maximum number of draw buffers. */
 	public get maxDrawBuffers(): number {
+		// Cannot be prefilled (different for every system).
 		return (this.maxDrawBuffersCache ??=
 			this.gl.getParameter(MAX_DRAW_BUFFERS));
 	}
@@ -1103,7 +1191,7 @@ export default class Context extends ApiInterface {
 		}
 
 		if (framebuffer === null) {
-			Framebuffer.unbindGl(this.gl, FramebufferTarget.DRAW_FRAMEBUFFER);
+			Framebuffer.unbindGl(this, FramebufferTarget.DRAW_FRAMEBUFFER);
 		} else {
 			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
 		}
