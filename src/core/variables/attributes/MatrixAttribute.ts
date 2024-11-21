@@ -37,15 +37,6 @@ export default class MatrixAttribute extends Attribute {
 	 * @internal
 	 */
 	protected override setterInternal(value: AttributeValue) {
-		if (
-			value.vbo === this.value?.vbo &&
-			value.normalized === this.value.normalized &&
-			value.stride === this.value.stride &&
-			value.offset === this.value.offset
-		) {
-			return;
-		}
-
 		const normalized = value.normalized ?? false;
 		const stride = value.stride ?? 0;
 		const offset = value.offset ?? 0;

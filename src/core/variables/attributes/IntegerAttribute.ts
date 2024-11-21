@@ -13,15 +13,6 @@ export default class IntegerAttribute extends Attribute {
 	 * @internal
 	 */
 	protected override setterInternal(value: AttributeValue) {
-		if (
-			value.size === this.value?.size &&
-			value.vbo === this.value?.vbo &&
-			value.stride === this.value.stride &&
-			value.offset === this.value.offset
-		) {
-			return;
-		}
-
 		this.gl.vertexAttribIPointer(
 			this.location,
 			value.size ?? 3,

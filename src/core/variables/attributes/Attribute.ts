@@ -97,20 +97,41 @@ export default abstract class Attribute extends Variable {
 	}
 
 	/**
-	 * Set the value of this attribute. Should only be called from within `Vao`.
+	 * Set the value of this attribute. Should only be called from within `VertexArray`.
 	 * @param value - The new value for this attribute.
+	 * @returns Whether or not the value was updated.
 	 * @internal
 	 */
-	public setValue(value: AttributeValue | VertexBuffer | undefined): void {
+	public setValue(value: AttributeValue | VertexBuffer | undefined): boolean {
 		if (!value) {
+			if (!this.value) {
+				return false;
+			}
+
 			this.enabled = false;
 			delete this.valueCache;
-			return;
+			return true;
 		}
 
 		const realValue = "vbo" in value ? { ...value } : { vbo: value };
+		realValue.size ??= 3;
+		realValue.normalized ??= false;
+		realValue.stride ??= 0;
+		realValue.offset ??= 0;
+
+		if (
+			realValue.vbo === this.value?.vbo &&
+			realValue.size === this.value.size &&
+			realValue.normalized === this.value.normalized &&
+			realValue.stride === this.value.stride &&
+			realValue.offset === this.value.offset
+		) {
+			return false;
+		}
+
 		this.enabled = true;
 		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER);
 		this.setterInternal(realValue);
+		return true;
 	}
 }

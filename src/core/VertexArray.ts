@@ -169,8 +169,10 @@ export default class VertexArray extends ContextDependent {
 		}
 
 		this.bind();
-		attribute.setValue(value);
-		this.attributeCache.set(name, "vbo" in value ? value : { vbo: value });
+		const realValue = "vbo" in value ? value : { vbo: value };
+		if (attribute.setValue(realValue)) {
+			this.attributeCache.set(name, realValue);
+		}
 	}
 
 	/**
@@ -185,6 +187,10 @@ export default class VertexArray extends ContextDependent {
 	}
 
 	public set ebo(value) {
+		if (value === this.ebo) {
+			return;
+		}
+
 		this.bind();
 
 		// Remove EBO.
