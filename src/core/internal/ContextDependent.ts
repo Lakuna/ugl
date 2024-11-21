@@ -16,9 +16,6 @@ export default abstract class ContextDependent extends ApiInterface {
 		this.context = context;
 	}
 
-	/**
-	 * The rendering context.
-	 * @internal
-	 */
-	public readonly context;
+	/** The rendering context. */
+	public readonly context: Context;
 }
