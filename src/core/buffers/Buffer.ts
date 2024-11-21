@@ -188,17 +188,17 @@ export default abstract class Buffer extends ContextDependent {
 	 */
 	public setData(
 		data: ArrayBufferView,
-		_: never,
+		_: unknown,
 		offset: number,
-		__: never,
+		__: unknown,
 		replaceOffset: number
 	): void;
 
 	public setData(
 		data: ArrayBufferView | number,
-		usage = BufferUsage.STATIC_DRAW,
-		offset = 0,
-		isHalf = false,
+		usage: BufferUsage = this.usage,
+		offset: number = this.offset,
+		isHalf: boolean = this.isHalf,
 		replaceOffset: number | undefined = void 0
 	) {
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
