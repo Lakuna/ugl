@@ -22,16 +22,16 @@ enum DataType {
 	HALF_FLOAT = 0x140b,
 
 	/** A 32-bit signed integer. */
-	INT,
+	INT = 0x1404,
 
 	/** A 32-bit unsigned integer. */
-	UNSIGNED_INT,
+	UNSIGNED_INT = 0x1405,
 
 	/** A 32-bit signed integer with values in the range `[-0x200,0x200)`. */
-	INT_2_10_10_10_REV,
+	INT_2_10_10_10_REV = 0x8d9f,
 
 	/** A 32-bit unsigned integer with values in the range `[0x0,0x400)`. */
-	UNSIGNED_INT_2_10_10_10_REV
+	UNSIGNED_INT_2_10_10_10_REV = 0x8368
 }
 
 export default DataType;
