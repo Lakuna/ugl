@@ -154,6 +154,15 @@ export default class VertexArray extends ContextDependent {
 	private readonly attributeCache;
 
 	/**
+	 * Get the value of an attribute in this VAO.
+	 * @param name - The name of the attribute.
+	 * @returns The vertex buffer that is bound to the specified attribute.
+	 */
+	public getAttribute(name: string): VertexBuffer | undefined {
+		return this.attributeCache.get(name)?.vbo;
+	}
+
+	/**
 	 * Set the value of an attribute in this VAO.
 	 * @param name - The name of the attribute.
 	 * @param value - The value to pass to the attribute.
@@ -211,6 +220,7 @@ export default class VertexArray extends ContextDependent {
 	 * @param primitive - The type of primitive to rasterize.
 	 * @param offset - The number of elements to skip when rasterizing arrays, or the number of indices to skip when rasterizing elements.
 	 * @param framebuffer - The framebuffer to rasterize to, or `null` for the default framebuffer (canvas).
+	 * @param countOverride - The number of indices or elements to be rendered. Automatically renders all supplied data if `undefined`.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays | drawArrays}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | drawElements}
 	 * @throws {@link BadValueError} if a uniform is passed `undefined` as a value or if an unknown uniform is specified.
@@ -219,7 +229,8 @@ export default class VertexArray extends ContextDependent {
 		uniforms?: UniformMap,
 		primitive: Primitive = Primitive.TRIANGLES,
 		offset = 0,
-		framebuffer: Framebuffer | null = null
+		framebuffer: Framebuffer | null = null,
+		countOverride: number | undefined = void 0
 	): void {
 		// Bind the correct framebuffer.
 		if (framebuffer === null) {
@@ -273,7 +284,11 @@ export default class VertexArray extends ContextDependent {
 			const elementsPerIndex = firstAttribute.size ?? 3;
 
 			// Rasterize arrays.
-			this.gl.drawArrays(primitive, offset, elementCount / elementsPerIndex);
+			this.gl.drawArrays(
+				primitive,
+				offset,
+				countOverride ?? elementCount / elementsPerIndex
+			);
 			return;
 		}
 
@@ -281,7 +296,12 @@ export default class VertexArray extends ContextDependent {
 		const indexSize = getSizeOfDataType(this.ebo.type);
 		const indexCount = this.ebo.size / indexSize;
 		const byteOffset = offset * indexSize;
-		this.gl.drawElements(primitive, indexCount, this.ebo.type, byteOffset);
+		this.gl.drawElements(
+			primitive,
+			countOverride ?? indexCount,
+			this.ebo.type,
+			byteOffset
+		);
 	}
 
 	/**
