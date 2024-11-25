@@ -106,7 +106,7 @@ export default abstract class Buffer extends ContextDependent {
 		if (!this.dataCache) {
 			this.bind();
 			this.dataCache = new Float32Array(this.size);
-			this.gl.getBufferSubData(this.target, 0, this.dataCache, this.size);
+			this.gl.getBufferSubData(this.target, 0, this.dataCache, this.size); // TODO: "WebGL warning: `getBufferSubData`: Reading from a buffer with usage other than `*_READ` causes pipeline stalls. Copy through a `STREAM_READ` buffer."
 		}
 
 		return this.dataCache;
