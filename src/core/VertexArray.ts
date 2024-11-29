@@ -9,7 +9,6 @@ import FramebufferTarget from "../constants/FramebufferTarget.js";
 import Primitive from "../constants/Primitive.js";
 import type Program from "./Program.js";
 import type { UniformMap } from "../types/UniformMap.js";
-import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
 import type VertexBuffer from "./buffers/VertexBuffer.js";
 import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
@@ -100,7 +99,6 @@ export default class VertexArray extends ContextDependent {
 	 * @param program - The shader program associated with the VAO.
 	 * @param attributes - The attributes to attach to the VAO.
 	 * @param ebo - The element buffer object to attach to the VAO.
-	 * @throws {@link UnsupportedOperationError} if a VAO cannot be created.
 	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
@@ -112,13 +110,7 @@ export default class VertexArray extends ContextDependent {
 		super(program.context);
 		this.program = program;
 
-		const vao = this.gl.createVertexArray();
-		if (vao === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support VAOs."
-			);
-		}
-		this.internal = vao;
+		this.internal = this.gl.createVertexArray();
 
 		// Set the initial attribute values.
 		this.attributeCache = new Map<string, AttributeValue>();
@@ -200,8 +192,6 @@ export default class VertexArray extends ContextDependent {
 			return;
 		}
 
-		this.bind();
-
 		// Remove EBO.
 		if (!value) {
 			ElementBuffer.unbindGl(this.context, this.internal);
@@ -210,7 +200,7 @@ export default class VertexArray extends ContextDependent {
 		}
 
 		// Add or update EBO.
-		value.bind();
+		value.bind(this);
 		this.eboCache = value;
 	}
 

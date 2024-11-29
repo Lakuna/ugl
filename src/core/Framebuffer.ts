@@ -21,7 +21,6 @@ import Renderbuffer from "./Renderbuffer.js";
 import Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
-import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
@@ -167,18 +166,11 @@ export default class Framebuffer extends ContextDependent {
 	 * Create a framebuffer.
 	 * @param context - The rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
-	 * @throws {@link UnsupportedOperationError} if a framebuffer cannot be created.
 	 */
 	public constructor(context: Context) {
 		super(context);
 
-		const framebuffer = this.gl.createFramebuffer();
-		if (framebuffer === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support framebuffers."
-			);
-		}
-		this.internal = framebuffer;
+		this.internal = this.gl.createFramebuffer();
 		this.targetCache = FramebufferTarget.FRAMEBUFFER;
 		this.attachmentsCache = [];
 	}

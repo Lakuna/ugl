@@ -360,7 +360,6 @@ export default abstract class Texture extends ContextDependent {
 	 * @param levels - The number of levels in the texture.
 	 * @param format - The internal format of the texture.
 	 * @param dims - The dimensions of the texture.
-	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @throws {@link TextureFormatError} if the given format is unsized.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
@@ -382,13 +381,7 @@ export default abstract class Texture extends ContextDependent {
 	) {
 		super(context);
 
-		const texture = this.gl.createTexture();
-		if (texture === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support textures."
-			);
-		}
-		this.internal = texture;
+		this.internal = this.gl.createTexture();
 		this.target = target;
 		this.mipmaps = new Map();
 		this.dims = [];

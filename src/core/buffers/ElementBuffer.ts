@@ -132,15 +132,11 @@ export default class ElementBuffer extends Buffer {
 
 	/**
 	 * Bind this buffer to a VAO.
-	 * @param vao - The new VAO to bind to. or `undefined` to bind to the currently-bound VAO.
+	 * @param vao - The new VAO to bind to. or `undefined` to bind to the default VAO.
 	 * @internal
 	 */
 	public override bind(vao?: VertexArray) {
-		ElementBuffer.bindGl(
-			this.context,
-			vao?.internal ?? VertexArray.getBound(this.context),
-			this.internal
-		);
+		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 
 	/**

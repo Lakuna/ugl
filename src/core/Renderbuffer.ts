@@ -2,7 +2,6 @@ import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
 import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
-import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import getExtensionForRenderbufferFormat from "../utility/internal/getExtensionForRenderbufferFormat.js";
 
 /**
@@ -95,7 +94,6 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param format - The format of the renderbuffer.
 	 * @param width - The width of the renderbuffer.
 	 * @param height - The height of the renderbuffer.
-	 * @throws {@link UnsupportedOperationError} if a renderbuffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer | createRenderbuffer}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
 	 */
@@ -107,13 +105,7 @@ export default class Renderbuffer extends ContextDependent {
 	) {
 		super(context);
 
-		const renderbuffer = this.gl.createRenderbuffer();
-		if (renderbuffer === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support renderbuffers."
-			);
-		}
-		this.internal = renderbuffer;
+		this.internal = this.gl.createRenderbuffer();
 
 		// Enable the extension that is required for the given format, if any.
 		const extension = getExtensionForRenderbufferFormat(format);

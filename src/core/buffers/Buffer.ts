@@ -2,8 +2,7 @@ import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
 import ContextDependent from "../internal/ContextDependent.js";
-import type DataType from "../../constants/DataType.js";
-import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import DataType from "../../constants/DataType.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 
 /**
@@ -20,7 +19,6 @@ export default abstract class Buffer extends ContextDependent {
 	 * @param offset - The index of the element to start reading the buffer at.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
 	 * @param target - The target binding point of the buffer.
-	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 * @internal
 	 */
@@ -34,19 +32,19 @@ export default abstract class Buffer extends ContextDependent {
 	) {
 		super(context);
 
-		const buffer = this.gl.createBuffer();
-		if (buffer === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support buffers."
-			);
-		}
-
-		this.internal = buffer;
+		this.internal = this.gl.createBuffer();
 		this.targetCache = target;
 		this.usageCache = usage;
 		this.offsetCache = offset;
-		this.sizeCache = 0;
 		this.isHalfCache = isHalf;
+		if (typeof data === "number") {
+			this.sizeCache = data;
+			this.dataCache = new Uint8Array(data);
+		} else {
+			this.sizeCache = data.byteLength;
+			this.dataCache = data;
+		}
+
 		this.setData(data, usage, offset, isHalf);
 	}
 
@@ -102,15 +100,8 @@ export default abstract class Buffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
 	public get data(): ArrayBufferView {
-		// If the data cache isn't set, read the buffer.
-		if (!this.dataCache) {
-			this.bind();
-			this.dataCache = new Float32Array(this.size); // TODO: Don't assume `Float32Array` type.
-			this.gl.getBufferSubData(this.target, 0, this.dataCache, this.size); // TODO: "WebGL warning: `getBufferSubData`: Reading from a buffer with usage other than `*_READ` causes pipeline stalls. Copy through a `STREAM_READ` buffer."
-			// TODO: Add a `getData` method with more control over calling `getBufferSubData`.
-		}
-
-		return this.dataCache;
+		// TODO: If the data cache isn't set, read the buffer data with `getBufferSubData`. If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer.
+		return (this.dataCache ??= new Uint8Array());
 	}
 
 	public set data(value) {
@@ -206,8 +197,8 @@ export default abstract class Buffer extends ContextDependent {
 		this.bind();
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, usage);
-			delete this.dataCache;
-			delete this.typeCache;
+			this.dataCache = new Uint8Array(data);
+			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;

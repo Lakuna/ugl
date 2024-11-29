@@ -15,7 +15,6 @@ import ProgramLinkError from "../utility/ProgramLinkError.js";
 import Shader from "./Shader.js";
 import ShaderType from "../constants/ShaderType.js";
 import type Uniform from "./variables/uniforms/Uniform.js";
-import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import Varying from "./variables/Varying.js";
 import createAttribute from "./variables/attributes/createAttribute.js";
 import createUniform from "./variables/uniforms/createUniform.js";
@@ -135,7 +134,6 @@ export default class Program extends ContextDependent {
 	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
 	 * @param feedbackMode - The mode to use when capturing transform feedback varyings.
 	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
-	 * @throws {@link UnsupportedOperationError} if a shader program cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
@@ -169,34 +167,32 @@ export default class Program extends ContextDependent {
 		super(context);
 
 		// Create the shader program.
-		const program = this.gl.createProgram();
-		if (program === null) {
-			throw new UnsupportedOperationError(
-				"The environment does not support shader programs."
-			);
-		}
-		this.internal = program;
+		this.internal = this.gl.createProgram();
 
 		// Attach the vertex shader.
-		this.gl.attachShader(program, vertexShader.internal);
+		this.gl.attachShader(this.internal, vertexShader.internal);
 		this.vertexShader = vertexShader;
 
 		// Attach the fragment shader.
-		this.gl.attachShader(program, fragmentShader.internal);
+		this.gl.attachShader(this.internal, fragmentShader.internal);
 		this.fragmentShader = fragmentShader;
 
 		// Bind the attributes to their specified locations, if any.
 		if (attributeLocations) {
 			for (const [name, location] of attributeLocations) {
-				this.gl.bindAttribLocation(program, location, name);
+				this.gl.bindAttribLocation(this.internal, location, name);
 			}
 		}
 
 		// Specify the transform feedback varying names, if any.
-		this.gl.transformFeedbackVaryings(program, feedbackVaryings, feedbackMode);
+		this.gl.transformFeedbackVaryings(
+			this.internal,
+			feedbackVaryings,
+			feedbackMode
+		);
 
 		// Link the shader program.
-		this.gl.linkProgram(program);
+		this.gl.linkProgram(this.internal);
 		if (!this.linkStatus) {
 			throw new ProgramLinkError(this.infoLog ?? void 0);
 		}
@@ -204,7 +200,7 @@ export default class Program extends ContextDependent {
 		// Create wrappers for every uniform.
 		const uniforms = new Map<string, Uniform>();
 		const uniformCount = this.gl.getProgramParameter(
-			program,
+			this.internal,
 			ACTIVE_UNIFORMS
 		) as number;
 		for (let i = 0; i < uniformCount; i++) {
@@ -216,7 +212,7 @@ export default class Program extends ContextDependent {
 		// Create wrappers for every attribute.
 		const attributes = new Map<string, Attribute>();
 		const attributeCount = this.gl.getProgramParameter(
-			program,
+			this.internal,
 			ACTIVE_ATTRIBUTES
 		) as number;
 		for (let i = 0; i < attributeCount; i++) {
@@ -228,7 +224,7 @@ export default class Program extends ContextDependent {
 		// Create wrappers for every transform feedback varying.
 		const varyings = new Map<string, Varying>();
 		const varyingCount = this.gl.getProgramParameter(
-			program,
+			this.internal,
 			TRANSFORM_FEEDBACK_VARYINGS
 		) as number;
 		for (let i = 0; i < varyingCount; i++) {
