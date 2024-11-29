@@ -9,7 +9,7 @@ import getParameterForBufferTarget from "../../utility/internal/getParameterForB
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class VertexBuffer extends Buffer {
+export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	/**
 	 * The currently-bound buffer cache.
 	 * @internal

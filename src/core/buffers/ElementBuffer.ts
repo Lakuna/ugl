@@ -1,3 +1,4 @@
+import BadValueError from "../../utility/BadValueError.js";
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
@@ -10,7 +11,9 @@ import VertexArray from "../VertexArray.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class ElementBuffer extends Buffer {
+export default class ElementBuffer extends Buffer<
+	Uint8Array | Uint16Array | Uint32Array
+> {
 	/**
 	 * The currently-bound element array buffer cache.
 	 * @internal
@@ -131,8 +134,31 @@ export default class ElementBuffer extends Buffer {
 	}
 
 	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
+		if (super.target !== BufferTarget.ELEMENT_ARRAY_BUFFER) {
+			throw new BadValueError(
+				"The target binding point of an element buffer object can only be `ELEMENT_ARRAY_BUFFER`."
+			);
+		}
+
+		return super.target;
+	}
+
+	/** @internal */
+	public override set target(_) {
+		void this;
+
+		throw new BadValueError(
+			"The target binding point of an element buffer object can only be `ELEMENT_ARRAY_BUFFER`."
+		);
+	}
+
+	/**
 	 * Bind this buffer to a VAO.
-	 * @param vao - The new VAO to bind to. or `undefined` to bind to the default VAO.
+	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
 	 * @internal
 	 */
 	public override bind(vao?: VertexArray) {

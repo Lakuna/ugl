@@ -10,7 +10,9 @@ import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTyped
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default abstract class Buffer extends ContextDependent {
+export default abstract class Buffer<
+	T extends ArrayBufferView
+> extends ContextDependent {
 	/**
 	 * Create a buffer.
 	 * @param context - The rendering context.
@@ -24,7 +26,7 @@ export default abstract class Buffer extends ContextDependent {
 	 */
 	protected constructor(
 		context: Context,
-		data: ArrayBufferView | number,
+		data: T | number,
 		usage = BufferUsage.STATIC_DRAW,
 		offset = 0,
 		isHalf = false,
@@ -39,7 +41,7 @@ export default abstract class Buffer extends ContextDependent {
 		this.isHalfCache = isHalf;
 		if (typeof data === "number") {
 			this.sizeCache = data;
-			this.dataCache = new Uint8Array(data);
+			this.dataCache = new Uint8Array(data) as unknown as T;
 		} else {
 			this.sizeCache = data.byteLength;
 			this.dataCache = data;
@@ -93,15 +95,15 @@ export default abstract class Buffer extends ContextDependent {
 	 * The data contained in this buffer.
 	 * @internal
 	 */
-	private dataCache?: ArrayBufferView;
+	private dataCache?: T;
 
 	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): ArrayBufferView {
+	public get data(): T {
 		// TODO: If the data cache isn't set, read the buffer data with `getBufferSubData`. If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer.
-		return (this.dataCache ??= new Uint8Array());
+		return (this.dataCache ??= new Uint8Array() as unknown as T);
 	}
 
 	public set data(value) {
@@ -162,7 +164,7 @@ export default abstract class Buffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
-		data: ArrayBufferView | number,
+		data: T | number,
 		usage?: BufferUsage,
 		offset?: number,
 		isHalf?: boolean
@@ -179,7 +181,7 @@ export default abstract class Buffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
-		data: ArrayBufferView,
+		data: T,
 		_: unknown,
 		offset: number,
 		__: unknown,
@@ -187,7 +189,7 @@ export default abstract class Buffer extends ContextDependent {
 	): void;
 
 	public setData(
-		data: ArrayBufferView | number,
+		data: T | number,
 		usage: BufferUsage = this.usage,
 		offset: number = this.offset,
 		isHalf: boolean = this.isHalf,
@@ -197,7 +199,7 @@ export default abstract class Buffer extends ContextDependent {
 		this.bind();
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, usage);
-			this.dataCache = new Uint8Array(data);
+			this.dataCache = new Uint8Array(data) as unknown as T;
 			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
 			this.usageCache = usage;
