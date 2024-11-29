@@ -35,7 +35,7 @@ import VariableType from "../../../constants/VariableType.js";
  */
 export default function createUniform(program: Program, index: number) {
 	const activeInfo = program.gl.getActiveUniform(program.internal, index);
-	if (activeInfo === null) {
+	if (!activeInfo) {
 		throw new UnsupportedOperationError(
 			"The environment does not support active information."
 		);

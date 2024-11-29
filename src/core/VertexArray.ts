@@ -223,14 +223,14 @@ export default class VertexArray extends ContextDependent {
 		countOverride: number | undefined = void 0
 	): void {
 		// Bind the correct framebuffer.
-		if (framebuffer === null) {
-			Framebuffer.unbindGl(this.context, FramebufferTarget.DRAW_FRAMEBUFFER);
-		} else {
+		if (framebuffer) {
 			Framebuffer.bindGl(
 				this.context,
 				FramebufferTarget.DRAW_FRAMEBUFFER,
 				framebuffer.internal
 			);
+		} else {
+			Framebuffer.unbindGl(this.context, FramebufferTarget.DRAW_FRAMEBUFFER);
 		}
 
 		// Bind the correct shader program.

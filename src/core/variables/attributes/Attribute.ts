@@ -55,7 +55,7 @@ export default abstract class Attribute extends Variable {
 	 */
 	public get enabled(): boolean {
 		const vao = VertexArray.getBound(this.context);
-		if (vao === null) {
+		if (!vao) {
 			return false;
 		}
 
@@ -72,15 +72,16 @@ export default abstract class Attribute extends Variable {
 		// Enable.
 		if (value) {
 			this.gl.enableVertexAttribArray(this.location);
-			if (vao !== null && !this.enabledVaosCache.includes(vao)) {
+			if (vao && !this.enabledVaosCache.includes(vao)) {
 				this.enabledVaosCache.push(vao);
 			}
+
 			return;
 		}
 
 		// Disable.
 		this.gl.disableVertexAttribArray(this.location);
-		if (vao !== null && this.enabledVaosCache.includes(vao)) {
+		if (vao && this.enabledVaosCache.includes(vao)) {
 			this.enabledVaosCache.splice(this.enabledVaosCache.indexOf(vao), 1);
 		}
 	}

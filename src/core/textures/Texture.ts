@@ -442,7 +442,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Enable the extension that is required for the given format, if any.
 		const extension = getExtensionForTextureFormat(value);
-		if (extension !== null) {
+		if (extension) {
 			this.context.enableExtension(extension);
 		}
 
@@ -696,7 +696,7 @@ export default abstract class Texture extends ContextDependent {
 		const expectedDataTypes = getTextureDataTypesForTextureFormat(this.format);
 		const type =
 			requestedType ?? expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
-		if (expectedDataTypes !== null && !expectedDataTypes.includes(type)) {
+		if (expectedDataTypes && !expectedDataTypes.includes(type)) {
 			throw new TextureFormatError(
 				`Data type \`${type.toString()}\` is not compatible with format \`${this.format.toString()}\`.`
 			);
@@ -1008,9 +1008,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link BadValueError} if set to a higher value than the current system supports.
 	 */
 	public get maxAnisotropy(): number {
-		if (
-			this.context.enableExtension(Extension.TextureFilterAnisotropic) === null
-		) {
+		if (!this.context.enableExtension(Extension.TextureFilterAnisotropic)) {
 			throw new UnsupportedOperationError(
 				"The environment does not support anisotropic filtering."
 			);

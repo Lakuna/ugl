@@ -109,7 +109,7 @@ export default class Renderbuffer extends ContextDependent {
 
 		// Enable the extension that is required for the given format, if any.
 		const extension = getExtensionForRenderbufferFormat(format);
-		if (extension !== null) {
+		if (extension) {
 			this.context.enableExtension(extension);
 		}
 

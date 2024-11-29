@@ -99,7 +99,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		);
 
 		// Unbind the buffer from all other targets.
-		if (buffer !== null) {
+		if (buffer) {
 			for (const [otherTarget, otherBuffer] of contextBindingsCache) {
 				if (target === otherTarget || buffer !== otherBuffer) {
 					continue;

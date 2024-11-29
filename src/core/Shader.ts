@@ -26,7 +26,7 @@ export default class Shader extends ContextDependent {
 		super(context);
 
 		const shader = this.gl.createShader(type);
-		if (shader === null) {
+		if (!shader) {
 			throw new UnsupportedOperationError(
 				"The environment does not support shaders."
 			);

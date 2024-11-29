@@ -928,7 +928,7 @@ export default class Context extends ApiInterface {
 	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
 	 */
 	public get maxTextureMaxAnisotropy(): number {
-		if (this.enableExtension(Extension.TextureFilterAnisotropic) === null) {
+		if (!this.enableExtension(Extension.TextureFilterAnisotropic)) {
 			throw new UnsupportedOperationError(
 				"The environment does not support anisotropic filtering."
 			);
@@ -1190,10 +1190,10 @@ export default class Context extends ApiInterface {
 			stencilBit = STENCIL_BUFFER_BIT;
 		}
 
-		if (framebuffer === null) {
-			Framebuffer.unbindGl(this, FramebufferTarget.DRAW_FRAMEBUFFER);
-		} else {
+		if (framebuffer) {
 			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+		} else {
+			Framebuffer.unbindGl(this, FramebufferTarget.DRAW_FRAMEBUFFER);
 		}
 
 		this.gl.clear(colorBit | depthBit | stencilBit);
