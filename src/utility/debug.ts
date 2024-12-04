@@ -276,7 +276,10 @@ export default function debug(
 	};
 
 	// Make an object for controlling the debugger.
-	const debugInfo = { isActive: true };
+	const debugInfo = {
+		doLogErrors: true,
+		isActive: true
+	};
 
 	// eslint-disable-next-line guard-for-in
 	for (const key in object) {
@@ -311,6 +314,22 @@ export default function debug(
 
 				// Log the report to the console.
 				out.log(report);
+
+				// Check for errors.
+				if (debugInfo.doLogErrors) {
+					// Don't log this call to `getError`.
+					debugInfo.isActive = false;
+					const error = gl.getError();
+					debugInfo.isActive = true;
+
+					if (error) {
+						// Print the error code.
+						out.error(enumMap.get(error));
+
+						// Disable error logging since otherwise this error will continue be logged after each method call.
+						debugInfo.doLogErrors = false;
+					}
+				}
 			}
 
 			// Return the return value.
