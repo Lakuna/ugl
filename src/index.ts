@@ -63,6 +63,7 @@ export type { default as BlendFunctionFullSet } from "./types/BlendFunctionFullS
 export type { default as BlendFunctionSet } from "./types/BlendFunctionSet.js";
 export type { default as Color } from "./types/Color.js";
 export type { default as ColorMask } from "./types/ColorMask.js";
+export type { default as DebugInfo } from "./types/DebugInfo.js";
 export type { ExtensionObject } from "./types/ExtensionObject.js";
 export type { default as MaxViewport } from "./types/MaxViewport.js";
 export type { default as Prism } from "./types/Prism.js";
