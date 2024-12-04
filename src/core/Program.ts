@@ -145,7 +145,7 @@ export default class Program extends ContextDependent {
 		vertexShader: Shader,
 		fragmentShader: Shader,
 		attributeLocations?: Map<string, number>,
-		feedbackVaryings: Iterable<string> = [],
+		feedbackVaryings?: Iterable<string>,
 		feedbackMode: MergeOrder = MergeOrder.SEPARATE_ATTRIBS
 	) {
 		if (vertexShader.gl !== fragmentShader.gl) {
@@ -185,11 +185,13 @@ export default class Program extends ContextDependent {
 		}
 
 		// Specify the transform feedback varying names, if any.
-		this.gl.transformFeedbackVaryings(
-			this.internal,
-			feedbackVaryings,
-			feedbackMode
-		);
+		if (feedbackVaryings) {
+			this.gl.transformFeedbackVaryings(
+				this.internal,
+				feedbackVaryings,
+				feedbackMode
+			);
+		}
 
 		// Link the shader program.
 		this.gl.linkProgram(this.internal);

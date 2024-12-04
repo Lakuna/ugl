@@ -80,36 +80,36 @@ export default function debug(
 				}
 
 				if (value instanceof Int8Array) {
-					return `Int8Array[${stringify([...value])}]`;
+					return `Int8Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Uint8Array) {
-					return `Uint8Array[${stringify([...value])}]`;
+					return `Uint8Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Int16Array) {
-					return `Int16Array[${stringify([...value])}]`;
+					return `Int16Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Uint16Array) {
-					return `Uint16Array[${stringify([...value])}]`;
+					return `Uint16Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Int32Array) {
-					return `Int32Array[${stringify([...value])}]`;
+					return `Int32Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Float32Array) {
-					return `Float32Array[${stringify([...value])}]`;
+					return `Float32Array${stringify([...value])}`;
 				}
 
 				if (value instanceof Float64Array) {
-					return `Float64Array[${stringify([...value])}]`;
+					return `Float64Array${stringify([...value])}`;
 				}
 
 				if (Symbol.iterator in value) {
 					try {
-						return `Iterable[${stringify([...(value as Iterable<unknown>)])}]`;
+						return `Iterable${stringify([...(value as Iterable<unknown>)])}`;
 					} catch {
 						// Not iterable; proceed to other guesses.
 					}
