@@ -1,5 +1,110 @@
 import type DebugInfo from "../types/DebugInfo.js";
 
+// Map of WebGL API method names to lists of which of the corresponding methods' arguments (and/or return values) should be interpreted as enumerated values. `-1` indicates the method's return value.
+const isEnumMap = new Map<string, number[]>([
+	["activeTexture", [0]],
+	["attachShader", [1]],
+	["bindBuffer", [0, 1]],
+	["bindFramebuffer", [0, 1]],
+	["bindRenderbuffer", [0, 1]],
+	["bindTexture", [0, 1]],
+	["blendEquation", [0]],
+	["blendEquationSeparate", [0, 1]],
+	["blendFunc", [0, 1]],
+	["blendFuncSeparate", [0, 1, 2, 3]],
+	["bufferData", [0, 2]],
+	["bufferSubData", [0]],
+	["checkFramebufferStatus", [-1, 0]],
+	["clear", [0]], // TODO: Special case.
+	["activeTexture", [0]],
+	["compressedTexImage2D", [0, 2]],
+	["compressedTexSubImage2D", [0, 6]],
+	["copyTexImage2D", [0, 2]],
+	["copyTexSubImage2D", [0]],
+	["createShader", [0]],
+	["cullFace", [0]],
+	["depthFunc", [0]],
+	["disable", [0]],
+	["drawArrays", [0]],
+	["drawElements", [0, 2]],
+	["enable", [0]],
+	["framebufferRenderbuffer", [0, 1, 2]],
+	["framebufferTexture2D", [0, 1, 2]],
+	["frontFace", [0]],
+	["generateMipmap", [0]],
+	["getBufferParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
+	["getError", [-1]],
+	["getFramebufferAttachmentParameter", [-1, 0, 1, 2]], // Return value may or may not be an enumerated value.
+	["getParameter", [-1, 0]], // Return value may or may not be an enumerated value.
+	["getProgramParameter", [-1, 1]], // Return value may or may not be an enumerated value.
+	["getRenderbufferParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
+	["getShaderParameter", [-1, 1]],
+	["getShaderPrecisionFormat", [0, 1]],
+	["getTexParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
+	["getVertexAttrib", [-1, 1]], // Return value may or may not be an enumerated value.
+	["getVertexAttribOffset", [1]],
+	["hint", [0, 1]],
+	["isEnabled", [0]],
+	["pixelStorei", [0, 1]], // Second argument may or may not be an enumerated value.
+	["readPixels", [4, 5]],
+	["renderbufferStorage", [0, 1]],
+	["stencilFunc", [0]],
+	["stencilFuncSeparate", [0, 1]],
+	["stencilMaskSeparate", [0]],
+	["stencilOp", [0, 1, 2]],
+	["stencilOpSeparate", [0, 1, 2, 3]],
+	["texImage2D", [0, 2, 3, 4, 6, 7]], // Fourth and fifth arguments may or may not be enumerated values.
+	["texParameterf", [0, 1, 2]], // Third argument may or may not be an enumerated value.
+	["texParameteri", [0, 1, 2]], // Third argument may or may not be an enumerated value.
+	["texSubImage2D", [0, 4, 5, 6, 7]], // Fifth and sixth arguments may or may not be enumerated values.
+	["vertexAttribPointer", [2]],
+	["beginQuery", [0]],
+	["beginTransformFeedback", [0]],
+	["bindBufferBase", [0]],
+	["bindBufferRange", [0]],
+	["bindTransformFeedback", [0]],
+	["blitFramebuffer", [8, 9]], // TODO: Special case.
+	["bufferData", [0, 2]],
+	["bufferSubData", [0]],
+	["clearBufferfv", [0]],
+	["clearBufferiv", [0]],
+	["clearBufferuiv", [0]],
+	["clearBufferfi", [0]],
+	["clientWaitSync", [-1, 1]],
+	["compressedTexImage3D", [0, 2]],
+	["compressedTexSubImage3D", [0, 8]],
+	["copyBufferSubData", [0, 1]],
+	["copyTexSubImage3D", [0]],
+	["drawArraysInstanced", [0]],
+	["drawBuffers", [0]],
+	["drawElementsInstanced", [0, 2]],
+	["drawRangeElements", [0, 4]],
+	["endQuery", [0]],
+	["fenceSync", [0]],
+	["framebufferTextureLayer", [0, 1]],
+	["getActiveUniformBlockParameter", [2]],
+	["getActiveUniforms", [-1, 2]], // Return value may or may not be an enumerated value.
+	["getBufferSubData", [0]],
+	["getIndexedParameter", [-1, 0]], // Return value may or may not be an enumerated value.
+	["getInternalFormatParameter", [0, 1, 2]],
+	["getQuery", [0, 1]],
+	["getQueryParameter", [1]],
+	["getSamplerParameter", [-1, 1]], // Return value may or may not be an enumerated value.
+	["getSyncParameter", [-1, 1]],
+	["invalidateFramebuffer", [0, 1]],
+	["invalidateSubFramebuffer", [0, 1]],
+	["readBuffer", [0]],
+	["renderbufferStorageMultisample", [0, 2]],
+	["samplerParameteri", [1, 2]], // Third argument may or may not be an enumerated value.
+	["texImage3D", [0, 2, 7, 8]],
+	["texStorage2D", [0, 2]],
+	["texStorage3D", [0, 2]],
+	["texSubImage3D", [0, 8, 9]],
+	["transformFeedbackVaryings", [2]],
+	["vertexAttribIPointer", [2]],
+	["waitSync", [2]]
+]);
+
 /**
  * Replace each method on the given `WebGL2RenderingContext` with a version that logs diagnostic information to the given console.
  * @param gl - The rendering context to debug.
@@ -80,36 +185,36 @@ export default function debug(
 				}
 
 				if (value instanceof Int8Array) {
-					return `Int8Array${stringify([...value])}`;
+					return `Int8Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Uint8Array) {
-					return `Uint8Array${stringify([...value])}`;
+					return `Uint8Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Int16Array) {
-					return `Int16Array${stringify([...value])}`;
+					return `Int16Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Uint16Array) {
-					return `Uint16Array${stringify([...value])}`;
+					return `Uint16Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Int32Array) {
-					return `Int32Array${stringify([...value])}`;
+					return `Int32Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Float32Array) {
-					return `Float32Array${stringify([...value])}`;
+					return `Float32Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Float64Array) {
-					return `Float64Array${stringify([...value])}`;
+					return `Float64Array${stringify([...value], isEnum)}`;
 				}
 
 				if (Symbol.iterator in value) {
 					try {
-						return `Iterable${stringify([...(value as Iterable<unknown>)])}`;
+						return `Iterable${stringify([...(value as Iterable<unknown>)], isEnum)}`;
 					} catch {
 						// Not iterable; proceed to other guesses.
 					}
@@ -300,16 +405,16 @@ export default function debug(
 				// Build a report consisting of the method name and arguments list.
 				let report = `${key}(`;
 				const argumentDivider = ", ";
+				let argIndex = 0;
+				const isEnumList = isEnumMap.get(key);
 				for (const arg of args) {
-					report += `${stringify(arg, true)}${argumentDivider}`;
+					report += `${stringify(arg, isEnumList?.includes(argIndex++))}${argumentDivider}`;
 				}
-
-				// TODO: Only set `isEnum` to `true` if the specific argument being passed is supposed to be an enumeration value.
 
 				// Cut off the last argument divider, close the parentheses, and report the return value, if any.
 				report = `${report.endsWith(argumentDivider) ? report.slice(0, report.length - argumentDivider.length) : report})`;
 				if (typeof returnValue !== "undefined") {
-					report += ` => ${stringify(returnValue, true)}`;
+					report += ` => ${stringify(returnValue, isEnumList?.includes(-1))}`;
 				}
 
 				// Log the report to the console.
