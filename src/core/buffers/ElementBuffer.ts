@@ -39,7 +39,10 @@ export default class ElementBuffer extends Buffer<
 	 * @returns The buffer.
 	 * @internal
 	 */
-	public static getBound(context: Context, vao: WebGLVertexArrayObject | null) {
+	public static getBound(
+		context: Context,
+		vao: WebGLVertexArrayObject | null
+	): WebGLBuffer | null {
 		// Get the buffer bindings cache.
 		const bindingsCache = ElementBuffer.getBindingsCache();
 
@@ -73,7 +76,7 @@ export default class ElementBuffer extends Buffer<
 		context: Context,
 		vao: WebGLVertexArrayObject | null,
 		buffer: WebGLBuffer | null
-	) {
+	): void {
 		// Do nothing if the binding is already correct.
 		if (ElementBuffer.getBound(context, vao) === buffer) {
 			// Ensure that the EBO is actually the currently-bound EBO before returning.
@@ -106,7 +109,7 @@ export default class ElementBuffer extends Buffer<
 		context: Context,
 		vao: WebGLVertexArrayObject | null,
 		buffer?: WebGLBuffer
-	) {
+	): void {
 		// Do nothing if the buffer is already unbound.
 		if (buffer && ElementBuffer.getBound(context, vao) !== buffer) {
 			return;
@@ -175,7 +178,7 @@ export default class ElementBuffer extends Buffer<
 	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
 	 * @internal
 	 */
-	public override bind(vao?: VertexArray | null) {
+	public override bind(vao?: VertexArray | null): void {
 		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 
@@ -184,7 +187,7 @@ export default class ElementBuffer extends Buffer<
 	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the default VAO.
 	 * @internal
 	 */
-	public override unbind(vao?: VertexArray | null) {
+	public override unbind(vao?: VertexArray | null): void {
 		ElementBuffer.unbindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 }

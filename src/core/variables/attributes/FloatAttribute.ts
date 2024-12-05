@@ -12,7 +12,7 @@ export default class FloatAttribute extends Attribute {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer | vertexAttribPointer}
 	 * @internal
 	 */
-	protected override setterInternal(value: AttributeValue) {
+	protected override setterInternal(value: AttributeValue): void {
 		this.gl.vertexAttribPointer(
 			this.location,
 			value.size ?? 3,

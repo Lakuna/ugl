@@ -11,7 +11,7 @@ export default class FloatMatrix2x4Uniform extends MatrixUniform8 {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniformMatrix | uniformMatrix[234]x[234]fv}
 	 * @internal
 	 */
-	public override iterableSetterInternal(value: Iterable<number>) {
+	public override iterableSetterInternal(value: Iterable<number>): void {
 		this.gl.uniformMatrix2x4fv(
 			this.location,
 			this.transpose ?? false,

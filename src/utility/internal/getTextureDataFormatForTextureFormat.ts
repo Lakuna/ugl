@@ -9,7 +9,7 @@ import TextureFormat from "../../constants/TextureFormat.js";
  */
 export default function getTextureDataFormatForTextureFormat(
 	internalFormat: TextureFormat
-) {
+): TextureDataFormat {
 	switch (internalFormat) {
 		case TextureFormat.RGB:
 		case TextureFormat.RGB8:

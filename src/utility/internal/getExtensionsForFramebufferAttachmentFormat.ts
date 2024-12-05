@@ -9,7 +9,7 @@ import TextureFormat from "../../constants/TextureFormat.js";
  */
 export default function getExtensionsForFramebufferAttachmentFormat(
 	format: TextureFormat
-) {
+): Extension[] {
 	switch (format) {
 		case TextureFormat.R16F:
 		case TextureFormat.RG16F:

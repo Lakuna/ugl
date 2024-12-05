@@ -9,7 +9,9 @@ export default class SamplerUniform extends IntegerUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetter(value: Iterable<number> | Iterable<Texture>) {
+	public override iterableSetter(
+		value: Iterable<number> | Iterable<Texture>
+	): void {
 		const textureUnits = [];
 		for (const texture of value) {
 			// If a texture unit was passed, just fall back to integer behavior.
@@ -46,7 +48,7 @@ export default class SamplerUniform extends IntegerUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override setter(value: number | Texture) {
+	public override setter(value: number | Texture): void {
 		// If a texture unit was passed, just fall back to integer behavior.
 		if (typeof value === "number") {
 			super.setter(value);

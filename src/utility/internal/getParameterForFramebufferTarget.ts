@@ -13,7 +13,7 @@ import FramebufferTarget from "../../constants/FramebufferTarget.js";
  */
 export default function getParameterForFramebufferTarget(
 	target: FramebufferTarget
-) {
+): number {
 	switch (target) {
 		case FramebufferTarget.DRAW_FRAMEBUFFER:
 			return DRAW_FRAMEBUFFER_BINDING;

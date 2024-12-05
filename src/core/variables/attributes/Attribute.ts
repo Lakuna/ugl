@@ -27,13 +27,13 @@ export default abstract class Attribute extends Variable {
 	 * The active information of this attribute.
 	 * @internal
 	 */
-	protected override readonly activeInfo;
+	protected override readonly activeInfo: WebGLActiveInfo;
 
 	/**
 	 * The location of this attribute.
 	 * @internal
 	 */
-	public readonly location;
+	public readonly location: number;
 
 	/**
 	 * Set the value of this attribute.

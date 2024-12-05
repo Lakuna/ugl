@@ -6,7 +6,7 @@ import ErrorCode from "../../constants/ErrorCode.js";
  * @returns The message.
  * @internal
  */
-export default function getErrorCodeMessage(code: ErrorCode) {
+export default function getErrorCodeMessage(code: ErrorCode): string {
 	switch (code) {
 		case ErrorCode.CONTEXT_LOST_WEBGL:
 			return "The context is lost.";

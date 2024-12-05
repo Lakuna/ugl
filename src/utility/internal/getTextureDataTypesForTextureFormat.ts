@@ -4,12 +4,12 @@ import TextureFormat from "../../constants/TextureFormat.js";
 /**
  * Get a list of data types that can be supplied to the given texture internal format.
  * @param internalFormat - The texture internal format.
- * @returns A list of data types. If the return value is not null, it is guaranteed to contain at least one data type. The first data type in the list is a sensible default.
+ * @returns A list of data types. The first data type in the list is a sensible default.
  * @internal
  */
 export default function getTextureDataTypesForTextureFormat(
 	internalFormat: TextureFormat
-) {
+): TextureDataType[] {
 	switch (internalFormat) {
 		case TextureFormat.RGB:
 		case TextureFormat.RGB565:
@@ -111,6 +111,6 @@ export default function getTextureDataTypesForTextureFormat(
 		case TextureFormat.DEPTH32F_STENCIL8:
 			return [TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV];
 		default:
-			return null;
+			return [];
 	}
 }

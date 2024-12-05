@@ -141,7 +141,7 @@ export default class Texture2d extends Texture {
 		levels: number,
 		format: TextureFormat,
 		dims: [number, number]
-	) {
+	): void {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
 	}
 
@@ -163,7 +163,7 @@ export default class Texture2d extends Texture {
 		bounds?: Rectangle,
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
-	) {
+	): void {
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;

@@ -34,7 +34,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @returns The renderbuffer.
 	 * @internal
 	 */
-	public static getBound(context: Context) {
+	public static getBound(context: Context): WebGLRenderbuffer | null {
 		// Get the full bindings cache.
 		const bindingsCache = Renderbuffer.getBindingsCache();
 
@@ -48,6 +48,7 @@ export default class Renderbuffer extends ContextDependent {
 					) as WebGLRenderbuffer | null);
 			bindingsCache.set(context.gl, boundRenderbuffer);
 		}
+
 		return boundRenderbuffer;
 	}
 
@@ -61,7 +62,7 @@ export default class Renderbuffer extends ContextDependent {
 	public static bindGl(
 		context: Context,
 		renderbuffer: WebGLRenderbuffer | null
-	) {
+	): void {
 		// Do nothing if the binding is already correct.
 		if (Renderbuffer.getBound(context) === renderbuffer) {
 			return;
@@ -78,7 +79,10 @@ export default class Renderbuffer extends ContextDependent {
 	 * @param renderbuffer - The renderbuffer to unbind, or `undefined` to unbind any renderbuffer.
 	 * @internal
 	 */
-	public static unbindGl(context: Context, renderbuffer?: WebGLRenderbuffer) {
+	public static unbindGl(
+		context: Context,
+		renderbuffer?: WebGLRenderbuffer
+	): void {
 		// Do nothing if the renderbuffer is already unbound.
 		if (renderbuffer && Renderbuffer.getBound(context) !== renderbuffer) {
 			return;
@@ -124,7 +128,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * The API interface of this renderbuffer.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLRenderbuffer;
 
 	/** The format of this renderbuffer. */
 	public readonly format: RenderbufferFormat;
@@ -147,7 +151,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * Bind this renderbuffer.
 	 * @internal
 	 */
-	public bind() {
+	public bind(): void {
 		Renderbuffer.bindGl(this.context, this.internal);
 	}
 
@@ -155,7 +159,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * Unbind this renderbuffer.
 	 * @internal
 	 */
-	public unbind() {
+	public unbind(): void {
 		Renderbuffer.unbindGl(this.context, this.internal);
 	}
 }

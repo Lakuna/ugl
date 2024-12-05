@@ -10,7 +10,7 @@ import DataType from "../../constants/DataType.js";
 export default function getDataTypeForTypedArray(
 	array: ArrayBufferView,
 	half = false
-) {
+): DataType {
 	return array instanceof Int8Array
 		? DataType.BYTE
 		: array instanceof Uint8Array || array instanceof Uint8ClampedArray

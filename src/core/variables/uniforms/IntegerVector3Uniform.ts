@@ -11,7 +11,7 @@ export default class IntegerVector3Uniform extends Vector3Uniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetterInternal(value: Iterable<number>) {
+	public override iterableSetterInternal(value: Iterable<number>): void {
 		this.gl.uniform3iv(
 			this.location,
 			value,

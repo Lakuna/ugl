@@ -6,7 +6,7 @@ import DataType from "../../constants/DataType.js";
  * @returns The size of the data type in bytes.
  * @internal
  */
-export default function getSizeOfDataType(type: DataType) {
+export default function getSizeOfDataType(type: DataType): number {
 	switch (type) {
 		case DataType.BYTE:
 		case DataType.UNSIGNED_BYTE:

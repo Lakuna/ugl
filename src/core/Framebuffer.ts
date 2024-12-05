@@ -76,7 +76,10 @@ export default class Framebuffer extends ContextDependent {
 	 * @returns The framebuffer.
 	 * @internal
 	 */
-	public static getBound(context: Context, target: FramebufferTarget) {
+	public static getBound(
+		context: Context,
+		target: FramebufferTarget
+	): WebGLFramebuffer | null {
 		// Get the context bindings cache.
 		const contextBindingsCache = Framebuffer.getContextBindingsCache(
 			context.gl
@@ -107,7 +110,7 @@ export default class Framebuffer extends ContextDependent {
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer: WebGLFramebuffer | null
-	) {
+	): void {
 		// Do nothing if the binding is already correct.
 		if (Framebuffer.getBound(context, target) === framebuffer) {
 			return;
@@ -152,7 +155,7 @@ export default class Framebuffer extends ContextDependent {
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer?: WebGLFramebuffer
-	) {
+	): void {
 		// Do nothing if the framebuffer is already unbound.
 		if (framebuffer && Framebuffer.getBound(context, target) !== framebuffer) {
 			return;
@@ -179,7 +182,7 @@ export default class Framebuffer extends ContextDependent {
 	 * The API interface of this framebuffer.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLFramebuffer;
 
 	/**
 	 * The binding point of this framebuffer.
@@ -227,7 +230,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
 	 * @internal
 	 */
-	public bind(target?: FramebufferTarget) {
+	public bind(target?: FramebufferTarget): void {
 		if (target) {
 			this.target = target;
 		}
@@ -239,7 +242,7 @@ export default class Framebuffer extends ContextDependent {
 	 * Unbind this framebuffer from its binding point.
 	 * @internal
 	 */
-	public unbind() {
+	public unbind(): void {
 		Framebuffer.unbindGl(this.context, this.target, this.internal);
 	}
 

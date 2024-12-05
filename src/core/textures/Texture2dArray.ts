@@ -88,7 +88,7 @@ export default class Texture2dArray extends Texture {
 		levels: number,
 		format: TextureFormat,
 		dims: [number, number, number]
-	) {
+	): void {
 		this.gl.texStorage3D(
 			this.target,
 			levels,
@@ -116,7 +116,7 @@ export default class Texture2dArray extends Texture {
 		bounds?: Prism,
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
-	) {
+	): void {
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;
@@ -182,7 +182,7 @@ export default class Texture2dArray extends Texture {
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
-	) {
+	): void {
 		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Bind the buffer.
@@ -280,7 +280,7 @@ export default class Texture2dArray extends Texture {
 		format: TextureDataFormat,
 		type: TextureDataType,
 		data?: TexImageSource
-	) {
+	): void {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		const z = bounds?.[4] ?? 0;
@@ -362,7 +362,7 @@ export default class Texture2dArray extends Texture {
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
-	) {
+	): void {
 		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.

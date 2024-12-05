@@ -16,7 +16,9 @@ import BufferTarget from "../../constants/BufferTarget.js";
  * @returns The constant value.
  * @internal
  */
-export default function getParameterForBufferTarget(target: BufferTarget) {
+export default function getParameterForBufferTarget(
+	target: BufferTarget
+): number {
 	switch (target) {
 		case BufferTarget.ARRAY_BUFFER:
 			return ARRAY_BUFFER_BINDING;

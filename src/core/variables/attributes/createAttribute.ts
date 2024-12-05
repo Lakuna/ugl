@@ -1,3 +1,4 @@
+import type Attribute from "./Attribute.js";
 import FloatAttribute from "./FloatAttribute.js";
 import IntegerAttribute from "./IntegerAttribute.js";
 import MatrixAttribute from "./MatrixAttribute.js";
@@ -14,7 +15,10 @@ import VariableType from "../../../constants/VariableType.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
  * @internal
  */
-export default function createAttribute(program: Program, index: number) {
+export default function createAttribute(
+	program: Program,
+	index: number
+): Attribute {
 	const activeInfo = program.gl.getActiveAttrib(program.internal, index);
 	if (!activeInfo) {
 		throw new UnsupportedOperationError(

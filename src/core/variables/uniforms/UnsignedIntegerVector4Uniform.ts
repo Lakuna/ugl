@@ -11,7 +11,7 @@ export default class UnsignedIntegerVector4Uniform extends Vector4Uniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetterInternal(value: Iterable<number>) {
+	public override iterableSetterInternal(value: Iterable<number>): void {
 		this.gl.uniform4uiv(
 			this.location,
 			value,

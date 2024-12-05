@@ -6,7 +6,7 @@ import TextureFormat from "../../constants/TextureFormat.js";
  * @returns Whether or not the given texture format is sized.
  * @internal
  */
-export default function isTextureFormatSized(format: TextureFormat) {
+export default function isTextureFormatSized(format: TextureFormat): boolean {
 	switch (format) {
 		case TextureFormat.R8:
 		case TextureFormat.R8_SNORM:

@@ -32,7 +32,7 @@ export default abstract class Vector2Uniform extends MultipleValuedUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetter(value: Iterable<number>) {
+	public override iterableSetter(value: Iterable<number>): void {
 		// Can only accept two values.
 		const [x, y] = [...value];
 		if (

@@ -8,7 +8,7 @@ import TextureDataFormat from "../../constants/TextureDataFormat.js";
  */
 export default function isTextureDataFormatCompressed(
 	format: TextureDataFormat
-) {
+): boolean {
 	switch (format) {
 		case TextureDataFormat.COMPRESSED_R11_EAC:
 		case TextureDataFormat.COMPRESSED_RED_GREEN_RGTC2_EXT:

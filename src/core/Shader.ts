@@ -49,7 +49,7 @@ export default class Shader extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader | WebGLShader}
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLShader;
 
 	/** The type of this shader. */
 	public readonly type: ShaderType;

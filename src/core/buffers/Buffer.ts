@@ -28,11 +28,11 @@ export default abstract class Buffer<
 	protected constructor(
 		context: Context,
 		data: T | number,
-		usage = BufferUsage.STATIC_DRAW,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset: number | undefined = void 0,
 		length: number | undefined = void 0,
 		isHalf = false,
-		target = BufferTarget.ARRAY_BUFFER
+		target: BufferTarget = BufferTarget.ARRAY_BUFFER
 	) {
 		super(context);
 
@@ -55,7 +55,7 @@ export default abstract class Buffer<
 	 * The API interface of this buffer.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLBuffer;
 
 	/**
 	 * The binding point of this buffer.

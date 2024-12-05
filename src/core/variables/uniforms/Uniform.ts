@@ -37,7 +37,7 @@ export default abstract class Uniform extends Variable {
 	 * The active information of this uniform.
 	 * @internal
 	 */
-	protected override readonly activeInfo;
+	protected override readonly activeInfo: WebGLActiveInfo;
 
 	/**
 	 * The location of this uniform.

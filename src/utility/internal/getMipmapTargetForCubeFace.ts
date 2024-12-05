@@ -12,7 +12,7 @@ import TextureTarget from "../../constants/TextureTarget.js";
 export default function getMipmapTargetForCubeFace(
 	face?: CubeFace,
 	target: TextureTarget = TextureTarget.TEXTURE_CUBE_MAP
-) {
+): MipmapTarget {
 	switch (target) {
 		case TextureTarget.TEXTURE_2D_ARRAY:
 			return MipmapTarget.TEXTURE_2D_ARRAY;

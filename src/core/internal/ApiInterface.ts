@@ -16,5 +16,5 @@ export default abstract class ApiInterface {
 	 * The API interface.
 	 * @internal
 	 */
-	public readonly gl;
+	public readonly gl: WebGL2RenderingContext;
 }

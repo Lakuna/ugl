@@ -11,7 +11,7 @@ export default class UnsignedIntegerUniform extends ScalarUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetterInternal(value: Iterable<number>) {
+	public override iterableSetterInternal(value: Iterable<number>): void {
 		this.gl.uniform1uiv(
 			this.location,
 			value,
@@ -26,7 +26,7 @@ export default class UnsignedIntegerUniform extends ScalarUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override setterInternal(value: number) {
+	public override setterInternal(value: number): void {
 		this.gl.uniform1ui(this.location, value);
 	}
 }

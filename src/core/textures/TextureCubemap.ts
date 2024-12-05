@@ -225,7 +225,7 @@ export default class TextureCubemap extends Texture {
 		bounds?: Rectangle,
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
-	) {
+	): void {
 		const mipDims = this.getSizeOfMip(level);
 
 		const x = bounds?.[0] ?? 0;
@@ -305,7 +305,7 @@ export default class TextureCubemap extends Texture {
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
-	) {
+	): void {
 		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Bind the buffer.
@@ -397,7 +397,7 @@ export default class TextureCubemap extends Texture {
 		format: TextureDataFormat,
 		type: TextureDataType,
 		data?: TexImageSource
-	) {
+	): void {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		// https://caniuse.com/mdn-api_videoframe
@@ -480,7 +480,7 @@ export default class TextureCubemap extends Texture {
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
-	) {
+	): void {
 		const isCompressed = isTextureDataFormatCompressed(format);
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.

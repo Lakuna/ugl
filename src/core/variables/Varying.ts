@@ -34,7 +34,7 @@ export default class Varying extends Variable {
 	 * The active information of this varying.
 	 * @internal
 	 */
-	protected override readonly activeInfo;
+	protected override readonly activeInfo: WebGLActiveInfo;
 
 	/** The value that is stored in this varying. */
 	public override get value(): void {

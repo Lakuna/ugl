@@ -48,7 +48,7 @@ export default class Program extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @internal
 	 */
-	public static getBound(context: Context) {
+	public static getBound(context: Context): WebGLProgram | null {
 		// Get the full bindings cache.
 		const bindingsCache = Program.getBindingsCache();
 
@@ -71,7 +71,7 @@ export default class Program extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram | useProgram}
 	 * @internal
 	 */
-	public static bindGl(context: Context, program: WebGLProgram | null) {
+	public static bindGl(context: Context, program: WebGLProgram | null): void {
 		// Do nothing if the binding is already correct.
 		if (Program.getBound(context) === program) {
 			return;
@@ -88,7 +88,7 @@ export default class Program extends ContextDependent {
 	 * @param program - The program to unbind, or `undefined` to unbind any program.
 	 * @internal
 	 */
-	public static unbindGl(context: Context, program?: WebGLProgram) {
+	public static unbindGl(context: Context, program?: WebGLProgram): void {
 		// Do nothing if the program is already unbound.
 		if (program && Program.getBound(context) !== program) {
 			return;
@@ -240,7 +240,7 @@ export default class Program extends ContextDependent {
 	 * The API interface of this shader program.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLProgram;
 
 	/** The vertex shader of this shader program. */
 	public readonly vertexShader: Shader;
@@ -292,10 +292,19 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
+	 * Detach the given shader from this shader program.
+	 * @param shader - The shader to detach.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/detachShader | detachShader}
+	 */
+	public detach(shader: Shader): void {
+		this.gl.detachShader(this.internal, shader.internal);
+	}
+
+	/**
 	 * Bind this program.
 	 * @internal
 	 */
-	public bind() {
+	public bind(): void {
 		Program.bindGl(this.context, this.internal);
 	}
 
@@ -303,7 +312,7 @@ export default class Program extends ContextDependent {
 	 * Unbind this program.
 	 * @internal
 	 */
-	public unbind() {
+	public unbind(): void {
 		Program.unbindGl(this.context, this.internal);
 	}
 }

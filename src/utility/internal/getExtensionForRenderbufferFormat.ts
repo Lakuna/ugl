@@ -9,7 +9,7 @@ import RenderbufferFormat from "../../constants/RenderbufferFormat.js";
  */
 export default function getExtensionForRenderbufferFormat(
 	format: RenderbufferFormat
-) {
+): Extension | null {
 	switch (format) {
 		case RenderbufferFormat.R16F:
 		case RenderbufferFormat.RG16F:

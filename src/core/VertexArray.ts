@@ -42,7 +42,7 @@ export default class VertexArray extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @internal
 	 */
-	public static getBound(context: Context) {
+	public static getBound(context: Context): WebGLVertexArrayObject | null {
 		// Get the full bindings cache.
 		const bindingsCache = VertexArray.getBindingsCache();
 
@@ -67,7 +67,10 @@ export default class VertexArray extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/bindVertexArray | bindVertexArray}
 	 * @internal
 	 */
-	public static bindGl(context: Context, vao: WebGLVertexArrayObject | null) {
+	public static bindGl(
+		context: Context,
+		vao: WebGLVertexArrayObject | null
+	): void {
 		// Do nothing if the binding is already correct.
 		if (VertexArray.getBound(context) === vao) {
 			return;
@@ -84,7 +87,7 @@ export default class VertexArray extends ContextDependent {
 	 * @param vao - The VAO to unbind, or `undefined` to unbind any VAO.
 	 * @internal
 	 */
-	public static unbindGl(context: Context, vao?: WebGLVertexArrayObject) {
+	public static unbindGl(context: Context, vao?: WebGLVertexArrayObject): void {
 		// Do nothing if the VAO is already unbound.
 		if (vao && VertexArray.getBound(context) !== vao) {
 			return;
@@ -137,7 +140,7 @@ export default class VertexArray extends ContextDependent {
 	 * The API interface of this VAO.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLVertexArrayObject;
 
 	/**
 	 * The values of attributes in this VAO.
@@ -299,7 +302,7 @@ export default class VertexArray extends ContextDependent {
 	 * Bind this VAO.
 	 * @internal
 	 */
-	public bind() {
+	public bind(): void {
 		VertexArray.bindGl(this.context, this.internal);
 	}
 
@@ -307,7 +310,7 @@ export default class VertexArray extends ContextDependent {
 	 * Unbind this VAO.
 	 * @internal
 	 */
-	public unbind() {
+	public unbind(): void {
 		VertexArray.unbindGl(this.context, this.internal);
 	}
 }

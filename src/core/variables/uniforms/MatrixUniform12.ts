@@ -45,7 +45,7 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetter(value: Iterable<number>) {
+	public override iterableSetter(value: Iterable<number>): void {
 		// Can only accept twelve values.
 		const [i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11] = [...value];
 		if (

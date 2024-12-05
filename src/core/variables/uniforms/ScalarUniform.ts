@@ -32,7 +32,7 @@ export default abstract class ScalarUniform extends Uniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override iterableSetter(value: Iterable<number>) {
+	public override iterableSetter(value: Iterable<number>): void {
 		// Can only accept one value.
 		const [x] = [...value];
 		if (typeof x === "undefined" || x === this.scalarValueCache) {
@@ -57,7 +57,7 @@ export default abstract class ScalarUniform extends Uniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
-	public override setter(value: number) {
+	public override setter(value: number): void {
 		if (value === this.scalarValueCache) {
 			return;
 		}

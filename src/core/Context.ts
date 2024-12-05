@@ -195,7 +195,7 @@ export default class Context extends ApiInterface {
 	 * Whether or not cached values should be prefilled with their default values.
 	 * @internal
 	 */
-	public readonly doPrefillCache;
+	public readonly doPrefillCache: boolean;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
@@ -799,7 +799,10 @@ export default class Context extends ApiInterface {
 	 */
 	private depthRangeCache?: Pair;
 
-	/** The depth range mapping from normalized device coordinates to window or viewport coordinates. */
+	/**
+	 * The depth range mapping from normalized device coordinates to window or viewport coordinates.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthRange | depthRange}
+	 */
 	public get depthRange(): Pair {
 		return (this.depthRangeCache ??= this.doPrefillCache
 			? new Float32Array([0, 1])

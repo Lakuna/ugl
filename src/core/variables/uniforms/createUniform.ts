@@ -17,6 +17,7 @@ import IntegerVector3Uniform from "./IntegerVector3Uniform.js";
 import IntegerVector4Uniform from "./IntegerVector4Uniform.js";
 import type Program from "../../Program.js";
 import SamplerUniform from "./SamplerUniform.js";
+import type Uniform from "./Uniform.js";
 import UnsignedIntegerUniform from "./UnsignedIntegerUniform.js";
 import UnsignedIntegerVector2Uniform from "./UnsignedIntegerVector2Uniform.js";
 import UnsignedIntegerVector3Uniform from "./UnsignedIntegerVector3Uniform.js";
@@ -33,7 +34,10 @@ import VariableType from "../../../constants/VariableType.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveUniform | getActiveUniform}
  * @internal
  */
-export default function createUniform(program: Program, index: number) {
+export default function createUniform(
+	program: Program,
+	index: number
+): Uniform {
 	const activeInfo = program.gl.getActiveUniform(program.internal, index);
 	if (!activeInfo) {
 		throw new UnsupportedOperationError(

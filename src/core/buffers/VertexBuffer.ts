@@ -55,7 +55,10 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * @returns The buffer.
 	 * @internal
 	 */
-	public static getBound(context: Context, target: BufferTarget) {
+	public static getBound(
+		context: Context,
+		target: BufferTarget
+	): WebGLBuffer | null {
 		// Get the context bindings cache.
 		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
 			context.gl
@@ -87,7 +90,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		context: Context,
 		target: BufferTarget,
 		buffer: WebGLBuffer | null
-	) {
+	): void {
 		// Do nothing if the binding is already correct.
 		if (VertexBuffer.getBound(context, target) === buffer) {
 			return;
@@ -126,7 +129,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		context: Context,
 		target: BufferTarget,
 		buffer?: WebGLBuffer
-	) {
+	): void {
 		// Do nothing if the buffer is already unbound.
 		if (buffer && VertexBuffer.getBound(context, target) !== buffer) {
 			return;
@@ -171,7 +174,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
 	 * @internal
 	 */
-	public override bind(target?: BufferTarget) {
+	public override bind(target?: BufferTarget): void {
 		if (target) {
 			this.target = target;
 		}
@@ -183,7 +186,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * Unbind this buffer from its binding point.
 	 * @internal
 	 */
-	public override unbind() {
+	public override unbind(): void {
 		VertexBuffer.unbindGl(this.context, this.target, this.internal);
 	}
 }

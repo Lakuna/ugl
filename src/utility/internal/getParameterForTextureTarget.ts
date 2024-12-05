@@ -12,7 +12,9 @@ import TextureTarget from "../../constants/TextureTarget.js";
  * @returns The constant value.
  * @internal
  */
-export default function getParameterForTextureTarget(target: TextureTarget) {
+export default function getParameterForTextureTarget(
+	target: TextureTarget
+): number {
 	switch (target) {
 		case TextureTarget.TEXTURE_2D:
 			return TEXTURE_BINDING_2D;

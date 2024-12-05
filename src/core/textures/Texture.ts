@@ -223,7 +223,7 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		requestedTextureUnit: number | undefined,
 		target: TextureTarget
-	) {
+	): WebGLTexture | null {
 		// Default to the most desirable texture unit.
 		const textureUnit =
 			requestedTextureUnit ?? Texture.getBestTextureUnit(context, target);
@@ -270,7 +270,7 @@ export default abstract class Texture extends ContextDependent {
 		target: TextureTarget,
 		texture: WebGLTexture | null,
 		queryOnly = false
-	) {
+	): number {
 		// Default to the most desirable texture unit.
 		const textureUnit =
 			requestedTextureUnit ??
@@ -323,7 +323,7 @@ export default abstract class Texture extends ContextDependent {
 		textureUnit: number | undefined,
 		target: TextureTarget,
 		texture?: WebGLTexture
-	) {
+	): void {
 		// If a specific texture unit is given, unbind the texture from only that texture unit.
 		if (typeof textureUnit === "number") {
 			// If a specific texture is given, only unbind that texture.
@@ -399,13 +399,13 @@ export default abstract class Texture extends ContextDependent {
 	 * The API interface of this texture.
 	 * @internal
 	 */
-	public readonly internal;
+	public readonly internal: WebGLTexture;
 
 	/**
 	 * The binding point of this texture.
 	 * @internal
 	 */
-	public readonly target;
+	public readonly target: TextureTarget;
 
 	/**
 	 * The mipmaps in this texture. Most textures will have only one mipmap, but cubemaps have six (one for each face). Each mipmap is a map of mip levels to boolean values representing whether or not the corresponding mip has been given texture data.
@@ -699,8 +699,8 @@ export default abstract class Texture extends ContextDependent {
 		// Ensure that the data type and internal format are compatible.
 		const expectedDataTypes = getTextureDataTypesForTextureFormat(this.format);
 		const type =
-			requestedType ?? expectedDataTypes?.[0] ?? TextureDataType.UNSIGNED_BYTE;
-		if (expectedDataTypes && !expectedDataTypes.includes(type)) {
+			requestedType ?? expectedDataTypes[0] ?? TextureDataType.UNSIGNED_BYTE;
+		if (expectedDataTypes.length && !expectedDataTypes.includes(type)) {
 			throw new TextureFormatError(
 				`Data type \`${type.toString()}\` is not compatible with format \`${this.format.toString()}\`.`
 			);
@@ -1418,7 +1418,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
-	public bind(textureUnit?: number, queryOnly = false) {
+	public bind(textureUnit?: number, queryOnly = false): number {
 		return Texture.bindGl(
 			this.context,
 			textureUnit,
@@ -1434,7 +1434,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
-	public unbind(textureUnit?: number) {
+	public unbind(textureUnit?: number): void {
 		Texture.unbindGl(this.context, textureUnit, this.target, this.internal);
 	}
 }

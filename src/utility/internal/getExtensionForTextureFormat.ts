@@ -7,7 +7,9 @@ import TextureFormat from "../../constants/TextureFormat.js";
  * @returns The extension that is associated with the texture internal format.
  * @internal
  */
-export default function getExtensionForTextureFormat(format: TextureFormat) {
+export default function getExtensionForTextureFormat(
+	format: TextureFormat
+): Extension | null {
 	switch (format) {
 		case TextureFormat.COMPRESSED_RGB_S3TC_DXT1_EXT:
 		case TextureFormat.COMPRESSED_RGBA_S3TC_DXT1_EXT:

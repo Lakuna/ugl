@@ -21,7 +21,7 @@ export default abstract class Variable extends ContextDependent {
 	 * The shader program that this variable belongs to.
 	 * @internal
 	 */
-	protected readonly program;
+	protected readonly program: Program;
 
 	/**
 	 * The value that is stored in this variable.
