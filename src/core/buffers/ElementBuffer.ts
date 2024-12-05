@@ -76,6 +76,14 @@ export default class ElementBuffer extends Buffer<
 	) {
 		// Do nothing if the binding is already correct.
 		if (ElementBuffer.getBound(context, vao) === buffer) {
+			// Ensure that the EBO is actually the currently-bound EBO before returning.
+			if (
+				ElementBuffer.getBound(context, VertexArray.getBound(context)) !==
+				buffer
+			) {
+				VertexArray.bindGl(context, vao);
+			}
+
 			return;
 		}
 
@@ -167,20 +175,16 @@ export default class ElementBuffer extends Buffer<
 	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
 	 * @internal
 	 */
-	public override bind(vao?: VertexArray) {
+	public override bind(vao?: VertexArray | null) {
 		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 
 	/**
 	 * Unbind this buffer from a VAO.
-	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the currently-bound VAO.
+	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the default VAO.
 	 * @internal
 	 */
-	public override unbind(vao?: VertexArray) {
-		ElementBuffer.unbindGl(
-			this.context,
-			vao?.internal ?? VertexArray.getBound(this.context),
-			this.internal
-		);
+	public override unbind(vao?: VertexArray | null) {
+		ElementBuffer.unbindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 }
