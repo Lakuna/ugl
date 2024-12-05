@@ -31,6 +31,8 @@ import {
 	RASTERIZER_DISCARD,
 	SAMPLE_ALPHA_TO_COVERAGE,
 	SAMPLE_COVERAGE,
+	SAMPLE_COVERAGE_INVERT,
+	SAMPLE_COVERAGE_VALUE,
 	SCISSOR_BOX,
 	SCISSOR_TEST,
 	STENCIL_BACK_FUNC,
@@ -328,6 +330,56 @@ export default class Context extends ApiInterface {
 		}
 
 		this.doSampleCoverageCache = value;
+	}
+
+	/**
+	 * A single floating-point coverage value.
+	 * @internal
+	 */
+	private sampleCoverageValueCache?: number;
+
+	/**
+	 * A single floating-point coverage value.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
+	 */
+	public get sampleCoverageValue(): number {
+		return (this.sampleCoverageValueCache ??= this.doPrefillCache
+			? 1
+			: this.gl.getParameter(SAMPLE_COVERAGE_VALUE));
+	}
+
+	public set sampleCoverageValue(value: number) {
+		if (value === this.sampleCoverageValue) {
+			return;
+		}
+
+		this.gl.sampleCoverage(value, this.sampleCoverageInvert);
+		this.sampleCoverageValueCache = value;
+	}
+
+	/**
+	 * Whether or not the coverage masks should be inverted.
+	 * @internal
+	 */
+	private sampleCoverageInvertCache?: boolean;
+
+	/**
+	 * Whether or not the coverage masks should be inverted.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
+	 */
+	public get sampleCoverageInvert(): boolean {
+		return (this.sampleCoverageInvertCache ??= this.doPrefillCache
+			? false
+			: this.gl.getParameter(SAMPLE_COVERAGE_INVERT));
+	}
+
+	public set sampleCoverageInvert(value: boolean) {
+		if (value === this.sampleCoverageInvert) {
+			return;
+		}
+
+		this.gl.sampleCoverage(this.sampleCoverageValue, value);
+		this.sampleCoverageInvertCache = value;
 	}
 
 	/**
@@ -1267,7 +1319,10 @@ export default class Context extends ApiInterface {
 	 */
 	private polygonOffsetFactorCache?: number;
 
-	/** The scale factor for the variable depth offset for each polygon. */
+	/**
+	 * The scale factor for the variable depth offset for each polygon.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
+	 */
 	public get polygonOffsetFactor(): number {
 		return (this.polygonOffsetFactorCache ??= this.doPrefillCache
 			? 0
@@ -1289,7 +1344,10 @@ export default class Context extends ApiInterface {
 	 */
 	private polygonOffsetUnitsCache?: number;
 
-	/** The multiplier with which an implementation-specific value is multiplied to create a constant depth offset. */
+	/**
+	 * The multiplier with which an implementation-specific value is multiplied to create a constant depth offset.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
+	 */
 	public get polygonOffsetUnits(): number {
 		return (this.polygonOffsetUnitsCache ??= this.doPrefillCache
 			? 0
@@ -1421,5 +1479,21 @@ export default class Context extends ApiInterface {
 		}
 
 		return out;
+	}
+
+	/**
+	 * Block execution until all previously-called commands are finished.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/finish | finish}
+	 */
+	public finish(): void {
+		this.gl.finish();
+	}
+
+	/**
+	 * Empty different buffer commands, causing all commands to be executed as quickly as possible.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/flush | flush}
+	 */
+	public flush(): void {
+		this.gl.flush();
 	}
 }
