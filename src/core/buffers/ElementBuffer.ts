@@ -46,12 +46,15 @@ export default class ElementBuffer extends Buffer<
 		// Get the bound buffer.
 		let boundBuffer = bindingsCache.get(vao);
 		if (typeof boundBuffer === "undefined") {
-			VertexArray.bindGl(context, vao);
-			boundBuffer = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
-						ELEMENT_ARRAY_BUFFER_BINDING
-					) as WebGLBuffer | null);
+			if (context.doPrefillCache) {
+				boundBuffer = null;
+			} else {
+				VertexArray.bindGl(context, vao);
+				boundBuffer = context.gl.getParameter(
+					ELEMENT_ARRAY_BUFFER_BINDING
+				) as WebGLBuffer | null;
+			}
+
 			bindingsCache.set(vao, boundBuffer);
 		}
 

@@ -237,12 +237,15 @@ export default abstract class Texture extends ContextDependent {
 		// Get the bound texture.
 		let boundTexture = textureUnitBindingsCache.get(target);
 		if (typeof boundTexture === "undefined") {
-			context.activeTexture = textureUnit;
-			boundTexture = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
-						getParameterForTextureTarget(target)
-					) as WebGLTexture | null);
+			if (context.doPrefillCache) {
+				boundTexture = null;
+			} else {
+				context.activeTexture = textureUnit;
+				boundTexture = context.gl.getParameter(
+					getParameterForTextureTarget(target)
+				) as WebGLTexture | null;
+			}
+
 			textureUnitBindingsCache.set(target, boundTexture);
 		}
 
@@ -255,7 +258,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
 	 * @param target - The binding point.
 	 * @param texture - The texture.
-	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated is the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
+	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated if the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
 	 * @returns The used texture unit.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindTexture | bindTexture}
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
@@ -291,6 +294,7 @@ export default abstract class Texture extends ContextDependent {
 			if (!queryOnly) {
 				context.activeTexture = textureUnit;
 			}
+
 			return textureUnit;
 		}
 
@@ -908,10 +912,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The magnification filter of this texture. */
 	public get magFilter(): TextureFilter.LINEAR | TextureFilter.NEAREST {
-		this.bind();
-		return (this.magFilterCache ??= this.context.doPrefillCache
-			? TextureFilter.LINEAR
-			: this.gl.getTexParameter(this.target, TEXTURE_MAG_FILTER));
+		if (!this.magFilterCache) {
+			if (this.context.doPrefillCache) {
+				this.magFilterCache = TextureFilter.LINEAR;
+			} else {
+				this.bind();
+				this.magFilterCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MAG_FILTER
+				) as TextureFilter.LINEAR | TextureFilter.NEAREST;
+			}
+		}
+
+		return this.magFilterCache;
 	}
 
 	public set magFilter(value) {
@@ -932,10 +945,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The minification filter of this texture. */
 	public get minFilter(): TextureFilter {
-		this.bind();
-		return (this.minFilterCache ??= this.context.doPrefillCache
-			? TextureFilter.NEAREST_MIPMAP_LINEAR
-			: this.gl.getTexParameter(this.target, TEXTURE_MIN_FILTER));
+		if (!this.minFilterCache) {
+			if (this.context.doPrefillCache) {
+				this.minFilterCache = TextureFilter.NEAREST_MIPMAP_LINEAR;
+			} else {
+				this.bind();
+				this.minFilterCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MIN_FILTER
+				) as TextureFilter;
+			}
+		}
+
+		return this.minFilterCache;
 	}
 
 	public set minFilter(value) {
@@ -956,10 +978,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The wrapping function on the S-axis of this texture. */
 	public get wrapSFunction(): WrapMode {
-		this.bind();
-		return (this.wrapSFunctionCache ??= this.context.doPrefillCache
-			? WrapMode.REPEAT
-			: (this.gl.getTexParameter(this.target, TEXTURE_WRAP_S) as WrapMode));
+		if (!this.wrapSFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.wrapSFunctionCache = WrapMode.REPEAT;
+			} else {
+				this.bind();
+				this.wrapSFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_WRAP_S
+				) as WrapMode;
+			}
+		}
+
+		return this.wrapSFunctionCache;
 	}
 
 	public set wrapSFunction(value) {
@@ -980,10 +1011,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The wrapping function on the T-axis of this texture. */
 	public get wrapTFunction(): WrapMode {
-		this.bind();
-		return (this.wrapTFunctionCache ??= this.context.doPrefillCache
-			? WrapMode.REPEAT
-			: (this.gl.getTexParameter(this.target, TEXTURE_WRAP_T) as WrapMode));
+		if (!this.wrapTFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.wrapTFunctionCache = WrapMode.REPEAT;
+			} else {
+				this.bind();
+				this.wrapTFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_WRAP_T
+				) as WrapMode;
+			}
+		}
+
+		return this.wrapTFunctionCache;
 	}
 
 	public set wrapTFunction(value) {
@@ -1014,10 +1054,19 @@ export default abstract class Texture extends ContextDependent {
 			);
 		}
 
-		this.bind();
-		return (this.maxAnisotropyCache ??= this.context.doPrefillCache
-			? 1
-			: this.gl.getTexParameter(this.target, TEXTURE_MAX_ANISOTROPY_EXT));
+		if (!this.maxAnisotropyCache) {
+			if (this.context.doPrefillCache) {
+				this.maxAnisotropyCache = 1;
+			} else {
+				this.bind();
+				this.maxAnisotropyCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MAX_ANISOTROPY_EXT
+				) as number;
+			}
+		}
+
+		return this.maxAnisotropyCache;
 	}
 
 	public set maxAnisotropy(value) {
@@ -1045,10 +1094,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The base mipmap level of this texture. */
 	public get baseLevel(): number {
-		this.bind();
-		return (this.baseLevelCache ??= this.context.doPrefillCache
-			? 0
-			: this.gl.getTexParameter(this.target, TEXTURE_BASE_LEVEL));
+		if (!this.baseLevelCache) {
+			if (this.context.doPrefillCache) {
+				this.baseLevelCache = 0;
+			} else {
+				this.bind();
+				this.baseLevelCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_BASE_LEVEL
+				) as number;
+			}
+		}
+
+		return this.baseLevelCache;
 	}
 
 	public set baseLevel(value) {
@@ -1069,10 +1127,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The comparison function of this texture. */
 	public get comparisonFunction(): TestFunction {
-		this.bind();
-		return (this.comparisonFunctionCache ??= this.context.doPrefillCache
-			? TestFunction.LEQUAL
-			: this.gl.getTexParameter(this.target, TEXTURE_COMPARE_FUNC));
+		if (!this.comparisonFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.comparisonFunctionCache = TestFunction.LEQUAL;
+			} else {
+				this.bind();
+				this.comparisonFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_COMPARE_FUNC
+				) as TestFunction;
+			}
+		}
+
+		return this.comparisonFunctionCache;
 	}
 
 	public set comparisonFunction(value) {
@@ -1093,10 +1160,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The comparison mode of this texture. */
 	public get comparisonMode(): TextureCompareMode {
-		this.bind();
-		return (this.comparisonModeCache ??= this.context.doPrefillCache
-			? TextureCompareMode.NONE
-			: this.gl.getTexParameter(this.target, TEXTURE_COMPARE_MODE));
+		if (!this.comparisonModeCache) {
+			if (this.context.doPrefillCache) {
+				this.comparisonModeCache = TextureCompareMode.NONE;
+			} else {
+				this.bind();
+				this.comparisonModeCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_COMPARE_MODE
+				) as TextureCompareMode;
+			}
+		}
+
+		return this.comparisonModeCache;
 	}
 
 	public set comparisonMode(value) {
@@ -1117,10 +1193,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The maximum mipmap level of this texture. */
 	public get maxLevel(): number {
-		this.bind();
-		return (this.maxLevelCache ??= this.context.doPrefillCache
-			? 1000
-			: this.gl.getTexParameter(this.target, TEXTURE_MAX_LEVEL));
+		if (!this.maxLevelCache) {
+			if (this.context.doPrefillCache) {
+				this.maxLevelCache = 1000;
+			} else {
+				this.bind();
+				this.maxLevelCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MAX_LEVEL
+				) as number;
+			}
+		}
+
+		return this.maxLevelCache;
 	}
 
 	public set maxLevel(value) {
@@ -1141,10 +1226,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The maximum level of detail of this texture. */
 	public get maxLod(): number {
-		this.bind();
-		return (this.maxLodCache ??= this.context.doPrefillCache
-			? 1000
-			: this.gl.getTexParameter(this.target, TEXTURE_MAX_LOD));
+		if (!this.maxLodCache) {
+			if (this.context.doPrefillCache) {
+				this.maxLodCache = 1000;
+			} else {
+				this.bind();
+				this.maxLodCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MAX_LOD
+				) as number;
+			}
+		}
+
+		return this.maxLodCache;
 	}
 
 	public set maxLod(value) {
@@ -1165,10 +1259,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The minimum level of detail of this texture. */
 	public get minLod(): number {
-		this.bind();
-		return (this.minLodCache ??= this.context.doPrefillCache
-			? -1000
-			: this.gl.getTexParameter(this.target, TEXTURE_MIN_LOD));
+		if (!this.minLodCache) {
+			if (this.context.doPrefillCache) {
+				this.minLodCache = -1000;
+			} else {
+				this.bind();
+				this.minLodCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MIN_LOD
+				) as number;
+			}
+		}
+
+		return this.minLodCache;
 	}
 
 	public set minLod(value) {
@@ -1189,10 +1292,19 @@ export default abstract class Texture extends ContextDependent {
 
 	/** The wrapping function on the R-axis of this texture. */
 	public get wrapRFunction(): WrapMode {
-		this.bind();
-		return (this.wrapRFunctionCache ??= this.context.doPrefillCache
-			? WrapMode.REPEAT
-			: this.gl.getTexParameter(this.target, TEXTURE_WRAP_R));
+		if (!this.wrapRFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.wrapRFunctionCache = WrapMode.REPEAT;
+			} else {
+				this.bind();
+				this.wrapRFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_WRAP_R
+				) as WrapMode;
+			}
+		}
+
+		return this.wrapRFunctionCache;
 	}
 
 	public set wrapRFunction(value) {
