@@ -317,6 +317,12 @@ export const CULL_FACE_MODE = 0x0b45;
 export const DEPTH_FUNC = 0x0b74;
 
 /**
+ * The current depth range.
+ * @internal
+ */
+export const DEPTH_RANGE = 0x0b70;
+
+/**
  * The polygon offset units.
  * @internal
  */

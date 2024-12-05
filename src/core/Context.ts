@@ -16,6 +16,7 @@ import {
 	DEPTH_BUFFER_BIT,
 	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
+	DEPTH_RANGE,
 	DEPTH_TEST,
 	DEPTH_WRITEMASK,
 	DITHER,
@@ -55,8 +56,8 @@ import type { ExtensionObject } from "../types/ExtensionObject.js";
 import Face from "../constants/Face.js";
 import Framebuffer from "./Framebuffer.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
-import type MaxViewport from "../types/MaxViewport.js";
 import Orientation from "../constants/Orientation.js";
+import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
 import TestFunction from "../constants/TestFunction.js";
@@ -177,12 +178,9 @@ export default class Context extends ApiInterface {
 				);
 			}
 
-			// TODO: This block is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
-			if (!(gl instanceof WebGL2RenderingContext)) {
-				throw new Error();
-			}
-
-			super(gl);
+			// TODO: This assertion is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			super(gl as WebGL2RenderingContext);
 		}
 
 		this.canvas = this.gl.canvas;
@@ -796,6 +794,28 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
+	 * The depth range mapping from normalized device coordinates to window or viewport coordinates.
+	 * @internal
+	 */
+	private depthRangeCache?: Pair;
+
+	/** The depth range mapping from normalized device coordinates to window or viewport coordinates. */
+	public get depthRange(): Pair {
+		return (this.depthRangeCache ??= this.doPrefillCache
+			? new Float32Array([0, 1])
+			: this.gl.getParameter(DEPTH_RANGE));
+	}
+
+	public set depthRange(value: Pair) {
+		if (this.depthRange[0] === value[0] && this.depthRange[1] === value[1]) {
+			return;
+		}
+
+		this.gl.depthRange(value[0], value[1]);
+		this.depthRangeCache = value;
+	}
+
+	/**
 	 * The alignment to use when unpacking pixel data from memory.
 	 * @internal
 	 */
@@ -907,14 +927,14 @@ export default class Context extends ApiInterface {
 	 * The maximum dimensions of the viewport.
 	 * @internal
 	 */
-	private maxViewportDimsCache?: MaxViewport;
+	private maxViewportDimsCache?: Pair;
 
 	/** The maximum dimensions of the viewport. Effectively all systems support at least `[4096, 4096]`. */
-	public get maxViewportDims(): MaxViewport {
+	public get maxViewportDims(): Pair {
 		// Cannot be prefilled (different for every system).
 		return (this.maxViewportDimsCache ??= this.gl.getParameter(
 			MAX_VIEWPORT_DIMS
-		) as Int32Array & MaxViewport);
+		) as Int32Array & Pair);
 	}
 
 	/**
