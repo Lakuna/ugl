@@ -192,6 +192,10 @@ export default function debug(
 					return `Uint8Array${stringify([...value], isEnum)}`;
 				}
 
+				if (value instanceof Uint8ClampedArray) {
+					return `Uint8ClampedArray${stringify([...value], isEnum)}`;
+				}
+
 				if (value instanceof Int16Array) {
 					return `Int16Array${stringify([...value], isEnum)}`;
 				}
@@ -204,12 +208,24 @@ export default function debug(
 					return `Int32Array${stringify([...value], isEnum)}`;
 				}
 
+				if (value instanceof Uint32Array) {
+					return `Uint32Array${stringify([...value], isEnum)}`;
+				}
+
 				if (value instanceof Float32Array) {
 					return `Float32Array${stringify([...value], isEnum)}`;
 				}
 
 				if (value instanceof Float64Array) {
 					return `Float64Array${stringify([...value], isEnum)}`;
+				}
+
+				if (value instanceof BigInt64Array) {
+					return `BigInt64Array${stringify([...value], isEnum)}`;
+				}
+
+				if (value instanceof BigUint64Array) {
+					return `BigUint64Array${stringify([...value], isEnum)}`;
 				}
 
 				if (Symbol.iterator in value) {

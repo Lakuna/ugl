@@ -141,7 +141,8 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * @param context - The rendering context.
 	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
 	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the buffer at.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
 	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
@@ -150,10 +151,19 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		context: Context,
 		data: ArrayBufferView | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset = 0,
+		offset: number | undefined = void 0,
+		length: number | undefined = void 0,
 		isHalf = false
 	) {
-		super(context, data, usage, offset, isHalf, BufferTarget.ARRAY_BUFFER);
+		super(
+			context,
+			data,
+			usage,
+			offset,
+			length,
+			isHalf,
+			BufferTarget.ARRAY_BUFFER
+		);
 	}
 
 	/**

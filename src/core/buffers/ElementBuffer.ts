@@ -113,7 +113,8 @@ export default class ElementBuffer extends Buffer<
 	 * @param context - The rendering context.
 	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
 	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the buffer at.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
 	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
@@ -121,7 +122,8 @@ export default class ElementBuffer extends Buffer<
 		context: Context,
 		data: Uint8Array | Uint16Array | Uint32Array | number,
 		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset = 0
+		offset: number | undefined = void 0,
+		length: number | undefined = void 0
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
 		VertexArray.unbindGl(context);
@@ -131,6 +133,7 @@ export default class ElementBuffer extends Buffer<
 			data,
 			usage,
 			offset,
+			length,
 			false,
 			BufferTarget.ELEMENT_ARRAY_BUFFER
 		);

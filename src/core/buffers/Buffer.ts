@@ -18,7 +18,8 @@ export default abstract class Buffer<
 	 * @param context - The rendering context.
 	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
 	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the buffer at.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
 	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
 	 * @param target - The target binding point of the buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
@@ -28,7 +29,8 @@ export default abstract class Buffer<
 		context: Context,
 		data: T | number,
 		usage = BufferUsage.STATIC_DRAW,
-		offset = 0,
+		offset: number | undefined = void 0,
+		length: number | undefined = void 0,
 		isHalf = false,
 		target = BufferTarget.ARRAY_BUFFER
 	) {
@@ -37,7 +39,6 @@ export default abstract class Buffer<
 		this.internal = this.gl.createBuffer();
 		this.targetCache = target;
 		this.usageCache = usage;
-		this.offsetCache = offset;
 		this.isHalfCache = isHalf;
 		if (typeof data === "number") {
 			this.sizeCache = data;
@@ -47,7 +48,7 @@ export default abstract class Buffer<
 			this.dataCache = data;
 		}
 
-		this.setData(data, usage, offset, isHalf);
+		this.setData(this.data, this.usage, offset, length, this.isHalf);
 	}
 
 	/**
@@ -122,17 +123,6 @@ export default abstract class Buffer<
 	}
 
 	/**
-	 * The element index offset at which to start reading this buffer.
-	 * @internal
-	 */
-	private offsetCache;
-
-	/** The element index offset at which to start reading this buffer. */
-	public get offset(): number {
-		return this.offsetCache;
-	}
-
-	/**
 	 * The size of this buffer's data store in bytes.
 	 * @internal
 	 */
@@ -155,26 +145,47 @@ export default abstract class Buffer<
 	}
 
 	/**
-	 * Sets the data in this buffer.
+	 * Replace the data in this buffer.
 	 * @param data - The data to store in this buffer or the size to set this buffer's data store to in bytes.
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the supplied data at.
+	 * @param length - The length of the supplied data to read.
 	 * @param isHalf - Whether or not the data contains 16-bit floating-point data if it contains floating-point data.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
-		data: T | number,
+		data: T,
 		usage?: BufferUsage,
 		offset?: number,
+		length?: number,
 		isHalf?: boolean
 	): void;
 
 	/**
-	 * Updates a subset of the data in this buffer.
+	 * Set the size of this buffer, clearing its data.
+	 * @param data - The data to store in this buffer or the size to set this buffer's data store to in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param _ - An unused value.
+	 * @param __ - An unused value.
+	 * @param isHalf - Whether or not the data contains 16-bit floating-point data if it contains floating-point data.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
+	 */
+	public setData(
+		data: number,
+		usage?: BufferUsage,
+		_?: unknown,
+		__?: unknown,
+		isHalf?: boolean
+	): void;
+
+	/**
+	 * Update a subset of the data in this buffer.
 	 * @param data - The data to store in this buffer.
 	 * @param _ - An ignored value.
 	 * @param offset - The index of the element to start reading the supplied data at.
+	 * @param length - The length of the supplied data to read.
 	 * @param __ - An ignored value.
 	 * @param replaceOffset - The offset in bytes to start replacing data at.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
@@ -182,21 +193,25 @@ export default abstract class Buffer<
 	 */
 	public setData(
 		data: T,
-		_: unknown,
-		offset: number,
-		__: unknown,
-		replaceOffset: number
+		_?: unknown,
+		offset?: number,
+		length?: number,
+		__?: unknown,
+		replaceOffset?: number
 	): void;
 
 	public setData(
 		data: T | number,
 		usage: BufferUsage = this.usage,
-		offset: number = this.offset,
+		offset: number | undefined = void 0,
+		length: number | undefined = void 0,
 		isHalf: boolean = this.isHalf,
 		replaceOffset: number | undefined = void 0
 	) {
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
 		this.bind();
+
+		// Set size of buffer (empty data).
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, usage);
 			this.dataCache = new Uint8Array(data) as unknown as T;
@@ -204,19 +219,35 @@ export default abstract class Buffer<
 			this.sizeCache = data;
 			this.usageCache = usage;
 			this.isHalfCache = isHalf;
-		} else if (typeof replaceOffset === "number") {
-			this.gl.bufferSubData(this.target, replaceOffset, data, offset);
-			delete this.dataCache;
-		} else {
-			this.gl.bufferData(this.target, data, usage, offset);
-			this.dataCache = data;
-			this.typeCache = getDataTypeForTypedArray(data);
-			this.sizeCache = data.byteLength;
-			this.usageCache = usage;
-			this.isHalfCache = isHalf;
+			return;
 		}
 
-		this.offsetCache = offset;
+		// Update a portion of the buffer.
+		if (typeof replaceOffset === "number") {
+			this.gl.bufferSubData(
+				this.target,
+				replaceOffset,
+				data,
+				offset as unknown as number,
+				length
+			);
+			delete this.dataCache;
+			return;
+		}
+
+		// Replace the data in the buffer.
+		this.gl.bufferData(
+			this.target,
+			data,
+			usage,
+			offset as unknown as number,
+			length
+		);
+		this.dataCache = data;
+		this.typeCache = getDataTypeForTypedArray(data);
+		this.sizeCache = data.byteLength;
+		this.usageCache = usage;
+		this.isHalfCache = isHalf;
 	}
 
 	/**
