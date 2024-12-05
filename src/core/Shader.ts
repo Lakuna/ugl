@@ -31,6 +31,7 @@ export default class Shader extends ContextDependent {
 				"The environment does not support shaders."
 			);
 		}
+
 		this.internal = shader;
 		this.type = type;
 

@@ -30,6 +30,7 @@ export default abstract class Uniform extends Variable {
 				"The environment does not support uniform locations."
 			);
 		}
+
 		this.location = location;
 	}
 

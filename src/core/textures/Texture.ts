@@ -287,6 +287,7 @@ export default abstract class Texture extends ContextDependent {
 				1
 			);
 		}
+
 		targetBindingOverwriteOrder.push(textureUnit);
 
 		// Do nothing if the binding is already correct.
@@ -570,6 +571,7 @@ export default abstract class Texture extends ContextDependent {
 				break;
 			}
 		}
+
 		if (!largeEnough) {
 			throw new BadValueError(
 				"Too many levels were requested for the given texture size."
@@ -581,6 +583,7 @@ export default abstract class Texture extends ContextDependent {
 		for (let i = 0; i < actualDims.length; i++) {
 			this.dims[i] = actualDims[i] ?? 0;
 		}
+
 		this.isImmutableFormatCache = true;
 		this.maxLevel = actualLevels - 1;
 	}
@@ -816,6 +819,7 @@ export default abstract class Texture extends ContextDependent {
 			mipmap = new Map();
 			this.mipmaps.set(target, mipmap);
 		}
+
 		mipmap.set(level, true);
 
 		// Unmark this texture as being texture complete.
@@ -1356,6 +1360,7 @@ export default abstract class Texture extends ContextDependent {
 					return false;
 				}
 			}
+
 			mipDims = this.getSizeOfMip(++i);
 		}
 
@@ -1376,6 +1381,7 @@ export default abstract class Texture extends ContextDependent {
 				dims[dim] = Math.floor((dims[dim] ?? 0) / 2);
 			}
 		}
+
 		return dims;
 	}
 
@@ -1399,6 +1405,7 @@ export default abstract class Texture extends ContextDependent {
 				mipmap.set(level, true);
 			}
 		}
+
 		this.isTextureCompleteCache = true;
 	}
 

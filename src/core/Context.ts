@@ -25,7 +25,12 @@ import {
 	MAX_DRAW_BUFFERS,
 	MAX_TEXTURE_MAX_ANISOTROPY_EXT,
 	MAX_VIEWPORT_DIMS,
+	POLYGON_OFFSET_FACTOR,
+	POLYGON_OFFSET_FILL,
+	POLYGON_OFFSET_UNITS,
 	RASTERIZER_DISCARD,
+	SAMPLE_ALPHA_TO_COVERAGE,
+	SAMPLE_COVERAGE,
 	SCISSOR_BOX,
 	SCISSOR_TEST,
 	STENCIL_BACK_FUNC,
@@ -272,6 +277,60 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
+	 * Whether or not to compute the computation of a temporary coverage value determined by the alpha value.
+	 * @internal
+	 */
+	private doSampleAlphaToCoverageCache?: boolean;
+
+	/** Whether or not to compute the computation of a temporary coverage value determined by the alpha value. */
+	public get doSampleAlphaToCoverage(): boolean {
+		return (this.doSampleAlphaToCoverageCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE));
+	}
+
+	public set doSampleAlphaToCoverage(value) {
+		if (this.doSampleAlphaToCoverage === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
+		} else {
+			this.gl.disable(SAMPLE_ALPHA_TO_COVERAGE);
+		}
+
+		this.doSampleAlphaToCoverageCache = value;
+	}
+
+	/**
+	 * Whether or not to AND the fragment's coverage with the temporary coverage value.
+	 * @internal
+	 */
+	private doSampleCoverageCache?: boolean;
+
+	/** Whether or not to AND the fragment's coverage with the temporary coverage value. */
+	public get doSampleCoverage(): boolean {
+		return (this.doSampleCoverageCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(SAMPLE_COVERAGE));
+	}
+
+	public set doSampleCoverage(value) {
+		if (this.doSampleCoverage === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(SAMPLE_COVERAGE);
+		} else {
+			this.gl.disable(SAMPLE_COVERAGE);
+		}
+
+		this.doSampleCoverageCache = value;
+	}
+
+	/**
 	 * The blend color.
 	 * @internal
 	 */
@@ -397,6 +456,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(BLEND);
 		}
+
 		this.doBlendCache = value;
 	}
 
@@ -666,6 +726,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(CULL_FACE);
 		}
+
 		this.doCullFaceCache = value;
 	}
 
@@ -717,6 +778,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(DITHER);
 		}
+
 		this.doDitherCache = value;
 	}
 
@@ -743,6 +805,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(DEPTH_TEST);
 		}
+
 		this.doDepthTestCache = value;
 	}
 
@@ -894,6 +957,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(SCISSOR_TEST);
 		}
+
 		this.doScissorTestCache = value;
 	}
 
@@ -1025,6 +1089,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(STENCIL_TEST);
 		}
+
 		this.doStencilTestCache = value;
 	}
 
@@ -1140,6 +1205,7 @@ export default class Context extends ApiInterface {
 		} else {
 			this.gl.disable(RASTERIZER_DISCARD);
 		}
+
 		this.doRasterizerDiscardCache = value;
 	}
 
@@ -1166,6 +1232,77 @@ export default class Context extends ApiInterface {
 
 		this.gl.frontFace(value);
 		this.frontFaceCache = value;
+	}
+
+	/**
+	 * Whether or not adding an offset to depth values of polygon fragments is enabled.
+	 * @internal
+	 */
+	private doPolygonOffsetFillCache?: boolean;
+
+	/** Whether or not adding an offset to depth values of polygon fragments is enabled. */
+	public get doPolygonOffsetFill(): boolean {
+		return (this.doPolygonOffsetFillCache ??= this.doPrefillCache
+			? false
+			: this.gl.isEnabled(POLYGON_OFFSET_FILL));
+	}
+
+	public set doPolygonOffsetFill(value) {
+		if (this.doPolygonOffsetFill === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(POLYGON_OFFSET_FILL);
+		} else {
+			this.gl.disable(POLYGON_OFFSET_FILL);
+		}
+
+		this.doPolygonOffsetFillCache = value;
+	}
+
+	/**
+	 * The scale factor for the variable depth offset for each polygon.
+	 * @internal
+	 */
+	private polygonOffsetFactorCache?: number;
+
+	/** The scale factor for the variable depth offset for each polygon. */
+	public get polygonOffsetFactor(): number {
+		return (this.polygonOffsetFactorCache ??= this.doPrefillCache
+			? 0
+			: this.gl.getParameter(POLYGON_OFFSET_FACTOR));
+	}
+
+	public set polygonOffsetFactor(value: number) {
+		if (value === this.polygonOffsetFactor) {
+			return;
+		}
+
+		this.gl.polygonOffset(value, this.polygonOffsetUnits);
+		this.polygonOffsetFactorCache = value;
+	}
+
+	/**
+	 * The multiplier with which an implementation-specific value is multiplied to create a constant depth offset.
+	 * @internal
+	 */
+	private polygonOffsetUnitsCache?: number;
+
+	/** The multiplier with which an implementation-specific value is multiplied to create a constant depth offset. */
+	public get polygonOffsetUnits(): number {
+		return (this.polygonOffsetUnitsCache ??= this.doPrefillCache
+			? 0
+			: this.gl.getParameter(POLYGON_OFFSET_UNITS));
+	}
+
+	public set polygonOffsetUnits(value: number) {
+		if (value === this.polygonOffsetUnits) {
+			return;
+		}
+
+		this.gl.polygonOffset(this.polygonOffsetFactor, value);
+		this.polygonOffsetUnitsCache = value;
 	}
 
 	/**

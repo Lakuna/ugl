@@ -27,6 +27,7 @@ export default class Varying extends Variable {
 				"The environment does not support active information."
 			);
 		}
+
 		this.activeInfo = activeInfo;
 	}
 

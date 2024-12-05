@@ -95,6 +95,7 @@ export default class Framebuffer extends ContextDependent {
 					) as WebGLFramebuffer | null);
 			contextBindingsCache.set(target, boundFramebuffer);
 		}
+
 		return boundFramebuffer;
 	}
 
@@ -496,6 +497,7 @@ export default class Framebuffer extends ContextDependent {
 				realValue[i] = i;
 			}
 		}
+
 		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
 			realValue[i] ??= false;
 		}

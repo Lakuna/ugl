@@ -153,11 +153,13 @@ export default class Program extends ContextDependent {
 				"The shaders in a program cannot have different contexts."
 			);
 		}
+
 		if (vertexShader.type !== ShaderType.VERTEX_SHADER) {
 			throw new ProgramLinkError(
 				"A vertex shader is required to make a program."
 			);
 		}
+
 		if (fragmentShader.type !== ShaderType.FRAGMENT_SHADER) {
 			throw new ProgramLinkError(
 				"A fragment shader is required to make a program."
@@ -209,6 +211,7 @@ export default class Program extends ContextDependent {
 			const uniform = createUniform(this, i);
 			uniforms.set(uniform.name, uniform);
 		}
+
 		this.uniforms = uniforms;
 
 		// Create wrappers for every attribute.
@@ -221,6 +224,7 @@ export default class Program extends ContextDependent {
 			const attribute = createAttribute(this, i);
 			attributes.set(attribute.name, attribute);
 		}
+
 		this.attributes = attributes;
 
 		// Create wrappers for every transform feedback varying.
@@ -233,6 +237,7 @@ export default class Program extends ContextDependent {
 			const varying = new Varying(this, i);
 			varyings.set(varying.name, varying);
 		}
+
 		this.varyings = varyings;
 	}
 

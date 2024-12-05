@@ -126,6 +126,7 @@ export default class VertexArray extends ContextDependent {
 			if (!value) {
 				throw new BadValueError("Cannot pass `undefined` to an attribute.");
 			}
+
 			this.setAttribute(name, value);
 		}
 
@@ -251,10 +252,12 @@ export default class VertexArray extends ContextDependent {
 				if (!uniform) {
 					throw new BadValueError(`No uniform named \`${name}\`.`);
 				}
+
 				const value = uniforms[name];
 				if (typeof value === "undefined") {
 					throw new BadValueError("Cannot pass `undefined` to a uniform.");
 				}
+
 				uniform.value = value;
 			}
 		}
