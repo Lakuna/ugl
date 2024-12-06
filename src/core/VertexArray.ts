@@ -23,19 +23,10 @@ export default class VertexArray extends ContextDependent {
 	 * The currently-bound VAO cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLVertexArrayObject | null
-	>;
-
-	/**
-	 * Get the VAO bindings cache.
-	 * @returns The VAO bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (VertexArray.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the currently-bound VAO.
@@ -43,18 +34,15 @@ export default class VertexArray extends ContextDependent {
 	 * @internal
 	 */
 	public static getBound(context: Context): WebGLVertexArrayObject | null {
-		// Get the full bindings cache.
-		const bindingsCache = VertexArray.getBindingsCache();
-
 		// Get the bound VAO.
-		let boundVao = bindingsCache.get(context.gl);
+		let boundVao = VertexArray.bindingsCache.get(context.gl);
 		if (typeof boundVao === "undefined") {
 			boundVao = context.doPrefillCache
 				? null
 				: (context.gl.getParameter(
 						VERTEX_ARRAY_BINDING
 					) as WebGLVertexArrayObject | null);
-			bindingsCache.set(context.gl, boundVao);
+			VertexArray.bindingsCache.set(context.gl, boundVao);
 		}
 
 		return boundVao;
@@ -78,7 +66,7 @@ export default class VertexArray extends ContextDependent {
 
 		// Bind the VAO.
 		context.gl.bindVertexArray(vao);
-		VertexArray.getBindingsCache().set(context.gl, vao);
+		VertexArray.bindingsCache.set(context.gl, vao);
 	}
 
 	/**

@@ -29,19 +29,10 @@ export default class Program extends ContextDependent {
 	 * The currently-bound program cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLProgram | null
-	>;
-
-	/**
-	 * Get the program bindings cache.
-	 * @returns The program bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (Program.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the currently-bound program.
@@ -49,16 +40,13 @@ export default class Program extends ContextDependent {
 	 * @internal
 	 */
 	public static getBound(context: Context): WebGLProgram | null {
-		// Get the full bindings cache.
-		const bindingsCache = Program.getBindingsCache();
-
 		// Get the bound program.
-		let boundProgram = bindingsCache.get(context.gl);
+		let boundProgram = Program.bindingsCache.get(context.gl);
 		if (typeof boundProgram === "undefined") {
 			boundProgram = context.doPrefillCache
 				? null
 				: (context.gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null);
-			bindingsCache.set(context.gl, boundProgram);
+			Program.bindingsCache.set(context.gl, boundProgram);
 		}
 
 		return boundProgram;
@@ -79,7 +67,7 @@ export default class Program extends ContextDependent {
 
 		// Bind the program.
 		context.gl.useProgram(program);
-		Program.getBindingsCache().set(context.gl, program);
+		Program.bindingsCache.set(context.gl, program);
 	}
 
 	/**
@@ -148,22 +136,11 @@ export default class Program extends ContextDependent {
 		feedbackVaryings?: Iterable<string>,
 		feedbackMode: MergeOrder = MergeOrder.SEPARATE_ATTRIBS
 	) {
-		if (vertexShader.gl !== fragmentShader.gl) {
-			throw new ProgramLinkError(
-				"The shaders in a program cannot have different contexts."
-			);
-		}
-
-		if (vertexShader.type !== ShaderType.VERTEX_SHADER) {
-			throw new ProgramLinkError(
-				"A vertex shader is required to make a program."
-			);
-		}
-
-		if (fragmentShader.type !== ShaderType.FRAGMENT_SHADER) {
-			throw new ProgramLinkError(
-				"A fragment shader is required to make a program."
-			);
+		if (
+			vertexShader.gl !== fragmentShader.gl ||
+			vertexShader.type === fragmentShader.type
+		) {
+			throw new ProgramLinkError("Invalid shader composition.");
 		}
 
 		super(context);

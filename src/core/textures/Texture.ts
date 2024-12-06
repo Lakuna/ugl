@@ -50,19 +50,10 @@ export default abstract class Texture extends ContextDependent {
 	 * The currently-bound texture cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		Map<TextureTarget, WebGLTexture | null>[]
-	>;
-
-	/**
-	 * Get the texture bindings cache.
-	 * @returns The texture bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (Texture.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the texture bindings cache for a rendering context.
@@ -71,14 +62,11 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
-		// Get the full bindings cache.
-		const bindingsCache = Texture.getBindingsCache();
-
 		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(gl);
+		let contextBindingsCache = Texture.bindingsCache.get(gl);
 		if (typeof contextBindingsCache === "undefined") {
 			contextBindingsCache = [];
-			bindingsCache.set(gl, contextBindingsCache);
+			Texture.bindingsCache.set(gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
@@ -112,19 +100,10 @@ export default abstract class Texture extends ContextDependent {
 	 * The order that texture units should be overwritten in if necessary.
 	 * @internal
 	 */
-	private static bindingOverwriteOrder?: Map<
+	private static bindingOverwriteOrder = new Map<
 		WebGL2RenderingContext,
 		Map<TextureTarget, number[]>
-	>;
-
-	/**
-	 * Get the texture binding overwrite order.
-	 * @returns The texture binding overwrite order.
-	 * @internal
-	 */
-	private static getBindingOverwriteOrder() {
-		return (Texture.bindingOverwriteOrder ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the texture binding overwrite order for a rendering context.
@@ -133,14 +112,11 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingOverwriteOrder(gl: WebGL2RenderingContext) {
-		// Get the full texture binding overwrite order.
-		const bindingOverwriteOrder = Texture.getBindingOverwriteOrder();
-
 		// Get the context binding overwrite order.
-		let contextBindingOverwriteOrder = bindingOverwriteOrder.get(gl);
+		let contextBindingOverwriteOrder = Texture.bindingOverwriteOrder.get(gl);
 		if (!contextBindingOverwriteOrder) {
 			contextBindingOverwriteOrder = new Map();
-			bindingOverwriteOrder.set(gl, contextBindingOverwriteOrder);
+			Texture.bindingOverwriteOrder.set(gl, contextBindingOverwriteOrder);
 		}
 
 		return contextBindingOverwriteOrder;

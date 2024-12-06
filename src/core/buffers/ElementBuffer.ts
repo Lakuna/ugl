@@ -18,19 +18,10 @@ export default class ElementBuffer extends Buffer<
 	 * The currently-bound element array buffer cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGLVertexArrayObject | null,
 		WebGLBuffer | null
-	>;
-
-	/**
-	 * Get the element array buffer bindings cache.
-	 * @returns The buffer bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (ElementBuffer.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the currently-bound buffer for a VAO.
@@ -43,11 +34,8 @@ export default class ElementBuffer extends Buffer<
 		context: Context,
 		vao: WebGLVertexArrayObject | null
 	): WebGLBuffer | null {
-		// Get the buffer bindings cache.
-		const bindingsCache = ElementBuffer.getBindingsCache();
-
 		// Get the bound buffer.
-		let boundBuffer = bindingsCache.get(vao);
+		let boundBuffer = ElementBuffer.bindingsCache.get(vao);
 		if (typeof boundBuffer === "undefined") {
 			if (context.doPrefillCache) {
 				boundBuffer = null;
@@ -58,7 +46,7 @@ export default class ElementBuffer extends Buffer<
 				) as WebGLBuffer | null;
 			}
 
-			bindingsCache.set(vao, boundBuffer);
+			ElementBuffer.bindingsCache.set(vao, boundBuffer);
 		}
 
 		return boundBuffer;
@@ -95,7 +83,7 @@ export default class ElementBuffer extends Buffer<
 
 		// Bind the buffer to the target.
 		context.gl.bindBuffer(BufferTarget.ELEMENT_ARRAY_BUFFER, buffer);
-		ElementBuffer.getBindingsCache().set(vao, buffer);
+		ElementBuffer.bindingsCache.set(vao, buffer);
 	}
 
 	/**

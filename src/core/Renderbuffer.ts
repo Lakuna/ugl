@@ -14,19 +14,10 @@ export default class Renderbuffer extends ContextDependent {
 	 * The currently-bound renderbuffer cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLRenderbuffer | null
-	>;
-
-	/**
-	 * Get the renderbuffer bindings cache.
-	 * @returns The renderbuffer bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (Renderbuffer.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the currently-bound renderbuffer.
@@ -35,18 +26,15 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static getBound(context: Context): WebGLRenderbuffer | null {
-		// Get the full bindings cache.
-		const bindingsCache = Renderbuffer.getBindingsCache();
-
 		// Get the bound renderbuffer.
-		let boundRenderbuffer = bindingsCache.get(context.gl);
+		let boundRenderbuffer = Renderbuffer.bindingsCache.get(context.gl);
 		if (typeof boundRenderbuffer === "undefined") {
 			boundRenderbuffer = context.doPrefillCache
 				? null
 				: (context.gl.getParameter(
 						RENDERBUFFER_BINDING
 					) as WebGLRenderbuffer | null);
-			bindingsCache.set(context.gl, boundRenderbuffer);
+			Renderbuffer.bindingsCache.set(context.gl, boundRenderbuffer);
 		}
 
 		return boundRenderbuffer;
@@ -70,7 +58,7 @@ export default class Renderbuffer extends ContextDependent {
 
 		// Bind the renderbuffer to the target.
 		context.gl.bindRenderbuffer(RENDERBUFFER, renderbuffer);
-		Renderbuffer.getBindingsCache().set(context.gl, renderbuffer);
+		Renderbuffer.bindingsCache.set(context.gl, renderbuffer);
 	}
 
 	/**

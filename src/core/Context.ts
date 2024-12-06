@@ -81,19 +81,10 @@ export default class Context extends ApiInterface {
 	 * A map of canvases and rendering contexts to existing `Context`s.
 	 * @internal
 	 */
-	private static existingContexts?: Map<
+	private static existingContexts = new Map<
 		HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
-		unknown // `Context` was used before it was defined.
-	>;
-
-	/**
-	 * Get a map of canvases and rendering contexts to existing `Context`s.
-	 * @returns A map of canvases and rendering contexts to existing `Context`s.
-	 * @internal
-	 */
-	private static getExistingContexts() {
-		return (Context.existingContexts ??= new Map());
-	}
+		Context
+	>();
 
 	/**
 	 * Create a `Context` or get an existing `Context` if one already exists for the given rendering context. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
@@ -122,10 +113,7 @@ export default class Context extends ApiInterface {
 		options?: WebGLContextAttributes,
 		doPrefillCache?: boolean
 	): Context {
-		const existingContexts = Context.getExistingContexts() as Map<
-			HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
-			Context
-		>;
+		const { existingContexts } = Context;
 		const existingContext = existingContexts.get(source);
 		if (existingContext) {
 			return existingContext;
@@ -169,7 +157,7 @@ export default class Context extends ApiInterface {
 		options?: WebGLContextAttributes,
 		doPrefillCache = true
 	) {
-		if (Context.getExistingContexts().has(source)) {
+		if (Context.existingContexts.has(source)) {
 			throw new Error(
 				"A `Context` already exists for that canvas. Consider using `Context.get` instead."
 			);

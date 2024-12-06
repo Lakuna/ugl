@@ -14,19 +14,10 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * The currently-bound buffer cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		Map<BufferTarget, WebGLBuffer | null>
-	>;
-
-	/**
-	 * Get the buffer bindings cache.
-	 * @returns The buffer bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (VertexBuffer.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the buffer bindings cache for a rendering context.
@@ -35,14 +26,11 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * @internal
 	 */
 	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
-		// Get the full bindings cache.
-		const bindingsCache = VertexBuffer.getBindingsCache();
-
 		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(gl);
+		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
 			contextBindingsCache = new Map();
-			bindingsCache.set(gl, contextBindingsCache);
+			VertexBuffer.bindingsCache.set(gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;

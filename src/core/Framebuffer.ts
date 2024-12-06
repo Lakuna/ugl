@@ -35,19 +35,10 @@ export default class Framebuffer extends ContextDependent {
 	 * The currently-bound framebufferbuffer cache.
 	 * @internal
 	 */
-	private static bindingsCache?: Map<
+	private static bindingsCache = new Map<
 		WebGL2RenderingContext,
 		Map<FramebufferTarget, WebGLFramebuffer | null>
-	>;
-
-	/**
-	 * Get the framebuffer bindings cache.
-	 * @returns The framebuffer bindings cache.
-	 * @internal
-	 */
-	private static getBindingsCache() {
-		return (Framebuffer.bindingsCache ??= new Map());
-	}
+	>();
 
 	/**
 	 * Get the framebuffer bindings cache for a rendering context.
@@ -56,14 +47,11 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
-		// Get the full bindings cache.
-		const bindingsCache = Framebuffer.getBindingsCache();
-
 		// Get the context bindings cache.
-		let contextBindingsCache = bindingsCache.get(gl);
+		let contextBindingsCache = Framebuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
 			contextBindingsCache = new Map();
-			bindingsCache.set(gl, contextBindingsCache);
+			Framebuffer.bindingsCache.set(gl, contextBindingsCache);
 		}
 
 		return contextBindingsCache;
