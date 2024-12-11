@@ -1,6 +1,7 @@
 import {
 	ACTIVE_ATTRIBUTES,
 	ACTIVE_UNIFORMS,
+	ATTACHED_SHADERS,
 	CURRENT_PROGRAM,
 	DELETE_STATUS,
 	LINK_STATUS,
@@ -105,7 +106,7 @@ export default class Program extends ContextDependent {
 		const vs = new Shader(context, ShaderType.VERTEX_SHADER, vss);
 		const fs = new Shader(context, ShaderType.FRAGMENT_SHADER, fss);
 
-		const out = new Program(context, vs, fs);
+		const out = new Program(context, [vs, fs]);
 
 		vs.delete();
 		fs.delete();
@@ -116,106 +117,56 @@ export default class Program extends ContextDependent {
 	/**
 	 * Create a shader program.
 	 * @param context - The rendering context.
-	 * @param vertexShader - The vertex shader.
-	 * @param fragmentShader - The fragment shader.
+	 * @param shaders - The shaders to attach to the shader program. If a valid set of shaders is given, the program will be linked automatically.
 	 * @param attributeLocations - A map of attribute names to their desired locations.
 	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
 	 * @param feedbackMode - The mode to use when capturing transform feedback varyings.
-	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
+	 * @throws {@link ProgramLinkError} if there is an issue when linking the shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/transformFeedbackVaryings | transformFeedbackVaryings}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram | linkProgram}
 	 */
 	public constructor(
 		context: Context,
-		vertexShader: Shader,
-		fragmentShader: Shader,
+		shaders?: Shader[],
 		attributeLocations?: Map<string, number>,
 		feedbackVaryings?: Iterable<string>,
 		feedbackMode: MergeOrder = MergeOrder.SEPARATE_ATTRIBS
 	) {
-		if (
-			vertexShader.gl !== fragmentShader.gl ||
-			vertexShader.type === fragmentShader.type
-		) {
-			throw new ProgramLinkError("Invalid shader composition.");
-		}
-
 		super(context);
 
 		// Create the shader program.
 		this.internal = this.gl.createProgram();
 
-		// Attach the vertex shader.
-		this.gl.attachShader(this.internal, vertexShader.internal);
-		this.vertexShader = vertexShader;
+		// Attach the given shaders.
+		if (!shaders) {
+			return;
+		}
 
-		// Attach the fragment shader.
-		this.gl.attachShader(this.internal, fragmentShader.internal);
-		this.fragmentShader = fragmentShader;
+		for (const shader of shaders) {
+			this.attachShader(shader);
+		}
+
+		// Link the shader program only if two shaders of different types were given.
+		if (
+			this.attachedShadersCount !== 2 ||
+			this.attachedShaders[0]?.type === this.attachedShaders[1]?.type
+		) {
+			return;
+		}
 
 		// Bind the attributes to their specified locations, if any.
 		if (attributeLocations) {
 			for (const [name, location] of attributeLocations) {
-				this.gl.bindAttribLocation(this.internal, location, name);
+				this.bindAttributeLocation(location, name);
 			}
 		}
 
 		// Specify the transform feedback varying names, if any.
 		if (feedbackVaryings) {
-			this.gl.transformFeedbackVaryings(
-				this.internal,
-				feedbackVaryings,
-				feedbackMode
-			);
+			this.setTransformFeedbackVaryings(feedbackVaryings, feedbackMode);
 		}
 
 		// Link the shader program.
-		this.gl.linkProgram(this.internal);
-		if (!this.linkStatus) {
-			throw new ProgramLinkError(this.infoLog ?? void 0);
-		}
-
-		// Create wrappers for every uniform.
-		const uniforms = new Map<string, Uniform>();
-		const uniformCount = this.gl.getProgramParameter(
-			this.internal,
-			ACTIVE_UNIFORMS
-		) as number;
-		for (let i = 0; i < uniformCount; i++) {
-			const uniform = createUniform(this, i);
-			uniforms.set(uniform.name, uniform);
-		}
-
-		this.uniforms = uniforms;
-
-		// Create wrappers for every attribute.
-		const attributes = new Map<string, Attribute>();
-		const attributeCount = this.gl.getProgramParameter(
-			this.internal,
-			ACTIVE_ATTRIBUTES
-		) as number;
-		for (let i = 0; i < attributeCount; i++) {
-			const attribute = createAttribute(this, i);
-			attributes.set(attribute.name, attribute);
-		}
-
-		this.attributes = attributes;
-
-		// Create wrappers for every transform feedback varying.
-		const varyings = new Map<string, Varying>();
-		const varyingCount = this.gl.getProgramParameter(
-			this.internal,
-			TRANSFORM_FEEDBACK_VARYINGS
-		) as number;
-		for (let i = 0; i < varyingCount; i++) {
-			const varying = new Varying(this, i);
-			varyings.set(varying.name, varying);
-		}
-
-		this.varyings = varyings;
+		this.link();
 	}
 
 	/**
@@ -224,37 +175,238 @@ export default class Program extends ContextDependent {
 	 */
 	public readonly internal: WebGLProgram;
 
-	/** The vertex shader of this shader program. */
-	public readonly vertexShader: Shader;
+	/**
+	 * The shaders that are attached to this shader program.
+	 * @internal
+	 */
+	private attachedShadersCache?: Shader[];
 
-	/** The fragment shader of this shader program. */
-	public readonly fragmentShader: Shader;
+	/**
+	 * The shaders that are attached to this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getAttachedShaders | getAttachedShaders}
+	 */
+	public get attachedShaders(): readonly Shader[] {
+		return (this.attachedShadersCache ??= this.context.doPrefillCache
+			? []
+			: (this.gl.getAttachedShaders(this.internal) ?? []).map((shader) =>
+					Shader.get(this.context, shader)
+				));
+	}
 
-	/** The uniforms in this shader program. */
-	public readonly uniforms: Map<string, Uniform>;
+	/**
+	 * The number of shaders that are attached to this shader program.
+	 * @internal
+	 */
+	private attachedShadersCountCache?: number;
 
-	/** The attributes in this shader program. */
-	public readonly attributes: Map<string, Attribute>;
+	/** The number of shaders that are attached to this shader program. */
+	public get attachedShadersCount(): number {
+		return (this.attachedShadersCountCache ??=
+			this.attachedShadersCache?.length ??
+			(this.context.doPrefillCache
+				? 0
+				: (this.gl.getProgramParameter(
+						this.internal,
+						ATTACHED_SHADERS
+					) as number)));
+	}
 
-	/** The transform feedback varyings in this shader program. */
-	public readonly varyings: Map<string, Varying>;
+	/**
+	 * Attach a shader to this shader program.
+	 * @param shader - The shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
+	 */
+	public attachShader(shader: Shader): void {
+		if (this.attachedShaders.includes(shader)) {
+			return;
+		}
+
+		this.gl.attachShader(this.internal, shader.internal);
+		(this.attachedShaders as Shader[]).push(shader);
+		if (typeof this.attachedShadersCountCache === "number") {
+			this.attachedShadersCountCache++;
+		}
+	}
+
+	/**
+	 * Detach the given shader from this shader program.
+	 * @param shader - The shader to detach.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/detachShader | detachShader}
+	 */
+	public detachShader(shader: Shader): void {
+		if (!this.attachedShaders.includes(shader)) {
+			return;
+		}
+
+		this.gl.detachShader(this.internal, shader.internal);
+		(this.attachedShaders as Shader[]).splice(
+			this.attachedShaders.indexOf(shader),
+			1
+		);
+		if (typeof this.attachedShadersCountCache === "number") {
+			this.attachedShadersCountCache--;
+		}
+	}
+
+	/**
+	 * The number of active attribute variables in this shader program.
+	 * @internal
+	 */
+	private activeAttributesCache?: number;
+
+	/** The number of active attribute variables in this shader program. */
+	public get activeAttributes(): number {
+		return (this.activeAttributesCache ??=
+			this.attributesCache?.size ??
+			(this.gl.getProgramParameter(
+				this.internal,
+				ACTIVE_ATTRIBUTES
+			) as number));
+	}
+
+	/**
+	 * The attributes in this shader program.
+	 * @internal
+	 */
+	private attributesCache?: Map<string, Attribute>;
+
+	/**
+	 * The attributes in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get attributes(): Readonly<Map<string, Attribute>> {
+		if (!this.attributesCache) {
+			const { activeAttributes } = this;
+			this.attributesCache = new Map();
+			for (let i = 0; i < activeAttributes; i++) {
+				const attribute = createAttribute(this, i);
+				this.attributesCache.set(attribute.name, attribute);
+			}
+		}
+
+		return this.attributesCache;
+	}
+
+	/**
+	 * Bind a generic vertex index to an attribute variable. Doing this after linking this program has no effect.
+	 * @param index - The index of the generic vertex to bind.
+	 * @param name - The name of the variable to bind to the generic vertex index.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
+	 */
+	public bindAttributeLocation(index: number, name: string): void {
+		this.gl.bindAttribLocation(this.internal, index, name);
+	}
+
+	/**
+	 * The number of active uniform variables in this shader program.
+	 * @internal
+	 */
+	private activeUniformsCache?: number;
+
+	/** The number of active uniform variables in this shader program. */
+	public get activeUniforms(): number {
+		return (this.activeUniformsCache ??=
+			this.uniformsCache?.size ??
+			(this.gl.getProgramParameter(this.internal, ACTIVE_UNIFORMS) as number));
+	}
+
+	/**
+	 * The uniforms in this shader program.
+	 * @internal
+	 */
+	private uniformsCache?: Map<string, Uniform>;
+
+	/**
+	 * The uniforms in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get uniforms(): Readonly<Map<string, Uniform>> {
+		if (!this.uniformsCache) {
+			const { activeUniforms } = this;
+			this.uniformsCache = new Map();
+			for (let i = 0; i < activeUniforms; i++) {
+				const uniform = createUniform(this, i);
+				this.uniformsCache.set(uniform.name, uniform);
+			}
+		}
+
+		return this.uniformsCache;
+	}
+
+	/**
+	 * The number of transform feedback varying variables in this shader program.
+	 * @internal
+	 */
+	private transformFeedbackVaryingsCache?: number;
+
+	/** The number of transform feedback varying variables in this shader program. */
+	public get transformFeedbackVaryings(): number {
+		return (this.transformFeedbackVaryingsCache ??=
+			this.varyingsCache?.size ??
+			(this.gl.getProgramParameter(
+				this.internal,
+				TRANSFORM_FEEDBACK_VARYINGS
+			) as number));
+	}
+
+	/**
+	 * The transform feedback varyings in this shader program.
+	 * @internal
+	 */
+	private varyingsCache?: Map<string, Varying>;
+
+	/**
+	 * The transform feedback varyings in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get varyings(): Readonly<Map<string, Varying>> {
+		if (!this.varyingsCache) {
+			this.varyingsCache = new Map();
+			for (let i = 0; i < this.activeUniforms; i++) {
+				const varying = new Varying(this, i);
+				this.varyingsCache.set(varying.name, varying);
+			}
+		}
+
+		return this.varyingsCache;
+	}
+
+	/**
+	 * Specify the values to record in transform feedback buffers. Doing this after linking this program has no effect.
+	 * @param varyings - The names of the varyings to use for transform feedback.
+	 * @param bufferMode - The mode to use when capturing the varying variables.
+	 */
+	public setTransformFeedbackVaryings(
+		varyings: Iterable<string>,
+		bufferMode: MergeOrder
+	): void {
+		this.gl.transformFeedbackVaryings(this.internal, varyings, bufferMode);
+		this.transformFeedbackVaryingsCache = [...varyings].length;
+	}
 
 	/** The linking status of this shader program. */
 	public get linkStatus() {
 		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
 	}
 
-	/** The deletion status of this shader program. */
-	public get deleteStatus() {
-		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
-	}
+	/**
+	 * Link this shader program.
+	 * @throws {@link ProgramLinkError} if there is an issue when linking the shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram | linkProgram}
+	 */
+	public link(): void {
+		this.gl.linkProgram(this.internal);
 
-	/** The validation status of this shader program. */
-	public get validateStatus() {
-		return this.gl.getProgramParameter(
-			this.internal,
-			VALIDATE_STATUS
-		) as boolean;
+		// Clear variable caches. Don't clear number of transform feedback varyings because that is set manually, but do still clear varyings because their metadata may change.
+		delete this.activeAttributesCache;
+		delete this.activeUniformsCache;
+		delete this.attributesCache;
+		delete this.uniformsCache;
+		delete this.varyingsCache;
+
+		if (!this.linkStatus) {
+			throw new ProgramLinkError(this.infoLog ?? void 0);
+		}
 	}
 
 	/**
@@ -265,6 +417,11 @@ export default class Program extends ContextDependent {
 		return this.gl.getProgramInfoLog(this.internal);
 	}
 
+	/** The deletion status of this shader program. */
+	public get deleteStatus() {
+		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
+	}
+
 	/**
 	 * Delete this shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram | deleteProgram}
@@ -273,13 +430,12 @@ export default class Program extends ContextDependent {
 		this.gl.deleteProgram(this.internal);
 	}
 
-	/**
-	 * Detach the given shader from this shader program.
-	 * @param shader - The shader to detach.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/detachShader | detachShader}
-	 */
-	public detach(shader: Shader): void {
-		this.gl.detachShader(this.internal, shader.internal);
+	/** The validation status of this shader program. */
+	public get validateStatus() {
+		return this.gl.getProgramParameter(
+			this.internal,
+			VALIDATE_STATUS
+		) as boolean;
 	}
 
 	/**

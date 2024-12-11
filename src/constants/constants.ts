@@ -561,3 +561,15 @@ export const MAX_COMBINED_TEXTURE_IMAGE_UNITS = 0x8b4d;
  * @internal
  */
 export const MAX_VIEWPORT_DIMS = 0x0d3a;
+
+/**
+ * The type of a shader.
+ * @internal
+ */
+export const SHADER_TYPE = 0x8b4f;
+
+/**
+ * The number of shaders that are attached to a shader program.
+ * @internal
+ */
+export const ATTACHED_SHADERS = 0x8b85;

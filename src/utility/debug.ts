@@ -380,8 +380,9 @@ export default function debug(
 			case "string":
 				return `"${value}"`;
 			case "number":
-				// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-				return (isEnum && enumMap.get(value)) || value.toString();
+				return isEnum
+					? (enumMap.get(value) ?? value.toString())
+					: value.toString();
 			case "bigint":
 				return `${value.toString()}n`;
 			case "boolean":
