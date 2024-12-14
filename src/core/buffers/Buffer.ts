@@ -1,3 +1,4 @@
+import { BUFFER_SIZE, BUFFER_USAGE } from "../../constants/constants.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
@@ -85,11 +86,14 @@ export default abstract class Buffer<
 	 * The intended usage of this buffer.
 	 * @internal
 	 */
-	private usageCache;
+	private usageCache?: BufferUsage;
 
 	/** The intended usage of this buffer. */
 	public get usage(): BufferUsage {
-		return this.usageCache;
+		return (this.usageCache ??= this.gl.getBufferParameter(
+			this.target,
+			BUFFER_USAGE
+		));
 	}
 
 	/**
@@ -126,11 +130,14 @@ export default abstract class Buffer<
 	 * The size of this buffer's data store in bytes.
 	 * @internal
 	 */
-	private sizeCache;
+	private sizeCache?: number;
 
 	/** The size of this buffer's data store in bytes. */
 	public get size(): number {
-		return this.sizeCache;
+		return (this.sizeCache ??= this.gl.getBufferParameter(
+			this.target,
+			BUFFER_SIZE
+		));
 	}
 
 	/**

@@ -72,10 +72,13 @@ export default class Shader extends ContextDependent {
 			this.internal = shader;
 			this.typeCache = type;
 
-			if (source) {
-				this.source = source;
-				this.compile();
+			// Compile the shader only if source code was given.
+			if (!source) {
+				return;
 			}
+
+			this.source = source;
+			this.compile();
 		}
 
 		Shader.existingShaders.set(this.internal, this);

@@ -573,3 +573,15 @@ export const SHADER_TYPE = 0x8b4f;
  * @internal
  */
 export const ATTACHED_SHADERS = 0x8b85;
+
+/**
+ * The usage of a buffer.
+ * @internal
+ */
+export const BUFFER_USAGE = 0x8765;
+
+/**
+ * The size of a buffer.
+ * @internal
+ */
+export const BUFFER_SIZE = 0x8764;

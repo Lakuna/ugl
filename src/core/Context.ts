@@ -176,6 +176,10 @@ export default class Context extends ApiInterface {
 			// TODO: This assertion is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			super(gl as WebGL2RenderingContext);
+
+			if (options) {
+				this.attributesCache = options;
+			}
 		}
 
 		this.canvas = this.gl.canvas;
@@ -230,6 +234,20 @@ export default class Context extends ApiInterface {
 	 */
 	public get drawingBufferWidth(): number {
 		return this.gl.drawingBufferWidth;
+	}
+
+	/**
+	 * The attributes of this rendering context, or `null` if this rendering context is lost.
+	 * @internal
+	 */
+	private attributesCache?: WebGLContextAttributes | null;
+
+	/**
+	 * The attributes of this rendering context, or `null` if this rendering context is lost.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getContextAttributes | getContextAttributes}
+	 */
+	public get attributes(): WebGLContextAttributes | null {
+		return (this.attributesCache ??= this.gl.getContextAttributes());
 	}
 
 	/**
