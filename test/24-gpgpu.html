@@ -1,0 +1,125 @@
+<!doctype html>
+
+<html lang="en-US">
+	<head>
+		<title>Attributes</title>
+
+		<!-- Prevent the browser console from complaining. -->
+		<meta charset="utf-8" />
+		<link rel="icon" href="./assets/favicon.ico" />
+
+		<!-- Test script. -->
+		<script type="module">
+			import {
+				Context,
+				ElementBuffer,
+				Framebuffer,
+				Program,
+				Renderbuffer,
+				RenderbufferFormat,
+				Texture2d,
+				TextureFilter,
+				TextureFormat,
+				VertexArray,
+				VertexBuffer
+			} from "../dist/index.js";
+
+			const vss = `\
+#version 300 es
+
+in vec4 pos;
+
+void main() {
+	gl_Position = pos;
+}
+`;
+
+			const fss = `\
+#version 300 es
+
+precision mediump float;
+
+uniform sampler2D tex;
+
+out vec4 outColor;
+
+void main() {
+	outColor = texelFetch(tex, ivec2(gl_FragCoord.xy), 0) * 2.0;
+}
+`;
+
+			const quadPosData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
+			const quadIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+			const test1 = () => {
+				const canvas = new OffscreenCanvas(3, 2);
+
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vss, fss);
+
+				const quadPosBuffer = new VertexBuffer(gl, quadPosData);
+				const quadIndexBuffer = new ElementBuffer(gl, quadIndexData);
+
+				const quadVao = new VertexArray(
+					program,
+					{ pos: { size: 2, vbo: quadPosBuffer } },
+					quadIndexBuffer
+				);
+
+				const tex = new Texture2d(gl, 1, TextureFormat.R8, 3, 2);
+				tex.setMip(new Uint8Array([1, 2, 3, 4, 5, 6]));
+				tex.minFilter = TextureFilter.NEAREST;
+				tex.magFilter = TextureFilter.NEAREST;
+
+				const framebuffer = new Framebuffer(gl);
+
+				const renderbuffer = new Renderbuffer(gl, RenderbufferFormat.R8, 3, 2);
+				framebuffer.attach(0, renderbuffer);
+
+				gl.resize(framebuffer);
+
+				quadVao.draw({ tex }, void 0, void 0, framebuffer);
+
+				return gl.readPixels(framebuffer);
+			};
+
+			const test2 = () => {
+				const canvas = new OffscreenCanvas(3, 2);
+
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vss, fss);
+
+				const quadPosBuffer = new VertexBuffer(gl, quadPosData);
+				const quadIndexBuffer = new ElementBuffer(gl, quadIndexData);
+
+				const quadVao = new VertexArray(
+					program,
+					{ pos: { size: 2, vbo: quadPosBuffer } },
+					quadIndexBuffer
+				);
+
+				const tex = new Texture2d(gl, 1, TextureFormat.R8, 3, 2);
+				tex.setMip(new Uint8Array([1, 2, 3, 4, 5, 6]));
+				tex.minFilter = TextureFilter.NEAREST;
+				tex.magFilter = TextureFilter.NEAREST;
+
+				gl.resize();
+
+				quadVao.draw({ tex });
+
+				return gl.readPixels();
+			};
+
+			// Start after the canvases finish loading.
+			addEventListener("load", () => {
+				console.log(test1());
+				console.log(test2());
+			});
+		</script>
+	</head>
+	<body>
+		<p>Output is located in the console.</p>
+	</body>
+</html>
