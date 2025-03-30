@@ -402,9 +402,7 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public get format(): TextureFormat {
 		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
-		if (!this.formatCache) {
-			this.formatCache = TextureFormat.RGBA;
-		}
+		this.formatCache ??= TextureFormat.RGBA;
 
 		return this.formatCache;
 	}
@@ -554,6 +552,7 @@ export default abstract class Texture extends ContextDependent {
 			);
 		}
 
+		this.bind();
 		this.makeImmutableFormatInternal(actualLevels, actualFormat, actualDims);
 		this.format = actualFormat;
 		for (let i = 0; i < actualDims.length; i++) {

@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "25.0.0",
+	"version": "25.1.1",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -35,20 +35,20 @@
 		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.22.0",
+		"@eslint/js": "^9.23.0",
 		"@types/eslint": "^9.6.1",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.11",
 		"@types/webxr": "^0.5.21",
-		"eslint": "^9.22.0",
+		"eslint": "^9.23.0",
 		"eslint-config-prettier": "^10.1.1",
-		"eslint-plugin-prettier": "^5.2.3",
+		"eslint-plugin-prettier": "^5.2.5",
 		"eslint-plugin-tsdoc": "^0.4.0",
 		"prettier": "^3.5.3",
-		"typedoc": "^0.27.9",
+		"typedoc": "^0.28.1",
 		"typescript": "^5.8.2",
-		"typescript-eslint": "^8.26.0"
+		"typescript-eslint": "^8.28.0"
 	},
 	"exports": "./dist/index.js",
 	"typings": "./dist/index.d.ts",
