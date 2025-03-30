@@ -4,6 +4,8 @@ import {
 	DEPTH_ATTACHMENT,
 	DEPTH_STENCIL_ATTACHMENT,
 	DRAW_BUFFER0,
+	IMPLEMENTATION_COLOR_READ_FORMAT,
+	IMPLEMENTATION_COLOR_READ_TYPE,
 	NONE,
 	READ_BUFFER,
 	RENDERBUFFER,
@@ -21,6 +23,8 @@ import Renderbuffer from "./Renderbuffer.js";
 import Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
+import type TextureDataFormat from "../constants/TextureDataFormat.js";
+import type TextureDataType from "../constants/TextureDataType.js";
 import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
@@ -164,7 +168,7 @@ export default class Framebuffer extends ContextDependent {
 
 		this.internal = this.gl.createFramebuffer();
 		this.targetCache = FramebufferTarget.FRAMEBUFFER;
-		this.attachmentsCache = [];
+		this.attachmentsCache = new Map();
 	}
 
 	/**
@@ -239,17 +243,31 @@ export default class Framebuffer extends ContextDependent {
 	 * The attachments on this framebuffer.
 	 * @internal
 	 */
-	private readonly attachmentsCache: (Texture | Renderbuffer)[];
+	private readonly attachmentsCache: Map<
+		FramebufferAttachment | number,
+		Texture | Renderbuffer
+	>;
+
+	/**
+	 * The attachments on this framebuffer.
+	 * @internal
+	 */
+	public get attachments(): ReadonlyMap<
+		FramebufferAttachment | number,
+		Texture | Renderbuffer
+	> {
+		return this.attachmentsCache;
+	}
 
 	/** The width of this framebuffer. */
 	public get width(): number {
-		const [firstAttachment] = this.attachmentsCache;
+		const [firstAttachment] = this.attachmentsCache.values();
 		return firstAttachment ? firstAttachment.width : 0;
 	}
 
 	/** The height of this framebuffer. */
 	public get height(): number {
-		const [firstAttachment] = this.attachmentsCache;
+		const [firstAttachment] = this.attachmentsCache.values();
 		return firstAttachment ? firstAttachment.height : 0;
 	}
 
@@ -312,7 +330,7 @@ export default class Framebuffer extends ContextDependent {
 	) {
 		// Ensure that attachments are the same size.
 		if (
-			this.attachmentsCache.length > 0 &&
+			this.attachmentsCache.size > 0 &&
 			(data.width !== this.width || data.height !== this.height)
 		) {
 			throw new BadValueError(
@@ -383,7 +401,16 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		// Save a reference to the attachment.
-		this.attachmentsCache.push(data);
+		this.attachmentsCache.set(attachment, data);
+
+		// If the read buffer gets a new attachment, clear the implementation color read format and type caches.
+		if (
+			attachment === this.readBuffer ||
+			(attachment === 0 && this.readBuffer === true)
+		) {
+			delete this.implementationColorReadFormatCache;
+			delete this.implementationColorReadTypeCache;
+		}
 	}
 
 	/**
@@ -401,17 +428,14 @@ export default class Framebuffer extends ContextDependent {
 			return this.readBufferCache;
 		}
 
-		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
-
-		if (typeof this.readBufferCache === "undefined") {
-			if (this.context.doPrefillCache) {
-				this.readBufferCache = true; // `BACK`.
-			} else {
-				const raw = this.gl.getParameter(READ_BUFFER) as number;
-				this.readBufferCache =
-					raw === BACK ? true : raw === NONE ? false : raw - COLOR_ATTACHMENT0;
-			}
+		if (this.context.doPrefillCache) {
+			return (this.readBufferCache = 0); // `BACK` for the default framebuffer, `COLOR_ATTACHMENT0` otherwise.
 		}
+
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		const raw = this.gl.getParameter(READ_BUFFER) as number;
+		this.readBufferCache =
+			raw === BACK ? true : raw === NONE ? false : raw - COLOR_ATTACHMENT0;
 
 		return this.readBufferCache;
 	}
@@ -427,6 +451,64 @@ export default class Framebuffer extends ContextDependent {
 			value === true ? BACK : value === false ? NONE : COLOR_ATTACHMENT0 + value
 		);
 		this.readBufferCache = value;
+
+		delete this.implementationColorReadFormatCache;
+		delete this.implementationColorReadTypeCache;
+	}
+
+	/** The attachment that is currently bound to the current read buffer. */
+	public get readAttachment(): Texture | Renderbuffer | undefined {
+		if (this.readBuffer === false) {
+			return void 0;
+		}
+
+		return this.attachments.get(this.readBuffer === true ? 0 : this.readBuffer);
+	}
+
+	/**
+	 * The texture data format to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	private implementationColorReadFormatCache?: TextureDataFormat;
+
+	/**
+	 * The texture data format to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	public get implementationColorReadFormat(): TextureDataFormat {
+		if (this.implementationColorReadFormatCache) {
+			return this.implementationColorReadFormatCache;
+		}
+
+		// TODO: Support cache prefilling.
+
+		this.bind();
+		return (this.implementationColorReadFormatCache = this.gl.getParameter(
+			IMPLEMENTATION_COLOR_READ_FORMAT
+		) as TextureDataFormat);
+	}
+
+	/**
+	 * The texture data type to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	private implementationColorReadTypeCache?: TextureDataType;
+
+	/**
+	 * The texture data type to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	public get implementationColorReadType(): TextureDataType {
+		if (this.implementationColorReadTypeCache) {
+			return this.implementationColorReadTypeCache;
+		}
+
+		// TODO: Support cache prefilling.
+
+		this.bind();
+		return (this.implementationColorReadTypeCache = this.gl.getParameter(
+			IMPLEMENTATION_COLOR_READ_TYPE
+		) as TextureDataType);
 	}
 
 	/**
@@ -445,29 +527,29 @@ export default class Framebuffer extends ContextDependent {
 			return this.drawBuffersCache;
 		}
 
-		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
-
 		const out = [];
 		if (this.context.doPrefillCache) {
 			out.push(0); // For the default framebuffer, the first draw buffer is `BACK` by default; for other framebuffers, it's `COLOR_ATTACHMENT0`.
 			for (let i = 1; i < this.context.maxDrawBuffers; i++) {
 				out.push(false); // In either case, every other draw buffer is `NONE` by default.
 			}
-		} else {
-			for (let i = 0; i < this.context.maxDrawBuffers; i++) {
-				const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
-				out.push(
-					drawBuffer === BACK
-						? true
-						: drawBuffer === NONE
-							? false
-							: drawBuffer - COLOR_ATTACHMENT0
-				);
-			}
+
+			return (this.drawBuffersCache = out);
 		}
 
-		this.drawBuffersCache = out;
-		return this.drawBuffersCache;
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
+			const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
+			out.push(
+				drawBuffer === BACK
+					? true
+					: drawBuffer === NONE
+						? false
+						: drawBuffer - COLOR_ATTACHMENT0
+			);
+		}
+
+		return (this.drawBuffersCache = out);
 	}
 
 	public set drawBuffers(value) {

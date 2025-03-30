@@ -245,6 +245,12 @@ export const TEXTURE_WRAP_T = 0x2803;
 export const UNPACK_ALIGNMENT = 0x0cf5;
 
 /**
+ * The number of texels to pack at a time in each row of a texture.
+ * @internal
+ */
+export const PACK_ALIGNMENT = 0x0d05;
+
+/**
  * The depth test.
  * @internal
  */
@@ -585,3 +591,15 @@ export const BUFFER_USAGE = 0x8765;
  * @internal
  */
 export const BUFFER_SIZE = 0x8764;
+
+/**
+ * The texture data format to use for reading pixel data.
+ * @internal
+ */
+export const IMPLEMENTATION_COLOR_READ_FORMAT = 0x8b9b;
+
+/**
+ * The texture data type to use for reading pixel data.
+ * @internal
+ */
+export const IMPLEMENTATION_COLOR_READ_TYPE = 0x8b9a;

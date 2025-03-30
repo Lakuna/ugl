@@ -25,6 +25,7 @@ import {
 	MAX_DRAW_BUFFERS,
 	MAX_TEXTURE_MAX_ANISOTROPY_EXT,
 	MAX_VIEWPORT_DIMS,
+	PACK_ALIGNMENT,
 	POLYGON_OFFSET_FACTOR,
 	POLYGON_OFFSET_FILL,
 	POLYGON_OFFSET_UNITS,
@@ -55,6 +56,7 @@ import type BlendEquationSet from "../types/BlendEquationSet.js";
 import BlendFunction from "../constants/BlendFunction.js";
 import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
 import type BlendFunctionSet from "../types/BlendFunctionSet.js";
+import BufferTarget from "../constants/BufferTarget.js";
 import type Color from "../types/Color.js";
 import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
@@ -68,8 +70,13 @@ import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
 import TestFunction from "../constants/TestFunction.js";
+import TextureDataFormat from "../constants/TextureDataFormat.js";
+import TextureDataType from "../constants/TextureDataType.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import VertexBuffer from "./buffers/VertexBuffer.js";
 import WebglError from "../utility/WebglError.js";
+import getChannelsForTextureFormat from "../utility/internal/getChannelsForTextureFormat.js";
+import getTypedArrayConstructorForTextureDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * A WebGL2 rendering context.
@@ -962,6 +969,28 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
+	 * The alignment to use when packing pixel data into memory.
+	 * @internal
+	 */
+	private packAlignmentCache?: 1 | 2 | 4 | 8;
+
+	/** The alignment to use when packing pixel data into memory. */
+	public get packAlignment(): 1 | 2 | 4 | 8 {
+		return (this.packAlignmentCache ??= this.doPrefillCache
+			? 4
+			: this.gl.getParameter(PACK_ALIGNMENT));
+	}
+
+	public set packAlignment(value) {
+		if (this.packAlignment === value) {
+			return;
+		}
+
+		this.gl.pixelStorei(PACK_ALIGNMENT, value);
+		this.packAlignmentCache = value;
+	}
+
+	/**
 	 * A map of already-enabled WebGL extensions.
 	 * @internal
 	 */
@@ -1501,5 +1530,121 @@ export default class Context extends ApiInterface {
 	 */
 	public flush(): void {
 		this.gl.flush();
+	}
+
+	/**
+	 * Read pixels from a framebuffer.
+	 * @param framebuffer - The framebuffer to read pixels from, or `null` for the default framebuffer. Defaults to the default framebuffer.
+	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
+	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
+	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
+	 * @returns A typed array of pixel data.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
+	 */
+	public readPixels(
+		framebuffer?: Framebuffer | null,
+		rectangle?: Rectangle,
+		rgba?: boolean,
+		packAlignment?: 1 | 2 | 4 | 8
+	): ArrayBufferView;
+
+	/**
+	 * Read pixels from a framebuffer.
+	 * @param framebuffer - The framebuffer to read pixels from, or `null` for the default framebuffer. Defaults to the default framebuffer.
+	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
+	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
+	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
+	 * @param out - The buffer or typed array to store the pixel data in.
+	 * @param offset - The offset at which to start storing pixel data in the buffer. Only effective if `out` is a buffer.
+	 * @returns The buffer or typed array to store the pixel data in.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
+	 */
+	public readPixels<T extends ArrayBufferView | VertexBuffer>(
+		framebuffer: Framebuffer | null,
+		rectangle: Rectangle | undefined,
+		rgba: boolean | undefined,
+		packAlignment: 1 | 2 | 4 | 8 | undefined,
+		out: T,
+		offset?: number
+	): T;
+
+	public readPixels<T extends VertexBuffer | ArrayBufferView>(
+		framebuffer: Framebuffer | null = null,
+		rectangle?: Rectangle,
+		rgba?: boolean,
+		packAlignment?: 1 | 2 | 4 | 8,
+		out?: T,
+		offset?: number
+	): T | ArrayBufferView {
+		// Bind the correct framebuffer.
+		if (framebuffer) {
+			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		} else {
+			Framebuffer.unbindGl(this, FramebufferTarget.READ_FRAMEBUFFER);
+		}
+
+		// Default to the entire color buffer if no dimensions were given.
+		const realRect =
+			rectangle ??
+			(framebuffer
+				? [0, 0, framebuffer.width, framebuffer.height]
+				: this.viewport);
+
+		// Determine the proper output format and data type.
+		const format = rgba
+			? TextureDataFormat.RGBA
+			: (framebuffer?.implementationColorReadFormat ?? TextureDataFormat.RGBA);
+		const type = rgba
+			? TextureDataType.UNSIGNED_BYTE
+			: (framebuffer?.implementationColorReadType ??
+				TextureDataType.UNSIGNED_BYTE);
+		const channels = getChannelsForTextureFormat(format);
+
+		// Set the pack alignment.
+		if (packAlignment) {
+			this.packAlignment = packAlignment;
+		} else if (realRect[3] > 1) {
+			// Pack alignment doesn't matter if there is only one row of data.
+			for (const alignment of [8, 4, 2, 1] as const) {
+				if ((realRect[2] * channels) % alignment === 0) {
+					this.packAlignment = alignment;
+					break;
+				}
+			}
+		}
+
+		// Output to a pixel pack buffer.
+		if (out instanceof VertexBuffer) {
+			out.bind(BufferTarget.PIXEL_PACK_BUFFER);
+			this.gl.readPixels(
+				realRect[0],
+				realRect[1],
+				realRect[2],
+				realRect[3],
+				format,
+				type,
+				offset ?? 0
+			);
+			return out;
+		}
+
+		// Make a typed array if one wasn't provided.
+		const realOut =
+			out ??
+			new (getTypedArrayConstructorForTextureDataType(type))(
+				realRect[2] * realRect[3] * channels
+			);
+
+		// Output to a typed array.
+		this.gl.readPixels(
+			realRect[0],
+			realRect[1],
+			realRect[2],
+			realRect[3],
+			format,
+			type,
+			realOut as ArrayBufferView
+		);
+		return realOut;
 	}
 }

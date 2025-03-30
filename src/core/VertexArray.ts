@@ -217,11 +217,7 @@ export default class VertexArray extends ContextDependent {
 	): void {
 		// Bind the correct framebuffer.
 		if (framebuffer) {
-			Framebuffer.bindGl(
-				this.context,
-				FramebufferTarget.DRAW_FRAMEBUFFER,
-				framebuffer.internal
-			);
+			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
 		} else {
 			Framebuffer.unbindGl(this.context, FramebufferTarget.DRAW_FRAMEBUFFER);
 		}
