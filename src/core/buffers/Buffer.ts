@@ -6,8 +6,6 @@ import ContextDependent from "../internal/ContextDependent.js";
 import DataType from "../../constants/DataType.js";
 import type VertexBuffer from "./VertexBuffer.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
-import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
-import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * An array of binary data.
@@ -96,57 +94,21 @@ export default abstract class Buffer<
 	 * The data contained in this buffer.
 	 * @internal
 	 */
-	private dataCache?: T;
+	protected dataCache?: T;
 
 	/**
 	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
 	 * @internal
 	 */
-	private isCacheValid: boolean;
+	protected isCacheValid: boolean;
 
 	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): Readonly<T> {
-		if (this.dataCache && this.isCacheValid) {
-			return this.dataCache;
-		}
+	public abstract get data(): Readonly<T>;
 
-		// Create a new typed array to store the data cache if it has been resized.
-		// TODO: if
-		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
-			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
-				this.size / getSizeOfDataType(this.type)
-			) as unknown as T;
-		}
-
-		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
-		const readableBuffer = [
-			BufferUsage.DYNAMIC_READ,
-			BufferUsage.STATIC_READ,
-			BufferUsage.STREAM_READ
-		].includes(this.usage)
-			? this
-			: this; // TODO: `new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);`
-
-		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		// TODO: https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync
-
-		// Read the buffer data into a typed array.
-		readableBuffer.bind();
-		readableBuffer.gl.getBufferSubData(
-			readableBuffer.target,
-			0,
-			this.dataCache
-		);
-
-		return this.dataCache;
-	}
-
-	public set data(value) {
-		this.setData(value);
-	}
+	public abstract set data(value);
 
 	/**
 	 * Clear this buffer's data cache.

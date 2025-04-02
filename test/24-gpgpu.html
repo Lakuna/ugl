@@ -119,7 +119,7 @@ void main() {
 
 				const program = Program.fromSource(gl, vss, fss);
 
-				const outBuffer = new VertexBuffer(gl);
+				const outBuffer = new VertexBuffer(gl, 6);
 				const quadPosBuffer = new VertexBuffer(gl, quadPosData);
 				const quadIndexBuffer = new ElementBuffer(gl, quadIndexData);
 
