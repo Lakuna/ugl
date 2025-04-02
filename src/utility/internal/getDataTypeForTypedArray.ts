@@ -24,6 +24,6 @@ export default function getDataTypeForTypedArray(
 						: array instanceof Uint32Array
 							? DataType.UNSIGNED_INT
 							: half // `Float32Array`.
-								? DataType.HALF_FLOAT
+								? DataType.HALF_FLOAT // Support for `Float16Array` is limited so `Float32Array` is used instead (two elements per index). TODO: Change code where necessary to support `Float16Array` now that it has reached stage 3.
 								: DataType.FLOAT;
 }

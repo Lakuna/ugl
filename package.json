@@ -1,6 +1,6 @@
 {
 	"name": "@lakuna/ugl",
-	"version": "25.1.0",
+	"version": "25.2.0",
 	"description": "A lightweight WebGL2 library.",
 	"keywords": [
 		"front-end"
@@ -48,7 +48,7 @@
 		"prettier": "^3.5.3",
 		"typedoc": "^0.28.1",
 		"typescript": "^5.8.2",
-		"typescript-eslint": "^8.28.0"
+		"typescript-eslint": "^8.29.0"
 	},
 	"exports": "./dist/index.js",
 	"typings": "./dist/index.d.ts",

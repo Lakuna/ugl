@@ -119,10 +119,10 @@ export default class ElementBuffer extends Buffer<
 	 */
 	public constructor(
 		context: Context,
-		data: Uint8Array | Uint16Array | Uint32Array | number,
-		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset: number | undefined = void 0,
-		length: number | undefined = void 0
+		data?: Uint8Array | Uint16Array | Uint32Array | number,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
 		VertexArray.unbindGl(context);

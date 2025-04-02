@@ -182,7 +182,8 @@ export default abstract class Texture extends ContextDependent {
 			}
 		}
 
-		// Return the least recently used texture unit.
+		// Return the least recently used texture unit. Apparent typescript-eslint bug since version 8.29.0.
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		return (targetBindingOverwriteOrder[0] ??= 0);
 	}
 

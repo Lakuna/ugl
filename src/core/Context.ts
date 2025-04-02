@@ -76,7 +76,8 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import VertexBuffer from "./buffers/VertexBuffer.js";
 import WebglError from "../utility/WebglError.js";
 import getChannelsForTextureFormat from "../utility/internal/getChannelsForTextureFormat.js";
-import getTypedArrayConstructorForTextureDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
+import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
+import getTypedArrayConstructorForDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * A WebGL2 rendering context.
@@ -1538,6 +1539,8 @@ export default class Context extends ApiInterface {
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
 	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
+	 * @param out - The buffer or typed array to store the pixel data in.
+	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
 	 * @returns A typed array of pixel data.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
 	 */
@@ -1545,7 +1548,9 @@ export default class Context extends ApiInterface {
 		framebuffer?: Framebuffer | null,
 		rectangle?: Rectangle,
 		rgba?: boolean,
-		packAlignment?: 1 | 2 | 4 | 8
+		packAlignment?: 1 | 2 | 4 | 8,
+		out?: undefined,
+		offset?: number
 	): ArrayBufferView;
 
 	/**
@@ -1555,9 +1560,10 @@ export default class Context extends ApiInterface {
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
 	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
 	 * @param out - The buffer or typed array to store the pixel data in.
-	 * @param offset - The offset at which to start storing pixel data in the buffer. Only effective if `out` is a buffer.
+	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
 	 * @returns The buffer or typed array to store the pixel data in.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
+	 * @throws `Error` if the given buffer or typed array is too small to store the selected data.
 	 */
 	public readPixels<T extends ArrayBufferView | VertexBuffer>(
 		framebuffer: Framebuffer | null,
@@ -1574,7 +1580,7 @@ export default class Context extends ApiInterface {
 		rgba?: boolean,
 		packAlignment?: 1 | 2 | 4 | 8,
 		out?: T,
-		offset?: number
+		offset = 0
 	): T | ArrayBufferView {
 		// Bind the correct framebuffer.
 		if (framebuffer) {
@@ -1600,6 +1606,19 @@ export default class Context extends ApiInterface {
 				TextureDataType.UNSIGNED_BYTE);
 		const channels = getChannelsForTextureFormat(format);
 
+		// Ensure that the buffer or typed array is large enough to store the data.
+		const srcSize = realRect[2] * realRect[3] * channels;
+		const typeSize = getSizeOfDataType(type);
+		if (out) {
+			const srcSizeBytes = srcSize * typeSize;
+			const dstSize = out instanceof VertexBuffer ? out.size : out.byteLength;
+			if (dstSize < offset + srcSizeBytes) {
+				throw new Error(
+					`Buffer too small to store read pixels (${dstSize.toString()}B < ${offset.toString()}B offset + ${srcSizeBytes.toString()}B)`
+				);
+			}
+		}
+
 		// Set the pack alignment.
 		if (packAlignment) {
 			this.packAlignment = packAlignment;
@@ -1623,16 +1642,17 @@ export default class Context extends ApiInterface {
 				realRect[3],
 				format,
 				type,
-				offset ?? 0
+				offset
 			);
+			out.clearDataCache();
 			return out;
 		}
 
 		// Make a typed array if one wasn't provided.
 		const realOut =
 			out ??
-			new (getTypedArrayConstructorForTextureDataType(type))(
-				realRect[2] * realRect[3] * channels
+			new (getTypedArrayConstructorForDataType(type))(
+				offset / typeSize + srcSize
 			);
 
 		// Output to a typed array.
@@ -1643,7 +1663,8 @@ export default class Context extends ApiInterface {
 			realRect[3],
 			format,
 			type,
-			realOut as ArrayBufferView
+			realOut as ArrayBufferView,
+			offset
 		);
 		return realOut;
 	}

@@ -140,11 +140,11 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 */
 	public constructor(
 		context: Context,
-		data: ArrayBufferView | number,
-		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset: number | undefined = void 0,
-		length: number | undefined = void 0,
-		isHalf = false
+		data?: ArrayBufferView | number | VertexBuffer,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number,
+		isHalf?: boolean
 	) {
 		super(
 			context,

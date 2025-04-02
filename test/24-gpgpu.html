@@ -2,7 +2,7 @@
 
 <html lang="en-US">
 	<head>
-		<title>Attributes</title>
+		<title>GPGPU</title>
 
 		<!-- Prevent the browser console from complaining. -->
 		<meta charset="utf-8" />
@@ -72,16 +72,11 @@ void main() {
 				tex.minFilter = TextureFilter.NEAREST;
 				tex.magFilter = TextureFilter.NEAREST;
 
-				const framebuffer = new Framebuffer(gl);
+				gl.resize();
 
-				const renderbuffer = new Renderbuffer(gl, RenderbufferFormat.R8, 3, 2);
-				framebuffer.attach(0, renderbuffer);
+				quadVao.draw({ tex });
 
-				gl.resize(framebuffer);
-
-				quadVao.draw({ tex }, void 0, void 0, framebuffer);
-
-				return gl.readPixels(framebuffer);
+				return gl.readPixels();
 			};
 
 			const test2 = () => {
@@ -105,17 +100,58 @@ void main() {
 				tex.minFilter = TextureFilter.NEAREST;
 				tex.magFilter = TextureFilter.NEAREST;
 
-				gl.resize();
+				const framebuffer = new Framebuffer(gl);
 
-				quadVao.draw({ tex });
+				const renderbuffer = new Renderbuffer(gl, RenderbufferFormat.R8, 3, 2);
+				framebuffer.attach(0, renderbuffer);
 
-				return gl.readPixels();
+				gl.resize(framebuffer);
+
+				quadVao.draw({ tex }, void 0, void 0, framebuffer);
+
+				return gl.readPixels(framebuffer);
+			};
+
+			const test3 = () => {
+				const canvas = new OffscreenCanvas(3, 2);
+
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vss, fss);
+
+				const outBuffer = new VertexBuffer(gl);
+				const quadPosBuffer = new VertexBuffer(gl, quadPosData);
+				const quadIndexBuffer = new ElementBuffer(gl, quadIndexData);
+
+				const quadVao = new VertexArray(
+					program,
+					{ pos: { size: 2, vbo: quadPosBuffer } },
+					quadIndexBuffer
+				);
+
+				const tex = new Texture2d(gl, 1, TextureFormat.R8, 3, 2);
+				tex.setMip(new Uint8Array([1, 2, 3, 4, 5, 6]));
+				tex.minFilter = TextureFilter.NEAREST;
+				tex.magFilter = TextureFilter.NEAREST;
+
+				const framebuffer = new Framebuffer(gl);
+
+				const renderbuffer = new Renderbuffer(gl, RenderbufferFormat.R8, 3, 2);
+				framebuffer.attach(0, renderbuffer);
+
+				gl.resize(framebuffer);
+
+				quadVao.draw({ tex }, void 0, void 0, framebuffer);
+
+				return gl.readPixels(framebuffer, void 0, void 0, void 0, outBuffer)
+					.data;
 			};
 
 			// Start after the canvases finish loading.
 			addEventListener("load", () => {
 				console.log(test1());
 				console.log(test2());
+				console.log(test3());
 			});
 		</script>
 	</head>

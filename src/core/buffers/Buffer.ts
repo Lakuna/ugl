@@ -4,7 +4,10 @@ import BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
 import ContextDependent from "../internal/ContextDependent.js";
 import DataType from "../../constants/DataType.js";
+import type VertexBuffer from "./VertexBuffer.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
+import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
+import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * An array of binary data.
@@ -28,10 +31,10 @@ export default abstract class Buffer<
 	 */
 	protected constructor(
 		context: Context,
-		data: T | number,
-		usage: BufferUsage = BufferUsage.STATIC_DRAW,
-		offset: number | undefined = void 0,
-		length: number | undefined = void 0,
+		data: T | number | VertexBuffer = 0,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number,
 		isHalf = false,
 		target: BufferTarget = BufferTarget.ARRAY_BUFFER
 	) {
@@ -39,17 +42,10 @@ export default abstract class Buffer<
 
 		this.internal = this.gl.createBuffer();
 		this.targetCache = target;
-		this.usageCache = usage;
 		this.isHalfCache = isHalf;
-		if (typeof data === "number") {
-			this.sizeCache = data;
-			this.dataCache = new Uint8Array(data) as unknown as T;
-		} else {
-			this.sizeCache = data.byteLength;
-			this.dataCache = data;
-		}
+		this.isCacheValid = false;
 
-		this.setData(this.data, this.usage, offset, length, this.isHalf);
+		this.setData(data as T, usage, offset, length, isHalf);
 	}
 
 	/**
@@ -103,16 +99,61 @@ export default abstract class Buffer<
 	private dataCache?: T;
 
 	/**
+	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
+	 * @internal
+	 */
+	private isCacheValid: boolean;
+
+	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): T {
-		// TODO: If the data cache isn't set, read the buffer data with `getBufferSubData`. If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer.
-		return (this.dataCache ??= new Uint8Array() as unknown as T);
+	public get data(): Readonly<T> {
+		if (this.dataCache && this.isCacheValid) {
+			return this.dataCache;
+		}
+
+		// Create a new typed array to store the data cache if it has been resized.
+		// TODO: if
+		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
+				this.size / getSizeOfDataType(this.type)
+			) as unknown as T;
+		}
+
+		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
+		const readableBuffer = [
+			BufferUsage.DYNAMIC_READ,
+			BufferUsage.STATIC_READ,
+			BufferUsage.STREAM_READ
+		].includes(this.usage)
+			? this
+			: this; // TODO: `new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);`
+
+		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
+		// TODO: https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync
+
+		// Read the buffer data into a typed array.
+		readableBuffer.bind();
+		readableBuffer.gl.getBufferSubData(
+			readableBuffer.target,
+			0,
+			this.dataCache
+		);
+
+		return this.dataCache;
 	}
 
 	public set data(value) {
 		this.setData(value);
+	}
+
+	/**
+	 * Clear this buffer's data cache.
+	 * @internal
+	 */
+	public clearDataCache(): void {
+		this.isCacheValid = false;
 	}
 
 	/**
@@ -123,7 +164,7 @@ export default abstract class Buffer<
 
 	/** The type of the data in this buffer. */
 	public get type(): DataType {
-		return (this.typeCache ??= getDataTypeForTypedArray(this.data));
+		return (this.typeCache ??= DataType.UNSIGNED_BYTE);
 	}
 
 	/**
@@ -162,7 +203,7 @@ export default abstract class Buffer<
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
-		data: T,
+		data: T | VertexBuffer,
 		usage?: BufferUsage,
 		offset?: number,
 		length?: number,
@@ -199,7 +240,7 @@ export default abstract class Buffer<
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
-		data: T,
+		data: T | VertexBuffer,
 		_?: unknown,
 		offset?: number,
 		length?: number,
@@ -208,23 +249,60 @@ export default abstract class Buffer<
 	): void;
 
 	public setData(
-		data: T | number,
-		usage: BufferUsage = this.usage,
-		offset: number | undefined = void 0,
-		length: number | undefined = void 0,
+		data: T | number | VertexBuffer,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number,
 		isHalf: boolean = this.isHalf,
-		replaceOffset: number | undefined = void 0
+		replaceOffset?: number
 	) {
+		// Default to `STATIC_DRAW`, but remember if the user passed it or not.
+		const realUsage = usage ?? BufferUsage.STATIC_DRAW;
+
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
 		this.bind();
 
 		// Set size of buffer (empty data).
 		if (typeof data === "number") {
-			this.gl.bufferData(this.target, data, usage);
+			this.gl.bufferData(this.target, data, realUsage);
 			this.dataCache = new Uint8Array(data) as unknown as T;
 			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
-			this.usageCache = usage;
+			this.usageCache = realUsage;
+			this.isHalfCache = isHalf;
+			this.isCacheValid = true;
+			return;
+		}
+
+		// Copy data from another buffer.
+		if (data instanceof Buffer) {
+			// The buffers do not need to be bound to `COPY_READ_BUFFER` and `COPY_WRITE_BUFFER`, but they must be bound to different binding points.
+			if (this.target === data.target) {
+				data.bind(BufferTarget.COPY_READ_BUFFER);
+				(this as VertexBuffer).bind(BufferTarget.COPY_WRITE_BUFFER); // `this` is guaranteed to be a `VertexBuffer` because its binding point matched that of a `VertexBuffer`.
+			} else {
+				data.bind();
+				this.bind();
+			}
+
+			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
+			const realDstOffset = replaceOffset ?? 0;
+			const realLength = length ?? data.size;
+			if (usage) {
+				this.gl.bufferData(this.target, realDstOffset + realLength, usage);
+				this.usageCache = usage;
+				this.sizeCache = realDstOffset + realLength;
+			}
+
+			this.gl.copyBufferSubData(
+				data.target,
+				this.target,
+				offset ?? 0,
+				realDstOffset,
+				realLength
+			);
+			this.isCacheValid = false;
+			this.typeCache = data.type;
 			this.isHalfCache = isHalf;
 			return;
 		}
@@ -238,7 +316,7 @@ export default abstract class Buffer<
 				offset as unknown as number,
 				length
 			);
-			delete this.dataCache;
+			this.isCacheValid = false;
 			return;
 		}
 
@@ -246,14 +324,14 @@ export default abstract class Buffer<
 		this.gl.bufferData(
 			this.target,
 			data,
-			usage,
+			realUsage,
 			offset as unknown as number,
 			length
 		);
-		this.dataCache = data;
-		this.typeCache = getDataTypeForTypedArray(data);
+		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
+		this.typeCache = getDataTypeForTypedArray(data, this.isHalf);
 		this.sizeCache = data.byteLength;
-		this.usageCache = usage;
+		this.usageCache = realUsage;
 		this.isHalfCache = isHalf;
 	}
 
