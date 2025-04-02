@@ -105,17 +105,14 @@ export default class VertexArray extends ContextDependent {
 
 		// Set the initial attribute values.
 		this.attributeCache = new Map<string, AttributeValue>();
-		for (const name in attributes) {
-			if (!Object.hasOwn(attributes, name)) {
-				continue;
-			}
+		if (attributes) {
+			for (const [key, value] of Object.entries(attributes)) {
+				if (!Object.hasOwn(attributes, key)) {
+					continue;
+				}
 
-			const value = attributes[name];
-			if (!value) {
-				throw new BadValueError("Cannot pass `undefined` to an attribute.");
+				this.setAttribute(key, value);
 			}
-
-			this.setAttribute(name, value);
 		}
 
 		// Set the initial EBO.
@@ -226,19 +223,14 @@ export default class VertexArray extends ContextDependent {
 
 		// Set uniforms.
 		if (uniforms) {
-			for (const name in uniforms) {
-				if (!Object.hasOwn(uniforms, name)) {
+			for (const [key, value] of Object.entries(uniforms)) {
+				if (!Object.hasOwn(uniforms, key)) {
 					continue;
 				}
 
-				const uniform = this.program.uniforms.get(name);
+				const uniform = this.program.uniforms.get(key);
 				if (!uniform) {
-					throw new BadValueError(`No uniform named \`${name}\`.`);
-				}
-
-				const value = uniforms[name];
-				if (typeof value === "undefined") {
-					throw new BadValueError("Cannot pass `undefined` to a uniform.");
+					throw new BadValueError(`No uniform named \`${key}\`.`);
 				}
 
 				uniform.value = value;

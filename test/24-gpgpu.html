@@ -21,7 +21,8 @@
 				TextureFilter,
 				TextureFormat,
 				VertexArray,
-				VertexBuffer
+				VertexBuffer,
+				debug
 			} from "../dist/index.js";
 
 			const vss = `\
@@ -116,6 +117,7 @@ void main() {
 				const canvas = new OffscreenCanvas(3, 2);
 
 				const gl = Context.get(canvas);
+				debug(gl.gl);
 
 				const program = Program.fromSource(gl, vss, fss);
 
@@ -148,7 +150,7 @@ void main() {
 			};
 
 			// Start after the canvases finish loading.
-			addEventListener("load", () => {
+			addEventListener("load", async () => {
 				const b = [2, 4, 6, 8, 10, 12];
 				console.log(test1().every((ai, i) => ai === b[i]));
 				console.log(test2().every((ai, i) => ai === b[i]));

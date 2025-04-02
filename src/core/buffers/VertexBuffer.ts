@@ -186,7 +186,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 			: new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		// TODO: https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync
+		this.context.sync(); // TODO: `finish` works, `fenceSync` doesn't appear to.
 
 		// Read the buffer data into a typed array.
 		readableBuffer.bind();

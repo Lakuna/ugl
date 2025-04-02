@@ -85,7 +85,7 @@ export default class Sync extends ContextDependent {
 	 * @returns This sync object's status.
 	 * @throws {@link BadValueError} if `timeout` exceeds the maximum client wait timeout.
 	 */
-	public clientWait(flush = false, timeout = 1000000): SyncClientStatus {
+	public clientWait(flush = false, timeout = 0): SyncClientStatus {
 		return this.gl.clientWaitSync(
 			this.internal,
 			flush ? SYNC_FLUSH_COMMANDS_BIT : 0,

@@ -80,7 +80,7 @@ const isEnumMap = new Map<string, number[]>([
 	["drawElementsInstanced", [0, 2]],
 	["drawRangeElements", [0, 4]],
 	["endQuery", [0]],
-	["fenceSync", [0]],
+	["fenceSync", [0]], // TODO: Special case.
 	["framebufferTextureLayer", [0, 1]],
 	["getActiveUniformBlockParameter", [2]],
 	["getActiveUniforms", [-1, 2]], // Return value may or may not be an enumerated value.
@@ -152,7 +152,7 @@ export default function debug(
 			continue;
 		}
 
-		// Check if the property is a number.
+		// Check if the value is a number.
 		const value = object[key];
 		if (typeof value !== "number") {
 			continue;
@@ -414,43 +414,45 @@ export default function debug(
 		// For each method, call the method then log the method's name, arguments, and return value.
 		const method = value.bind(gl) as (...args: unknown[]) => unknown;
 		object[key] = (...args: unknown[]) => {
+			if (!debugInfo.isActive) {
+				// Just execute the original method.
+				return method(...args);
+			}
+
+			// Build a report consisting of the method name and arguments list. Stringify arguments before calling the method in case the method modifies the arguments.
+			let report = `${key}(`;
+			const argumentDivider = ", ";
+			let argIndex = 0;
+			const isEnumList = isEnumMap.get(key);
+			for (const arg of args) {
+				report += `${stringify(arg, isEnumList?.includes(argIndex++))}${argumentDivider}`;
+			}
+
 			// Execute the original method.
 			const returnValue = method(...args);
 
-			// Build and log a report of the method execution if the debugger is active.
-			if (debugInfo.isActive) {
-				// Build a report consisting of the method name and arguments list.
-				let report = `${key}(`;
-				const argumentDivider = ", ";
-				let argIndex = 0;
-				const isEnumList = isEnumMap.get(key);
-				for (const arg of args) {
-					report += `${stringify(arg, isEnumList?.includes(argIndex++))}${argumentDivider}`;
-				}
+			// Cut off the last argument divider, close the parentheses, and report the return value, if any.
+			report = `${report.endsWith(argumentDivider) ? report.slice(0, report.length - argumentDivider.length) : report})`;
+			if (typeof returnValue !== "undefined") {
+				report += ` => ${stringify(returnValue, isEnumList?.includes(-1))}`;
+			}
 
-				// Cut off the last argument divider, close the parentheses, and report the return value, if any.
-				report = `${report.endsWith(argumentDivider) ? report.slice(0, report.length - argumentDivider.length) : report})`;
-				if (typeof returnValue !== "undefined") {
-					report += ` => ${stringify(returnValue, isEnumList?.includes(-1))}`;
-				}
+			// Log the report to the console.
+			out.log(report);
 
-				// Log the report to the console.
-				out.log(report);
+			// Check for errors.
+			if (debugInfo.doLogErrors) {
+				// Don't log this call to `getError`.
+				debugInfo.isActive = false;
+				const error = gl.getError();
+				debugInfo.isActive = true;
 
-				// Check for errors.
-				if (debugInfo.doLogErrors) {
-					// Don't log this call to `getError`.
-					debugInfo.isActive = false;
-					const error = gl.getError();
-					debugInfo.isActive = true;
+				if (error) {
+					// Print the error code.
+					out.error(enumMap.get(error));
 
-					if (error) {
-						// Print the error code.
-						out.error(enumMap.get(error));
-
-						// Disable error logging since otherwise this error will continue be logged after each method call.
-						debugInfo.doLogErrors = false;
-					}
+					// Disable error logging since otherwise this error will continue be logged after each method call.
+					debugInfo.doLogErrors = false;
 				}
 			}
 

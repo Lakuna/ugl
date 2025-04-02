@@ -196,7 +196,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		// TODO: https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync
+		this.context.sync(); // TODO: `finish` works, `fenceSync` doesn't appear to.
 
 		// Read the buffer data into a typed array.
 		this.bind();
