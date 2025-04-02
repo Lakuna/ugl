@@ -156,7 +156,6 @@ export default class VertexArray extends ContextDependent {
 		name: string,
 		value: AttributeValue | VertexBuffer
 	): void {
-		// TODO: Need to call `vertexAttribPointer` again if the `type` of the `VertexBuffer` changes.
 		const attribute = this.program.attributes.get(name);
 		if (!attribute) {
 			throw new BadValueError(`No attribute named \`${name}\`.`);

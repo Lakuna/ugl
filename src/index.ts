@@ -1,6 +1,3 @@
-// TODO: Ensure that parameters are never set over their limits; warn if set over the common level of support: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits.
-// TODO: Remove various checks for production builds: https://webpack.js.org/plugins/define-plugin/.
-
 // Constants
 export { default as BlendEquation } from "./constants/BlendEquation.js";
 export { default as BlendFunction } from "./constants/BlendFunction.js";
@@ -17,6 +14,8 @@ export { default as Orientation } from "./constants/Orientation.js";
 export { default as Primitive } from "./constants/Primitive.js";
 export { default as RenderbufferFormat } from "./constants/RenderbufferFormat.js";
 export { default as ShaderType } from "./constants/ShaderType.js";
+export { default as SyncClientStatus } from "./constants/SyncClientStatus.js";
+export { default as SyncStatus } from "./constants/SyncStatus.js";
 export { default as TestFunction } from "./constants/TestFunction.js";
 export { default as TextureCompareMode } from "./constants/TextureCompareMode.js";
 export { default as TextureDataType } from "./constants/TextureDataType.js";
@@ -53,6 +52,7 @@ export { default as Framebuffer } from "./core/Framebuffer.js";
 export { default as Program } from "./core/Program.js";
 export { default as Renderbuffer } from "./core/Renderbuffer.js";
 export { default as Shader } from "./core/Shader.js";
+export { default as Sync } from "./core/Sync.js";
 export { default as VertexArray } from "./core/VertexArray.js";
 
 // Types

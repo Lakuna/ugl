@@ -69,6 +69,7 @@ import Orientation from "../constants/Orientation.js";
 import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
+import Sync from "./Sync.js";
 import TestFunction from "../constants/TestFunction.js";
 import TextureDataFormat from "../constants/TextureDataFormat.js";
 import TextureDataType from "../constants/TextureDataType.js";
@@ -1667,5 +1668,16 @@ export default class Context extends ApiInterface {
 			offset
 		);
 		return realOut;
+	}
+
+	/**
+	 * Wait on the GL server for GPU commands to finish syncing.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync | fenceSync}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/waitSync | waitSync}
+	 */
+	public sync(): void {
+		const sync = new Sync(this);
+		sync.wait();
+		sync.delete();
 	}
 }

@@ -76,7 +76,7 @@ void main() {
 
 				quadVao.draw({ tex });
 
-				return gl.readPixels();
+				return gl.readPixels().filter((_, i) => i % 4 === 0);
 			};
 
 			const test2 = () => {
@@ -149,13 +149,14 @@ void main() {
 
 			// Start after the canvases finish loading.
 			addEventListener("load", () => {
-				console.log(test1());
-				console.log(test2());
-				console.log(test3());
+				const b = [2, 4, 6, 8, 10, 12];
+				console.log(test1().every((ai, i) => ai === b[i]));
+				console.log(test2().every((ai, i) => ai === b[i]));
+				console.log(test3().every((ai, i) => ai === b[i]));
 			});
 		</script>
 	</head>
 	<body>
-		<p>Output is located in the console.</p>
+		<p>Output is located in the console (all lines should be true).</p>
 	</body>
 </html>

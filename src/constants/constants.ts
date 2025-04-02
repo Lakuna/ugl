@@ -603,3 +603,51 @@ export const IMPLEMENTATION_COLOR_READ_FORMAT = 0x8b9b;
  * @internal
  */
 export const IMPLEMENTATION_COLOR_READ_TYPE = 0x8b9a;
+
+/**
+ * Wait until GPU commands are synced.
+ * @internal
+ */
+export const SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
+
+/**
+ * Whether or not to flush commands while client waiting for a sync object.
+ * @internal
+ */
+export const SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
+
+/**
+ * Ignore a sync object's timeout.
+ * @internal
+ */
+export const TIMEOUT_IGNORED = -1;
+
+/**
+ * The type of a sync object.
+ * @internal
+ */
+export const OBJECT_TYPE = 0x9112;
+
+/**
+ * The condition of a sync object.
+ * @internal
+ */
+export const SYNC_CONDITION = 0x9113;
+
+/**
+ * The status of a sync object.
+ * @internal
+ */
+export const SYNC_STATUS = 0x9114;
+
+/**
+ * The flags of a sync object.
+ * @internal
+ */
+export const SYNC_FLAGS = 0x9115;
+
+/**
+ * A fence sync object.
+ * @internal
+ */
+export const SYNC_FENCE = 0x9116;
