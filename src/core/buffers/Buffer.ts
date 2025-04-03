@@ -239,12 +239,13 @@ export default abstract class Buffer<
 		// Copy data from another buffer.
 		if (data instanceof Buffer) {
 			// The buffers do not need to be bound to `COPY_READ_BUFFER` and `COPY_WRITE_BUFFER`, but they must be bound to different binding points.
-			if (this.target === data.target) {
-				data.bind(BufferTarget.COPY_READ_BUFFER);
-				(this as VertexBuffer).bind(BufferTarget.COPY_WRITE_BUFFER); // `this` is guaranteed to be a `VertexBuffer` because its binding point matched that of a `VertexBuffer`.
-			} else {
+			this.bind();
+			if (this.target !== data.target) {
 				data.bind();
-				this.bind();
+			} else if (this.target === BufferTarget.COPY_WRITE_BUFFER) {
+				data.bind(BufferTarget.COPY_READ_BUFFER);
+			} else {
+				data.bind(BufferTarget.COPY_WRITE_BUFFER);
 			}
 
 			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
