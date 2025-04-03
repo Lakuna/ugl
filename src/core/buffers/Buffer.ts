@@ -22,7 +22,6 @@ export default abstract class Buffer<
 	 * @param usage - The intended usage of the buffer.
 	 * @param offset - The index of the element to start reading the initial data at.
 	 * @param length - The length of the initial data to read into the buffer.
-	 * @param isHalf - Whether or not the data contains half floats if it contains floats.
 	 * @param target - The target binding point of the buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 * @internal
@@ -33,17 +32,15 @@ export default abstract class Buffer<
 		usage?: BufferUsage,
 		offset?: number,
 		length?: number,
-		isHalf = false,
 		target: BufferTarget = BufferTarget.ARRAY_BUFFER
 	) {
 		super(context);
 
 		this.internal = this.gl.createBuffer();
 		this.targetCache = target;
-		this.isHalfCache = isHalf;
 		this.isCacheValid = false;
 
-		this.setData(data as T, usage, offset, length, isHalf);
+		this.setData(data as T, usage, offset, length);
 	}
 
 	/**
@@ -144,79 +141,38 @@ export default abstract class Buffer<
 	}
 
 	/**
-	 * Whether or not this buffer contains 16-bit floating-point data if it contains floating-point data.
-	 * @internal
-	 */
-	private isHalfCache;
-
-	/** Whether or not this buffer contains 16-bit floating-point data if it contains floating-point data. */
-	public get isHalf(): boolean {
-		return this.isHalfCache;
-	}
-
-	/**
-	 * Replace the data in this buffer.
-	 * @param data - The data to store in this buffer or the size to set this buffer's data store to in bytes.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the supplied data at.
-	 * @param length - The length of the supplied data to read.
-	 * @param isHalf - Whether or not the data contains 16-bit floating-point data if it contains floating-point data.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
-	 */
-	public setData(
-		data: T | VertexBuffer,
-		usage?: BufferUsage,
-		offset?: number,
-		length?: number,
-		isHalf?: boolean
-	): void;
-
-	/**
 	 * Set the size of this buffer, clearing its data.
 	 * @param data - The data to store in this buffer or the size to set this buffer's data store to in bytes.
 	 * @param usage - The intended usage of the buffer.
-	 * @param _ - An unused value.
-	 * @param __ - An unused value.
-	 * @param isHalf - Whether or not the data contains 16-bit floating-point data if it contains floating-point data.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
-	public setData(
-		data: number,
-		usage?: BufferUsage,
-		_?: unknown,
-		__?: unknown,
-		isHalf?: boolean
-	): void;
+	public setData(data: number, usage?: BufferUsage): void;
 
 	/**
-	 * Update a subset of the data in this buffer.
-	 * @param data - The data to store in this buffer.
-	 * @param _ - An ignored value.
-	 * @param offset - The index of the element to start reading the supplied data at.
+	 * Replace all of or update a subset of the data in this buffer.
+	 * @param data - The data to store in this buffer or the size to set this buffer's data store to in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param srcOffset - The index of the element to start reading the supplied data at.
 	 * @param length - The length of the supplied data to read.
-	 * @param __ - An ignored value.
-	 * @param replaceOffset - The offset in bytes to start replacing data at.
+	 * @param dstOffset - The offset in bytes to start replacing data at. If this value is set, a subset of the data in the buffer is updated rather than replacing all of the data in the buffer and the usage pattern of the buffer is not updated.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData | bufferData}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public setData(
 		data: T | VertexBuffer,
-		_?: unknown,
-		offset?: number,
+		usage?: BufferUsage,
+		srcOffset?: number,
 		length?: number,
-		__?: unknown,
-		replaceOffset?: number
+		dstOffset?: number
 	): void;
 
 	public setData(
-		data: T | number | VertexBuffer,
+		data: number | T | VertexBuffer,
 		usage?: BufferUsage,
-		offset?: number,
+		srcOffset?: number,
 		length?: number,
-		isHalf: boolean = this.isHalf,
-		replaceOffset?: number
+		dstOffset?: number
 	) {
 		// Default to `STATIC_DRAW`, but remember if the user passed it or not.
 		const realUsage = usage ?? BufferUsage.STATIC_DRAW;
@@ -231,7 +187,6 @@ export default abstract class Buffer<
 			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
 			this.usageCache = realUsage;
-			this.isHalfCache = isHalf;
 			this.isCacheValid = true;
 			return;
 		}
@@ -249,7 +204,7 @@ export default abstract class Buffer<
 			}
 
 			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
-			const realDstOffset = replaceOffset ?? 0;
+			const realDstOffset = dstOffset ?? 0;
 			const realLength = length ?? data.size;
 			if (usage) {
 				this.gl.bufferData(this.target, realDstOffset + realLength, usage);
@@ -260,23 +215,22 @@ export default abstract class Buffer<
 			this.gl.copyBufferSubData(
 				data.target,
 				this.target,
-				offset ?? 0,
+				srcOffset ?? 0,
 				realDstOffset,
 				realLength
 			);
 			this.isCacheValid = false;
 			this.typeCache = data.type;
-			this.isHalfCache = isHalf;
 			return;
 		}
 
 		// Update a portion of the buffer.
-		if (typeof replaceOffset === "number") {
+		if (typeof dstOffset === "number") {
 			this.gl.bufferSubData(
 				this.target,
-				replaceOffset,
+				dstOffset,
 				data,
-				offset as unknown as number,
+				srcOffset as unknown as number,
 				length
 			);
 			this.isCacheValid = false;
@@ -288,14 +242,13 @@ export default abstract class Buffer<
 			this.target,
 			data,
 			realUsage,
-			offset as unknown as number,
+			srcOffset as unknown as number,
 			length
 		);
 		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
-		this.typeCache = getDataTypeForTypedArray(data, this.isHalf);
+		this.typeCache = getDataTypeForTypedArray(data);
 		this.sizeCache = data.byteLength;
 		this.usageCache = realUsage;
-		this.isHalfCache = isHalf;
 	}
 
 	/**

@@ -136,7 +136,6 @@ export default class ElementBuffer extends Buffer<
 			usage,
 			offset,
 			length,
-			false,
 			BufferTarget.ELEMENT_ARRAY_BUFFER
 		);
 	}
