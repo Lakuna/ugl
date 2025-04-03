@@ -1,13 +1,64 @@
+import {
+	ACTIVE_TEXTURE,
+	BLEND_DST_ALPHA,
+	BLEND_DST_RGB,
+	BLEND_EQUATION_ALPHA,
+	BLEND_EQUATION_RGB,
+	BLEND_SRC_ALPHA,
+	BLEND_SRC_RGB,
+	BUFFER_USAGE,
+	COLOR_BUFFER_BIT,
+	COMPRESSED_TEXTURE_FORMATS,
+	CULL_FACE_MODE,
+	DEPTH_BUFFER_BIT,
+	DEPTH_FUNC,
+	DRAW_BUFFER0,
+	FRAGMENT_SHADER_DERIVATIVE_HINT,
+	FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
+	FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT,
+	FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE,
+	FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
+	FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE,
+	FRONT_FACE,
+	GENERATE_MIPMAP_HINT,
+	IMPLEMENTATION_COLOR_READ_FORMAT,
+	IMPLEMENTATION_COLOR_READ_TYPE,
+	OBJECT_TYPE,
+	READ_BUFFER,
+	RENDERBUFFER_INTERNAL_FORMAT,
+	STENCIL_BACK_FAIL,
+	STENCIL_BACK_FUNC,
+	STENCIL_BACK_PASS_DEPTH_FAIL,
+	STENCIL_BACK_PASS_DEPTH_PASS,
+	STENCIL_BUFFER_BIT,
+	STENCIL_FAIL,
+	STENCIL_FUNC,
+	STENCIL_PASS_DEPTH_FAIL,
+	STENCIL_PASS_DEPTH_PASS,
+	SYNC_CONDITION,
+	SYNC_FLUSH_COMMANDS_BIT,
+	SYNC_STATUS,
+	TEXTURE_COMPARE_FUNC,
+	TEXTURE_COMPARE_MODE,
+	TEXTURE_MAG_FILTER,
+	TEXTURE_MIN_FILTER,
+	TEXTURE_WRAP_R,
+	TEXTURE_WRAP_S,
+	TEXTURE_WRAP_T,
+	TRANSFORM_FEEDBACK_BUFFER_MODE,
+	UNIFORM_TYPE,
+	UNPACK_COLORSPACE_CONVERSION_WEBGL,
+	VERTEX_ATTRIB_ARRAY_TYPE
+} from "../constants/constants.js";
 import type DebugInfo from "../types/DebugInfo.js";
 
 // Map of WebGL API method names to lists of which of the corresponding methods' arguments (and/or return values) should be interpreted as enumerated values. `-1` indicates the method's return value.
 const isEnumMap = new Map<string, number[]>([
 	["activeTexture", [0]],
-	["attachShader", [1]],
-	["bindBuffer", [0, 1]],
-	["bindFramebuffer", [0, 1]],
-	["bindRenderbuffer", [0, 1]],
-	["bindTexture", [0, 1]],
+	["bindBuffer", [0]],
+	["bindFramebuffer", [0]],
+	["bindRenderbuffer", [0]],
+	["bindTexture", [0]],
 	["blendEquation", [0]],
 	["blendEquationSeparate", [0, 1]],
 	["blendFunc", [0, 1]],
@@ -15,8 +66,6 @@ const isEnumMap = new Map<string, number[]>([
 	["bufferData", [0, 2]],
 	["bufferSubData", [0]],
 	["checkFramebufferStatus", [-1, 0]],
-	["clear", [0]], // TODO: Special case.
-	["activeTexture", [0]],
 	["compressedTexImage2D", [0, 2]],
 	["compressedTexSubImage2D", [0, 6]],
 	["copyTexImage2D", [0, 2]],
@@ -32,20 +81,19 @@ const isEnumMap = new Map<string, number[]>([
 	["framebufferTexture2D", [0, 1, 2]],
 	["frontFace", [0]],
 	["generateMipmap", [0]],
-	["getBufferParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
+	["getBufferParameter", [0, 1]],
 	["getError", [-1]],
-	["getFramebufferAttachmentParameter", [-1, 0, 1, 2]], // Return value may or may not be an enumerated value.
-	["getParameter", [-1, 0]], // Return value may or may not be an enumerated value.
-	["getProgramParameter", [-1, 1]], // Return value may or may not be an enumerated value.
-	["getRenderbufferParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
-	["getShaderParameter", [-1, 1]],
+	["getFramebufferAttachmentParameter", [0, 1, 2]],
+	["getParameter", [0]],
+	["getProgramParameter", [1]],
+	["getRenderbufferParameter", [0, 1]],
+	["getShaderParameter", [-1, 1]], // Return value may not be enumerated but is never a non-enumerated number or array.
 	["getShaderPrecisionFormat", [0, 1]],
-	["getTexParameter", [-1, 0, 1]], // Return value may or may not be an enumerated value.
-	["getVertexAttrib", [-1, 1]], // Return value may or may not be an enumerated value.
+	["getTexParameter", [0, 1]],
+	["getVertexAttrib", [1]],
 	["getVertexAttribOffset", [1]],
 	["hint", [0, 1]],
 	["isEnabled", [0]],
-	["pixelStorei", [0, 1]], // Second argument may or may not be an enumerated value.
 	["readPixels", [4, 5]],
 	["renderbufferStorage", [0, 1]],
 	["stencilFunc", [0]],
@@ -53,24 +101,17 @@ const isEnumMap = new Map<string, number[]>([
 	["stencilMaskSeparate", [0]],
 	["stencilOp", [0, 1, 2]],
 	["stencilOpSeparate", [0, 1, 2, 3]],
-	["texImage2D", [0, 2, 3, 4, 6, 7]], // Fourth and fifth arguments may or may not be enumerated values.
-	["texParameterf", [0, 1, 2]], // Third argument may or may not be an enumerated value.
-	["texParameteri", [0, 1, 2]], // Third argument may or may not be an enumerated value.
-	["texSubImage2D", [0, 4, 5, 6, 7]], // Fifth and sixth arguments may or may not be enumerated values.
 	["vertexAttribPointer", [2]],
 	["beginQuery", [0]],
 	["beginTransformFeedback", [0]],
 	["bindBufferBase", [0]],
 	["bindBufferRange", [0]],
 	["bindTransformFeedback", [0]],
-	["blitFramebuffer", [8, 9]], // TODO: Special case.
-	["bufferData", [0, 2]],
-	["bufferSubData", [0]],
 	["clearBufferfv", [0]],
 	["clearBufferiv", [0]],
 	["clearBufferuiv", [0]],
 	["clearBufferfi", [0]],
-	["clientWaitSync", [-1, 1]],
+	["clientWaitSync", [-1]],
 	["compressedTexImage3D", [0, 2]],
 	["compressedTexSubImage3D", [0, 8]],
 	["copyBufferSubData", [0, 1]],
@@ -80,29 +121,28 @@ const isEnumMap = new Map<string, number[]>([
 	["drawElementsInstanced", [0, 2]],
 	["drawRangeElements", [0, 4]],
 	["endQuery", [0]],
-	["fenceSync", [0]], // TODO: Special case.
+	["fenceSync", [0]], // Second argument is a bitfield but can only be zero.
 	["framebufferTextureLayer", [0, 1]],
 	["getActiveUniformBlockParameter", [2]],
-	["getActiveUniforms", [-1, 2]], // Return value may or may not be an enumerated value.
+	["getActiveUniforms", [2]],
 	["getBufferSubData", [0]],
-	["getIndexedParameter", [-1, 0]], // Return value may or may not be an enumerated value.
+	["getIndexedParameter", [0]],
 	["getInternalFormatParameter", [0, 1, 2]],
 	["getQuery", [0, 1]],
 	["getQueryParameter", [1]],
-	["getSamplerParameter", [-1, 1]], // Return value may or may not be an enumerated value.
-	["getSyncParameter", [-1, 1]],
+	["getSamplerParameter", [1]],
+	["getSyncParameter", [1]],
 	["invalidateFramebuffer", [0, 1]],
 	["invalidateSubFramebuffer", [0, 1]],
 	["readBuffer", [0]],
 	["renderbufferStorageMultisample", [0, 2]],
-	["samplerParameteri", [1, 2]], // Third argument may or may not be an enumerated value.
 	["texImage3D", [0, 2, 7, 8]],
 	["texStorage2D", [0, 2]],
 	["texStorage3D", [0, 2]],
 	["texSubImage3D", [0, 8, 9]],
 	["transformFeedbackVaryings", [2]],
 	["vertexAttribIPointer", [2]],
-	["waitSync", [2]]
+	["waitSync", [2]] // Second argument is a bitfield but can only be zero.
 ]);
 
 /**
@@ -141,7 +181,6 @@ export default function debug(
 	const unknowns: unknown[] = [];
 
 	// Treat the rendering context as a `Record` so that we can access it unsafely.
-	// TODO: Refactor this function so that it is type-safe.
 	const object = gl as unknown as Record<string, unknown>;
 
 	// Create a map of enumeration values to WebGL constant names.
@@ -181,7 +220,7 @@ export default function debug(
 
 				// Recursion base case for iterable values.
 				if (Array.isArray(value)) {
-					return `[${value.map((v) => stringify(v, isEnum)).toString()}]`;
+					return `[${value.map((v) => stringify(v, isEnum)).join(", ")}]`;
 				}
 
 				if (value instanceof Int8Array) {
@@ -422,19 +461,209 @@ export default function debug(
 			// Build a report consisting of the method name and arguments list. Stringify arguments before calling the method in case the method modifies the arguments.
 			let report = `${key}(`;
 			const argumentDivider = ", ";
-			let argIndex = 0;
 			const isEnumList = isEnumMap.get(key);
-			for (const arg of args) {
-				report += `${stringify(arg, isEnumList?.includes(argIndex++))}${argumentDivider}`;
+			for (const [i, arg] of args.entries()) {
+				let isEnum = isEnumList?.includes(i) ?? false;
+
+				// Handle special cases where specific arguments are bit fields or may or may not be enumerated values.
+				switch (key) {
+					case "clear": {
+						if (i !== 0 || typeof arg !== "number") {
+							break;
+						}
+
+						const parts = [];
+						if (arg & COLOR_BUFFER_BIT) {
+							parts.push("COLOR_BUFFER_BIT");
+						}
+
+						if (arg & DEPTH_BUFFER_BIT) {
+							parts.push("DEPTH_BUFFER_BIT");
+						}
+
+						if (arg & STENCIL_BUFFER_BIT) {
+							parts.push("STENCIL_BUFFER_BIT");
+						}
+
+						report += `${parts.length > 0 ? parts.join(" | ") : "0"}${argumentDivider}`;
+						continue;
+					}
+					case "pixelStorei":
+						isEnum =
+							i === 0 ||
+							(i === 1 && arg === UNPACK_COLORSPACE_CONVERSION_WEBGL);
+						break;
+					case "texImage2D":
+						isEnum =
+							i === 0 ||
+							i === 2 ||
+							(i === 3 && args.length === 6) ||
+							(i === 4 && args.length === 6) ||
+							i === 6 ||
+							i === 7;
+						break;
+					case "texParameterf":
+					case "texParameteri":
+						isEnum =
+							i === 0 ||
+							i === 1 ||
+							(i === 2 && args[1] === TEXTURE_MAG_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_MIN_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_S) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_T) ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_FUNC) ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_MODE) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_R);
+						break;
+					case "texSubImage2D":
+						isEnum =
+							i === 0 ||
+							(i === 4 && args.length === 7) ||
+							(i === 5 && args.length === 7) ||
+							i === 6 ||
+							i === 7;
+						break;
+					case "blitFramebuffer": {
+						if (i !== 8 || typeof arg !== "number") {
+							isEnum = i === 9;
+							break;
+						}
+
+						const parts = [];
+						if (arg & COLOR_BUFFER_BIT) {
+							parts.push("COLOR_BUFFER_BIT");
+						}
+
+						if (arg & DEPTH_BUFFER_BIT) {
+							parts.push("DEPTH_BUFFER_BIT");
+						}
+
+						if (arg & STENCIL_BUFFER_BIT) {
+							parts.push("STENCIL_BUFFER_BIT");
+						}
+
+						report += `${parts.length > 0 ? parts.join(" | ") : "0"}${argumentDivider}`;
+						continue;
+					}
+					case "clientWaitSync":
+						isEnum = i === 1 && arg === SYNC_FLUSH_COMMANDS_BIT;
+						break;
+					case "samplerParameteri":
+					case "samplerParameterf":
+						isEnum =
+							i === 1 ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_FUNC) ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_MODE) ||
+							(i === 2 && args[1] === TEXTURE_MAG_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_MIN_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_R) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_S) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_T);
+						break;
+					default:
+						break;
+				}
+
+				report += `${stringify(arg, isEnum)}${argumentDivider}`;
 			}
+
+			// Cut off the last argument divider and close the parentheses.
+			report = `${report.endsWith(argumentDivider) ? report.slice(0, report.length - argumentDivider.length) : report})`;
 
 			// Execute the original method.
 			const returnValue = method(...args);
 
-			// Cut off the last argument divider, close the parentheses, and report the return value, if any.
-			report = `${report.endsWith(argumentDivider) ? report.slice(0, report.length - argumentDivider.length) : report})`;
+			// Report the return value, if any.
 			if (typeof returnValue !== "undefined") {
-				report += ` => ${stringify(returnValue, isEnumList?.includes(-1))}`;
+				let isEnum = isEnumList?.includes(-1) ?? false;
+
+				// Handle special cases where the return value is a bit field or may or may not be an enumerated value.
+				switch (key) {
+					case "getBufferParameter":
+						isEnum = args[1] === BUFFER_USAGE;
+						break;
+					case "getFramebufferAttachmentParameter":
+						isEnum =
+							args[2] === FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE ||
+							args[2] === FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE ||
+							args[2] === FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING ||
+							args[2] === FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE ||
+							args[2] === FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT;
+						break;
+					case "getParameter":
+						isEnum =
+							args[0] === ACTIVE_TEXTURE ||
+							args[0] === BLEND_DST_ALPHA ||
+							args[0] === BLEND_DST_RGB ||
+							args[0] === BLEND_EQUATION_ALPHA ||
+							args[0] === BLEND_EQUATION_RGB ||
+							args[0] === BLEND_SRC_ALPHA ||
+							args[0] === BLEND_SRC_RGB ||
+							args[0] === COMPRESSED_TEXTURE_FORMATS ||
+							args[0] === CULL_FACE_MODE ||
+							args[0] === DEPTH_FUNC ||
+							args[0] === FRONT_FACE ||
+							args[0] === GENERATE_MIPMAP_HINT ||
+							args[0] === IMPLEMENTATION_COLOR_READ_FORMAT ||
+							args[0] === IMPLEMENTATION_COLOR_READ_TYPE ||
+							args[0] === STENCIL_BACK_FAIL ||
+							args[0] === STENCIL_BACK_FUNC ||
+							args[0] === STENCIL_BACK_PASS_DEPTH_FAIL ||
+							args[0] === STENCIL_BACK_PASS_DEPTH_PASS ||
+							args[0] === STENCIL_FAIL ||
+							args[0] === STENCIL_FUNC ||
+							args[0] === STENCIL_PASS_DEPTH_FAIL ||
+							args[0] === STENCIL_PASS_DEPTH_PASS ||
+							args[0] === UNPACK_COLORSPACE_CONVERSION_WEBGL ||
+							(typeof args[0] === "number" &&
+								args[0] >= DRAW_BUFFER0 &&
+								args[0] < DRAW_BUFFER0 + 16) ||
+							args[0] === FRAGMENT_SHADER_DERIVATIVE_HINT ||
+							args[0] === READ_BUFFER;
+						break;
+					case "getProgramParameter":
+						isEnum = args[1] === TRANSFORM_FEEDBACK_BUFFER_MODE;
+						break;
+					case "getRenderbufferParameter":
+						isEnum = args[1] === RENDERBUFFER_INTERNAL_FORMAT;
+						break;
+					case "getTexParameter":
+					case "getSamplerParameter":
+						isEnum =
+							args[1] === TEXTURE_COMPARE_FUNC ||
+							args[1] === TEXTURE_COMPARE_MODE ||
+							args[1] === TEXTURE_MAG_FILTER ||
+							args[1] === TEXTURE_MIN_FILTER ||
+							args[1] === TEXTURE_WRAP_R ||
+							args[1] === TEXTURE_WRAP_S ||
+							args[1] === TEXTURE_WRAP_T;
+						break;
+					case "getVertexAttrib":
+						isEnum = args[1] === VERTEX_ATTRIB_ARRAY_TYPE;
+						break;
+					case "getActiveUniforms":
+						isEnum = args[2] === UNIFORM_TYPE;
+						break;
+					case "getIndexedParameter":
+						isEnum =
+							args[0] === BLEND_EQUATION_RGB ||
+							args[0] === BLEND_EQUATION_ALPHA ||
+							args[0] === BLEND_SRC_RGB ||
+							args[0] === BLEND_SRC_ALPHA ||
+							args[0] === BLEND_DST_RGB ||
+							args[0] === BLEND_DST_ALPHA;
+						break;
+					case "getSyncParameter":
+						isEnum =
+							args[1] === OBJECT_TYPE ||
+							args[1] === SYNC_STATUS ||
+							args[1] === SYNC_CONDITION;
+						break;
+					default:
+						break;
+				}
+
+				report += ` => ${stringify(returnValue, isEnum)}`;
 			}
 
 			// Log the report to the console.

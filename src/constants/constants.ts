@@ -651,3 +651,189 @@ export const SYNC_FLAGS = 0x9115;
  * @internal
  */
 export const SYNC_FENCE = 0x9116;
+
+/**
+ * Default color space conversion or no color space conversion.
+ * @internal
+ */
+export const UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
+
+/**
+ * The object type of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = 0x8cd0;
+
+/**
+ * The object of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 0x8cd1;
+
+/**
+ * The mipmap level of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = 0x8cd2;
+
+/**
+ * The cubemap face of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 0x8cd3;
+
+/**
+ * The number of bits in the alpha component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE = 0x8215;
+
+/**
+ * The number of bits in the blue component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_BLUE_SIZE = 0x8214;
+
+/**
+ * The encoding of components of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING = 0x8210;
+
+/**
+ * The format of components of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE = 0x8211;
+
+/**
+ * The number of bits in the depth component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE = 0x8216;
+
+/**
+ * The number of bits in the green component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_GREEN_SIZE = 0x8213;
+
+/**
+ * The number of bits in the red component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_RED_SIZE = 0x8212;
+
+/**
+ * The number of bits in the stencil component of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE = 0x8217;
+
+/**
+ * The number of the texture layer which contains the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER = 0x8cd4;
+
+/**
+ * The framebuffer color encoding of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT = 0x8210;
+
+/**
+ * The number of views of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_TEXTURE_NUM_VIEWS_OVR = 0x9630;
+
+/**
+ * The base view index of the framebuffer attachment.
+ * @internal
+ */
+export const FRAMEBUFFER_ATTACHMENT_TEXTURE_BASE_VIEW_INDEX_OVR = 0x9632;
+
+/**
+ * The maximum number of views. Most VR headsets have two views, but some have 4 (which is currently the maximum number of views supported by multiview).
+ * @internal
+ */
+export const MAX_VIEWS_OVR = 0x9631;
+
+/**
+ * Get the compressed texture formats.
+ * @internal
+ */
+export const COMPRESSED_TEXTURE_FORMATS = 0x86a3;
+
+/**
+ * Hint for the quality of filtering when generating mipmap images.
+ * @internal
+ */
+export const GENERATE_MIPMAP_HINT = 0x8192;
+
+/**
+ * Stencil back fail.
+ * @internal
+ */
+export const STENCIL_BACK_FAIL = 0x8801;
+
+/**
+ * Stencil back pass depth fail.
+ * @internal
+ */
+export const STENCIL_BACK_PASS_DEPTH_FAIL = 0x8802;
+
+/**
+ * Stencil back pass depth pass.
+ * @internal
+ */
+export const STENCIL_BACK_PASS_DEPTH_PASS = 0x8803;
+
+/**
+ * Get the current stencil fail function.
+ * @internal
+ */
+export const STENCIL_FAIL = 0x0b94;
+
+/**
+ * Get the current stencil fail function should the depth buffer test fail.
+ * @internal
+ */
+export const STENCIL_PASS_DEPTH_FAIL = 0x0b95;
+
+/**
+ * Get the current stencil fail function should the depth buffer test pass.
+ * @internal
+ */
+export const STENCIL_PASS_DEPTH_PASS = 0x0b96;
+
+/**
+ * The accuracy of the derivative calculation for the GLSL built-in functions `dFdx`, `dFdy`, and `fwidth`.
+ * @internal
+ */
+export const FRAGMENT_SHADER_DERIVATIVE_HINT = 0x8b8b;
+
+/**
+ * The buffer mode when transform feedback is active.
+ * @internal
+ */
+export const TRANSFORM_FEEDBACK_BUFFER_MODE = 0x8c7f;
+
+/**
+ * The internal format of the currently-bound renderbuffer.
+ * @internal
+ */
+export const RENDERBUFFER_INTERNAL_FORMAT = 0x8d44;
+
+/**
+ * Vertex attribute array type.
+ * @internal
+ */
+export const VERTEX_ATTRIB_ARRAY_TYPE = 0x8625;
+
+/**
+ * Uniform type.
+ * @internal
+ */
+export const UNIFORM_TYPE = 0x8a37;
