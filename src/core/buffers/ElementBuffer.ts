@@ -182,7 +182,6 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
-		// TODO: Test if it works anyway.
 		if (
 			![
 				BufferUsage.DYNAMIC_READ,

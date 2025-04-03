@@ -11,6 +11,7 @@
 		<!-- Test script. -->
 		<script type="module">
 			import {
+				BufferUsage,
 				Context,
 				ElementBuffer,
 				Framebuffer,
@@ -147,12 +148,22 @@ void main() {
 					.data;
 			};
 
+			const test4 = () => {
+				// This test case isn't GPGPU but just put here to make sure that reading from EBOs works properly.
+				return new ElementBuffer(
+					Context.get(new OffscreenCanvas(0, 0)),
+					new Uint8Array(),
+					BufferUsage.STATIC_READ
+				).data;
+			};
+
 			// Start after the canvases finish loading.
 			addEventListener("load", async () => {
 				const b = [2, 4, 6, 8, 10, 12];
 				console.log(test1().every((ai, i) => ai === b[i]));
 				console.log(test2().every((ai, i) => ai === b[i]));
 				console.log(test3().every((ai, i) => ai === b[i]));
+				console.log(test4().every((ai, i) => ai === b[i]));
 			});
 		</script>
 	</head>

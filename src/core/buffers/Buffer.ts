@@ -242,10 +242,10 @@ export default abstract class Buffer<
 			this.bind();
 			if (this.target !== data.target) {
 				data.bind();
-			} else if (this.target === BufferTarget.COPY_WRITE_BUFFER) {
-				data.bind(BufferTarget.COPY_READ_BUFFER);
-			} else {
+			} else if (this.target === BufferTarget.COPY_READ_BUFFER) {
 				data.bind(BufferTarget.COPY_WRITE_BUFFER);
+			} else {
+				data.bind(BufferTarget.COPY_READ_BUFFER);
 			}
 
 			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
