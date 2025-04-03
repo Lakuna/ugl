@@ -21,8 +21,7 @@
 				TextureFilter,
 				TextureFormat,
 				VertexArray,
-				VertexBuffer,
-				debug
+				VertexBuffer
 			} from "../dist/index.js";
 
 			const vss = `\
@@ -117,7 +116,6 @@ void main() {
 				const canvas = new OffscreenCanvas(3, 2);
 
 				const gl = Context.get(canvas);
-				debug(gl.gl);
 
 				const program = Program.fromSource(gl, vss, fss);
 

@@ -69,8 +69,6 @@ import Orientation from "../constants/Orientation.js";
 import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
-import Sync from "./Sync.js";
-import SyncClientStatus from "../constants/SyncClientStatus.js";
 import TestFunction from "../constants/TestFunction.js";
 import TextureDataFormat from "../constants/TextureDataFormat.js";
 import TextureDataType from "../constants/TextureDataType.js";
@@ -1669,22 +1667,5 @@ export default class Context extends ApiInterface {
 			offset
 		);
 		return realOut;
-	}
-
-	/**
-	 * Wait for GPU commands to finish syncing.
-	 * @param flush - Whether or not to flush commands.
-	 * @param timeout - The timeout in nanoseconds to wait for the sync object to become signaled.
-	 * @returns When the sync condition is satisfied.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync | fenceSync}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/clientWaitSync | clientWaitSync}
-	 * @throws `Error` if the sync wait fails.
-	 */
-	public sync(flush?: boolean, timeout?: number): SyncClientStatus {
-		const sync = new Sync(this);
-		this.flush();
-		const result = sync.clientWait(flush, timeout);
-		sync.delete();
-		return result;
 	}
 }

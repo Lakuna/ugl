@@ -196,7 +196,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		this.context.sync(); // TODO: `finish` works, `fenceSync` doesn't appear to.
+		this.context.finish(); // TODO: Prefer using `fenceSync`.
 
 		// Read the buffer data into a typed array.
 		this.bind();
