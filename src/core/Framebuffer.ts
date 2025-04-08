@@ -19,12 +19,14 @@ import FramebufferAttachment from "../constants/FramebufferAttachment.js";
 import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
 import MipmapTarget from "../constants/MipmapTarget.js";
+import type Rectangle from "../types/Rectangle.js";
 import Renderbuffer from "./Renderbuffer.js";
 import Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
 import type TextureDataFormat from "../constants/TextureDataFormat.js";
 import type TextureDataType from "../constants/TextureDataType.js";
+import type VertexBuffer from "./buffers/VertexBuffer.js";
 import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
@@ -602,5 +604,59 @@ export default class Framebuffer extends ContextDependent {
 
 		this.gl.drawBuffers(out);
 		this.drawBuffersCache = realValue;
+	}
+
+	/**
+	 * Read pixels from this framebuffer.
+	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
+	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
+	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
+	 * @param out - The buffer or typed array to store the pixel data in.
+	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
+	 * @returns A typed array of pixel data.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
+	 */
+	public readPixels(
+		rectangle?: Rectangle,
+		rgba?: boolean,
+		packAlignment?: 1 | 2 | 4 | 8,
+		out?: undefined,
+		offset?: number
+	): ArrayBufferView;
+
+	/**
+	 * Read pixels from this framebuffer.
+	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
+	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
+	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
+	 * @param out - The buffer or typed array to store the pixel data in.
+	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
+	 * @returns The buffer or typed array to store the pixel data in.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
+	 * @throws `Error` if the given buffer or typed array is too small to store the selected data.
+	 */
+	public readPixels<T extends ArrayBufferView | VertexBuffer>(
+		rectangle: Rectangle | undefined,
+		rgba: boolean | undefined,
+		packAlignment: 1 | 2 | 4 | 8 | undefined,
+		out: T,
+		offset?: number
+	): T;
+
+	public readPixels<T extends VertexBuffer | ArrayBufferView>(
+		rectangle?: Rectangle,
+		rgba?: boolean,
+		packAlignment?: 1 | 2 | 4 | 8,
+		out?: T,
+		offset = 0
+	): T | ArrayBufferView {
+		return this.context.readPixels(
+			this,
+			rectangle,
+			rgba,
+			packAlignment,
+			out as undefined, // Don't care what type `out` is since it should succeed against all values.
+			offset
+		);
 	}
 }
