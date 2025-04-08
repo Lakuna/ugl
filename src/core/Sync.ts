@@ -10,7 +10,7 @@ import {
 } from "../constants/constants.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
-import type SyncClientStatus from "../constants/SyncClientStatus.js";
+import SyncClientStatus from "../constants/SyncClientStatus.js";
 import type SyncStatus from "../constants/SyncStatus.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 
@@ -86,6 +86,8 @@ export default class Sync extends ContextDependent {
 	 * @throws {@link BadValueError} if `timeout` exceeds the maximum client wait timeout.
 	 */
 	public clientWait(flush = false, timeout = 0): SyncClientStatus {
+		// TODO: Ensure that `timeout` isn't greater than `MAX_CLIENT_WAIT_TIMEOUT_WEBGL`.
+		this.gl.flush();
 		return this.gl.clientWaitSync(
 			this.internal,
 			flush ? SYNC_FLUSH_COMMANDS_BIT : 0,
@@ -94,10 +96,39 @@ export default class Sync extends ContextDependent {
 	}
 
 	/**
+	 * Client wait until passing.
+	 * @param flush - Whether or not to flush commands.
+	 * @param timeout - The timeout in nanoseconds to wait for the sync object to become signaled.
+	 * @returns The sync object's status.
+	 * @throws {@link BadValueError} if `timeout` exceeds the maximum client wait timeout.
+	 */
+	public async clientWaitUntil(
+		flush?: boolean,
+		timeout?: number
+	): Promise<SyncClientStatus> {
+		return new Promise((resolve) => {
+			const f = () => {
+				const out = this.clientWait(flush, timeout);
+
+				// If the timeout expired, try again next update.
+				if (out === SyncClientStatus.TIMEOUT_EXPIRED) {
+					setTimeout(f);
+					return;
+				}
+
+				// Otherwise, return the status.
+				resolve(out);
+			};
+			setTimeout(f);
+		});
+	}
+
+	/**
 	 * Wait on the GL server for this sync object to become signaled.
 	 * @returns This sync object's status.
 	 */
 	public wait(): void {
+		this.gl.flush();
 		this.gl.waitSync(this.internal, 0, TIMEOUT_IGNORED);
 	}
 
