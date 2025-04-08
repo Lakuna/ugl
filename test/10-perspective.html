@@ -338,7 +338,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -347,7 +347,7 @@ void main() {
 					rotateZ(matrix, now * 0.001, matrix);
 					rotateX(matrix, now * 0.0007, matrix);
 
-					fVao.draw({ u_world: matrix });
+					gl.fbo.draw(fVao, { u_world: matrix });
 				};
 			}
 

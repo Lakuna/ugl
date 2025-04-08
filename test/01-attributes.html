@@ -109,8 +109,8 @@ void main() {
 
 				return () => {
 					gl.resize();
-					gl.clear();
-					rectVao.draw();
+					gl.fbo.clear();
+					gl.fbo.draw(rectVao);
 				};
 			}
 

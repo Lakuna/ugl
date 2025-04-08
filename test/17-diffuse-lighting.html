@@ -576,7 +576,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -586,7 +586,7 @@ void main() {
 					rotateY(worldMat, now * 0.001, worldMat);
 					normalFromMatrix4(worldMat, normalMat);
 
-					cubeVao.draw({
+					gl.fbo.draw(cubeVao, {
 						u_color: [1, 1, 1, 1],
 						u_normalMat: normalMat,
 						u_reverseLightDir: reverseLightDir,

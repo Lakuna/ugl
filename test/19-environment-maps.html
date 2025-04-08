@@ -626,7 +626,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -637,7 +637,7 @@ void main() {
 					rotateZ(worldMat, now * 0.0002, worldMat);
 					normalFromMatrix4(worldMat, normalMat);
 
-					cubeVao.draw({
+					gl.fbo.draw(cubeVao, {
 						u_camPos: camPos,
 						u_normalMat: normalMat,
 						u_texture: texture,

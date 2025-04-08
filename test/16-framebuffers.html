@@ -698,32 +698,22 @@ void main() {
 					gl.fitViewport(framebuffer);
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear([0, 0, 1, 1], 1, false, framebuffer);
+					framebuffer.clear([0, 0, 1, 1], 1, false);
 
-					cubeVao.draw(
-						{
-							u_matrix: redMat,
-							u_texture: redTexture
-						},
-						void 0,
-						void 0,
-						framebuffer
-					);
+					framebuffer.draw(cubeVao, {
+						u_matrix: redMat,
+						u_texture: redTexture
+					});
 
-					cubeVao.draw(
-						{
-							u_matrix: greenMat,
-							u_texture: greenTexture
-						},
-						void 0,
-						void 0,
-						framebuffer
-					);
+					framebuffer.draw(cubeVao, {
+						u_matrix: greenMat,
+						u_texture: greenTexture
+					});
 
 					gl.fitViewport();
-					gl.clear([0, 0, 0, 0]);
+					gl.fbo.clear([0, 0, 0, 0]);
 
-					cubeVao.draw({
+					gl.fbo.draw(cubeVao, {
 						u_matrix: blueMat,
 						u_texture: renderTexture
 					});

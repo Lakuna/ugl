@@ -960,29 +960,25 @@ void main() {
 					gl.doCullFace = true;
 					gl.cullFace = Face.FRONT;
 					gl.doDepthTest = true;
-					gl.clear(true, true, false, framebuffer);
+					framebuffer.clear(true, true, false);
 
-					solidPlaneVao.draw(
-						{ u_viewProj: lightViewProjMat, u_world: planeMat },
-						void 0,
-						void 0,
-						framebuffer
-					);
+					framebuffer.draw(solidPlaneVao, {
+						u_viewProj: lightViewProjMat,
+						u_world: planeMat
+					});
 
-					solidCubeVao.draw(
-						{ u_viewProj: lightViewProjMat, u_world: cubeMat },
-						void 0,
-						void 0,
-						framebuffer
-					);
+					framebuffer.draw(solidCubeVao, {
+						u_viewProj: lightViewProjMat,
+						u_world: cubeMat
+					});
 
 					gl.fitViewport();
 					gl.doCullFace = true;
 					gl.cullFace = Face.BACK;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
-					planeVao.draw({
+					gl.fbo.draw(planeVao, {
 						u_biasMax: 0,
 						u_biasMin: 0,
 						u_color: [1, 0, 0, 1],
@@ -994,7 +990,7 @@ void main() {
 						u_world: planeMat
 					});
 
-					cubeVao.draw({
+					gl.fbo.draw(cubeVao, {
 						u_biasMax: 0.004,
 						u_biasMin: 0,
 						u_color: [0, 1, 0, 1],
@@ -1006,7 +1002,8 @@ void main() {
 						u_world: cubeMat
 					});
 
-					frustumVao.draw(
+					gl.fbo.draw(
+						frustumVao,
 						{ u_viewProj: viewProjMat, u_world: frustumMat },
 						Primitive.LINES
 					);

@@ -517,7 +517,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -528,7 +528,7 @@ void main() {
 					rotateY(matrix, now * 0.001, matrix);
 					multiply(viewProj, matrix, matrix);
 
-					cubeVao.draw({ u_matrix: matrix, u_texture: texture });
+					gl.fbo.draw(cubeVao, { u_matrix: matrix, u_texture: texture });
 				};
 			}
 

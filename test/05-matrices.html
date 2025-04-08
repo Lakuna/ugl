@@ -273,7 +273,7 @@ void main() {
 
 				return (now) => {
 					gl.resize();
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -284,7 +284,7 @@ void main() {
 					const s = ((1 + Math.cos(now * 0.001) / 2) * Math.min(w, h)) / 10;
 					scale(matrix, [s, s, 1], matrix);
 
-					rectVao.draw({ u_matrix: matrix });
+					gl.fbo.draw(rectVao, { u_matrix: matrix });
 				};
 			}
 

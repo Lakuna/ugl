@@ -276,7 +276,7 @@ void main() {
 
 				return (now) => {
 					gl.resize();
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -289,7 +289,7 @@ void main() {
 						rotateZ(matrix, now * 0.001, matrix);
 						scale(matrix, [0.9, 0.9, 1], matrix);
 
-						rectVao.draw({ u_world: matrix });
+						gl.fbo.draw(rectVao, { u_world: matrix });
 					}
 				};
 			}

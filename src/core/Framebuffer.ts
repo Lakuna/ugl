@@ -1,7 +1,9 @@
 import {
 	BACK,
 	COLOR_ATTACHMENT0,
+	COLOR_BUFFER_BIT,
 	DEPTH_ATTACHMENT,
+	DEPTH_BUFFER_BIT,
 	DEPTH_STENCIL_ATTACHMENT,
 	DRAW_BUFFER0,
 	IMPLEMENTATION_COLOR_READ_FORMAT,
@@ -9,27 +11,36 @@ import {
 	NONE,
 	READ_BUFFER,
 	RENDERBUFFER,
-	STENCIL_ATTACHMENT
+	STENCIL_ATTACHMENT,
+	STENCIL_BUFFER_BIT
 } from "../constants/constants.js";
 import BadValueError from "../utility/BadValueError.js";
-import Context from "./Context.js";
+import BufferTarget from "../constants/BufferTarget.js";
+import type Color from "../types/Color.js";
+import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type CubeFace from "../constants/CubeFace.js";
 import FramebufferAttachment from "../constants/FramebufferAttachment.js";
 import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
 import MipmapTarget from "../constants/MipmapTarget.js";
+import Primitive from "../constants/Primitive.js";
 import type Rectangle from "../types/Rectangle.js";
 import Renderbuffer from "./Renderbuffer.js";
 import Texture from "./textures/Texture.js";
 import type Texture2d from "./textures/Texture2d.js";
 import type TextureCubemap from "./textures/TextureCubemap.js";
-import type TextureDataFormat from "../constants/TextureDataFormat.js";
-import type TextureDataType from "../constants/TextureDataType.js";
-import type VertexBuffer from "./buffers/VertexBuffer.js";
+import TextureDataFormat from "../constants/TextureDataFormat.js";
+import TextureDataType from "../constants/TextureDataType.js";
+import type { UniformMap } from "../types/UniformMap.js";
+import type VertexArray from "./VertexArray.js";
+import VertexBuffer from "./buffers/VertexBuffer.js";
+import getChannelsForTextureFormat from "../utility/internal/getChannelsForTextureFormat.js";
 import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
+import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
+import getTypedArrayConstructorForDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * A portion of contiguous memory that contains a collection of buffers that store color, alpha, depth, and stencil information that is used to render an image.
@@ -165,19 +176,32 @@ export default class Framebuffer extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
 	 */
-	public constructor(context: Context) {
+	public constructor(context: Context);
+
+	/**
+	 * Create a framebuffer.
+	 * @param context - The rendering context.
+	 * @param isDefault - Whether or not this object should represent the default framebuffer for the given rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
+	 * @internal
+	 */
+	// Hide the second argument from users, since default framebuffer objects should only be created alongside contexts.
+	// eslint-disable-next-line @typescript-eslint/unified-signatures
+	public constructor(context: Context, isDefault?: boolean);
+
+	public constructor(context: Context, isDefault = false) {
 		super(context);
 
-		this.internal = this.gl.createFramebuffer();
+		this.internal = isDefault ? null : this.gl.createFramebuffer();
 		this.targetCache = FramebufferTarget.FRAMEBUFFER;
 		this.attachmentsCache = new Map();
 	}
 
 	/**
-	 * The API interface of this framebuffer.
+	 * The API interface of this framebuffer. `null` for the default framebuffer.
 	 * @internal
 	 */
-	public readonly internal: WebGLFramebuffer;
+	public readonly internal: WebGLFramebuffer | null;
 
 	/**
 	 * The binding point of this framebuffer.
@@ -234,11 +258,11 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
-	 * Unbind this framebuffer from its binding point.
+	 * Unbind this framebuffer from its binding point. For the default framebuffer, this has the same effect as binding this framebuffer.
 	 * @internal
 	 */
 	public unbind(): void {
-		Framebuffer.unbindGl(this.context, this.target, this.internal);
+		Framebuffer.unbindGl(this.context, this.target, this.internal ?? void 0);
 	}
 
 	/**
@@ -263,12 +287,20 @@ export default class Framebuffer extends ContextDependent {
 
 	/** The width of this framebuffer. */
 	public get width(): number {
+		if (!this.internal) {
+			return this.context.viewport[2];
+		}
+
 		const [firstAttachment] = this.attachmentsCache.values();
 		return firstAttachment ? firstAttachment.width : 0;
 	}
 
 	/** The height of this framebuffer. */
 	public get height(): number {
+		if (!this.internal) {
+			return this.context.viewport[3];
+		}
+
 		const [firstAttachment] = this.attachmentsCache.values();
 		return firstAttachment ? firstAttachment.height : 0;
 	}
@@ -281,13 +313,14 @@ export default class Framebuffer extends ContextDependent {
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
 	 * @throws {@link BadValueError} if the size of the texture does not match the size of any existing attachment to the framebuffer.
+	 * @throws `Error` if this object represents the default framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D | framebufferTexture2D}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer | framebufferTextureLayer}
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
 		texture: Texture2d,
-		_?: never,
+		_?: unknown,
 		level?: number,
 		layer?: number
 	): void;
@@ -300,6 +333,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param level - The level of the texture to attach. Defaults to the top level.
 	 * @param layer - The layer of the texture to attach, or `undefined` for the entire texture.
 	 * @throws {@link BadValueError} if the size of the texture does not match the size of any existing attachment to the framebuffer.
+	 * @throws `Error` if this object represents the default framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferTexture2D | framebufferTexture2D}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/framebufferTextureLayer | framebufferTextureLayer}
 	 */
@@ -316,6 +350,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
 	 * @param renderbuffer - The renderbuffer to attach.
 	 * @throws {@link BadValueError} if the size of the renderbuffer does not match the size of any existing attachment to the framebuffer.
+	 * @throws `Error` if this object represents the default framebuffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/framebufferRenderbuffer | framebufferRenderbuffer}
 	 */
 	public attach(
@@ -330,6 +365,11 @@ export default class Framebuffer extends ContextDependent {
 		level = 0,
 		layer: number | undefined = void 0
 	) {
+		// No attaching to the default framebuffer!
+		if (!this.internal) {
+			throw new Error("Can't add an attachment to the default framebuffer.");
+		}
+
 		// Ensure that attachments are the same size.
 		if (
 			this.attachmentsCache.size > 0 &&
@@ -431,7 +471,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		if (this.context.doPrefillCache) {
-			return (this.readBufferCache = 0); // `BACK` for the default framebuffer, `COLOR_ATTACHMENT0` otherwise.
+			return (this.readBufferCache = this.internal === null ? true : 0);
 		}
 
 		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
@@ -531,9 +571,9 @@ export default class Framebuffer extends ContextDependent {
 
 		const out = [];
 		if (this.context.doPrefillCache) {
-			out.push(0); // For the default framebuffer, the first draw buffer is `BACK` by default; for other framebuffers, it's `COLOR_ATTACHMENT0`.
+			out.push(this.internal === null ? true : 0);
 			for (let i = 1; i < this.context.maxDrawBuffers; i++) {
-				out.push(false); // In either case, every other draw buffer is `NONE` by default.
+				out.push(false);
 			}
 
 			return (this.drawBuffersCache = out);
@@ -607,6 +647,119 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
+	 * Draw the vertex data contained within a vertex array object.
+	 * @param vao - The vertex array object that contains the data to be drawn.
+	 * @param uniforms - A collection of uniform values to set prior to rasterization.
+	 * @param primitive - The type of primitive to rasterize.
+	 * @param offset - The number of elements to skip when rasterizing arrays, or the number of indices to skip when rasterizing elements.
+	 * @param countOverride - The number of indices or elements to be rendered. Automatically renders all supplied data if `undefined`.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays | drawArrays}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | drawElements}
+	 * @throws {@link BadValueError} if a uniform is passed `undefined` as a value or if an unknown uniform is specified.
+	 */
+	public draw(
+		vao: VertexArray,
+		uniforms?: UniformMap,
+		primitive: Primitive = Primitive.TRIANGLES,
+		offset = 0,
+		countOverride?: number
+	): void {
+		// Bind the correct framebuffer.
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+
+		// Bind the correct shader program.
+		vao.program.bind();
+
+		// Set uniforms.
+		if (uniforms) {
+			for (const [key, value] of Object.entries(uniforms)) {
+				if (!Object.hasOwn(uniforms, key)) {
+					continue;
+				}
+
+				const uniform = vao.program.uniforms.get(key);
+				if (!uniform) {
+					throw new BadValueError(`No uniform named \`${key}\`.`);
+				}
+
+				uniform.value = value;
+			}
+		}
+
+		// Bind this VAO.
+		vao.bind();
+
+		// Rasterize.
+		if (!vao.ebo) {
+			// No EBO; must determine the proper number of elements to rasterize.
+			const [firstAttribute] = vao.attributes.values();
+
+			// No attributes; just return since nothing would be rasterized anyway.
+			if (!firstAttribute) {
+				return;
+			}
+
+			// Determine the shape of the data.
+			const elementCount =
+				firstAttribute.vbo.size / getSizeOfDataType(firstAttribute.vbo.type);
+			const elementsPerIndex = firstAttribute.size ?? 3;
+
+			// Rasterize arrays.
+			this.gl.drawArrays(
+				primitive,
+				offset,
+				countOverride ?? elementCount / elementsPerIndex
+			);
+			return;
+		}
+
+		// EBO exists. Rasterize elements.
+		const indexSize = getSizeOfDataType(vao.ebo.type);
+		const indexCount = vao.ebo.size / indexSize;
+		const byteOffset = offset * indexSize;
+		this.gl.drawElements(
+			primitive,
+			countOverride ?? indexCount,
+			vao.ebo.type,
+			byteOffset
+		);
+	}
+
+	/**
+	 * Clear the specified buffers to the specified values.
+	 * @param color - The value to clear the color buffer to or a boolean to use the previous clear color.
+	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
+	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear | clear}
+	 */
+	public clear(
+		color: Color | boolean = true,
+		depth: number | boolean = true,
+		stencil: number | boolean = true
+	): void {
+		let colorBit = color ? COLOR_BUFFER_BIT : 0;
+		if (typeof color !== "boolean") {
+			this.context.clearColor = color;
+			colorBit = COLOR_BUFFER_BIT;
+		}
+
+		let depthBit = depth ? DEPTH_BUFFER_BIT : 0;
+		if (typeof depth !== "boolean") {
+			this.context.clearDepth = depth;
+			depthBit = DEPTH_BUFFER_BIT;
+		}
+
+		let stencilBit = stencil ? STENCIL_BUFFER_BIT : 0;
+		if (typeof stencil !== "boolean") {
+			this.context.clearStencil = stencil;
+			stencilBit = STENCIL_BUFFER_BIT;
+		}
+
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+		this.gl.clear(colorBit | depthBit | stencilBit);
+	}
+
+	/**
 	 * Read pixels from this framebuffer.
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
@@ -650,13 +803,81 @@ export default class Framebuffer extends ContextDependent {
 		out?: T,
 		offset = 0
 	): T | ArrayBufferView {
-		return this.context.readPixels(
-			this,
-			rectangle,
-			rgba,
-			packAlignment,
-			out as undefined, // Don't care what type `out` is since it should succeed against all values.
+		// Bind the correct framebuffer.
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+
+		// Default to the entire color buffer if no dimensions were given.
+		const realRect = rectangle ?? [0, 0, this.width, this.height];
+
+		// Determine the proper output format and data type.
+		const format = rgba
+			? TextureDataFormat.RGBA
+			: this.implementationColorReadFormat;
+		const type = rgba
+			? TextureDataType.UNSIGNED_BYTE
+			: this.implementationColorReadType;
+		const channels = getChannelsForTextureFormat(format);
+
+		// Ensure that the buffer or typed array is large enough to store the data.
+		const srcSize = realRect[2] * realRect[3] * channels;
+		const typeSize = getSizeOfDataType(type);
+		if (out) {
+			const srcSizeBytes = srcSize * typeSize;
+			const dstSize = out instanceof VertexBuffer ? out.size : out.byteLength;
+			if (dstSize < offset + srcSizeBytes) {
+				throw new Error(
+					`Buffer too small to store read pixels (${dstSize.toString()}B < ${offset.toString()}B offset + ${srcSizeBytes.toString()}B)`
+				);
+			}
+		}
+
+		// Set the pack alignment.
+		if (packAlignment) {
+			this.context.packAlignment = packAlignment;
+		} else if (realRect[3] > 1) {
+			// Pack alignment doesn't matter if there is only one row of data.
+			for (const alignment of [8, 4, 2, 1] as const) {
+				if ((realRect[2] * channels) % alignment === 0) {
+					this.context.packAlignment = alignment;
+					break;
+				}
+			}
+		}
+
+		// Output to a pixel pack buffer.
+		if (out instanceof VertexBuffer) {
+			out.bind(BufferTarget.PIXEL_PACK_BUFFER);
+			this.gl.readPixels(
+				realRect[0],
+				realRect[1],
+				realRect[2],
+				realRect[3],
+				format,
+				type,
+				offset
+			);
+			out.clearDataCache();
+			return out;
+		}
+
+		// Make a typed array if one wasn't provided.
+		const realOut =
+			out ??
+			new (getTypedArrayConstructorForDataType(type))(
+				offset / typeSize + srcSize
+			);
+
+		// Output to a typed array.
+		this.gl.readPixels(
+			realRect[0],
+			realRect[1],
+			realRect[2],
+			realRect[3],
+			format,
+			type,
+			realOut as ArrayBufferView,
 			offset
 		);
+		return realOut;
 	}
 }

@@ -524,7 +524,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -539,7 +539,7 @@ void main() {
 					for (const matrix of matrices) {
 						multiply(viewProj, matrix, cam);
 
-						fVao.draw({ u_worldViewProj: cam });
+						gl.fbo.draw(fVao, { u_worldViewProj: cam });
 					}
 				};
 			}

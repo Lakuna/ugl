@@ -8,12 +8,10 @@ import {
 	BLEND_EQUATION_RGB,
 	BLEND_SRC_ALPHA,
 	BLEND_SRC_RGB,
-	COLOR_BUFFER_BIT,
 	COLOR_CLEAR_VALUE,
 	COLOR_WRITEMASK,
 	CULL_FACE,
 	CULL_FACE_MODE,
-	DEPTH_BUFFER_BIT,
 	DEPTH_CLEAR_VALUE,
 	DEPTH_FUNC,
 	DEPTH_RANGE,
@@ -39,7 +37,6 @@ import {
 	STENCIL_BACK_FUNC,
 	STENCIL_BACK_REF,
 	STENCIL_BACK_VALUE_MASK,
-	STENCIL_BUFFER_BIT,
 	STENCIL_CLEAR_VALUE,
 	STENCIL_FUNC,
 	STENCIL_REF,
@@ -56,7 +53,6 @@ import type BlendEquationSet from "../types/BlendEquationSet.js";
 import BlendFunction from "../constants/BlendFunction.js";
 import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
 import type BlendFunctionSet from "../types/BlendFunctionSet.js";
-import BufferTarget from "../constants/BufferTarget.js";
 import type Color from "../types/Color.js";
 import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
@@ -64,20 +60,13 @@ import Extension from "../constants/Extension.js";
 import type { ExtensionObject } from "../types/ExtensionObject.js";
 import Face from "../constants/Face.js";
 import Framebuffer from "./Framebuffer.js";
-import FramebufferTarget from "../constants/FramebufferTarget.js";
 import Orientation from "../constants/Orientation.js";
 import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
 import type Stencil from "../types/Stencil.js";
 import TestFunction from "../constants/TestFunction.js";
-import TextureDataFormat from "../constants/TextureDataFormat.js";
-import TextureDataType from "../constants/TextureDataType.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
-import VertexBuffer from "./buffers/VertexBuffer.js";
 import WebglError from "../utility/WebglError.js";
-import getChannelsForTextureFormat from "../utility/internal/getChannelsForTextureFormat.js";
-import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
-import getTypedArrayConstructorForDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
  * A WebGL2 rendering context.
@@ -193,6 +182,7 @@ export default class Context extends ApiInterface {
 		this.canvas = this.gl.canvas;
 		this.doPrefillCache = doPrefillCache;
 		this.enabledExtensions = new Map();
+		this.fbo = new Framebuffer(this, true);
 	}
 
 	/** The canvas of this rendering context. */
@@ -203,6 +193,9 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	public readonly doPrefillCache: boolean;
+
+	/** The default framebuffer object for this rendering context. */
+	public readonly fbo: Framebuffer;
 
 	/**
 	 * The color space of the drawing buffer of this rendering context.
@@ -1413,47 +1406,6 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Clear the specified buffers to the specified values.
-	 * @param color - The value to clear the color buffer to or a boolean to use the previous clear color.
-	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
-	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
-	 * @param framebuffer - The framebuffer to clear, or `null` for the default framebuffer (canvas).
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear | clear}
-	 */
-	public clear(
-		color: Color | boolean = true,
-		depth: number | boolean = true,
-		stencil: number | boolean = true,
-		framebuffer: Framebuffer | null = null
-	): void {
-		let colorBit = color ? COLOR_BUFFER_BIT : 0;
-		if (typeof color !== "boolean") {
-			this.clearColor = color;
-			colorBit = COLOR_BUFFER_BIT;
-		}
-
-		let depthBit = depth ? DEPTH_BUFFER_BIT : 0;
-		if (typeof depth !== "boolean") {
-			this.clearDepth = depth;
-			depthBit = DEPTH_BUFFER_BIT;
-		}
-
-		let stencilBit = stencil ? STENCIL_BUFFER_BIT : 0;
-		if (typeof stencil !== "boolean") {
-			this.clearStencil = stencil;
-			stencilBit = STENCIL_BUFFER_BIT;
-		}
-
-		if (framebuffer) {
-			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
-		} else {
-			Framebuffer.unbindGl(this, FramebufferTarget.DRAW_FRAMEBUFFER);
-		}
-
-		this.gl.clear(colorBit | depthBit | stencilBit);
-	}
-
-	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
@@ -1531,141 +1483,5 @@ export default class Context extends ApiInterface {
 	 */
 	public flush(): void {
 		this.gl.flush();
-	}
-
-	/**
-	 * Read pixels from a framebuffer.
-	 * @param framebuffer - The framebuffer to read pixels from, or `null` for the default framebuffer. Defaults to the default framebuffer.
-	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
-	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
-	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
-	 * @param out - The buffer or typed array to store the pixel data in.
-	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
-	 * @returns A typed array of pixel data.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
-	 */
-	public readPixels(
-		framebuffer?: Framebuffer | null,
-		rectangle?: Rectangle,
-		rgba?: boolean,
-		packAlignment?: 1 | 2 | 4 | 8,
-		out?: undefined,
-		offset?: number
-	): ArrayBufferView;
-
-	/**
-	 * Read pixels from a framebuffer.
-	 * @param framebuffer - The framebuffer to read pixels from, or `null` for the default framebuffer. Defaults to the default framebuffer.
-	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
-	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
-	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
-	 * @param out - The buffer or typed array to store the pixel data in.
-	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
-	 * @returns The buffer or typed array to store the pixel data in.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
-	 * @throws `Error` if the given buffer or typed array is too small to store the selected data.
-	 */
-	public readPixels<T extends ArrayBufferView | VertexBuffer>(
-		framebuffer: Framebuffer | null,
-		rectangle: Rectangle | undefined,
-		rgba: boolean | undefined,
-		packAlignment: 1 | 2 | 4 | 8 | undefined,
-		out: T,
-		offset?: number
-	): T;
-
-	public readPixels<T extends VertexBuffer | ArrayBufferView>(
-		framebuffer: Framebuffer | null = null,
-		rectangle?: Rectangle,
-		rgba?: boolean,
-		packAlignment?: 1 | 2 | 4 | 8,
-		out?: T,
-		offset = 0
-	): T | ArrayBufferView {
-		// Bind the correct framebuffer.
-		if (framebuffer) {
-			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
-		} else {
-			Framebuffer.unbindGl(this, FramebufferTarget.READ_FRAMEBUFFER);
-		}
-
-		// Default to the entire color buffer if no dimensions were given.
-		const realRect =
-			rectangle ??
-			(framebuffer
-				? [0, 0, framebuffer.width, framebuffer.height]
-				: this.viewport);
-
-		// Determine the proper output format and data type.
-		const format = rgba
-			? TextureDataFormat.RGBA
-			: (framebuffer?.implementationColorReadFormat ?? TextureDataFormat.RGBA);
-		const type = rgba
-			? TextureDataType.UNSIGNED_BYTE
-			: (framebuffer?.implementationColorReadType ??
-				TextureDataType.UNSIGNED_BYTE);
-		const channels = getChannelsForTextureFormat(format);
-
-		// Ensure that the buffer or typed array is large enough to store the data.
-		const srcSize = realRect[2] * realRect[3] * channels;
-		const typeSize = getSizeOfDataType(type);
-		if (out) {
-			const srcSizeBytes = srcSize * typeSize;
-			const dstSize = out instanceof VertexBuffer ? out.size : out.byteLength;
-			if (dstSize < offset + srcSizeBytes) {
-				throw new Error(
-					`Buffer too small to store read pixels (${dstSize.toString()}B < ${offset.toString()}B offset + ${srcSizeBytes.toString()}B)`
-				);
-			}
-		}
-
-		// Set the pack alignment.
-		if (packAlignment) {
-			this.packAlignment = packAlignment;
-		} else if (realRect[3] > 1) {
-			// Pack alignment doesn't matter if there is only one row of data.
-			for (const alignment of [8, 4, 2, 1] as const) {
-				if ((realRect[2] * channels) % alignment === 0) {
-					this.packAlignment = alignment;
-					break;
-				}
-			}
-		}
-
-		// Output to a pixel pack buffer.
-		if (out instanceof VertexBuffer) {
-			out.bind(BufferTarget.PIXEL_PACK_BUFFER);
-			this.gl.readPixels(
-				realRect[0],
-				realRect[1],
-				realRect[2],
-				realRect[3],
-				format,
-				type,
-				offset
-			);
-			out.clearDataCache();
-			return out;
-		}
-
-		// Make a typed array if one wasn't provided.
-		const realOut =
-			out ??
-			new (getTypedArrayConstructorForDataType(type))(
-				offset / typeSize + srcSize
-			);
-
-		// Output to a typed array.
-		this.gl.readPixels(
-			realRect[0],
-			realRect[1],
-			realRect[2],
-			realRect[3],
-			format,
-			type,
-			realOut as ArrayBufferView,
-			offset
-		);
-		return realOut;
 	}
 }

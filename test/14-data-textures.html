@@ -245,7 +245,7 @@ void main() {
 
 				return () => {
 					gl.resize();
-					gl.clear();
+					gl.fbo.clear();
 
 					identity(matrix);
 					const w = canvas.width;
@@ -256,7 +256,7 @@ void main() {
 						matrix
 					);
 
-					quadVao.draw({ u_matrix: matrix, u_texture: texture });
+					gl.fbo.draw(quadVao, { u_matrix: matrix, u_texture: texture });
 				};
 			}
 

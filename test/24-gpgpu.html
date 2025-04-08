@@ -75,9 +75,9 @@ void main() {
 
 				gl.resize();
 
-				quadVao.draw({ tex });
+				gl.fbo.draw(quadVao, { tex });
 
-				return gl.readPixels().filter((_, i) => i % 4 === 0);
+				return gl.fbo.readPixels().filter((_, i) => i % 4 === 0);
 			};
 
 			const test2 = () => {
@@ -108,7 +108,7 @@ void main() {
 
 				gl.resize(framebuffer);
 
-				quadVao.draw({ tex }, void 0, void 0, framebuffer);
+				framebuffer.draw(quadVao, { tex });
 
 				return framebuffer.readPixels();
 			};
@@ -142,7 +142,7 @@ void main() {
 
 				gl.resize(framebuffer);
 
-				quadVao.draw({ tex }, void 0, void 0, framebuffer);
+				framebuffer.draw(quadVao, { tex });
 
 				return framebuffer.readPixels(void 0, void 0, void 0, outBuffer).data;
 			};

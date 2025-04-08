@@ -4,14 +4,9 @@ import BadValueError from "../utility/BadValueError.js";
 import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import ElementBuffer from "./buffers/ElementBuffer.js";
-import Framebuffer from "./Framebuffer.js";
-import FramebufferTarget from "../constants/FramebufferTarget.js";
-import Primitive from "../constants/Primitive.js";
 import type Program from "./Program.js";
-import type { UniformMap } from "../types/UniformMap.js";
 import { VERTEX_ARRAY_BINDING } from "../constants/constants.js";
 import type VertexBuffer from "./buffers/VertexBuffer.js";
-import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 
 /**
  * A vertex attribute array; a collection of attribute state.
@@ -135,6 +130,14 @@ export default class VertexArray extends ContextDependent {
 	private readonly attributeCache;
 
 	/**
+	 * The values of attributes in this VAO.
+	 * @internal
+	 */
+	public get attributes(): Readonly<Map<string, AttributeValue>> {
+		return this.attributeCache;
+	}
+
+	/**
 	 * Get the value of an attribute in this VAO.
 	 * @param name - The name of the attribute.
 	 * @returns The vertex buffer that is bound to the specified attribute.
@@ -191,89 +194,6 @@ export default class VertexArray extends ContextDependent {
 		// Add or update EBO.
 		value.bind(this);
 		this.eboCache = value;
-	}
-
-	/**
-	 * Rasterize the vertex data contained within this VAO.
-	 * @param uniforms - A collection of uniform values to set prior to rasterization.
-	 * @param primitive - The type of primitive to rasterize.
-	 * @param offset - The number of elements to skip when rasterizing arrays, or the number of indices to skip when rasterizing elements.
-	 * @param framebuffer - The framebuffer to rasterize to, or `null` for the default framebuffer (canvas).
-	 * @param countOverride - The number of indices or elements to be rendered. Automatically renders all supplied data if `undefined`.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawArrays | drawArrays}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | drawElements}
-	 * @throws {@link BadValueError} if a uniform is passed `undefined` as a value or if an unknown uniform is specified.
-	 */
-	public draw(
-		uniforms?: UniformMap,
-		primitive: Primitive = Primitive.TRIANGLES,
-		offset = 0,
-		framebuffer: Framebuffer | null = null,
-		countOverride: number | undefined = void 0
-	): void {
-		// Bind the correct framebuffer.
-		if (framebuffer) {
-			framebuffer.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
-		} else {
-			Framebuffer.unbindGl(this.context, FramebufferTarget.DRAW_FRAMEBUFFER);
-		}
-
-		// Bind the correct shader program.
-		this.program.bind();
-
-		// Set uniforms.
-		if (uniforms) {
-			for (const [key, value] of Object.entries(uniforms)) {
-				if (!Object.hasOwn(uniforms, key)) {
-					continue;
-				}
-
-				const uniform = this.program.uniforms.get(key);
-				if (!uniform) {
-					throw new BadValueError(`No uniform named \`${key}\`.`);
-				}
-
-				uniform.value = value;
-			}
-		}
-
-		// Bind this VAO.
-		this.bind();
-
-		// Rasterize.
-		if (!this.ebo) {
-			// No EBO; must determine the proper number of elements to rasterize.
-			const [firstAttribute] = this.attributeCache.values();
-
-			// No attributes; just return since nothing would be rasterized anyway.
-			if (!firstAttribute) {
-				return;
-			}
-
-			// Determine the shape of the data.
-			const elementCount =
-				firstAttribute.vbo.size / getSizeOfDataType(firstAttribute.vbo.type);
-			const elementsPerIndex = firstAttribute.size ?? 3;
-
-			// Rasterize arrays.
-			this.gl.drawArrays(
-				primitive,
-				offset,
-				countOverride ?? elementCount / elementsPerIndex
-			);
-			return;
-		}
-
-		// EBO exists. Rasterize elements.
-		const indexSize = getSizeOfDataType(this.ebo.type);
-		const indexCount = this.ebo.size / indexSize;
-		const byteOffset = offset * indexSize;
-		this.gl.drawElements(
-			primitive,
-			countOverride ?? indexCount,
-			this.ebo.type,
-			byteOffset
-		);
 	}
 
 	/**

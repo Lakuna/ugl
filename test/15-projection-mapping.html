@@ -781,7 +781,7 @@ void main() {
 					gl.resize();
 					gl.doCullFace = true;
 					gl.doDepthTest = true;
-					gl.clear();
+					gl.fbo.clear();
 
 					const w = canvas.width;
 					const h = canvas.height;
@@ -793,7 +793,7 @@ void main() {
 					invert(camCamMat, camViewMat);
 					multiply(camProjMat, camViewMat, camViewProjMat);
 
-					planeVao.draw({
+					gl.fbo.draw(planeVao, {
 						u_color: [1, 0, 0, 1],
 						u_projTex: projTex,
 						u_texMat: texMat,
@@ -802,7 +802,7 @@ void main() {
 						u_world: planeMat
 					});
 
-					cubeVao.draw({
+					gl.fbo.draw(cubeVao, {
 						u_color: [0, 1, 0, 1],
 						u_projTex: projTex,
 						u_texMat: texMat,
@@ -811,7 +811,8 @@ void main() {
 						u_world: cubeMat
 					});
 
-					frustumVao.draw(
+					gl.fbo.draw(
+						frustumVao,
 						{ u_viewProj: camViewProjMat, u_world: frustumMat },
 						Primitive.LINES
 					);
