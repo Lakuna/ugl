@@ -71,7 +71,7 @@ export default class Sync extends ContextDependent {
 				) as typeof SYNC_GPU_COMMANDS_COMPLETE);
 	}
 
-	/** The flags with which this sync object was created. Always `0` as no flags are supported. */
+	/** The flags with which this sync object was created. Always `0` since no flags are supported. */
 	public get flags(): 0 {
 		return this.context.doPrefillCache
 			? 0

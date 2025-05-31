@@ -180,7 +180,7 @@ export default function debug(
 	// An additional list for miscellaneous unknown values.
 	const unknowns: unknown[] = [];
 
-	// Treat the rendering context as a `Record` so that we can access it unsafely.
+	// Treat the rendering context as a `Record` so that we can access it unsafely. `Object.entries` does not work on `WebGL2RenderingContext`s.
 	const object = gl as unknown as Record<string, unknown>;
 
 	// Create a map of enumeration values to WebGL constant names.

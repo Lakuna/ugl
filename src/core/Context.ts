@@ -116,9 +116,8 @@ export default class Context extends ApiInterface {
 			return existingContext;
 		}
 
-		// Use `as` to cheat and reduce code size. Second argument is ignored if `source` is a `WebGL2RenderingContext`.
 		const out = new Context(
-			source as HTMLCanvasElement,
+			source as HTMLCanvasElement | OffscreenCanvas, // Use `as` to cheat and reduce code size. Second argument is ignored if `source` is a `WebGL2RenderingContext`.
 			options,
 			doPrefillCache
 		);
@@ -170,9 +169,8 @@ export default class Context extends ApiInterface {
 				);
 			}
 
-			// TODO: This assertion is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			super(gl as WebGL2RenderingContext);
+			super(gl as WebGL2RenderingContext); // This assertion is only necessary because TypeDoc incorrectly identifies `gl` as a `RenderingContext`. Remove it once this is fixed.
 
 			if (options) {
 				this.attributesCache = options;
@@ -212,7 +210,7 @@ export default class Context extends ApiInterface {
 			this.gl.drawingBufferColorSpace);
 	}
 
-	public set drawingBufferColorSpace(value) {
+	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
 		if (this.drawingBufferColorSpace === value) {
 			return;
 		}
@@ -270,7 +268,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
 	}
 
-	public set activeTexture(value) {
+	public set activeTexture(value: number) {
 		if (this.activeTexture === value) {
 			return;
 		}
@@ -298,7 +296,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE));
 	}
 
-	public set doSampleAlphaToCoverage(value) {
+	public set doSampleAlphaToCoverage(value: boolean) {
 		if (this.doSampleAlphaToCoverage === value) {
 			return;
 		}
@@ -325,7 +323,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(SAMPLE_COVERAGE));
 	}
 
-	public set doSampleCoverage(value) {
+	public set doSampleCoverage(value: boolean) {
 		if (this.doSampleCoverage === value) {
 			return;
 		}
@@ -405,7 +403,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(BLEND_COLOR));
 	}
 
-	public set blendColor(value) {
+	public set blendColor(value: Color) {
 		if (
 			this.blendColor[0] === value[0] &&
 			this.blendColor[1] === value[1] &&
@@ -430,7 +428,7 @@ export default class Context extends ApiInterface {
 	 * @returns The blend equation cache.
 	 * @internal
 	 */
-	private makeBlendEquationCache() {
+	private makeBlendEquationCache(): Uint8Array & BlendEquationSet {
 		return this.doPrefillCache
 			? (new Uint8Array([
 					BlendEquation.FUNC_ADD,
@@ -505,7 +503,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(BLEND));
 	}
 
-	public set doBlend(value) {
+	public set doBlend(value: boolean) {
 		if (this.doBlend === value) {
 			return;
 		}
@@ -530,7 +528,7 @@ export default class Context extends ApiInterface {
 	 * @returns The blend function cache.
 	 * @internal
 	 */
-	private makeBlendFunctionCache() {
+	private makeBlendFunctionCache(): Uint8Array & BlendFunctionFullSet {
 		return this.doPrefillCache
 			? (new Uint8Array([
 					BlendFunction.ONE,
@@ -654,7 +652,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
-	public set clearColor(value) {
+	public set clearColor(value: Color) {
 		if (
 			this.clearColor[0] === value[0] &&
 			this.clearColor[1] === value[1] &&
@@ -684,7 +682,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(DEPTH_CLEAR_VALUE));
 	}
 
-	public set clearDepth(value) {
+	public set clearDepth(value: number) {
 		if (this.clearDepth === value) {
 			return;
 		}
@@ -709,7 +707,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(STENCIL_CLEAR_VALUE));
 	}
 
-	public set clearStencil(value) {
+	public set clearStencil(value: number) {
 		if (this.clearStencil === value) {
 			return;
 		}
@@ -734,7 +732,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(COLOR_WRITEMASK));
 	}
 
-	public set colorMask(value) {
+	public set colorMask(value: ColorMask) {
 		if (
 			this.colorMask[0] === value[0] &&
 			this.colorMask[1] === value[1] &&
@@ -775,7 +773,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(CULL_FACE));
 	}
 
-	public set doCullFace(value) {
+	public set doCullFace(value: boolean) {
 		if (this.doCullFace === value) {
 			return;
 		}
@@ -805,7 +803,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(CULL_FACE_MODE));
 	}
 
-	public set cullFace(value) {
+	public set cullFace(value: Face) {
 		if (this.cullFace === value) {
 			return;
 		}
@@ -827,7 +825,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(DITHER));
 	}
 
-	public set doDither(value) {
+	public set doDither(value: boolean) {
 		if (this.doDither === value) {
 			return;
 		}
@@ -854,7 +852,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(DEPTH_TEST));
 	}
 
-	public set doDepthTest(value) {
+	public set doDepthTest(value: boolean) {
 		if (this.doDepthTest === value) {
 			return;
 		}
@@ -881,7 +879,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(DEPTH_WRITEMASK));
 	}
 
-	public set depthMask(value) {
+	public set depthMask(value: boolean) {
 		if (this.depthMask === value) {
 			return;
 		}
@@ -906,7 +904,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(DEPTH_FUNC));
 	}
 
-	public set depthFunction(value) {
+	public set depthFunction(value: TestFunction) {
 		if (this.depthFunction === value) {
 			return;
 		}
@@ -953,7 +951,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(UNPACK_ALIGNMENT));
 	}
 
-	public set unpackAlignment(value) {
+	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
 		if (this.unpackAlignment === value) {
 			return;
 		}
@@ -975,7 +973,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(PACK_ALIGNMENT));
 	}
 
-	public set packAlignment(value) {
+	public set packAlignment(value: 1 | 2 | 4 | 8) {
 		if (this.packAlignment === value) {
 			return;
 		}
@@ -1011,8 +1009,8 @@ export default class Context extends ApiInterface {
 	 * A list of supported extensions.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions | getSupportedExtensions}
 	 */
-	public get supportedExtensions() {
-		return this.gl.getSupportedExtensions() as Extension[];
+	public get supportedExtensions(): readonly Extension[] {
+		return this.gl.getSupportedExtensions() as readonly Extension[];
 	}
 
 	/**
@@ -1028,7 +1026,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(SCISSOR_TEST));
 	}
 
-	public set doScissorTest(value) {
+	public set doScissorTest(value: boolean) {
 		if (this.doScissorTest === value) {
 			return;
 		}
@@ -1057,7 +1055,7 @@ export default class Context extends ApiInterface {
 		return (this.scissorBoxCache ??= this.gl.getParameter(SCISSOR_BOX));
 	}
 
-	public set scissorBox(value) {
+	public set scissorBox(value: Rectangle) {
 		if (
 			this.scissorBox[0] === value[0] &&
 			this.scissorBox[1] === value[1] &&
@@ -1124,7 +1122,7 @@ export default class Context extends ApiInterface {
 		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
 	}
 
-	public set viewport(value) {
+	public set viewport(value: Rectangle) {
 		if (
 			this.viewport[0] === value[0] &&
 			this.viewport[1] === value[1] &&
@@ -1160,7 +1158,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(STENCIL_TEST));
 	}
 
-	public set doStencilTest(value) {
+	public set doStencilTest(value: boolean) {
 		if (value === this.doStencilTest) {
 			return;
 		}
@@ -1194,7 +1192,7 @@ export default class Context extends ApiInterface {
 				]);
 	}
 
-	public set frontStencil(value) {
+	public set frontStencil(value: Stencil) {
 		if (
 			this.frontStencil[0] === value[0] &&
 			this.frontStencil[1] === value[1] &&
@@ -1226,7 +1224,7 @@ export default class Context extends ApiInterface {
 				]);
 	}
 
-	public set backStencil(value) {
+	public set backStencil(value: Stencil) {
 		if (
 			this.backStencil[0] === value[0] &&
 			this.backStencil[1] === value[1] &&
@@ -1246,7 +1244,7 @@ export default class Context extends ApiInterface {
 		return this.frontStencil;
 	}
 
-	public set stencil(value) {
+	public set stencil(value: Stencil) {
 		if (
 			this.frontStencil[0] === value[0] &&
 			this.frontStencil[1] === value[1] &&
@@ -1276,7 +1274,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(RASTERIZER_DISCARD));
 	}
 
-	public set doRasterizerDiscard(value) {
+	public set doRasterizerDiscard(value: boolean) {
 		if (this.doRasterizerDiscard === value) {
 			return;
 		}
@@ -1306,7 +1304,7 @@ export default class Context extends ApiInterface {
 			: this.gl.getParameter(FRONT_FACE));
 	}
 
-	public set frontFace(value) {
+	public set frontFace(value: Orientation) {
 		if (this.frontFace === value) {
 			return;
 		}
@@ -1328,7 +1326,7 @@ export default class Context extends ApiInterface {
 			: this.gl.isEnabled(POLYGON_OFFSET_FILL));
 	}
 
-	public set doPolygonOffsetFill(value) {
+	public set doPolygonOffsetFill(value: boolean) {
 		if (this.doPolygonOffsetFill === value) {
 			return;
 		}

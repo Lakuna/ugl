@@ -28,7 +28,7 @@ export default class MatrixAttribute extends Attribute {
 	 * The side length of values passed to this attribute.
 	 * @internal
 	 */
-	private readonly dim;
+	private readonly dim: 1 | 2 | 3 | 4;
 
 	/**
 	 * Set the value of this attribute.

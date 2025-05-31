@@ -63,7 +63,9 @@ export default class Framebuffer extends ContextDependent {
 	 * @returns The framebuffer bindings cache.
 	 * @internal
 	 */
-	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
+	private static getContextBindingsCache(
+		gl: WebGL2RenderingContext
+	): Map<FramebufferTarget, WebGLFramebuffer | null> {
 		// Get the context bindings cache.
 		let contextBindingsCache = Framebuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
@@ -207,7 +209,7 @@ export default class Framebuffer extends ContextDependent {
 	 * The binding point of this framebuffer.
 	 * @internal
 	 */
-	private targetCache;
+	private targetCache: FramebufferTarget;
 
 	/**
 	 * The binding point of this framebuffer.
@@ -218,7 +220,7 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/** @internal */
-	public set target(value) {
+	public set target(value: FramebufferTarget) {
 		if (this.target === value) {
 			return;
 		}
@@ -364,7 +366,7 @@ export default class Framebuffer extends ContextDependent {
 		face: CubeFace | undefined = void 0,
 		level = 0,
 		layer: number | undefined = void 0
-	) {
+	): void {
 		// No attaching to the default framebuffer!
 		if (!this.internal) {
 			throw new Error("Can't add an attachment to the default framebuffer.");
@@ -482,7 +484,7 @@ export default class Framebuffer extends ContextDependent {
 		return this.readBufferCache;
 	}
 
-	public set readBuffer(value) {
+	public set readBuffer(value: number | boolean) {
 		if (this.readBuffer === value) {
 			return;
 		}
@@ -564,7 +566,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers | drawBuffers}
 	 * @throws {@link BadValueError} if too many draw buffers are specified for the current environment.
 	 */
-	public get drawBuffers(): (number | boolean)[] {
+	public get drawBuffers(): readonly (number | boolean)[] {
 		if (typeof this.drawBuffersCache !== "undefined") {
 			return this.drawBuffersCache;
 		}
@@ -594,7 +596,7 @@ export default class Framebuffer extends ContextDependent {
 		return (this.drawBuffersCache = out);
 	}
 
-	public set drawBuffers(value) {
+	public set drawBuffers(value: readonly (number | boolean)[]) {
 		// Throw an error if too many buffers are specified.
 		if (value.length > this.context.maxDrawBuffers) {
 			throw new BadValueError(
@@ -603,7 +605,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		// Reorder the input value so that WebGL doesn't warn.
-		const realValue = [] as (number | boolean)[];
+		const realValue: (number | boolean)[] = [];
 		for (const i of value) {
 			if (typeof i === "number") {
 				realValue[i] = i;
@@ -875,7 +877,7 @@ export default class Framebuffer extends ContextDependent {
 			realRect[3],
 			format,
 			type,
-			realOut as ArrayBufferView,
+			realOut as ArrayBufferView, // Use `as` to cheat and reduce file size - `realOut` is already guaranteed to not be a `VertexBuffer`.
 			offset
 		);
 		return realOut;

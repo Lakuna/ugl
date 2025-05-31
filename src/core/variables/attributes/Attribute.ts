@@ -17,17 +17,10 @@ export default abstract class Attribute extends Variable {
 	 * @internal
 	 */
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
-		super(program);
-		this.activeInfo = activeInfo;
+		super(program, activeInfo);
 		this.location = this.gl.getAttribLocation(program.internal, this.name);
 		this.enabledVaosCache = [];
 	}
-
-	/**
-	 * The active information of this attribute.
-	 * @internal
-	 */
-	protected override readonly activeInfo: WebGLActiveInfo;
 
 	/**
 	 * The location of this attribute.
@@ -62,7 +55,7 @@ export default abstract class Attribute extends Variable {
 		return this.enabledVaosCache.includes(vao);
 	}
 
-	public set enabled(value) {
+	public set enabled(value: boolean) {
 		if (this.enabled === value) {
 			return;
 		}

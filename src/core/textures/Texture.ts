@@ -61,7 +61,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @returns The texture bindings cache.
 	 * @internal
 	 */
-	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
+	private static getContextBindingsCache(
+		gl: WebGL2RenderingContext
+	): Map<TextureTarget, WebGLTexture | null>[] {
 		// Get the context bindings cache.
 		let contextBindingsCache = Texture.bindingsCache.get(gl);
 		if (typeof contextBindingsCache === "undefined") {
@@ -82,7 +84,7 @@ export default abstract class Texture extends ContextDependent {
 	private static getTextureUnitBindingsCache(
 		gl: WebGL2RenderingContext,
 		textureUnit: number
-	) {
+	): Map<TextureTarget, WebGLTexture | null> {
 		// Get the context bindings cache.
 		const contextBindingsCache = Texture.getContextBindingsCache(gl);
 
@@ -111,7 +113,9 @@ export default abstract class Texture extends ContextDependent {
 	 * @returns The texture binding overwrite order.
 	 * @internal
 	 */
-	private static getContextBindingOverwriteOrder(gl: WebGL2RenderingContext) {
+	private static getContextBindingOverwriteOrder(
+		gl: WebGL2RenderingContext
+	): Map<TextureTarget, number[]> {
 		// Get the context binding overwrite order.
 		let contextBindingOverwriteOrder = Texture.bindingOverwriteOrder.get(gl);
 		if (!contextBindingOverwriteOrder) {
@@ -132,7 +136,7 @@ export default abstract class Texture extends ContextDependent {
 	private static getTargetBindingOverwriteOrder(
 		gl: WebGL2RenderingContext,
 		target: TextureTarget
-	) {
+	): number[] {
 		// Get the context binding overwrite order.
 		const contextBindingOverwriteOrder =
 			Texture.getContextBindingOverwriteOrder(gl);
@@ -159,7 +163,7 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		target: TextureTarget,
 		texture?: WebGLTexture | null
-	) {
+	): number {
 		// Check if the texture is already bound.
 		if (texture) {
 			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
@@ -408,7 +412,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.formatCache;
 	}
 
-	public set format(value) {
+	public set format(value: TextureFormat) {
 		if (value === this.format) {
 			return;
 		}
@@ -502,7 +506,7 @@ export default abstract class Texture extends ContextDependent {
 	 * Whether or not this is an immutable-format texture.
 	 * @internal
 	 */
-	private isImmutableFormatCache;
+	private isImmutableFormatCache: boolean;
 
 	/** Whether or not this is an immutable-format texture. */
 	public get isImmutableFormat(): boolean {
@@ -520,7 +524,7 @@ export default abstract class Texture extends ContextDependent {
 	public makeImmutableFormat(
 		levels?: number,
 		format?: TextureFormat,
-		dims?: number[]
+		dims?: readonly number[]
 	): void {
 		if (this.isImmutableFormat) {
 			return;
@@ -574,7 +578,7 @@ export default abstract class Texture extends ContextDependent {
 	protected abstract makeImmutableFormatInternal(
 		levels: number,
 		format: TextureFormat,
-		dims: number[]
+		dims: readonly number[]
 	): void;
 
 	/**
@@ -672,7 +676,7 @@ export default abstract class Texture extends ContextDependent {
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
 		shape2?: number | boolean // Meaning depends on data type; see overloads.
-	) {
+	): void {
 		const level = requestedLevel ?? 0;
 
 		// Ensure that the data type and internal format are compatible.
@@ -907,7 +911,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.magFilterCache;
 	}
 
-	public set magFilter(value) {
+	public set magFilter(value: TextureFilter.LINEAR | TextureFilter.NEAREST) {
 		if (this.magFilter === value) {
 			return;
 		}
@@ -940,7 +944,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.minFilterCache;
 	}
 
-	public set minFilter(value) {
+	public set minFilter(value: TextureFilter) {
 		if (this.minFilter === value) {
 			return;
 		}
@@ -973,7 +977,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.wrapSFunctionCache;
 	}
 
-	public set wrapSFunction(value) {
+	public set wrapSFunction(value: WrapMode) {
 		if (this.wrapSFunction === value) {
 			return;
 		}
@@ -1006,7 +1010,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.wrapTFunctionCache;
 	}
 
-	public set wrapTFunction(value) {
+	public set wrapTFunction(value: WrapMode) {
 		if (this.wrapTFunction === value) {
 			return;
 		}
@@ -1049,7 +1053,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.maxAnisotropyCache;
 	}
 
-	public set maxAnisotropy(value) {
+	public set maxAnisotropy(value: number) {
 		if (this.maxAnisotropy === value) {
 			return;
 		}
@@ -1089,7 +1093,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.baseLevelCache;
 	}
 
-	public set baseLevel(value) {
+	public set baseLevel(value: number) {
 		if (this.baseLevel === value) {
 			return;
 		}
@@ -1122,7 +1126,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.comparisonFunctionCache;
 	}
 
-	public set comparisonFunction(value) {
+	public set comparisonFunction(value: TestFunction) {
 		if (this.comparisonFunction === value) {
 			return;
 		}
@@ -1155,7 +1159,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.comparisonModeCache;
 	}
 
-	public set comparisonMode(value) {
+	public set comparisonMode(value: TextureCompareMode) {
 		if (this.comparisonMode === value) {
 			return;
 		}
@@ -1188,7 +1192,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.maxLevelCache;
 	}
 
-	public set maxLevel(value) {
+	public set maxLevel(value: number) {
 		if (this.maxLevel === value) {
 			return;
 		}
@@ -1221,7 +1225,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.maxLodCache;
 	}
 
-	public set maxLod(value) {
+	public set maxLod(value: number) {
 		if (this.maxLod === value) {
 			return;
 		}
@@ -1254,7 +1258,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.minLodCache;
 	}
 
-	public set minLod(value) {
+	public set minLod(value: number) {
 		if (this.minLod === value) {
 			return;
 		}
@@ -1287,7 +1291,7 @@ export default abstract class Texture extends ContextDependent {
 		return this.wrapRFunctionCache;
 	}
 
-	public set wrapRFunction(value) {
+	public set wrapRFunction(value: WrapMode) {
 		if (this.wrapRFunction === value) {
 			return;
 		}
@@ -1324,7 +1328,7 @@ export default abstract class Texture extends ContextDependent {
 
 		// Return `false` if any mip doesn't have data.
 		let i = 0;
-		let mipDims: number[] = this.getSizeOfMip(i);
+		let mipDims = this.getSizeOfMip(i);
 		while (
 			(mipDims[0] ?? 0) > 0 ||
 			(mipDims[1] ?? 0) > 0 ||
@@ -1350,7 +1354,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @param level - The level of the mip.
 	 * @returns The width, height (if applicable), and depth (if applicable) of the mip, in that order.
 	 */
-	public getSizeOfMip(level: number): number[] {
+	public getSizeOfMip(level: number): readonly number[] {
 		const dims = [...this.dims];
 		for (let i = 0; i < level; i++) {
 			for (let dim = 0; dim < dims.length; dim++) {

@@ -4,14 +4,15 @@ import {
 	ATTACHED_SHADERS,
 	CURRENT_PROGRAM,
 	DELETE_STATUS,
+	INTERLEAVED_ATTRIBS,
 	LINK_STATUS,
+	SEPARATE_ATTRIBS,
 	TRANSFORM_FEEDBACK_VARYINGS,
 	VALIDATE_STATUS
 } from "../constants/constants.js";
 import type Attribute from "./variables/attributes/Attribute.js";
 import Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
-import MergeOrder from "../constants/MergeOrder.js";
 import ProgramLinkError from "../utility/ProgramLinkError.js";
 import Shader from "./Shader.js";
 import ShaderType from "../constants/ShaderType.js";
@@ -120,16 +121,16 @@ export default class Program extends ContextDependent {
 	 * @param shaders - The shaders to attach to the shader program. If a valid set of shaders is given, the program will be linked automatically.
 	 * @param attributeLocations - A map of attribute names to their desired locations.
 	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
-	 * @param feedbackMode - The mode to use when capturing transform feedback varyings.
+	 * @param feedbackInterleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
 	 * @throws {@link ProgramLinkError} if there is an issue when linking the shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
 	 */
 	public constructor(
 		context: Context,
-		shaders?: Shader[],
-		attributeLocations?: Map<string, number>,
+		shaders?: readonly Shader[],
+		attributeLocations?: ReadonlyMap<string, number>,
 		feedbackVaryings?: Iterable<string>,
-		feedbackMode: MergeOrder = MergeOrder.SEPARATE_ATTRIBS
+		feedbackInterleaved = false
 	) {
 		super(context);
 
@@ -162,7 +163,7 @@ export default class Program extends ContextDependent {
 
 		// Specify the transform feedback varying names, if any.
 		if (feedbackVaryings) {
-			this.setTransformFeedbackVaryings(feedbackVaryings, feedbackMode);
+			this.setTransformFeedbackVaryings(feedbackVaryings, feedbackInterleaved);
 		}
 
 		// Link the shader program.
@@ -274,7 +275,7 @@ export default class Program extends ContextDependent {
 	 * The attributes in this shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
 	 */
-	public get attributes(): Readonly<Map<string, Attribute>> {
+	public get attributes(): ReadonlyMap<string, Attribute> {
 		if (!this.attributesCache) {
 			const { activeAttributes } = this;
 			this.attributesCache = new Map();
@@ -320,7 +321,7 @@ export default class Program extends ContextDependent {
 	 * The uniforms in this shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
 	 */
-	public get uniforms(): Readonly<Map<string, Uniform>> {
+	public get uniforms(): ReadonlyMap<string, Uniform> {
 		if (!this.uniformsCache) {
 			const { activeUniforms } = this;
 			this.uniformsCache = new Map();
@@ -359,7 +360,7 @@ export default class Program extends ContextDependent {
 	 * The transform feedback varyings in this shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
 	 */
-	public get varyings(): Readonly<Map<string, Varying>> {
+	public get varyings(): ReadonlyMap<string, Varying> {
 		if (!this.varyingsCache) {
 			this.varyingsCache = new Map();
 			for (let i = 0; i < this.activeUniforms; i++) {
@@ -374,18 +375,22 @@ export default class Program extends ContextDependent {
 	/**
 	 * Specify the values to record in transform feedback buffers. Doing this after linking this program has no effect.
 	 * @param varyings - The names of the varyings to use for transform feedback.
-	 * @param bufferMode - The mode to use when capturing the varying variables.
+	 * @param interleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
 	 */
 	public setTransformFeedbackVaryings(
 		varyings: Iterable<string>,
-		bufferMode: MergeOrder
+		interleaved: boolean
 	): void {
-		this.gl.transformFeedbackVaryings(this.internal, varyings, bufferMode);
+		this.gl.transformFeedbackVaryings(
+			this.internal,
+			varyings,
+			interleaved ? INTERLEAVED_ATTRIBS : SEPARATE_ATTRIBS
+		);
 		this.transformFeedbackVaryingsCache = [...varyings].length;
 	}
 
 	/** The linking status of this shader program. */
-	public get linkStatus() {
+	public get linkStatus(): boolean {
 		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
 	}
 
@@ -418,7 +423,7 @@ export default class Program extends ContextDependent {
 	}
 
 	/** The deletion status of this shader program. */
-	public get deleteStatus() {
+	public get deleteStatus(): boolean {
 		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
 	}
 
@@ -431,7 +436,7 @@ export default class Program extends ContextDependent {
 	}
 
 	/** The validation status of this shader program. */
-	public get validateStatus() {
+	public get validateStatus(): boolean {
 		return this.gl.getProgramParameter(
 			this.internal,
 			VALIDATE_STATUS

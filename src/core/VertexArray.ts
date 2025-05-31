@@ -127,13 +127,13 @@ export default class VertexArray extends ContextDependent {
 	 * The values of attributes in this VAO.
 	 * @internal
 	 */
-	private readonly attributeCache;
+	private readonly attributeCache: Map<string, AttributeValue>;
 
 	/**
 	 * The values of attributes in this VAO.
 	 * @internal
 	 */
-	public get attributes(): Readonly<Map<string, AttributeValue>> {
+	public get attributes(): ReadonlyMap<string, AttributeValue> {
 		return this.attributeCache;
 	}
 
@@ -179,7 +179,7 @@ export default class VertexArray extends ContextDependent {
 		return this.eboCache;
 	}
 
-	public set ebo(value) {
+	public set ebo(value: ElementBuffer | undefined) {
 		if (value === this.ebo) {
 			return;
 		}

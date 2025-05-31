@@ -12,9 +12,10 @@ export default abstract class Variable extends ContextDependent {
 	 * @param program - The shader program that this variable belongs to.
 	 * @internal
 	 */
-	protected constructor(program: Program) {
+	protected constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program.context);
 		this.program = program;
+		this.activeInfo = activeInfo;
 	}
 
 	/**
@@ -33,7 +34,7 @@ export default abstract class Variable extends ContextDependent {
 	 * The active information of this variable.
 	 * @internal
 	 */
-	protected abstract readonly activeInfo: WebGLActiveInfo;
+	protected readonly activeInfo: WebGLActiveInfo;
 
 	/** The name of this variable. */
 	public get name(): string {

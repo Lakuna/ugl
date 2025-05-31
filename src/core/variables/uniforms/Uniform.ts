@@ -18,8 +18,7 @@ export default abstract class Uniform extends Variable {
 	 * @internal
 	 */
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
-		super(program);
-		this.activeInfo = activeInfo;
+		super(program, activeInfo);
 
 		const location = this.gl.getUniformLocation(
 			program.internal,
@@ -33,12 +32,6 @@ export default abstract class Uniform extends Variable {
 
 		this.location = location;
 	}
-
-	/**
-	 * The active information of this uniform.
-	 * @internal
-	 */
-	protected override readonly activeInfo: WebGLActiveInfo;
 
 	/**
 	 * The location of this uniform.

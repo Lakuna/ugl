@@ -405,12 +405,12 @@ export default class TextureCubemap extends Texture {
 		// `const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));`
 		const width =
 			bounds?.[2] ??
-			(data as HTMLImageElement | undefined)?.width ??
+			(data as HTMLImageElement | undefined)?.width ?? // Use `as` to cheat and reduce file size - all types with a `width` use it to measure the same thing.
 			this.getSizeOfMip(level)[0] ??
 			1;
 		const height =
 			bounds?.[3] ??
-			(data as HTMLImageElement | undefined)?.height ??
+			(data as HTMLImageElement | undefined)?.height ?? // Use `as` to cheat and reduce file size - all types with a `height` use it to measure the same thing.
 			this.getSizeOfMip(level)[1] ??
 			1;
 
@@ -425,7 +425,7 @@ export default class TextureCubemap extends Texture {
 				height,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
+				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
 			);
 			return;
 		}
@@ -446,7 +446,7 @@ export default class TextureCubemap extends Texture {
 				0,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Cheat the overloads to make the code less verbose.
+				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
 			);
 		}
 

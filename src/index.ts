@@ -9,7 +9,6 @@ export { default as Extension } from "./constants/Extension.js";
 export { default as Face } from "./constants/Face.js";
 export { default as FramebufferAttachment } from "./constants/FramebufferAttachment.js";
 export { default as FramebufferStatus } from "./constants/FramebufferStatus.js";
-export { default as MergeOrder } from "./constants/MergeOrder.js";
 export { default as Orientation } from "./constants/Orientation.js";
 export { default as Primitive } from "./constants/Primitive.js";
 export { default as RenderbufferFormat } from "./constants/RenderbufferFormat.js";
@@ -53,6 +52,7 @@ export { default as Program } from "./core/Program.js";
 export { default as Renderbuffer } from "./core/Renderbuffer.js";
 export { default as Shader } from "./core/Shader.js";
 export { default as Sync } from "./core/Sync.js";
+export { default as TransformFeedback } from "./core/TransformFeedback.js";
 export { default as VertexArray } from "./core/VertexArray.js";
 
 // Types

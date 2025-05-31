@@ -497,6 +497,18 @@ export const DELETE_STATUS = 0x8b80;
 export const VERTEX_ARRAY_BINDING = 0x85b5;
 
 /**
+ * Transform feedback.
+ * @internal
+ */
+export const TRANSFORM_FEEDBACK = 0x8e22;
+
+/**
+ * The currently-bound transform feedback.
+ * @internal
+ */
+export const TRANSFORM_FEEDBACK_BINDING = 0x8e25;
+
+/**
  * The currently-bound program.
  * @internal
  */
@@ -837,3 +849,15 @@ export const VERTEX_ATTRIB_ARRAY_TYPE = 0x8625;
  * @internal
  */
 export const UNIFORM_TYPE = 0x8a37;
+
+/**
+ * All of the varyings will be written to the same buffer, interleaved in the specified order.
+ * @public
+ */
+export const INTERLEAVED_ATTRIBS = 0x8c8c;
+
+/**
+ * Each varying will be written to a different buffer.
+ * @public
+ */
+export const SEPARATE_ATTRIBS = 0x8c8d;

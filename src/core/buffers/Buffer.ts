@@ -40,7 +40,7 @@ export default abstract class Buffer<
 		this.targetCache = target;
 		this.isCacheValid = false;
 
-		this.setData(data as T, usage, offset, length);
+		this.setData(data as T, usage, offset, length); // Use `as` to cheat and reduce file size - the method will already behave properly regardless of which type of `data` is passed.
 	}
 
 	/**
@@ -53,7 +53,7 @@ export default abstract class Buffer<
 	 * The binding point of this buffer.
 	 * @internal
 	 */
-	private targetCache;
+	private targetCache: BufferTarget;
 
 	/**
 	 * The binding point of this buffer.
@@ -64,7 +64,7 @@ export default abstract class Buffer<
 	}
 
 	/** @internal */
-	public set target(value) {
+	public set target(value: BufferTarget) {
 		if (this.target === value) {
 			return;
 		}
@@ -105,7 +105,7 @@ export default abstract class Buffer<
 	 */
 	public abstract get data(): Readonly<T>;
 
-	public abstract set data(value);
+	public abstract set data(value: Readonly<T>);
 
 	/**
 	 * Clear this buffer's data cache.
@@ -173,7 +173,7 @@ export default abstract class Buffer<
 		srcOffset?: number,
 		length?: number,
 		dstOffset?: number
-	) {
+	): void {
 		// Default to `STATIC_DRAW`, but remember if the user passed it or not.
 		const realUsage = usage ?? BufferUsage.STATIC_DRAW;
 
@@ -183,7 +183,7 @@ export default abstract class Buffer<
 		// Set size of buffer (empty data).
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, realUsage);
-			this.dataCache = new Uint8Array(data) as unknown as T;
+			this.dataCache = new Uint8Array(data) as Uint8Array & T;
 			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
 			this.usageCache = realUsage;
@@ -230,7 +230,7 @@ export default abstract class Buffer<
 				this.target,
 				dstOffset,
 				data,
-				srcOffset as unknown as number,
+				srcOffset ?? 0,
 				length
 			);
 			this.isCacheValid = false;
@@ -238,13 +238,7 @@ export default abstract class Buffer<
 		}
 
 		// Replace the data in the buffer.
-		this.gl.bufferData(
-			this.target,
-			data,
-			realUsage,
-			srcOffset as unknown as number,
-			length
-		);
+		this.gl.bufferData(this.target, data, realUsage, srcOffset ?? 0, length);
 		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
 		this.typeCache = getDataTypeForTypedArray(data);
 		this.sizeCache = data.byteLength;

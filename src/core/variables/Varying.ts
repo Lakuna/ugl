@@ -1,6 +1,7 @@
 import type Program from "../Program.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import Variable from "./Variable.js";
+import type VertexBuffer from "../buffers/VertexBuffer.js";
 
 /**
  * An input variable in a WebGL fragment shader used for transform feedback.
@@ -16,9 +17,7 @@ export default class Varying extends Variable {
 	 * @internal
 	 */
 	public constructor(program: Program, index: number) {
-		super(program);
-
-		const activeInfo = this.context.gl.getTransformFeedbackVarying(
+		const activeInfo = program.context.gl.getTransformFeedbackVarying(
 			program.internal,
 			index
 		);
@@ -28,17 +27,29 @@ export default class Varying extends Variable {
 			);
 		}
 
-		this.activeInfo = activeInfo;
+		super(program, activeInfo);
 	}
 
 	/**
-	 * The active information of this varying.
+	 * The value of this varying.
 	 * @internal
 	 */
-	protected override readonly activeInfo: WebGLActiveInfo;
+	protected valueCache?: VertexBuffer;
 
 	/** The value that is stored in this varying. */
-	public override get value(): void {
-		return void this; // TODO: Add transform feedback support.
+	public override get value(): VertexBuffer | undefined {
+		return this.valueCache;
+	}
+
+	/**
+	 * Set the value of this varying. Should only be called from within `TransformFeedback`.
+	 * @param value - The new value for this varying.
+	 * @returns Whether or not the value was updated.
+	 * @internal
+	 */
+	public setValue(value: VertexBuffer | undefined): boolean {
+		void this;
+		void value;
+		return false; // TODO: Add transform feedback support. Base off of `Attribute.prototype.setValue`.
 	}
 }

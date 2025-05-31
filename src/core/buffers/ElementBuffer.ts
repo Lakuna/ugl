@@ -177,7 +177,7 @@ export default class ElementBuffer extends Buffer<
 		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as unknown as Uint8Array | Uint16Array | Uint32Array;
+			) as Uint8Array | Uint16Array | Uint32Array;
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
@@ -203,7 +203,7 @@ export default class ElementBuffer extends Buffer<
 		return this.dataCache;
 	}
 
-	public set data(value) {
+	public set data(value: Readonly<Uint8Array | Uint16Array | Uint32Array>) {
 		this.setData(value);
 	}
 

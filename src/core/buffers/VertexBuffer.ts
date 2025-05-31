@@ -27,7 +27,9 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 * @returns The buffer bindings cache.
 	 * @internal
 	 */
-	private static getContextBindingsCache(gl: WebGL2RenderingContext) {
+	private static getContextBindingsCache(
+		gl: WebGL2RenderingContext
+	): Map<BufferTarget, WebGLBuffer | null> {
 		// Get the context bindings cache.
 		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
@@ -163,7 +165,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as unknown as ArrayBufferView;
+			);
 		}
 
 		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
@@ -189,7 +191,7 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		return this.dataCache;
 	}
 
-	public set data(value) {
+	public set data(value: Readonly<ArrayBufferView>) {
 		this.setData(value);
 	}
 
