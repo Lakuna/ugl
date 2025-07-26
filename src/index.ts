@@ -71,6 +71,8 @@ export type { default as Rectangle } from "./types/Rectangle.js";
 export type { default as Stencil } from "./types/Stencil.js";
 export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";
+export type { VaryingMap } from "./types/VaryingMap.js";
+export type { default as VaryingValue } from "./types/VaryingValue.js";
 
 // Utility
 export { default as DuplicateContextError } from "./utility/DuplicateContextError.js";

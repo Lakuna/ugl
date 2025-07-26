@@ -15,12 +15,14 @@
 				Context,
 				ElementBuffer,
 				Framebuffer,
+				Primitive,
 				Program,
 				Renderbuffer,
 				RenderbufferFormat,
 				Texture2d,
 				TextureFilter,
 				TextureFormat,
+				TransformFeedback,
 				VertexArray,
 				VertexBuffer
 			} from "../dist/index.js";
@@ -49,8 +51,35 @@ void main() {
 }
 `;
 
+			const vssTf = `\
+#version 300 es
+
+in float op1;
+in float op2;
+
+out float sum;
+out float difference;
+out float product;
+
+void main() {
+	sum = op1 + op2;
+	difference = op1 - op2;
+	product = op1 * op2;
+}
+`;
+
+			const fssTf = `\
+#version 300 es
+
+precision mediump float;
+
+void main() { }
+`;
+
 			const quadPosData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
 			const quadIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
+			const op1Data = new Float32Array([1, 2, 3, 4, 5, 6]);
+			const op2Data = new Float32Array([3, 6, 9, 12, 15, 18]);
 
 			const test1 = () => {
 				const canvas = new OffscreenCanvas(3, 2);
@@ -156,6 +185,43 @@ void main() {
 				).data;
 			};
 
+			const test5 = () => {
+				const canvas = new OffscreenCanvas(0, 0);
+
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vssTf, fssTf, void 0, [
+					"sum",
+					"difference",
+					"product"
+				]);
+
+				const op1Buffer = new VertexBuffer(gl, op1Data);
+				const op2Buffer = new VertexBuffer(gl, op2Data);
+
+				const vao = new VertexArray(program, {
+					op1: { size: 1, vbo: op1Buffer },
+					op2: { size: 1, vbo: op2Buffer }
+				});
+
+				const tf = new TransformFeedback(program, {
+					sum: new VertexBuffer(gl, new Float32Array(op1Data.length)),
+					difference: new VertexBuffer(gl, new Float32Array(op1Data.length)),
+					product: new VertexBuffer(gl, new Float32Array(op1Data.length))
+				});
+
+				gl.doRasterizerDiscard = true;
+				tf.begin(Primitive.POINTS);
+				gl.fbo.draw(vao, void 0, Primitive.POINTS);
+				tf.end();
+
+				return [
+					...tf.varyings.get("sum").vbo.data,
+					...tf.varyings.get("difference").vbo.data,
+					...tf.varyings.get("product").vbo.data
+				];
+			};
+
 			// Start after the canvases finish loading.
 			addEventListener("load", async () => {
 				const b = [2, 4, 6, 8, 10, 12];
@@ -163,6 +229,11 @@ void main() {
 				console.log(test2().every((ai, i) => ai === b[i]));
 				console.log(test3().every((ai, i) => ai === b[i]));
 				console.log(test4().every((ai, i) => ai === b[i]));
+
+				const c = [
+					4, 8, 12, 16, 20, 24, -2, -4, -6, -8, -10, -12, 3, 12, 27, 48, 75, 108
+				];
+				console.log(test5().every((ai, i) => ai === c[i]));
 			});
 		</script>
 	</head>

@@ -93,6 +93,9 @@ export default class Program extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @param vss - The vertex shader's source code.
 	 * @param fss - The fragment shader's source code.
+	 * @param attributeLocations - A map of attribute names to their desired locations.
+	 * @param feedbackVaryings - The names of the varyings that should be tracked for transform feedback.
+	 * @param feedbackInterleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
 	 * @throws {@link ProgramLinkError} if the shaders have different contexts, if either shader is not the correct type, or if there is an issue when linking the shader program.
 	 * @throws {@link UnsupportedOperationError} if a shader program cannot be created.
 	 * @throws {@link UnsupportedOperationError} if a shader cannot be created.
@@ -102,12 +105,21 @@ export default class Program extends ContextDependent {
 	public static fromSource(
 		context: Context,
 		vss: string,
-		fss: string
+		fss: string,
+		attributeLocations?: ReadonlyMap<string, number>,
+		feedbackVaryings?: Iterable<string>,
+		feedbackInterleaved?: boolean
 	): Program {
 		const vs = new Shader(context, ShaderType.VERTEX_SHADER, vss);
 		const fs = new Shader(context, ShaderType.FRAGMENT_SHADER, fss);
 
-		const out = new Program(context, [vs, fs]);
+		const out = new Program(
+			context,
+			[vs, fs],
+			attributeLocations,
+			feedbackVaryings,
+			feedbackInterleaved
+		);
 
 		vs.delete();
 		fs.delete();
@@ -363,7 +375,7 @@ export default class Program extends ContextDependent {
 	public get varyings(): ReadonlyMap<string, Varying> {
 		if (!this.varyingsCache) {
 			this.varyingsCache = new Map();
-			for (let i = 0; i < this.activeUniforms; i++) {
+			for (let i = 0; i < this.transformFeedbackVaryings; i++) {
 				const varying = new Varying(this, i);
 				this.varyingsCache.set(varying.name, varying);
 			}

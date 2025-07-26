@@ -1,6 +1,8 @@
+import BufferTarget from "../../constants/BufferTarget.js";
 import type Program from "../Program.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import Variable from "./Variable.js";
+import type VaryingValue from "../../types/VaryingValue.js";
 import type VertexBuffer from "../buffers/VertexBuffer.js";
 
 /**
@@ -34,22 +36,45 @@ export default class Varying extends Variable {
 	 * The value of this varying.
 	 * @internal
 	 */
-	protected valueCache?: VertexBuffer;
+	private valueCache?: VaryingValue;
 
 	/** The value that is stored in this varying. */
-	public override get value(): VertexBuffer | undefined {
+	public override get value(): Readonly<VaryingValue> | undefined {
 		return this.valueCache;
 	}
 
-	/**
-	 * Set the value of this varying. Should only be called from within `TransformFeedback`.
-	 * @param value - The new value for this varying.
-	 * @returns Whether or not the value was updated.
-	 * @internal
-	 */
-	public setValue(value: VertexBuffer | undefined): boolean {
-		void this;
-		void value;
-		return false; // TODO: Add transform feedback support. Base off of `Attribute.prototype.setValue`.
+	// Should only be called from within `TransformFeedback`.
+	/** @internal */
+	public override set value(value: VaryingValue | VertexBuffer | undefined) {
+		if (!value) {
+			return;
+		}
+
+		const realValue = "vbo" in value ? { ...value } : { vbo: value };
+		realValue.offset ??= 0;
+
+		if (realValue.size) {
+			this.gl.bindBufferRange(
+				BufferTarget.TRANSFORM_FEEDBACK_BUFFER,
+				this.program.varyings
+					.keys()
+					.toArray()
+					.findIndex((name) => name === this.name),
+				realValue.vbo.internal,
+				realValue.offset,
+				realValue.size
+			);
+		} else {
+			this.gl.bindBufferBase(
+				BufferTarget.TRANSFORM_FEEDBACK_BUFFER,
+				this.program.varyings
+					.keys()
+					.toArray()
+					.findIndex((name) => name === this.name),
+				realValue.vbo.internal
+			);
+		}
+
+		this.valueCache = realValue;
 	}
 }

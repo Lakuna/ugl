@@ -99,7 +99,7 @@ export default class VertexArray extends ContextDependent {
 		this.internal = this.gl.createVertexArray();
 
 		// Set the initial attribute values.
-		this.attributeCache = new Map<string, AttributeValue>();
+		this.attributesCache = new Map();
 		if (attributes) {
 			for (const [key, value] of Object.entries(attributes)) {
 				if (!Object.hasOwn(attributes, key)) {
@@ -127,23 +127,14 @@ export default class VertexArray extends ContextDependent {
 	 * The values of attributes in this VAO.
 	 * @internal
 	 */
-	private readonly attributeCache: Map<string, AttributeValue>;
+	private readonly attributesCache: Map<string, AttributeValue>;
 
 	/**
 	 * The values of attributes in this VAO.
 	 * @internal
 	 */
 	public get attributes(): ReadonlyMap<string, AttributeValue> {
-		return this.attributeCache;
-	}
-
-	/**
-	 * Get the value of an attribute in this VAO.
-	 * @param name - The name of the attribute.
-	 * @returns The vertex buffer that is bound to the specified attribute.
-	 */
-	public getAttribute(name: string): VertexBuffer | undefined {
-		return this.attributeCache.get(name)?.vbo;
+		return this.attributesCache;
 	}
 
 	/**
@@ -163,9 +154,8 @@ export default class VertexArray extends ContextDependent {
 
 		this.bind();
 		const realValue = "vbo" in value ? value : { vbo: value };
-		if (attribute.setValue(realValue)) {
-			this.attributeCache.set(name, realValue);
-		}
+		attribute.value = realValue;
+		this.attributesCache.set(name, realValue);
 	}
 
 	/**

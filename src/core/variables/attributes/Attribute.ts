@@ -86,25 +86,21 @@ export default abstract class Attribute extends Variable {
 	protected valueCache?: AttributeValue;
 
 	/** The value that is stored in this attribute. */
-	public override get value(): AttributeValue | undefined {
+	public override get value(): Readonly<AttributeValue> | undefined {
 		return this.valueCache;
 	}
 
-	/**
-	 * Set the value of this attribute. Should only be called from within `VertexArray`.
-	 * @param value - The new value for this attribute.
-	 * @returns Whether or not the value was updated.
-	 * @internal
-	 */
-	public setValue(value: AttributeValue | VertexBuffer | undefined): boolean {
+	// Should only be called from within `VertexArray`.
+	/** @internal */
+	public override set value(value: AttributeValue | VertexBuffer | undefined) {
 		if (!value) {
 			if (!this.value) {
-				return false;
+				return;
 			}
 
 			this.enabled = false;
 			delete this.valueCache;
-			return true;
+			return;
 		}
 
 		const realValue = "vbo" in value ? { ...value } : { vbo: value };
@@ -120,12 +116,11 @@ export default abstract class Attribute extends Variable {
 			realValue.stride === this.value.stride &&
 			realValue.offset === this.value.offset
 		) {
-			return false;
+			return;
 		}
 
 		this.enabled = true;
 		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER);
 		this.setterInternal(realValue);
-		return true;
 	}
 }

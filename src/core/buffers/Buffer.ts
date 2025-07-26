@@ -29,7 +29,7 @@ export default abstract class Buffer<
 	protected constructor(
 		context: Context,
 		data: T | number | VertexBuffer = 0,
-		usage?: BufferUsage,
+		usage: BufferUsage = BufferUsage.STATIC_DRAW,
 		offset?: number,
 		length?: number,
 		target: BufferTarget = BufferTarget.ARRAY_BUFFER
@@ -174,8 +174,7 @@ export default abstract class Buffer<
 		length?: number,
 		dstOffset?: number
 	): void {
-		// Default to `STATIC_DRAW`, but remember if the user passed it or not.
-		const realUsage = usage ?? BufferUsage.STATIC_DRAW;
+		const realUsage = usage ?? this.usage;
 
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
 		this.bind();

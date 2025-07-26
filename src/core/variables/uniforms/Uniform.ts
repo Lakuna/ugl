@@ -69,7 +69,7 @@ export default abstract class Uniform extends Variable {
 	 * The value that is stored in this uniform.
 	 * @throws Error if the uniform value has not been cached.
 	 */
-	public get value(): UniformValue {
+	public override get value(): UniformValue {
 		if (typeof this.valueCache === "undefined") {
 			throw new Error("Attempted to access uncached uniform value.");
 		}
@@ -77,7 +77,7 @@ export default abstract class Uniform extends Variable {
 		return this.valueCache;
 	}
 
-	public set value(value: UniformValue) {
+	public override set value(value: UniformValue) {
 		this.program.bind();
 
 		if (typeof value !== "number" && Symbol.iterator in value) {

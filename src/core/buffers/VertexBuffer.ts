@@ -7,7 +7,7 @@ import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
 /**
- * An array of binary data to be used as a vertex buffer object. Must contain unsigned integers.
+ * An array of binary data to be used as a vertex buffer object.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
