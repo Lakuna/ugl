@@ -449,6 +449,12 @@ export const DRAW_BUFFER0 = 0x8825;
 export const MAX_DRAW_BUFFERS = 0x8824;
 
 /**
+ * The maximum allowed time in nanoseconds for a sync object to wait on the client.
+ * @internal
+ */
+export const MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
+
+/**
  * Indicates that the back framebuffer (canvas) should be drawn to.
  * @internal
  */

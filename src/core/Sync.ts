@@ -8,6 +8,7 @@ import {
 	SYNC_STATUS,
 	TIMEOUT_IGNORED
 } from "../constants/constants.js";
+import BadValueError from "../utility/BadValueError.js";
 import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import SyncClientStatus from "../constants/SyncClientStatus.js";
@@ -86,7 +87,12 @@ export default class Sync extends ContextDependent {
 	 * @throws {@link BadValueError} if `timeout` exceeds the maximum client wait timeout.
 	 */
 	public clientWait(flush = false, timeout = 0): SyncClientStatus {
-		// TODO: Ensure that `timeout` isn't greater than `MAX_CLIENT_WAIT_TIMEOUT_WEBGL`.
+		if (timeout > this.context.maxClientWaitTimeout) {
+			throw new BadValueError(
+				`Sync object client wait timeout may not exceed ${this.context.maxClientWaitTimeout.toString()}.`
+			);
+		}
+
 		this.gl.flush();
 		return this.gl.clientWaitSync(
 			this.internal,

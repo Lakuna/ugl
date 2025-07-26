@@ -143,7 +143,7 @@ export default class TransformFeedback extends ContextDependent {
 		const realValue = "vbo" in value ? value : { vbo: value };
 		varying.value = realValue;
 		this.varyingsCache.set(name, realValue);
-		this.unbind(); // TODO: Is this necessary?
+		this.unbind();
 	}
 
 	/**
@@ -153,7 +153,6 @@ export default class TransformFeedback extends ContextDependent {
 	public begin(primitive: Primitive = Primitive.TRIANGLES): void {
 		// The buffers that are being written to can't be bound elsewhere.
 		for (const [, varying] of this.varyings) {
-			varying.vbo.clearDataCache(); // TODO: Is this necessary?
 			varying.vbo.unbind();
 		}
 
@@ -165,7 +164,12 @@ export default class TransformFeedback extends ContextDependent {
 	/** Finish getting transform feedback. */
 	public end(): void {
 		this.gl.endTransformFeedback();
-		this.unbind(); // TODO: Is this necessary?
+		this.unbind();
+
+		// Ensure that the correct data can be read from the buffers.
+		for (const [, varying] of this.varyings) {
+			varying.vbo.clearDataCache();
+		}
 	}
 
 	/**

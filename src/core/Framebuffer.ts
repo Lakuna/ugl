@@ -524,8 +524,6 @@ export default class Framebuffer extends ContextDependent {
 			return this.implementationColorReadFormatCache;
 		}
 
-		// TODO: Support cache prefilling.
-
 		this.bind();
 		return (this.implementationColorReadFormatCache = this.gl.getParameter(
 			IMPLEMENTATION_COLOR_READ_FORMAT
@@ -546,8 +544,6 @@ export default class Framebuffer extends ContextDependent {
 		if (this.implementationColorReadTypeCache) {
 			return this.implementationColorReadTypeCache;
 		}
-
-		// TODO: Support cache prefilling.
 
 		this.bind();
 		return (this.implementationColorReadTypeCache = this.gl.getParameter(

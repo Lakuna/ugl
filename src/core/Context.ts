@@ -19,6 +19,7 @@ import {
 	DEPTH_WRITEMASK,
 	DITHER,
 	FRONT_FACE,
+	MAX_CLIENT_WAIT_TIMEOUT_WEBGL,
 	MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 	MAX_DRAW_BUFFERS,
 	MAX_TEXTURE_MAX_ANISOTROPY_EXT,
@@ -1388,6 +1389,20 @@ export default class Context extends ApiInterface {
 
 		this.gl.polygonOffset(this.polygonOffsetFactor, value);
 		this.polygonOffsetUnitsCache = value;
+	}
+
+	/**
+	 * The maximum allowed time in nanoseconds for a sync object to wait on the client.
+	 * @internal
+	 */
+	private maxClientWaitTimeoutCache?: number;
+
+	/** The maximum allowed time in nanoseconds for a sync object to wait on the client. */
+	public get maxClientWaitTimeout(): number {
+		// Cannot be prefilled (different for every system).
+		return (this.maxClientWaitTimeoutCache ??= this.gl.getParameter(
+			MAX_CLIENT_WAIT_TIMEOUT_WEBGL
+		));
 	}
 
 	/**
