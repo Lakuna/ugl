@@ -1,0 +1,607 @@
+<!doctype html>
+
+<html lang="en-US">
+	<head>
+		<title>Text</title>
+
+		<!-- Prevent the browser console from complaining. -->
+		<meta charset="utf-8" />
+		<link rel="icon" href="./assets/favicon.ico" />
+
+		<!-- Test script. -->
+		<script type="module">
+			import {
+				BlendFunction,
+				BufferUsage,
+				Context,
+				ElementBuffer,
+				Program,
+				Texture2d,
+				TextureFilter,
+				TextureFormat,
+				VertexArray,
+				VertexBuffer
+			} from "../dist/index.js";
+			import {
+				createMatrix4Like,
+				identity,
+				invert,
+				multiply,
+				perspective,
+				rotateY,
+				scale,
+				translate
+			} from "../node_modules/@lakuna/umath/dist/linalg/Matrix4.js";
+
+			const vss = `\
+#version 300 es
+
+in vec4 position;
+in vec2 texcoord;
+
+uniform mat4 worldViewProj;
+
+out vec2 vTexcoord;
+
+void main() {
+	gl_Position = worldViewProj * position;
+	vTexcoord = texcoord;
+}
+`;
+
+			const fss = `\
+#version 300 es
+
+precision mediump float;
+
+in vec2 vTexcoord;
+
+uniform sampler2D tex;
+
+out vec4 outColor;
+
+void main() {
+	outColor = texture(tex, vTexcoord);
+}
+`;
+
+			/*
+			 * Spleen 2.1.0 5x8 printable ASCII characters. https://www.cambus.net/spleen-monospaced-bitmap-fonts/.
+			 *
+			 * Copyright (c) 2018-2024, Frederic Cambus
+			 * All rights reserved.
+			 *
+			 * Redistribution and use in source and binary forms, with or without
+			 * modification, are permitted provided that the following conditions are met:
+			 *
+			 *   * Redistributions of source code must retain the above copyright
+			 *     notice, this list of conditions and the following disclaimer.
+			 *
+			 *   * Redistributions in binary form must reproduce the above copyright
+			 *     notice, this list of conditions and the following disclaimer in the
+			 *     documentation and/or other materials provided with the distribution.
+			 *
+			 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+			 * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+			 * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+			 * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+			 * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+			 * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+			 * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+			 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+			 * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+			 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+			 * POSSIBILITY OF SUCH DAMAGE.
+			 */
+			const bitData = [
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0,
+				1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0,
+				0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1,
+				0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0,
+				0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+				0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0,
+				0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0,
+				0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+				0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+				0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0,
+				0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1,
+				0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+				1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1,
+				1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
+				0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
+				1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+				0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1,
+				0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+				1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+				0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
+				1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1,
+				1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
+				0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1,
+				1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1,
+				0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+				1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+				0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1,
+				0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0,
+				1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0,
+				0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1,
+				1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1,
+				1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+				0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0,
+				1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+				0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0,
+				1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0,
+				1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+				1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1,
+				0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0,
+				1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+				1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0,
+				1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0,
+				0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+				1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
+				0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0,
+				1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+				0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0,
+				0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0,
+				0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+				1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+				1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+				1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0,
+				0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1,
+				0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1,
+				0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0,
+				1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0,
+				1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+				0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1,
+				1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+				0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+				0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+				0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0,
+				0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+				0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0,
+				1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0,
+				0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+				1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
+				0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1,
+				0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0,
+				0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+				0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0,
+				1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+				0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0,
+				1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0,
+				0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+				0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1,
+				1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1,
+				1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+				1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			];
+			const data = new Uint8Array(
+				bitData.flatMap((value) => [value * 0xff, value * 0xff])
+			);
+			const texWidth = 80;
+			const texHeight = 48;
+			const charWidth = 5;
+			const charHeight = 8;
+			const texCols = texWidth / charWidth;
+			const texRows = texHeight / charHeight;
+			const firstCharCode = 32;
+			const lastCharCode = 128;
+			const charCount = lastCharCode - firstCharCode;
+			const glyphs = new Map();
+			for (let i = 0; i < charCount; i++) {
+				const x = i % texCols;
+				const y = Math.floor(i / texCols);
+				glyphs.set(String.fromCharCode(i + firstCharCode), [
+					x * charWidth,
+					y * charHeight,
+					charWidth,
+					charHeight
+				]);
+			}
+
+			const quadPosData = new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]);
+			const quadTexcoordData = new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]);
+			const quadIndexData = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+			// Vanilla WebGL2 implementation.
+			function raw(canvas) {
+				return (now) => {}; // TODO
+			}
+
+			// μGL implementation.
+			function ugl(canvas) {
+				class TextQuad {
+					constructor(texture, glyphs) {
+						this.texture = texture;
+						this.glyphs = glyphs;
+						this.context = this.texture.context;
+						this.widthCache = 0;
+						this.heightCache = 0;
+						this.textCache = "";
+						this.lettersToRender = this.textCache.length;
+						this.program = Program.fromSource(this.context, vss, fss);
+						this.posBuffer = new VertexBuffer(
+							this.context,
+							new Float32Array(),
+							BufferUsage.DYNAMIC_DRAW
+						);
+						this.texcoordBuffer = new VertexBuffer(
+							this.context,
+							new Float32Array(),
+							BufferUsage.DYNAMIC_DRAW
+						);
+						this.ebo = new ElementBuffer(
+							this.context,
+							new Uint8Array(),
+							BufferUsage.DYNAMIC_READ
+						);
+						this.vao = new VertexArray(
+							this.program,
+							{
+								position: { size: 2, vbo: this.posBuffer },
+								texcoord: { size: 2, vbo: this.texcoordBuffer }
+							},
+							this.ebo
+						);
+					}
+
+					get width() {
+						return this.widthCache;
+					}
+
+					get height() {
+						return this.heightCache;
+					}
+
+					resize(length) {
+						const currentLength = this.ebo.data.byteLength / 4 / 6; // `Uint32Array` has 4 bytes per element. Letters each require 6 indices.
+						if (currentLength < length) {
+							// Current arrays are not large enough; return new ones.
+
+							// Each letter requires 4 vertices.
+							const vertexCount = length * 4;
+
+							// Each letter requires 6 indices. Each vertex requires 2 positions and 2 texture coordinates.
+							return [
+								new Uint32Array(length * 6),
+								new Float32Array(vertexCount * 2),
+								new Float32Array(vertexCount * 2)
+							];
+						}
+
+						return [
+							this.ebo.data,
+							this.posBuffer.data,
+							this.texcoordBuffer.data
+						];
+					}
+
+					get text() {
+						return this.textCache;
+					}
+
+					set text(value) {
+						// Skip if the text is already correct.
+						if (value === this.text) {
+							return;
+						}
+
+						// Count the number of actual displayable characters in the string.
+						let length = 0;
+						for (const c of value) {
+							if (this.glyphs.has(c)) {
+								length++;
+							}
+						}
+
+						// Get buffer data, resizing buffers if necessary.
+						const [indexData, posData, texData] = this.resize(length);
+
+						// Fill buffers.
+						let x = 0;
+						let y = 0;
+						let currentLineHeight = 0;
+						let width = 0; // The maximum width of the texture.
+						let j = 0; // Only increments for visible glyphs.
+						for (const c of value) {
+							// Skip if there is no character.
+							if (!c) {
+								continue;
+							}
+
+							// Get the character's glyph. Skip unknown characters.
+							const glyph = this.glyphs.get(c);
+							if (!glyph && c !== "\n") {
+								continue;
+							}
+
+							// Add the character's glyph to the data. This configuration allows for visible newline characters.
+							if (glyph) {
+								const [u, v, w, h] = glyph;
+
+								// Positions.
+								posData[j * 4 * 2 + 0] = x;
+								posData[j * 4 * 2 + 1] = y + h;
+								posData[j * 4 * 2 + 2] = x;
+								posData[j * 4 * 2 + 3] = y;
+								posData[j * 4 * 2 + 4] = x + w;
+								posData[j * 4 * 2 + 5] = y;
+								posData[j * 4 * 2 + 6] = x + w;
+								posData[j * 4 * 2 + 7] = y + h;
+
+								// Texture coordinates.
+								texData[j * 4 * 2 + 0] = u;
+								texData[j * 4 * 2 + 1] = v;
+								texData[j * 4 * 2 + 2] = u;
+								texData[j * 4 * 2 + 3] = v + h;
+								texData[j * 4 * 2 + 4] = u + w;
+								texData[j * 4 * 2 + 5] = v + h;
+								texData[j * 4 * 2 + 6] = u + w;
+								texData[j * 4 * 2 + 7] = v;
+
+								// Indices.
+								indexData[j * 6 + 0] = j * 4 + 0;
+								indexData[j * 6 + 1] = j * 4 + 1;
+								indexData[j * 6 + 2] = j * 4 + 2;
+								indexData[j * 6 + 3] = j * 4 + 0;
+								indexData[j * 6 + 4] = j * 4 + 2;
+								indexData[j * 6 + 5] = j * 4 + 3;
+
+								// Update cursor.
+								j++;
+								x += w;
+								if (h > currentLineHeight) {
+									currentLineHeight = h;
+								}
+							}
+
+							// If the character is a newline, go to the next line.
+							if (c === "\n") {
+								width = Math.max(width, x);
+								x = 0;
+								y -= currentLineHeight;
+								currentLineHeight = 0;
+							}
+						}
+
+						width = Math.max(width, x);
+						const height = Math.abs(y - currentLineHeight);
+
+						// Scale data.
+						for (let i = 0; i < j * 4 * 2; i += 2) {
+							// Scale down so that texture coordinates are represented in texture space.
+							const u = texData[i + 0];
+							if (u) {
+								texData[i + 0] = u / this.texture.width;
+							}
+
+							const v = texData[i + 1];
+							if (v) {
+								texData[i + 1] = v / this.texture.height;
+							}
+						}
+
+						// Update the buffer data on the GPU.
+						this.posBuffer.data = posData;
+						this.texcoordBuffer.data = texData;
+						this.ebo.data = indexData;
+
+						// Update dimension information.
+						this.widthCache = width;
+						this.heightCache = height;
+						this.textCache = value;
+						this.lettersToRender = j;
+					}
+
+					render(worldViewProj) {
+						this.context.fbo.draw(
+							this.vao,
+							{ tex: this.texture, worldViewProj },
+							void 0,
+							void 0,
+							this.lettersToRender * 6
+						);
+					}
+				}
+
+				const gl = Context.get(canvas);
+
+				const program = Program.fromSource(gl, vss, fss);
+
+				const quadPosBuffer = new VertexBuffer(gl, quadPosData);
+				const quadTexcoordBuffer = new VertexBuffer(gl, quadTexcoordData);
+				const quadIndexBuffer = new ElementBuffer(gl, quadIndexData);
+
+				const quadVao = new VertexArray(
+					program,
+					{
+						position: { size: 2, vbo: quadPosBuffer },
+						texcoord: { size: 2, vbo: quadTexcoordBuffer }
+					},
+					quadIndexBuffer
+				);
+
+				const tex = new Texture2d(gl);
+				tex.format = TextureFormat.R8;
+				tex.setMip(
+					new Uint8Array([0xff, 0x00, 0x00, 0xff]),
+					0,
+					void 0,
+					[0, 0, 2, 2]
+				);
+				tex.minFilter = TextureFilter.NEAREST;
+				tex.magFilter = TextureFilter.NEAREST;
+
+				const glyphTex = new Texture2d(gl);
+				glyphTex.format = TextureFormat.LUMINANCE_ALPHA;
+				glyphTex.setMip(data, 0, void 0, [0, 0, texWidth, texHeight]);
+				glyphTex.minFilter = TextureFilter.NEAREST;
+				glyphTex.magFilter = TextureFilter.NEAREST;
+
+				const textQuad = new TextQuad(glyphTex, glyphs);
+
+				const proj = createMatrix4Like();
+				const cam = createMatrix4Like();
+				const view = createMatrix4Like();
+				const viewProj = createMatrix4Like();
+				const quad = createMatrix4Like();
+				const text = createMatrix4Like();
+				identity(cam);
+				translate(cam, [0, 0, 5], cam);
+				invert(cam, view);
+
+				return (now) => {
+					gl.resize();
+					gl.doCullFace = true;
+					gl.doDepthTest = true;
+					gl.doBlend = true;
+					gl.blendFunction = [
+						BlendFunction.SRC_ALPHA,
+						BlendFunction.ONE_MINUS_SRC_ALPHA
+					];
+					gl.fbo.clear();
+
+					// Update text.
+					textQuad.text = `Hello, world!\n${Math.floor(now).toString()}`;
+
+					// Update matrices.
+					const w = canvas.width;
+					const h = canvas.height;
+					perspective(Math.PI / 4, w / (h || 1), 1, 10, proj);
+					multiply(proj, view, viewProj);
+					identity(quad);
+					multiply(viewProj, quad, quad);
+					identity(text);
+					rotateY(text, now * 0.001, text);
+					translate(text, [0, 0, 3], text);
+					rotateY(text, now * -0.001, text);
+					scale(text, [1 / 40, 1 / 40, 0], text);
+					translate(text, [-textQuad.width / 2, 0, 1], text);
+					multiply(viewProj, text, text);
+
+					gl.fbo.draw(quadVao, { tex, worldViewProj: quad });
+
+					textQuad.render(text);
+				};
+			}
+
+			// Start after the canvases finish loading.
+			addEventListener("load", () => {
+				// Set up both rendering contexts, get separate update functions.
+				const rawUpdate = raw(document.querySelector("canvas#raw"));
+				const uglUpdate = ugl(document.querySelector("canvas#ugl"));
+
+				// Create a combined update function.
+				function update(now) {
+					requestAnimationFrame(update);
+
+					// Update both canvases on every frame.
+					rawUpdate(now);
+					uglUpdate(now);
+				}
+				requestAnimationFrame(update);
+			});
+		</script>
+
+		<!-- Canvas visibility style. -->
+		<style>
+			body {
+				background-color: gray;
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+			}
+
+			canvas {
+				border: 1px solid black;
+				width: 100%;
+				aspect-ratio: 3 / 2;
+				max-height: 90vh;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="raw"></canvas>
+		<canvas id="ugl"></canvas>
+	</body>
+</html>
