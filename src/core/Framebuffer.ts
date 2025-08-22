@@ -758,12 +758,12 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
-	 * Read pixels from this framebuffer.
+	 * Create a new typed array and read pixels from this framebuffer into it.
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
 	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
-	 * @param out - The buffer or typed array to store the pixel data in.
-	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
+	 * @param out - `undefined` to create a new typed array to store the pixel data in.
+	 * @param offset - The offset at which to start storing pixel data in the typed array.
 	 * @returns A typed array of pixel data.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}
 	 */
@@ -780,7 +780,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
 	 * @param packAlignment - The alignment to use when packing the data, or `undefined` to let this be automatically determined.
-	 * @param out - The buffer or typed array to store the pixel data in.
+	 * @param out - The buffer or typed array to store the pixel data in, or `undefined` to create a new typed array of the appropriate type.
 	 * @param offset - The offset at which to start storing pixel data in the buffer or typed array.
 	 * @returns The buffer or typed array to store the pixel data in.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels | readPixels}

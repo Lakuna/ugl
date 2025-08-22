@@ -143,7 +143,7 @@ export default class TransformFeedback extends ContextDependent {
 		const realValue = "vbo" in value ? value : { vbo: value };
 		varying.value = realValue;
 		this.varyingsCache.set(name, realValue);
-		this.unbind();
+		this.unbind(); // The transform feedback must be unbound or else buffers that are bound to it can't be bound elsewhere.
 	}
 
 	/**
@@ -164,7 +164,7 @@ export default class TransformFeedback extends ContextDependent {
 	/** Finish getting transform feedback. */
 	public end(): void {
 		this.gl.endTransformFeedback();
-		this.unbind();
+		this.unbind(); // The transform feedback must be unbound or else buffers that are bound to it can't be bound elsewhere.
 
 		// Ensure that the correct data can be read from the buffers.
 		for (const [, varying] of this.varyings) {
