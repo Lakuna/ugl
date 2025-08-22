@@ -194,7 +194,16 @@ void main() { }
 				return b.data;
 			};
 
-			const test6 = () => {
+			const test6 = async () => {
+				const data = new Uint8Array([2, 4, 6, 8, 10, 12]);
+				const canvas = new OffscreenCanvas(0, 0);
+				const gl = Context.get(canvas);
+				const a = new VertexBuffer(gl, data);
+				const b = new VertexBuffer(gl, a);
+				return await b.getData();
+			};
+
+			const test7 = () => {
 				const canvas = new OffscreenCanvas(0, 0);
 
 				const gl = Context.get(canvas);
@@ -251,11 +260,12 @@ void main() { }
 				console.log(test3().every((ai, i) => ai === b[i]));
 				console.log(test4().every((ai, i) => ai === b[i]));
 				console.log(test5().every((ai, i) => ai === b[i]));
+				console.log((await test6()).every((ai, i) => ai === b[i]));
 
 				const c = [
 					4, 8, 12, 16, 20, 24, -2, -4, -6, -8, -10, -12, 3, 12, 27, 48, 75, 108
 				];
-				console.log(test6().every((ai, i) => ai === c[i]));
+				console.log(test7().every((ai, i) => ai === c[i]));
 			});
 		</script>
 	</head>

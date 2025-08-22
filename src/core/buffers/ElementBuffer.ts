@@ -4,6 +4,7 @@ import BufferUsage from "../../constants/BufferUsage.js";
 import Context from "../Context.js";
 import DataType from "../../constants/DataType.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
+import Sync from "../Sync.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import VertexArray from "../VertexArray.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
@@ -174,7 +175,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		this.context.finish(); // TODO: Prefer using `fenceSync`.
+		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
 
 		// Read the buffer data into a typed array.
 		this.bind();
@@ -185,6 +186,49 @@ export default class ElementBuffer extends Buffer<
 
 	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
 		this.setData(value);
+	}
+
+	/**
+	 * Get the data contained in this buffer.
+	 * @returns The data contained in this buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
+	 */
+	public async getData(): Promise<Uint8Array | Uint16Array | Uint32Array> {
+		// Cache case.
+		if (this.dataCache && this.isCacheValid) {
+			return this.dataCache;
+		}
+
+		// Create a new typed array to store the data cache if it has been resized.
+		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
+				this.size / getSizeOfDataType(this.type)
+			) as Uint8Array | Uint16Array | Uint32Array;
+		}
+
+		// Element buffer objects can't be copied through vertex buffers.
+		if (
+			![
+				BufferUsage.DYNAMIC_READ,
+				BufferUsage.STATIC_READ,
+				BufferUsage.STREAM_READ
+			].includes(this.usage)
+		) {
+			throw new UnsupportedOperationError(
+				"Reading from an element buffer object without a readable usage pattern can incur pipeline stalls."
+			);
+		}
+
+		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
+		const sync = new Sync(this.context);
+		await sync.clientWaitUntil();
+		sync.delete();
+
+		// Read the buffer data into a typed array.
+		this.bind();
+		this.gl.getBufferSubData(this.target, 0, this.dataCache);
+
+		return this.dataCache;
 	}
 
 	public override setData(
