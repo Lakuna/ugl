@@ -53,96 +53,131 @@ import {
 import type DebugInfo from "../types/DebugInfo.js";
 
 // Map of WebGL API method names to lists of which of the corresponding methods' arguments (and/or return values) should be interpreted as enumerated values. `-1` indicates the method's return value.
-const isEnumMap = new Map<string, number[]>([
-	["activeTexture", [0]],
-	["bindBuffer", [0]],
-	["bindFramebuffer", [0]],
-	["bindRenderbuffer", [0]],
-	["bindTexture", [0]],
-	["blendEquation", [0]],
-	["blendEquationSeparate", [0, 1]],
-	["blendFunc", [0, 1]],
-	["blendFuncSeparate", [0, 1, 2, 3]],
-	["bufferData", [0, 2]],
-	["bufferSubData", [0]],
-	["checkFramebufferStatus", [-1, 0]],
-	["compressedTexImage2D", [0, 2]],
-	["compressedTexSubImage2D", [0, 6]],
-	["copyTexImage2D", [0, 2]],
-	["copyTexSubImage2D", [0]],
-	["createShader", [0]],
-	["cullFace", [0]],
-	["depthFunc", [0]],
-	["disable", [0]],
-	["drawArrays", [0]],
-	["drawElements", [0, 2]],
-	["enable", [0]],
-	["framebufferRenderbuffer", [0, 1, 2]],
-	["framebufferTexture2D", [0, 1, 2]],
-	["frontFace", [0]],
-	["generateMipmap", [0]],
-	["getBufferParameter", [0, 1]],
-	["getError", [-1]],
-	["getFramebufferAttachmentParameter", [0, 1, 2]],
-	["getParameter", [0]],
-	["getProgramParameter", [1]],
-	["getRenderbufferParameter", [0, 1]],
-	["getShaderParameter", [-1, 1]], // Return value may not be enumerated but is never a non-enumerated number or array.
-	["getShaderPrecisionFormat", [0, 1]],
-	["getTexParameter", [0, 1]],
-	["getVertexAttrib", [1]],
-	["getVertexAttribOffset", [1]],
-	["hint", [0, 1]],
-	["isEnabled", [0]],
-	["readPixels", [4, 5]],
-	["renderbufferStorage", [0, 1]],
-	["stencilFunc", [0]],
-	["stencilFuncSeparate", [0, 1]],
-	["stencilMaskSeparate", [0]],
-	["stencilOp", [0, 1, 2]],
-	["stencilOpSeparate", [0, 1, 2, 3]],
-	["vertexAttribPointer", [2]],
-	["beginQuery", [0]],
-	["beginTransformFeedback", [0]],
-	["bindBufferBase", [0]],
-	["bindBufferRange", [0]],
-	["bindTransformFeedback", [0]],
-	["clearBufferfv", [0]],
-	["clearBufferiv", [0]],
-	["clearBufferuiv", [0]],
-	["clearBufferfi", [0]],
-	["clientWaitSync", [-1]],
-	["compressedTexImage3D", [0, 2]],
-	["compressedTexSubImage3D", [0, 8]],
-	["copyBufferSubData", [0, 1]],
-	["copyTexSubImage3D", [0]],
-	["drawArraysInstanced", [0]],
-	["drawBuffers", [0]],
-	["drawElementsInstanced", [0, 2]],
-	["drawRangeElements", [0, 4]],
-	["endQuery", [0]],
-	["fenceSync", [0]], // Second argument is a bitfield but can only be zero.
-	["framebufferTextureLayer", [0, 1]],
-	["getActiveUniformBlockParameter", [2]],
-	["getActiveUniforms", [2]],
-	["getBufferSubData", [0]],
-	["getIndexedParameter", [0]],
-	["getInternalFormatParameter", [0, 1, 2]],
-	["getQuery", [0, 1]],
-	["getQueryParameter", [1]],
-	["getSamplerParameter", [1]],
-	["getSyncParameter", [1]],
-	["invalidateFramebuffer", [0, 1]],
-	["invalidateSubFramebuffer", [0, 1]],
-	["readBuffer", [0]],
-	["renderbufferStorageMultisample", [0, 2]],
-	["texImage3D", [0, 2, 7, 8]],
-	["texStorage2D", [0, 2]],
-	["texStorage3D", [0, 2]],
-	["texSubImage3D", [0, 8, 9]],
-	["transformFeedbackVaryings", [2]],
-	["vertexAttribIPointer", [2]],
-	["waitSync", [2]] // Second argument is a bitfield but can only be zero.
+const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
+	["activeTexture", { enums: [0] }],
+	[
+		"bindBuffer",
+		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	["bindFramebuffer", { enums: [0], prefs: ["FRAMEBUFFER_BINDING"] }],
+	["bindRenderbuffer", { enums: [0] }],
+	["bindTexture", { enums: [0] }],
+	["blendEquation", { enums: [0], prefs: ["BLEND_EQUATION_RGB"] }],
+	["blendEquationSeparate", { enums: [0, 1], prefs: ["BLEND_EQUATION_RGB"] }],
+	["blendFunc", { enums: [0, 1], prefs: ["ZERO", "ONE"] }],
+	["blendFuncSeparate", { enums: [0, 1, 2, 3], prefs: ["ZERO", "ONE"] }],
+	[
+		"bufferData",
+		{ enums: [0, 2], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	[
+		"bufferSubData",
+		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	["checkFramebufferStatus", { enums: [-1, 0] }],
+	["compressedTexImage2D", { enums: [0, 2] }],
+	["compressedTexSubImage2D", { enums: [0, 6] }],
+	["copyTexImage2D", { enums: [0, 2] }],
+	["copyTexSubImage2D", { enums: [0] }],
+	["createShader", { enums: [0] }],
+	["cullFace", { enums: [0] }],
+	["depthFunc", { enums: [0] }],
+	["disable", { enums: [0] }],
+	["drawArrays", { enums: [0], prefs: ["POINTS", "LINES"] }],
+	["drawElements", { enums: [0, 2], prefs: ["POINTS", "LINES"] }],
+	["enable", { enums: [0] }],
+	["framebufferRenderbuffer", { enums: [0, 1, 2] }],
+	["framebufferTexture2D", { enums: [0, 1, 2] }],
+	["frontFace", { enums: [0] }],
+	["generateMipmap", { enums: [0] }],
+	[
+		"getBufferParameter",
+		{ enums: [0, 1], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	["getError", { enums: [-1], prefs: ["NO_ERROR"] }],
+	["getFramebufferAttachmentParameter", { enums: [0, 1, 2], prefs: ["NONE"] }],
+	[
+		"getParameter",
+		{
+			enums: [0],
+			prefs: [
+				"NONE",
+				"BLEND_EQUATION", // This is the only place where `BLEND_EQUATION` is used, and it means the same thing as `BLEND_EQUATION_RGB`.
+				"BLEND_EQUATION_RGB",
+				"DRAW_FRAMEBUFFER_BINDING", // This is the only place where `DRAW_FRAMEBUFFER_BINDING` is used, and it means the same thing as `FRAMEBUFFER_BINDING`.
+				"FRAMEBUFFER_BINDING",
+				"COPY_READ_BUFFER_BINDING",
+				"COPY_WRITE_BUFFER_BINDING"
+			]
+		}
+	],
+	["getProgramParameter", { enums: [1] }],
+	["getRenderbufferParameter", { enums: [0, 1] }],
+	["getShaderParameter", { enums: [-1, 1] }], // Return value may not be enumerated but is never a non-enumerated number or array.
+	["getShaderPrecisionFormat", { enums: [0, 1] }],
+	["getTexParameter", { enums: [0, 1], prefs: ["NONE"] }],
+	["getVertexAttrib", { enums: [1] }],
+	["getVertexAttribOffset", { enums: [1] }],
+	["hint", { enums: [0, 1] }],
+	["isEnabled", { enums: [0] }],
+	["pixelStorei", { prefs: ["NONE"] }],
+	["readPixels", { enums: [4, 5] }],
+	["renderbufferStorage", { enums: [0, 1] }],
+	["stencilFunc", { enums: [0] }],
+	["stencilFuncSeparate", { enums: [0, 1] }],
+	["stencilMaskSeparate", { enums: [0] }],
+	["stencilOp", { enums: [0, 1, 2], prefs: ["ZERO"] }],
+	["stencilOpSeparate", { enums: [0, 1, 2, 3], prefs: ["ZERO"] }],
+	["texParameterf", { prefs: ["NONE"] }],
+	["texParameteri", { prefs: ["NONE"] }],
+	["vertexAttribPointer", { enums: [2] }],
+	["beginQuery", { enums: [0] }],
+	["beginTransformFeedback", { enums: [0], prefs: ["LINES"] }],
+	["bindBufferBase", { enums: [0] }],
+	["bindBufferRange", { enums: [0] }],
+	["bindTransformFeedback", { enums: [0] }],
+	["clearBufferfv", { enums: [0] }],
+	["clearBufferiv", { enums: [0] }],
+	["clearBufferuiv", { enums: [0] }],
+	["clearBufferfi", { enums: [0] }],
+	["clientWaitSync", { enums: [-1], prefs: ["SYNC_FLUSH_COMMANDS_BIT"] }],
+	["compressedTexImage3D", { enums: [0, 2] }],
+	["compressedTexSubImage3D", { enums: [0, 8] }],
+	[
+		"copyBufferSubData",
+		{ enums: [0, 1], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	["copyTexSubImage3D", { enums: [0] }],
+	["drawArraysInstanced", { enums: [0], prefs: ["POINTS", "LINES"] }],
+	["drawBuffers", { enums: [0], prefs: ["NONE"] }],
+	["drawElementsInstanced", { enums: [0, 2], prefs: ["POINTS", "LINES"] }],
+	["drawRangeElements", { enums: [0, 4], prefs: ["POINTS", "LINES"] }],
+	["endQuery", { enums: [0] }],
+	["fenceSync", { enums: [0] }], // Second argument is a bitfield but can only be zero.
+	["framebufferTextureLayer", { enums: [0, 1] }],
+	["getActiveUniformBlockParameter", { enums: [2] }],
+	["getActiveUniforms", { enums: [2] }],
+	[
+		"getBufferSubData",
+		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
+	["getIndexedParameter", { enums: [0], prefs: ["BLEND_EQUATION_RGB"] }],
+	["getInternalFormatParameter", { enums: [0, 1, 2] }],
+	["getQuery", { enums: [0, 1] }],
+	["getQueryParameter", { enums: [1] }],
+	["getSamplerParameter", { enums: [1] }],
+	["getSyncParameter", { enums: [1] }],
+	["invalidateFramebuffer", { enums: [0, 1] }],
+	["invalidateSubFramebuffer", { enums: [0, 1] }],
+	["readBuffer", { enums: [0], prefs: ["NONE"] }],
+	["renderbufferStorageMultisample", { enums: [0, 2] }],
+	["texImage3D", { enums: [0, 2, 7, 8] }],
+	["texStorage2D", { enums: [0, 2] }],
+	["texStorage3D", { enums: [0, 2] }],
+	["texSubImage3D", { enums: [0, 8, 9] }],
+	["transformFeedbackVaryings", { enums: [2] }],
+	["vertexAttribIPointer", { enums: [2] }],
+	["waitSync", { enums: [2] }] // Second argument is a bitfield but can only be zero.
 ]);
 
 /**
@@ -150,6 +185,7 @@ const isEnumMap = new Map<string, number[]>([
  * @param gl - The rendering context to debug.
  * @param out - The console to log diagnostic information to.
  * @returns An object that controls the debugger.
+ * @public
  */
 export default function debug(
 	gl: WebGL2RenderingContext,
@@ -184,7 +220,7 @@ export default function debug(
 	const object = gl as unknown as Record<string, unknown>;
 
 	// Create a map of enumeration values to WebGL constant names.
-	const enumMap = new Map<number, string>();
+	const enumMap = new Map<number, string[]>();
 	for (const key in object) {
 		// Skip known non-enumeration values.
 		if (["drawingBufferWidth", "drawingBufferHeight"].includes(key)) {
@@ -200,14 +236,40 @@ export default function debug(
 		// If the key already exists in the map, append the value to the existing value.
 		const existingValue = enumMap.get(value);
 		if (existingValue) {
-			enumMap.set(value, `${existingValue}/${key}`);
+			existingValue.push(key);
 			continue;
 		}
 
-		enumMap.set(value, key);
+		enumMap.set(value, [key]);
 	}
 
-	const stringify = (value: unknown, isEnum = false): string => {
+	const enumName = (value: number, prefs?: string[]): string => {
+		/*
+		A few WebGL constant names are mapped to the same value. It's more helpful if the name of the relevant constant is printed for affected functions, so they're tracked in `isEnumMap`. These constants are:
+		- `0`: `POINTS`, `ZERO`, `NO_ERROR`, and `NONE`.
+		- `1`: `SYNC_FLUSH_COMMANDS_BIT`, `LINES`, and `ONE`.
+		- `32777`: `BLEND_EQUATION` and `BLEND_EQUATION_RGB`.
+		- `36006`: `DRAW_FRAMEBUFFER_BINDING` and `FRAMEBUFFER_BINDING`.
+		- `36662`: `COPY_READ_BUFFER` and `COPY_READ_BUFFER_BINDING`.
+		- `36663`: `COPY_WRITE_BUFFER` and `COPY_WRITE_BUFFER_BINDING`.
+		*/
+
+		const names = enumMap.get(value);
+		if (!names || names.length < 1) {
+			return value.toString();
+		}
+
+		const preferredNames = prefs?.length
+			? names.filter((name) => prefs.includes(name))
+			: [];
+		return (preferredNames.length > 0 ? preferredNames : names).join("/");
+	};
+
+	const stringify = (
+		value: unknown,
+		isEnum = false,
+		prefs?: string[]
+	): string => {
 		switch (typeof value) {
 			case "undefined":
 				return "undefined";
@@ -220,56 +282,56 @@ export default function debug(
 
 				// Recursion base case for iterable values.
 				if (Array.isArray(value)) {
-					return `[${value.map((v) => stringify(v, isEnum)).join(", ")}]`;
+					return `[${value.map((v) => stringify(v, isEnum, prefs)).join(", ")}]`;
 				}
 
 				if (value instanceof Int8Array) {
-					return `Int8Array${stringify([...value], isEnum)}`;
+					return `Int8Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Uint8Array) {
-					return `Uint8Array${stringify([...value], isEnum)}`;
+					return `Uint8Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Uint8ClampedArray) {
-					return `Uint8ClampedArray${stringify([...value], isEnum)}`;
+					return `Uint8ClampedArray${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Int16Array) {
-					return `Int16Array${stringify([...value], isEnum)}`;
+					return `Int16Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Uint16Array) {
-					return `Uint16Array${stringify([...value], isEnum)}`;
+					return `Uint16Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Int32Array) {
-					return `Int32Array${stringify([...value], isEnum)}`;
+					return `Int32Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Uint32Array) {
-					return `Uint32Array${stringify([...value], isEnum)}`;
+					return `Uint32Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Float32Array) {
-					return `Float32Array${stringify([...value], isEnum)}`;
+					return `Float32Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof Float64Array) {
-					return `Float64Array${stringify([...value], isEnum)}`;
+					return `Float64Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof BigInt64Array) {
-					return `BigInt64Array${stringify([...value], isEnum)}`;
+					return `BigInt64Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (value instanceof BigUint64Array) {
-					return `BigUint64Array${stringify([...value], isEnum)}`;
+					return `BigUint64Array${stringify([...value], isEnum, prefs)}`;
 				}
 
 				if (Symbol.iterator in value) {
 					try {
-						return `Iterable${stringify([...(value as Iterable<unknown>)], isEnum)}`;
+						return `Iterable${stringify([...(value as Iterable<unknown>)], isEnum, prefs)}`;
 					} catch {
 						// Not iterable; proceed to other guesses.
 					}
@@ -419,9 +481,7 @@ export default function debug(
 			case "string":
 				return `"${value}"`;
 			case "number":
-				return isEnum
-					? (enumMap.get(value) ?? value.toString())
-					: value.toString();
+				return isEnum ? enumName(value, prefs) : value.toString();
 			case "bigint":
 				return `${value.toString()}n`;
 			case "boolean":
@@ -461,9 +521,11 @@ export default function debug(
 			// Build a report consisting of the method name and arguments list. Stringify arguments before calling the method in case the method modifies the arguments.
 			let report = `${key}(`;
 			const argumentDivider = ", ";
-			const isEnumList = isEnumMap.get(key);
+			const entry = isEnumMap.get(key);
+			const enums = entry?.enums;
+			const prefs = entry?.prefs;
 			for (const [i, arg] of args.entries()) {
-				let isEnum = isEnumList?.includes(i) ?? false;
+				let isEnum = enums?.includes(i) ?? false;
 
 				// Handle special cases where specific arguments are bit fields or may or may not be enumerated values.
 				switch (key) {
@@ -564,7 +626,7 @@ export default function debug(
 						break;
 				}
 
-				report += `${stringify(arg, isEnum)}${argumentDivider}`;
+				report += `${stringify(arg, isEnum, prefs)}${argumentDivider}`;
 			}
 
 			// Cut off the last argument divider and close the parentheses.
@@ -575,7 +637,7 @@ export default function debug(
 
 			// Report the return value, if any.
 			if (typeof returnValue !== "undefined") {
-				let isEnum = isEnumList?.includes(-1) ?? false;
+				let isEnum = enums?.includes(-1) ?? false;
 
 				// Handle special cases where the return value is a bit field or may or may not be an enumerated value.
 				switch (key) {
@@ -663,7 +725,7 @@ export default function debug(
 						break;
 				}
 
-				report += ` => ${stringify(returnValue, isEnum)}`;
+				report += ` => ${stringify(returnValue, isEnum, prefs)}`;
 			}
 
 			// Log the report to the console.
@@ -678,7 +740,7 @@ export default function debug(
 
 				if (error) {
 					// Print the error code.
-					out.error(enumMap.get(error));
+					out.error(enumName(error, isEnumMap.get("isError")?.prefs)); // TODO
 
 					// Disable error logging since otherwise this error will continue be logged after each method call.
 					debugInfo.doLogErrors = false;
