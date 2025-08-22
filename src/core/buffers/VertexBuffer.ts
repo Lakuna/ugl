@@ -2,6 +2,8 @@ import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import Context from "../Context.js";
+import DataType from "../../constants/DataType.js";
+import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
@@ -11,7 +13,7 @@ import getTypedArrayConstructorForDataType from "../../utility/internal/getTyped
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLBuffer | WebGLBuffer}
  * @public
  */
-export default class VertexBuffer extends Buffer<ArrayBufferView> {
+export default class VertexBuffer extends Buffer {
 	/**
 	 * The currently-bound buffer cache.
 	 * @internal
@@ -143,12 +145,38 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 	 */
 	public constructor(
 		context: Context,
-		data?: ArrayBufferView | number | VertexBuffer,
+		data: ArrayBufferView | number | VertexBuffer = 0,
 		usage?: BufferUsage,
 		offset?: number,
 		length?: number
 	) {
-		super(context, data, usage, offset, length, BufferTarget.ARRAY_BUFFER);
+		super(context);
+		this.targetCache = BufferTarget.ARRAY_BUFFER;
+		this.setData(data, usage, offset, length);
+	}
+
+	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	private targetCache: BufferTarget;
+
+	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	public override get target(): BufferTarget {
+		return this.targetCache;
+	}
+
+	/** @internal */
+	public set target(value: BufferTarget) {
+		if (this.target === value) {
+			return;
+		}
+
+		this.unbind();
+		this.targetCache = value;
 	}
 
 	/**
@@ -191,17 +219,98 @@ export default class VertexBuffer extends Buffer<ArrayBufferView> {
 		return this.dataCache;
 	}
 
-	public set data(value: Readonly<ArrayBufferView>) {
+	public set data(value: ArrayBufferView) {
 		this.setData(value);
+	}
+
+	public override setData(
+		data: number | ArrayBufferView | VertexBuffer,
+		usage?: BufferUsage,
+		srcOffset?: number,
+		length?: number,
+		dstOffset?: number
+	): void {
+		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
+
+		// Copy data from another buffer.
+		if (data instanceof VertexBuffer) {
+			// The buffers do not need to be bound to `COPY_READ_BUFFER` and `COPY_WRITE_BUFFER`, but they must be bound to different binding points.
+			this.bind(BufferTarget.COPY_WRITE_BUFFER, false);
+			data.bind(
+				this.target === BufferTarget.COPY_READ_BUFFER
+					? BufferTarget.COPY_WRITE_BUFFER
+					: BufferTarget.COPY_READ_BUFFER,
+				this.target === data.target
+			);
+
+			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
+			const realDstOffset = dstOffset ?? 0;
+			const realLength = length ?? data.size;
+			if (usage) {
+				this.gl.bufferData(this.target, realDstOffset + realLength, usage);
+				this.usageCache = usage;
+				this.sizeCache = realDstOffset + realLength;
+			}
+
+			this.gl.copyBufferSubData(
+				data.target,
+				this.target,
+				srcOffset ?? 0,
+				realDstOffset,
+				realLength
+			);
+			this.isCacheValid = false;
+			this.typeCache = data.type;
+			return;
+		}
+
+		const realUsage = usage ?? this.usage;
+		this.bind();
+
+		// Set size of buffer (empty data).
+		if (typeof data === "number") {
+			this.gl.bufferData(this.target, data, realUsage);
+			this.dataCache = new Uint8Array(data) as Uint8Array;
+			this.typeCache = DataType.UNSIGNED_BYTE;
+			this.sizeCache = data;
+			this.usageCache = realUsage;
+			this.isCacheValid = true;
+			return;
+		}
+
+		// Update a portion of the buffer.
+		if (typeof dstOffset === "number") {
+			this.gl.bufferSubData(
+				this.target,
+				dstOffset,
+				data,
+				srcOffset ?? 0,
+				length
+			);
+			this.isCacheValid = false;
+			return;
+		}
+
+		// Replace the data in the buffer.
+		this.gl.bufferData(this.target, data, realUsage, srcOffset ?? 0, length);
+		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
+		this.typeCache = getDataTypeForTypedArray(data);
+		this.sizeCache = data.byteLength;
+		this.usageCache = realUsage;
 	}
 
 	/**
 	 * Bind this buffer to its binding point.
 	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
+	 * @param strict - Bind to the given binding point even if this buffer is already bound to another binding point.
 	 * @internal
 	 */
-	public override bind(target?: BufferTarget): void {
-		if (target) {
+	public override bind(target?: BufferTarget, strict = true): void {
+		if (
+			target &&
+			(strict ||
+				VertexBuffer.getBound(this.context, this.target) !== this.internal)
+		) {
 			this.target = target;
 		}
 

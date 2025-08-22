@@ -740,7 +740,7 @@ export default function debug(
 
 				if (error) {
 					// Print the error code.
-					out.error(enumName(error, isEnumMap.get("isError")?.prefs)); // TODO
+					out.error(enumName(error, isEnumMap.get("isError")?.prefs));
 
 					// Disable error logging since otherwise this error will continue be logged after each method call.
 					debugInfo.doLogErrors = false;

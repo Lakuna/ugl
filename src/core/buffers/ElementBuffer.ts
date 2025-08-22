@@ -1,11 +1,12 @@
-import BadValueError from "../../utility/BadValueError.js";
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
 import Context from "../Context.js";
+import DataType from "../../constants/DataType.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
 import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
 import VertexArray from "../VertexArray.js";
+import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 
@@ -122,52 +123,31 @@ export default class ElementBuffer extends Buffer<
 	 */
 	public constructor(
 		context: Context,
-		data?: Uint8Array | Uint16Array | Uint32Array | number,
+		data: Uint8Array | Uint16Array | Uint32Array | number = 0,
 		usage?: BufferUsage,
 		offset?: number,
 		length?: number
 	) {
 		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
 		VertexArray.unbindGl(context);
-
-		super(
-			context,
-			data,
-			usage,
-			offset,
-			length,
-			BufferTarget.ELEMENT_ARRAY_BUFFER
-		);
+		super(context);
+		this.setData(data, usage, offset, length);
 	}
 
 	/**
 	 * The binding point of this buffer.
 	 * @internal
 	 */
+	// eslint-disable-next-line class-methods-use-this
 	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
-		if (super.target !== BufferTarget.ELEMENT_ARRAY_BUFFER) {
-			throw new BadValueError(
-				"The target binding point of an element buffer object can only be `ELEMENT_ARRAY_BUFFER`."
-			);
-		}
-
-		return super.target;
-	}
-
-	/** @internal */
-	public override set target(_) {
-		void this;
-
-		throw new BadValueError(
-			"The target binding point of an element buffer object can only be `ELEMENT_ARRAY_BUFFER`."
-		);
+		return BufferTarget.ELEMENT_ARRAY_BUFFER;
 	}
 
 	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): Readonly<Uint8Array | Uint16Array | Uint32Array> {
+	public get data(): Uint8Array | Uint16Array | Uint32Array {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
 			return this.dataCache;
@@ -203,8 +183,51 @@ export default class ElementBuffer extends Buffer<
 		return this.dataCache;
 	}
 
-	public set data(value: Readonly<Uint8Array | Uint16Array | Uint32Array>) {
+	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
 		this.setData(value);
+	}
+
+	public override setData(
+		data: number | Uint8Array | Uint16Array | Uint32Array,
+		usage?: BufferUsage,
+		srcOffset?: number,
+		length?: number,
+		dstOffset?: number
+	): void {
+		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
+		const realUsage = usage ?? this.usage;
+		this.bind();
+
+		// Set size of buffer (empty data).
+		if (typeof data === "number") {
+			this.gl.bufferData(this.target, data, realUsage);
+			this.dataCache = new Uint8Array(data) as Uint8Array;
+			this.typeCache = DataType.UNSIGNED_BYTE;
+			this.sizeCache = data;
+			this.usageCache = realUsage;
+			this.isCacheValid = true;
+			return;
+		}
+
+		// Update a portion of the buffer.
+		if (typeof dstOffset === "number") {
+			this.gl.bufferSubData(
+				this.target,
+				dstOffset,
+				data,
+				srcOffset ?? 0,
+				length
+			);
+			this.isCacheValid = false;
+			return;
+		}
+
+		// Replace the data in the buffer.
+		this.gl.bufferData(this.target, data, realUsage, srcOffset ?? 0, length);
+		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
+		this.typeCache = getDataTypeForTypedArray(data);
+		this.sizeCache = data.byteLength;
+		this.usageCache = realUsage;
 	}
 
 	/**

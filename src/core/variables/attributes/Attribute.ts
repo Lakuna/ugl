@@ -120,7 +120,7 @@ export default abstract class Attribute extends Variable {
 		}
 
 		this.enabled = true;
-		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER);
+		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER, false);
 		this.setterInternal(realValue);
 	}
 }
