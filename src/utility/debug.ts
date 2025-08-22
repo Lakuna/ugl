@@ -132,7 +132,7 @@ const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
 	["texParameteri", { prefs: ["NONE"] }],
 	["vertexAttribPointer", { enums: [2] }],
 	["beginQuery", { enums: [0] }],
-	["beginTransformFeedback", { enums: [0], prefs: ["LINES"] }],
+	["beginTransformFeedback", { enums: [0], prefs: ["POINTS", "LINES"] }],
 	["bindBufferBase", { enums: [0] }],
 	["bindBufferRange", { enums: [0] }],
 	["bindTransformFeedback", { enums: [0] }],

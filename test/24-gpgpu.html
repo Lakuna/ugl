@@ -186,6 +186,15 @@ void main() { }
 			};
 
 			const test5 = () => {
+				const data = new Uint8Array([2, 4, 6, 8, 10, 12]);
+				const canvas = new OffscreenCanvas(0, 0);
+				const gl = Context.get(canvas);
+				const a = new VertexBuffer(gl, data);
+				const b = new VertexBuffer(gl, a);
+				return b.data;
+			};
+
+			const test6 = () => {
 				const canvas = new OffscreenCanvas(0, 0);
 
 				const gl = Context.get(canvas);
@@ -205,9 +214,21 @@ void main() { }
 				});
 
 				const tf = new TransformFeedback(program, {
-					sum: new VertexBuffer(gl, new Float32Array(op1Data.length)),
-					difference: new VertexBuffer(gl, new Float32Array(op1Data.length)),
-					product: new VertexBuffer(gl, new Float32Array(op1Data.length))
+					sum: new VertexBuffer(
+						gl,
+						new Float32Array(op1Data.length),
+						BufferUsage.STREAM_READ
+					),
+					difference: new VertexBuffer(
+						gl,
+						new Float32Array(op1Data.length),
+						BufferUsage.STREAM_READ
+					),
+					product: new VertexBuffer(
+						gl,
+						new Float32Array(op1Data.length),
+						BufferUsage.STREAM_READ
+					)
 				});
 
 				gl.doRasterizerDiscard = true;
@@ -229,11 +250,12 @@ void main() { }
 				console.log(test2().every((ai, i) => ai === b[i]));
 				console.log(test3().every((ai, i) => ai === b[i]));
 				console.log(test4().every((ai, i) => ai === b[i]));
+				console.log(test5().every((ai, i) => ai === b[i]));
 
 				const c = [
 					4, 8, 12, 16, 20, 24, -2, -4, -6, -8, -10, -12, 3, 12, 27, 48, 75, 108
 				];
-				console.log(test5().every((ai, i) => ai === c[i]));
+				console.log(test6().every((ai, i) => ai === c[i]));
 			});
 		</script>
 	</head>

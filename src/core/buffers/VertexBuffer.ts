@@ -231,6 +231,8 @@ export default class VertexBuffer extends Buffer {
 		dstOffset?: number
 	): void {
 		// Update regardless of cached value because the data in the `ArrayBufferView` might have changed.
+		const realUsage = usage ?? this.usage;
+		const realSrcOffset = srcOffset ?? 0;
 
 		// Copy data from another buffer.
 		if (data instanceof VertexBuffer) {
@@ -243,19 +245,19 @@ export default class VertexBuffer extends Buffer {
 				this.target === data.target
 			);
 
-			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern.
+			// Initialize and copy entire other buffer. Special case to support copying from a buffer in the constructor while also allowing setting a usage pattern. Also resize if necessary.
 			const realDstOffset = dstOffset ?? 0;
 			const realLength = length ?? data.size;
-			if (usage) {
-				this.gl.bufferData(this.target, realDstOffset + realLength, usage);
-				this.usageCache = usage;
+			if (realUsage !== this.usage || this.size < realDstOffset + realLength) {
+				this.gl.bufferData(this.target, realDstOffset + realLength, realUsage);
+				this.usageCache = realUsage;
 				this.sizeCache = realDstOffset + realLength;
 			}
 
 			this.gl.copyBufferSubData(
 				data.target,
 				this.target,
-				srcOffset ?? 0,
+				realSrcOffset,
 				realDstOffset,
 				realLength
 			);
@@ -264,7 +266,6 @@ export default class VertexBuffer extends Buffer {
 			return;
 		}
 
-		const realUsage = usage ?? this.usage;
 		this.bind();
 
 		// Set size of buffer (empty data).
@@ -284,7 +285,7 @@ export default class VertexBuffer extends Buffer {
 				this.target,
 				dstOffset,
 				data,
-				srcOffset ?? 0,
+				realSrcOffset,
 				length
 			);
 			this.isCacheValid = false;
@@ -292,7 +293,7 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		// Replace the data in the buffer.
-		this.gl.bufferData(this.target, data, realUsage, srcOffset ?? 0, length);
+		this.gl.bufferData(this.target, data, realUsage, realSrcOffset, length);
 		this.isCacheValid = false; // Don't save a reference to the given array buffer in case the user modifies it for other reasons.
 		this.typeCache = getDataTypeForTypedArray(data);
 		this.sizeCache = data.byteLength;
