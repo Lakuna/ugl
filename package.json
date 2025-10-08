@@ -35,21 +35,21 @@
 		"beautify": "prettier . --write"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.33.0",
+		"@eslint/js": "^9.37.0",
 		"@lakuna/umath": "^1.4.0",
 		"@types/eslint": "^9.6.1",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.11",
-		"@types/webxr": "^0.5.22",
-		"eslint": "^9.33.0",
+		"@types/webxr": "^0.5.24",
+		"eslint": "^9.37.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-prettier": "^5.5.4",
 		"eslint-plugin-tsdoc": "^0.4.0",
 		"prettier": "^3.6.2",
-		"typedoc": "^0.28.10",
-		"typescript": "^5.9.2",
-		"typescript-eslint": "^8.40.0"
+		"typedoc": "^0.28.13",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.46.0"
 	},
 	"exports": "./dist/index.js",
 	"typings": "./dist/index.d.ts",

@@ -1,9 +1,10 @@
-import { config, configs, parser, plugin } from "typescript-eslint";
+import { configs, parser, plugin } from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 import eslint from "@eslint/js";
 import prettier from "eslint-plugin-prettier/recommended";
 import tsdoc from "eslint-plugin-tsdoc";
 
-export default config(
+export default defineConfig(
 	// Enable all ESLint rules.
 	eslint.configs.all,
 
@@ -51,8 +52,7 @@ export default config(
 			parser,
 			parserOptions: {
 				ecmaVersion: "latest",
-				project: true,
-				tsconfigRootDir: "."
+				project: true
 			}
 		},
 		plugins: {
