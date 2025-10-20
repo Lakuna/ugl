@@ -17,6 +17,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Set Up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: latest
       - name: Temporary Step
         run: npm --version
       - name: Install Dependencies
