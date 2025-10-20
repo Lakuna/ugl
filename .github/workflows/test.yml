@@ -19,8 +19,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: latest
-      - name: Temporary Step
-        run: npm --version
       - name: Install Dependencies
         run: npm ci
       - name: Lint
