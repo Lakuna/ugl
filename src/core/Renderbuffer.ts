@@ -29,11 +29,12 @@ export default class Renderbuffer extends ContextDependent {
 		// Get the bound renderbuffer.
 		let boundRenderbuffer = Renderbuffer.bindingsCache.get(context.gl);
 		if (typeof boundRenderbuffer === "undefined") {
-			boundRenderbuffer = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
+			boundRenderbuffer =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(
 						RENDERBUFFER_BINDING
-					) as WebGLRenderbuffer | null);
+					) as WebGLRenderbuffer | null)
+				);
 			Renderbuffer.bindingsCache.set(context.gl, boundRenderbuffer);
 		}
 

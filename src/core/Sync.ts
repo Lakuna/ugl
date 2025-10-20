@@ -49,9 +49,9 @@ export default class Sync extends ContextDependent {
 
 	/** The type of this sync object. Always `SYNC_FENCE`. */
 	public get type(): typeof SYNC_FENCE {
-		return this.context.doPrefillCache
-			? SYNC_FENCE
-			: (this.gl.getSyncParameter(
+		return this.context.doPrefillCache ?
+				SYNC_FENCE
+			:	(this.gl.getSyncParameter(
 					this.internal,
 					OBJECT_TYPE
 				) as typeof SYNC_FENCE);
@@ -64,9 +64,9 @@ export default class Sync extends ContextDependent {
 
 	/** The condition of this sync object. Always `SYNC_GPU_COMMANDS_COMPLETE`. */
 	public get condition(): typeof SYNC_GPU_COMMANDS_COMPLETE {
-		return this.context.doPrefillCache
-			? SYNC_GPU_COMMANDS_COMPLETE
-			: (this.gl.getSyncParameter(
+		return this.context.doPrefillCache ?
+				SYNC_GPU_COMMANDS_COMPLETE
+			:	(this.gl.getSyncParameter(
 					this.internal,
 					SYNC_CONDITION
 				) as typeof SYNC_GPU_COMMANDS_COMPLETE);
@@ -74,9 +74,9 @@ export default class Sync extends ContextDependent {
 
 	/** The flags with which this sync object was created. Always `0` since no flags are supported. */
 	public get flags(): 0 {
-		return this.context.doPrefillCache
-			? 0
-			: (this.gl.getSyncParameter(this.internal, SYNC_FLAGS) as 0);
+		return this.context.doPrefillCache ?
+				0
+			:	(this.gl.getSyncParameter(this.internal, SYNC_FLAGS) as 0);
 	}
 
 	/**

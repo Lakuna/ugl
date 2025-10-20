@@ -34,11 +34,12 @@ export default class TransformFeedback extends ContextDependent {
 		// Get the bound transform feedback.
 		let boundTf = TransformFeedback.bindingsCache.get(context.gl);
 		if (typeof boundTf === "undefined") {
-			boundTf = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
+			boundTf =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(
 						TRANSFORM_FEEDBACK_BINDING
-					) as WebGLTransformFeedback | null);
+					) as WebGLTransformFeedback | null)
+				);
 			TransformFeedback.bindingsCache.set(context.gl, boundTf);
 		}
 

@@ -50,28 +50,14 @@ export default defineConfig(
 	{
 		languageOptions: {
 			parser,
-			parserOptions: {
-				ecmaVersion: "latest",
-				project: true
-			}
+			parserOptions: { ecmaVersion: "latest", project: true }
 		},
-		plugins: {
-			"@typescript-eslint": plugin
-		},
-		rules: {
-			"@typescript-eslint/no-shadow": "error"
-		}
+		plugins: { "@typescript-eslint": plugin },
+		rules: { "@typescript-eslint/no-shadow": "error" }
 	},
 
 	// Enable the TSDoc plugin.
-	{
-		plugins: {
-			tsdoc
-		},
-		rules: {
-			"tsdoc/syntax": "error"
-		}
-	},
+	{ plugins: { tsdoc }, rules: { "tsdoc/syntax": "error" } },
 
 	// Enable the Prettier plugin.
 	prettier // Includes `eslint-config-prettier` and `eslint-plugin-prettier`.

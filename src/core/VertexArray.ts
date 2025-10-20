@@ -32,11 +32,12 @@ export default class VertexArray extends ContextDependent {
 		// Get the bound VAO.
 		let boundVao = VertexArray.bindingsCache.get(context.gl);
 		if (typeof boundVao === "undefined") {
-			boundVao = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
+			boundVao =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(
 						VERTEX_ARRAY_BINDING
-					) as WebGLVertexArrayObject | null);
+					) as WebGLVertexArrayObject | null)
+				);
 			VertexArray.bindingsCache.set(context.gl, boundVao);
 		}
 

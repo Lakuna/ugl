@@ -408,10 +408,7 @@ void main() {
 					gl.fitViewport();
 					gl.fbo.clear([0, 0, 0, 0]);
 
-					gl.fbo.draw(cubeVao, {
-						u_matrix: blueMat,
-						u_texture: renderTexture
-					});
+					gl.fbo.draw(cubeVao, { u_matrix: blueMat, u_texture: renderTexture });
 				};
 			}
 

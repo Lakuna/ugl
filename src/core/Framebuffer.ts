@@ -95,11 +95,12 @@ export default class Framebuffer extends ContextDependent {
 		// Get the bound framebuffer.
 		let boundFramebuffer = contextBindingsCache.get(target);
 		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
+			boundFramebuffer =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(
 						getParameterForFramebufferTarget(target)
-					) as WebGLFramebuffer | null);
+					) as WebGLFramebuffer | null)
+				);
 			contextBindingsCache.set(target, boundFramebuffer);
 		}
 
@@ -430,9 +431,8 @@ export default class Framebuffer extends ContextDependent {
 			);
 		} else {
 			// Get the mipmap binding point of the specified face. `undefined` means that a `Texture2d` is being used.
-			const mipmapTarget = face
-				? getMipmapTargetForCubeFace(face)
-				: MipmapTarget.TEXTURE_2D;
+			const mipmapTarget =
+				face ? getMipmapTargetForCubeFace(face) : MipmapTarget.TEXTURE_2D;
 
 			// Attach an entire texture.
 			this.gl.framebufferTexture2D(
@@ -479,7 +479,9 @@ export default class Framebuffer extends ContextDependent {
 		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		const raw = this.gl.getParameter(READ_BUFFER) as number;
 		this.readBufferCache =
-			raw === BACK ? true : raw === NONE ? false : raw - COLOR_ATTACHMENT0;
+			raw === BACK ? true
+			: raw === NONE ? false
+			: raw - COLOR_ATTACHMENT0;
 
 		return this.readBufferCache;
 	}
@@ -492,7 +494,9 @@ export default class Framebuffer extends ContextDependent {
 		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
 
 		this.gl.readBuffer(
-			value === true ? BACK : value === false ? NONE : COLOR_ATTACHMENT0 + value
+			value === true ? BACK
+			: value === false ? NONE
+			: COLOR_ATTACHMENT0 + value
 		);
 		this.readBufferCache = value;
 
@@ -581,11 +585,9 @@ export default class Framebuffer extends ContextDependent {
 		for (let i = 0; i < this.context.maxDrawBuffers; i++) {
 			const drawBuffer = this.gl.getParameter(DRAW_BUFFER0 + i) as number;
 			out.push(
-				drawBuffer === BACK
-					? true
-					: drawBuffer === NONE
-						? false
-						: drawBuffer - COLOR_ATTACHMENT0
+				drawBuffer === BACK ? true
+				: drawBuffer === NONE ? false
+				: drawBuffer - COLOR_ATTACHMENT0
 			);
 		}
 
@@ -630,11 +632,9 @@ export default class Framebuffer extends ContextDependent {
 		const out = [];
 		for (const buffer of realValue) {
 			out.push(
-				typeof buffer === "number"
-					? COLOR_ATTACHMENT0 + buffer
-					: buffer
-						? BACK
-						: NONE
+				typeof buffer === "number" ? COLOR_ATTACHMENT0 + buffer
+				: buffer ? BACK
+				: NONE
 			);
 		}
 
@@ -808,12 +808,10 @@ export default class Framebuffer extends ContextDependent {
 		const realRect = rectangle ?? [0, 0, this.width, this.height];
 
 		// Determine the proper output format and data type.
-		const format = rgba
-			? TextureDataFormat.RGBA
-			: this.implementationColorReadFormat;
-		const type = rgba
-			? TextureDataType.UNSIGNED_BYTE
-			: this.implementationColorReadType;
+		const format =
+			rgba ? TextureDataFormat.RGBA : this.implementationColorReadFormat;
+		const type =
+			rgba ? TextureDataType.UNSIGNED_BYTE : this.implementationColorReadType;
 		const channels = getChannelsForTextureFormat(format);
 
 		// Ensure that the buffer or typed array is large enough to store the data.

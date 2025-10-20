@@ -264,9 +264,10 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	public get activeTexture(): number {
-		return (this.activeTextureCache ??= this.doPrefillCache
-			? 0
-			: this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0);
+		return (this.activeTextureCache ??=
+			this.doPrefillCache ? 0 : (
+				this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0
+			));
 	}
 
 	public set activeTexture(value: number) {
@@ -292,9 +293,10 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not to compute the computation of a temporary coverage value determined by the alpha value. */
 	public get doSampleAlphaToCoverage(): boolean {
-		return (this.doSampleAlphaToCoverageCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE));
+		return (this.doSampleAlphaToCoverageCache ??=
+			this.doPrefillCache ? false : (
+				this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE)
+			));
 	}
 
 	public set doSampleAlphaToCoverage(value: boolean) {
@@ -319,9 +321,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not to AND the fragment's coverage with the temporary coverage value. */
 	public get doSampleCoverage(): boolean {
-		return (this.doSampleCoverageCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(SAMPLE_COVERAGE));
+		return (this.doSampleCoverageCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(SAMPLE_COVERAGE));
 	}
 
 	public set doSampleCoverage(value: boolean) {
@@ -349,9 +350,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
 	 */
 	public get sampleCoverageValue(): number {
-		return (this.sampleCoverageValueCache ??= this.doPrefillCache
-			? 1
-			: this.gl.getParameter(SAMPLE_COVERAGE_VALUE));
+		return (this.sampleCoverageValueCache ??=
+			this.doPrefillCache ? 1 : this.gl.getParameter(SAMPLE_COVERAGE_VALUE));
 	}
 
 	public set sampleCoverageValue(value: number) {
@@ -374,9 +374,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
 	 */
 	public get sampleCoverageInvert(): boolean {
-		return (this.sampleCoverageInvertCache ??= this.doPrefillCache
-			? false
-			: this.gl.getParameter(SAMPLE_COVERAGE_INVERT));
+		return (this.sampleCoverageInvertCache ??=
+			this.doPrefillCache ? false : (
+				this.gl.getParameter(SAMPLE_COVERAGE_INVERT)
+			));
 	}
 
 	public set sampleCoverageInvert(value: boolean) {
@@ -399,9 +400,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor | blendColor}
 	 */
 	public get blendColor(): Color {
-		return (this.blendColorCache ??= this.doPrefillCache
-			? new Float32Array([0, 0, 0, 0])
-			: this.gl.getParameter(BLEND_COLOR));
+		return (this.blendColorCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 0, 0, 0])
+			:	this.gl.getParameter(BLEND_COLOR));
 	}
 
 	public set blendColor(value: Color) {
@@ -430,12 +432,12 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private makeBlendEquationCache(): Uint8Array & BlendEquationSet {
-		return this.doPrefillCache
-			? (new Uint8Array([
+		return this.doPrefillCache ?
+				(new Uint8Array([
 					BlendEquation.FUNC_ADD,
 					BlendEquation.FUNC_ADD
 				]) as Uint8Array & BlendEquationSet)
-			: (new Uint8Array([
+			:	(new Uint8Array([
 					this.gl.getParameter(BLEND_EQUATION_RGB),
 					this.gl.getParameter(BLEND_EQUATION_ALPHA)
 				]) as Uint8Array & BlendEquationSet);
@@ -499,9 +501,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not blending is enabled. */
 	public get doBlend(): boolean {
-		return (this.doBlendCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(BLEND));
+		return (this.doBlendCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(BLEND));
 	}
 
 	public set doBlend(value: boolean) {
@@ -530,14 +531,14 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private makeBlendFunctionCache(): Uint8Array & BlendFunctionFullSet {
-		return this.doPrefillCache
-			? (new Uint8Array([
+		return this.doPrefillCache ?
+				(new Uint8Array([
 					BlendFunction.ONE,
 					BlendFunction.ZERO,
 					BlendFunction.ONE,
 					BlendFunction.ZERO
 				]) as Uint8Array & BlendFunctionFullSet)
-			: (new Uint8Array([
+			:	(new Uint8Array([
 					this.gl.getParameter(BLEND_SRC_RGB),
 					this.gl.getParameter(BLEND_DST_RGB),
 					this.gl.getParameter(BLEND_SRC_ALPHA),
@@ -648,9 +649,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor | clearColor}
 	 */
 	public get clearColor(): Color {
-		return (this.clearColorCache ??= this.doPrefillCache
-			? new Float32Array([0, 0, 0, 0])
-			: this.gl.getParameter(COLOR_CLEAR_VALUE));
+		return (this.clearColorCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 0, 0, 0])
+			:	this.gl.getParameter(COLOR_CLEAR_VALUE));
 	}
 
 	public set clearColor(value: Color) {
@@ -678,9 +680,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth | clearDepth}
 	 */
 	public get clearDepth(): number {
-		return (this.clearDepthCache ??= this.doPrefillCache
-			? 1
-			: this.gl.getParameter(DEPTH_CLEAR_VALUE));
+		return (this.clearDepthCache ??=
+			this.doPrefillCache ? 1 : this.gl.getParameter(DEPTH_CLEAR_VALUE));
 	}
 
 	public set clearDepth(value: number) {
@@ -703,9 +704,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil | clearStencil}
 	 */
 	public get clearStencil(): number {
-		return (this.clearStencilCache ??= this.doPrefillCache
-			? 0
-			: this.gl.getParameter(STENCIL_CLEAR_VALUE));
+		return (this.clearStencilCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(STENCIL_CLEAR_VALUE));
 	}
 
 	public set clearStencil(value: number) {
@@ -728,9 +728,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask | colorMask}
 	 */
 	public get colorMask(): ColorMask {
-		return (this.colorMaskCache ??= this.doPrefillCache
-			? [true, true, true, true]
-			: this.gl.getParameter(COLOR_WRITEMASK));
+		return (this.colorMaskCache ??=
+			this.doPrefillCache ?
+				[true, true, true, true]
+			:	this.gl.getParameter(COLOR_WRITEMASK));
 	}
 
 	public set colorMask(value: ColorMask) {
@@ -769,9 +770,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not polygon culling is enabled. */
 	public get doCullFace(): boolean {
-		return (this.doCullFaceCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(CULL_FACE));
+		return (this.doCullFaceCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(CULL_FACE));
 	}
 
 	public set doCullFace(value: boolean) {
@@ -799,9 +799,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
 	 */
 	public get cullFace(): Face {
-		return (this.cullFaceCache ??= this.doPrefillCache
-			? Face.BACK
-			: this.gl.getParameter(CULL_FACE_MODE));
+		return (this.cullFaceCache ??=
+			this.doPrefillCache ? Face.BACK : this.gl.getParameter(CULL_FACE_MODE));
 	}
 
 	public set cullFace(value: Face) {
@@ -821,9 +820,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not dithering is enabled. */
 	public get doDither(): boolean {
-		return (this.doDitherCache ??= this.doPrefillCache
-			? true
-			: this.gl.isEnabled(DITHER));
+		return (this.doDitherCache ??=
+			this.doPrefillCache ? true : this.gl.isEnabled(DITHER));
 	}
 
 	public set doDither(value: boolean) {
@@ -848,9 +846,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not depth testing is enabled. */
 	public get doDepthTest(): boolean {
-		return (this.doDepthTestCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(DEPTH_TEST));
+		return (this.doDepthTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(DEPTH_TEST));
 	}
 
 	public set doDepthTest(value: boolean) {
@@ -875,9 +872,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not the depth buffer can be written to. */
 	public get depthMask(): boolean {
-		return (this.depthMaskCache ??= this.doPrefillCache
-			? true
-			: this.gl.getParameter(DEPTH_WRITEMASK));
+		return (this.depthMaskCache ??=
+			this.doPrefillCache ? true : this.gl.getParameter(DEPTH_WRITEMASK));
 	}
 
 	public set depthMask(value: boolean) {
@@ -900,9 +896,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc | depthFunc}
 	 */
 	public get depthFunction(): TestFunction {
-		return (this.depthFunctionCache ??= this.doPrefillCache
-			? TestFunction.LESS
-			: this.gl.getParameter(DEPTH_FUNC));
+		return (this.depthFunctionCache ??=
+			this.doPrefillCache ?
+				TestFunction.LESS
+			:	this.gl.getParameter(DEPTH_FUNC));
 	}
 
 	public set depthFunction(value: TestFunction) {
@@ -925,9 +922,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthRange | depthRange}
 	 */
 	public get depthRange(): Pair {
-		return (this.depthRangeCache ??= this.doPrefillCache
-			? new Float32Array([0, 1])
-			: this.gl.getParameter(DEPTH_RANGE));
+		return (this.depthRangeCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 1])
+			:	this.gl.getParameter(DEPTH_RANGE));
 	}
 
 	public set depthRange(value: Pair) {
@@ -947,9 +945,8 @@ export default class Context extends ApiInterface {
 
 	/** The alignment to use when unpacking pixel data from memory. */
 	public get unpackAlignment(): 1 | 2 | 4 | 8 {
-		return (this.unpackAlignmentCache ??= this.doPrefillCache
-			? 4
-			: this.gl.getParameter(UNPACK_ALIGNMENT));
+		return (this.unpackAlignmentCache ??=
+			this.doPrefillCache ? 4 : this.gl.getParameter(UNPACK_ALIGNMENT));
 	}
 
 	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
@@ -969,9 +966,8 @@ export default class Context extends ApiInterface {
 
 	/** The alignment to use when packing pixel data into memory. */
 	public get packAlignment(): 1 | 2 | 4 | 8 {
-		return (this.packAlignmentCache ??= this.doPrefillCache
-			? 4
-			: this.gl.getParameter(PACK_ALIGNMENT));
+		return (this.packAlignmentCache ??=
+			this.doPrefillCache ? 4 : this.gl.getParameter(PACK_ALIGNMENT));
 	}
 
 	public set packAlignment(value: 1 | 2 | 4 | 8) {
@@ -1022,9 +1018,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not the scissor test is enabled. */
 	public get doScissorTest(): boolean {
-		return (this.doScissorTestCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(SCISSOR_TEST));
+		return (this.doScissorTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(SCISSOR_TEST));
 	}
 
 	public set doScissorTest(value: boolean) {
@@ -1154,9 +1149,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not stencil testing is enabled. */
 	public get doStencilTest(): boolean {
-		return (this.doStencilTestCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(STENCIL_TEST));
+		return (this.doStencilTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(STENCIL_TEST));
 	}
 
 	public set doStencilTest(value: boolean) {
@@ -1184,9 +1178,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
 	public get frontStencil(): Stencil {
-		return (this.frontStencilCache ??= this.doPrefillCache
-			? [TestFunction.ALWAYS, 0, 0x7fffffff]
-			: [
+		return (this.frontStencilCache ??=
+			this.doPrefillCache ?
+				[TestFunction.ALWAYS, 0, 0x7fffffff]
+			:	[
 					this.gl.getParameter(STENCIL_FUNC),
 					this.gl.getParameter(STENCIL_REF),
 					this.gl.getParameter(STENCIL_VALUE_MASK)
@@ -1216,9 +1211,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
 	 */
 	public get backStencil(): Stencil {
-		return (this.backStencilCache ??= this.doPrefillCache
-			? [TestFunction.ALWAYS, 0, 0x7fffffff]
-			: [
+		return (this.backStencilCache ??=
+			this.doPrefillCache ?
+				[TestFunction.ALWAYS, 0, 0x7fffffff]
+			:	[
 					this.gl.getParameter(STENCIL_BACK_FUNC),
 					this.gl.getParameter(STENCIL_BACK_REF),
 					this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
@@ -1270,9 +1266,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not primitives are discarded immediately before the rasterization stage. */
 	public get doRasterizerDiscard(): boolean {
-		return (this.doRasterizerDiscardCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(RASTERIZER_DISCARD));
+		return (this.doRasterizerDiscardCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(RASTERIZER_DISCARD));
 	}
 
 	public set doRasterizerDiscard(value: boolean) {
@@ -1300,9 +1295,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
 	 */
 	public get frontFace(): Orientation {
-		return (this.frontFaceCache ??= this.doPrefillCache
-			? Orientation.CCW
-			: this.gl.getParameter(FRONT_FACE));
+		return (this.frontFaceCache ??=
+			this.doPrefillCache ? Orientation.CCW : this.gl.getParameter(FRONT_FACE));
 	}
 
 	public set frontFace(value: Orientation) {
@@ -1322,9 +1316,8 @@ export default class Context extends ApiInterface {
 
 	/** Whether or not adding an offset to depth values of polygon fragments is enabled. */
 	public get doPolygonOffsetFill(): boolean {
-		return (this.doPolygonOffsetFillCache ??= this.doPrefillCache
-			? false
-			: this.gl.isEnabled(POLYGON_OFFSET_FILL));
+		return (this.doPolygonOffsetFillCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(POLYGON_OFFSET_FILL));
 	}
 
 	public set doPolygonOffsetFill(value: boolean) {
@@ -1352,9 +1345,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
 	 */
 	public get polygonOffsetFactor(): number {
-		return (this.polygonOffsetFactorCache ??= this.doPrefillCache
-			? 0
-			: this.gl.getParameter(POLYGON_OFFSET_FACTOR));
+		return (this.polygonOffsetFactorCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_FACTOR));
 	}
 
 	public set polygonOffsetFactor(value: number) {
@@ -1377,9 +1369,8 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
 	 */
 	public get polygonOffsetUnits(): number {
-		return (this.polygonOffsetUnitsCache ??= this.doPrefillCache
-			? 0
-			: this.gl.getParameter(POLYGON_OFFSET_UNITS));
+		return (this.polygonOffsetUnitsCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_UNITS));
 	}
 
 	public set polygonOffsetUnits(value: number) {
@@ -1449,9 +1440,10 @@ export default class Context extends ApiInterface {
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 */
 	public fitViewport(framebuffer?: Framebuffer): void {
-		this.viewport = framebuffer
-			? [0, 0, framebuffer.width, framebuffer.height]
-			: [0, 0, this.canvas.width, this.canvas.height];
+		this.viewport =
+			framebuffer ?
+				[0, 0, framebuffer.width, framebuffer.height]
+			:	[0, 0, this.canvas.width, this.canvas.height];
 	}
 
 	/**

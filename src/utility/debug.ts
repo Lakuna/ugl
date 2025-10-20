@@ -259,9 +259,8 @@ export default function debug(
 			return value.toString();
 		}
 
-		const preferredNames = prefs?.length
-			? names.filter((name) => prefs.includes(name))
-			: [];
+		const preferredNames =
+			prefs?.length ? names.filter((name) => prefs.includes(name)) : [];
 		return (preferredNames.length > 0 ? preferredNames : names).join("/");
 	};
 
@@ -497,10 +496,7 @@ export default function debug(
 	};
 
 	// Make an object for controlling the debugger.
-	const debugInfo = {
-		doLogErrors: true,
-		isActive: true
-	};
+	const debugInfo = { doLogErrors: true, isActive: true };
 
 	// eslint-disable-next-line guard-for-in
 	for (const key in object) {

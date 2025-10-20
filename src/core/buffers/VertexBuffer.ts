@@ -62,11 +62,12 @@ export default class VertexBuffer extends Buffer {
 		// Get the bound buffer.
 		let boundBuffer = contextBindingsCache.get(target);
 		if (typeof boundBuffer === "undefined") {
-			boundBuffer = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(
+			boundBuffer =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(
 						getParameterForBufferTarget(target)
-					) as WebGLBuffer | null);
+					) as WebGLBuffer | null)
+				);
 			contextBindingsCache.set(target, boundBuffer);
 		}
 
@@ -198,13 +199,16 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
-		const readableBuffer = [
-			BufferUsage.DYNAMIC_READ,
-			BufferUsage.STATIC_READ,
-			BufferUsage.STREAM_READ
-		].includes(this.usage)
-			? this
-			: new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
+		const readableBuffer =
+			(
+				[
+					BufferUsage.DYNAMIC_READ,
+					BufferUsage.STATIC_READ,
+					BufferUsage.STREAM_READ
+				].includes(this.usage)
+			) ?
+				this
+			:	new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
 		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
@@ -243,13 +247,16 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
-		const readableBuffer = [
-			BufferUsage.DYNAMIC_READ,
-			BufferUsage.STATIC_READ,
-			BufferUsage.STREAM_READ
-		].includes(this.usage)
-			? this
-			: new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
+		const readableBuffer =
+			(
+				[
+					BufferUsage.DYNAMIC_READ,
+					BufferUsage.STATIC_READ,
+					BufferUsage.STREAM_READ
+				].includes(this.usage)
+			) ?
+				this
+			:	new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
 		const sync = new Sync(this.context);
@@ -283,9 +290,9 @@ export default class VertexBuffer extends Buffer {
 			// The buffers do not need to be bound to `COPY_READ_BUFFER` and `COPY_WRITE_BUFFER`, but they must be bound to different binding points.
 			this.bind(BufferTarget.COPY_WRITE_BUFFER, false);
 			data.bind(
-				this.target === BufferTarget.COPY_READ_BUFFER
-					? BufferTarget.COPY_WRITE_BUFFER
-					: BufferTarget.COPY_READ_BUFFER,
+				this.target === BufferTarget.COPY_READ_BUFFER ?
+					BufferTarget.COPY_WRITE_BUFFER
+				:	BufferTarget.COPY_READ_BUFFER,
 				this.target === data.target
 			);
 

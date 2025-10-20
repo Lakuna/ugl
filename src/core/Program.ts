@@ -45,9 +45,10 @@ export default class Program extends ContextDependent {
 		// Get the bound program.
 		let boundProgram = Program.bindingsCache.get(context.gl);
 		if (typeof boundProgram === "undefined") {
-			boundProgram = context.doPrefillCache
-				? null
-				: (context.gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null);
+			boundProgram =
+				context.doPrefillCache ? null : (
+					(context.gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null)
+				);
 			Program.bindingsCache.set(context.gl, boundProgram);
 		}
 
@@ -199,9 +200,10 @@ export default class Program extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getAttachedShaders | getAttachedShaders}
 	 */
 	public get attachedShaders(): readonly Shader[] {
-		return (this.attachedShadersCache ??= this.context.doPrefillCache
-			? []
-			: (this.gl.getAttachedShaders(this.internal) ?? []).map((shader) =>
+		return (this.attachedShadersCache ??=
+			this.context.doPrefillCache ?
+				[]
+			:	(this.gl.getAttachedShaders(this.internal) ?? []).map((shader) =>
 					Shader.get(this.context, shader)
 				));
 	}
@@ -216,12 +218,12 @@ export default class Program extends ContextDependent {
 	public get attachedShadersCount(): number {
 		return (this.attachedShadersCountCache ??=
 			this.attachedShadersCache?.length ??
-			(this.context.doPrefillCache
-				? 0
-				: (this.gl.getProgramParameter(
-						this.internal,
-						ATTACHED_SHADERS
-					) as number)));
+			(this.context.doPrefillCache ?
+				0
+			:	(this.gl.getProgramParameter(
+					this.internal,
+					ATTACHED_SHADERS
+				) as number)));
 	}
 
 	/**
