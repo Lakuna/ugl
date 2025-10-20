@@ -26,7 +26,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "github:Lakuna/ugl"
+		"url": "git+https://github.com/Lakuna/ugl.git"
 	},
 	"scripts": {
 		"build": "tsc",
