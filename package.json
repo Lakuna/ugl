@@ -31,6 +31,7 @@
 	"scripts": {
 		"build": "tsc",
 		"lint": "eslint src",
+		"test": "serve",
 		"doc": "typedoc src",
 		"beautify": "prettier . --write"
 	},
@@ -47,6 +48,7 @@
 		"eslint-plugin-prettier": "^5.5.4",
 		"eslint-plugin-tsdoc": "^0.5.0",
 		"prettier": "^3.6.2",
+		"serve": "^14.2.5",
 		"typedoc": "^0.28.14",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.47.0"
