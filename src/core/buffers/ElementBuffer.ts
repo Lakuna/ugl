@@ -155,7 +155,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Create a new typed array to store the data cache if it has been resized.
-		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+		if (this.dataCache?.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
 			) as Uint8Array | Uint16Array | Uint32Array;
@@ -200,7 +200,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Create a new typed array to store the data cache if it has been resized.
-		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+		if (this.dataCache?.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
 			) as Uint8Array | Uint16Array | Uint32Array;

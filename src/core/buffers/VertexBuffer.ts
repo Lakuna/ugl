@@ -192,7 +192,7 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		// Create a new typed array to store the data cache if it has been resized.
-		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+		if (this.dataCache?.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
 			);
@@ -240,7 +240,7 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		// Create a new typed array to store the data cache if it has been resized.
-		if (!this.dataCache || this.dataCache.byteLength !== this.size) {
+		if (this.dataCache?.byteLength !== this.size) {
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
 			);

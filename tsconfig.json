@@ -6,7 +6,6 @@
 		"allowUnusedLabels": false,
 		"exactOptionalPropertyTypes": true,
 		"noFallthroughCasesInSwitch": true,
-		"noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
 		"noPropertyAccessFromIndexSignature": true,
@@ -17,13 +16,14 @@
 
 		// Modules
 		"module": "nodenext",
+		"resolveJsonModule": true,
 		"rootDir": "src",
 
 		// Emit
 		"declarationMap": true,
 		"outDir": "dist",
 		"sourceMap": true,
-		"stripInternal": true, // Remove if switching to [API Extractor](https://api-extractor.com/).
+		"stripInternal": true,
 
 		// JavaScript Support
 		// N/A
