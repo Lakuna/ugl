@@ -8,7 +8,8 @@ on:
 jobs:
   build:
     name: Build
-    permissions: {}
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Check-Out Repository
