@@ -25,5 +25,7 @@ jobs:
         run: npm run lint --if-present
       - name: Build
         run: npm run build --if-present
+      - name: Test
+        run: npm test --if-present
       - name: Build Documentation
         run: npm run doc --if-present
