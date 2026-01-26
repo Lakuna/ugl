@@ -10,7 +10,8 @@ on:
 jobs:
   test:
     name: Test
-    permissions: {}
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Check-Out Repository
