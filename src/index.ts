@@ -79,6 +79,7 @@ export { default as DuplicateContextError } from "./utility/DuplicateContextErro
 export { default as BadValueError } from "./utility/BadValueError.js";
 export { default as debug } from "./utility/debug.js";
 export { default as ImmutableError } from "./utility/ImmutableError.js";
+export { default as isReadable } from "./utility/isReadable.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";
 export { default as ProgramLinkError } from "./utility/ProgramLinkError.js";
 export { default as ShaderCompileError } from "./utility/ShaderCompileError.js";

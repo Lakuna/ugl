@@ -8,6 +8,7 @@ import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTyped
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
+import isReadable from "../../utility/isReadable.js";
 
 /**
  * An array of binary data to be used as a vertex buffer object.
@@ -200,15 +201,9 @@ export default class VertexBuffer extends Buffer {
 
 		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
 		const readableBuffer =
-			(
-				[
-					BufferUsage.DYNAMIC_READ,
-					BufferUsage.STATIC_READ,
-					BufferUsage.STREAM_READ
-				].includes(this.usage)
-			) ?
-				this
-			:	new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
+			isReadable(this.usage) ? this : (
+				new VertexBuffer(this.context, this, BufferUsage.STREAM_READ)
+			);
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
 		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
@@ -248,15 +243,9 @@ export default class VertexBuffer extends Buffer {
 
 		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
 		const readableBuffer =
-			(
-				[
-					BufferUsage.DYNAMIC_READ,
-					BufferUsage.STATIC_READ,
-					BufferUsage.STREAM_READ
-				].includes(this.usage)
-			) ?
-				this
-			:	new VertexBuffer(this.context, this, BufferUsage.STREAM_READ);
+			isReadable(this.usage) ? this : (
+				new VertexBuffer(this.context, this, BufferUsage.STREAM_READ)
+			);
 
 		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
 		const sync = new Sync(this.context);

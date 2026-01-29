@@ -223,7 +223,7 @@ export default function debug(
 	const enumMap = new Map<number, string[]>();
 	for (const key in object) {
 		// Skip known non-enumeration values.
-		if (["drawingBufferWidth", "drawingBufferHeight"].includes(key)) {
+		if (key === "drawingBufferWidth" || key === "drawingBufferHeight") {
 			continue;
 		}
 

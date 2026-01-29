@@ -10,6 +10,7 @@ import VertexArray from "../VertexArray.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
+import isReadable from "../../utility/isReadable.js";
 
 /**
  * An array of binary data to be used as an element buffer object. Must contain unsigned integers.
@@ -162,13 +163,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
-		if (
-			![
-				BufferUsage.DYNAMIC_READ,
-				BufferUsage.STATIC_READ,
-				BufferUsage.STREAM_READ
-			].includes(this.usage)
-		) {
+		if (!isReadable(this.usage)) {
 			throw new UnsupportedOperationError(
 				"Reading from an element buffer object without a readable usage pattern can incur pipeline stalls."
 			);
@@ -207,13 +202,7 @@ export default class ElementBuffer extends Buffer<
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
-		if (
-			![
-				BufferUsage.DYNAMIC_READ,
-				BufferUsage.STATIC_READ,
-				BufferUsage.STREAM_READ
-			].includes(this.usage)
-		) {
+		if (!isReadable(this.usage)) {
 			throw new UnsupportedOperationError(
 				"Reading from an element buffer object without a readable usage pattern can incur pipeline stalls."
 			);
