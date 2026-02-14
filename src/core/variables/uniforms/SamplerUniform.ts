@@ -16,6 +16,7 @@ export default class SamplerUniform extends IntegerUniform {
 		for (const texture of value) {
 			// If a texture unit was passed, just fall back to integer behavior.
 			if (typeof texture === "number") {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				super.iterableSetter(value as Iterable<number>);
 				return;
 			}

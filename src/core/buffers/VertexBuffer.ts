@@ -1,7 +1,7 @@
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
-import Context from "../Context.js";
+import type Context from "../Context.js";
 import DataType from "../../constants/DataType.js";
 import Sync from "../Sync.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
@@ -20,28 +20,97 @@ export default class VertexBuffer extends Buffer {
 	 * The currently-bound buffer cache.
 	 * @internal
 	 */
-	private static bindingsCache = new Map<
+	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
 		Map<BufferTarget, WebGLBuffer | null>
 	>();
 
 	/**
-	 * Get the buffer bindings cache for a rendering context.
-	 * @param gl - The rendering context.
-	 * @returns The buffer bindings cache.
+	 * The binding point of this buffer.
 	 * @internal
 	 */
-	private static getContextBindingsCache(
-		gl: WebGL2RenderingContext
-	): Map<BufferTarget, WebGLBuffer | null> {
-		// Get the context bindings cache.
-		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
-		if (!contextBindingsCache) {
-			contextBindingsCache = new Map();
-			VertexBuffer.bindingsCache.set(gl, contextBindingsCache);
+	private targetCache: BufferTarget;
+
+	/**
+	 * Create a buffer to be used as anything other than an element array buffer.
+	 * @param context - The rendering context.
+	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
+	 */
+	public constructor(
+		context: Context,
+		data: ArrayBufferView | number | VertexBuffer = 0,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number
+	) {
+		super(context);
+		this.targetCache = BufferTarget.ARRAY_BUFFER;
+		this.setData(data, usage, offset, length);
+	}
+
+	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	public override get target(): BufferTarget {
+		return this.targetCache;
+	}
+
+	/** @internal */
+	public set target(value: BufferTarget) {
+		if (this.target === value) {
+			return;
 		}
 
-		return contextBindingsCache;
+		this.unbind();
+		this.targetCache = value;
+	}
+
+	/**
+	 * The data contained in this buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
+	 */
+	// eslint-disable-next-line @typescript-eslint/member-ordering
+	public get data(): ArrayBufferView {
+		// Cache case.
+		if (this.dataCache && this.isCacheValid) {
+			return this.dataCache;
+		}
+
+		// Create a new typed array to store the data cache if it has been resized.
+		if (this.dataCache?.byteLength !== this.size) {
+			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
+				this.size / getSizeOfDataType(this.type)
+			);
+		}
+
+		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
+		const readableBuffer =
+			isReadable(this.usage) ? this : (
+				new VertexBuffer(this.context, this, BufferUsage.STREAM_READ)
+			);
+
+		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
+		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
+
+		// Read the buffer data into a typed array.
+		readableBuffer.bind();
+		readableBuffer.gl.getBufferSubData(
+			readableBuffer.target,
+			0,
+			this.dataCache
+		);
+
+		return this.dataCache;
+	}
+
+	public set data(value: ArrayBufferView) {
+		this.setData(value);
 	}
 
 	/**
@@ -64,11 +133,11 @@ export default class VertexBuffer extends Buffer {
 		let boundBuffer = contextBindingsCache.get(target);
 		if (typeof boundBuffer === "undefined") {
 			boundBuffer =
-				context.doPrefillCache ? null : (
-					(context.gl.getParameter(
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
 						getParameterForBufferTarget(target)
-					) as WebGLBuffer | null)
-				);
+					) as WebGLBuffer | null);
 			contextBindingsCache.set(target, boundBuffer);
 		}
 
@@ -137,90 +206,22 @@ export default class VertexBuffer extends Buffer {
 	}
 
 	/**
-	 * Create a buffer to be used as anything other than an element array buffer.
-	 * @param context - The rendering context.
-	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the initial data at.
-	 * @param length - The length of the initial data to read into the buffer.
-	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
-	 */
-	public constructor(
-		context: Context,
-		data: ArrayBufferView | number | VertexBuffer = 0,
-		usage?: BufferUsage,
-		offset?: number,
-		length?: number
-	) {
-		super(context);
-		this.targetCache = BufferTarget.ARRAY_BUFFER;
-		this.setData(data, usage, offset, length);
-	}
-
-	/**
-	 * The binding point of this buffer.
+	 * Get the buffer bindings cache for a rendering context.
+	 * @param gl - The rendering context.
+	 * @returns The buffer bindings cache.
 	 * @internal
 	 */
-	private targetCache: BufferTarget;
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	public override get target(): BufferTarget {
-		return this.targetCache;
-	}
-
-	/** @internal */
-	public set target(value: BufferTarget) {
-		if (this.target === value) {
-			return;
+	private static getContextBindingsCache(
+		gl: WebGL2RenderingContext
+	): Map<BufferTarget, WebGLBuffer | null> {
+		// Get the context bindings cache.
+		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
+		if (!contextBindingsCache) {
+			contextBindingsCache = new Map();
+			VertexBuffer.bindingsCache.set(gl, contextBindingsCache);
 		}
 
-		this.unbind();
-		this.targetCache = value;
-	}
-
-	/**
-	 * The data contained in this buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
-	 */
-	public get data(): ArrayBufferView {
-		// Cache case.
-		if (this.dataCache && this.isCacheValid) {
-			return this.dataCache;
-		}
-
-		// Create a new typed array to store the data cache if it has been resized.
-		if (this.dataCache?.byteLength !== this.size) {
-			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
-				this.size / getSizeOfDataType(this.type)
-			);
-		}
-
-		// If the buffer's usage isn't a `READ` type, it must first be copied through a `STREAM_READ` buffer in order to avoid pipeline stalls.
-		const readableBuffer =
-			isReadable(this.usage) ? this : (
-				new VertexBuffer(this.context, this, BufferUsage.STREAM_READ)
-			);
-
-		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
-
-		// Read the buffer data into a typed array.
-		readableBuffer.bind();
-		readableBuffer.gl.getBufferSubData(
-			readableBuffer.target,
-			0,
-			this.dataCache
-		);
-
-		return this.dataCache;
-	}
-
-	public set data(value: ArrayBufferView) {
-		this.setData(value);
+		return contextBindingsCache;
 	}
 
 	/**

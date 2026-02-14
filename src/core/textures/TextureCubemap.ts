@@ -21,127 +21,6 @@ import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataF
  */
 export default class TextureCubemap extends Texture {
 	/**
-	 * Create a cube mapped texture from the data in the images at the given URLs. The texture is initially filled with magenta and is later filled with the images once they load.
-	 * @param context - The rendering context of the texture.
-	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
-	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
-	 * @param py - The URL of the image for the face on the Y-axis in the positive direction.
-	 * @param ny - The URL of the image for the face on the Y-axis in the negative direction.
-	 * @param pz - The URL of the image for the face on the Z-axis in the positive direction.
-	 * @param nz - The URL of the image for the face on the Z-axis in the negative direction.
-	 * @returns The texture.
-	 */
-	public static fromImageUrls(
-		context: Context,
-		px: string,
-		nx: string,
-		py: string,
-		ny: string,
-		pz: string,
-		nz: string
-	): TextureCubemap {
-		// Create a new cube mapped texture.
-		const out = new TextureCubemap(context);
-
-		// Fill each face with one magenta texel until the image loads.
-		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(magenta, 0, CubeFace.PositiveX, [0, 0, 1, 1]);
-		out.setMip(magenta, 0, CubeFace.NegativeX);
-		out.setMip(magenta, 0, CubeFace.PositiveY);
-		out.setMip(magenta, 0, CubeFace.NegativeY);
-		out.setMip(magenta, 0, CubeFace.PositiveZ);
-		out.setMip(magenta, 0, CubeFace.NegativeZ);
-
-		// Load the images.
-		const loadedImages = new Map<CubeFace, HTMLImageElement>();
-		for (const [face, url] of [
-			[CubeFace.PositiveX, px],
-			[CubeFace.NegativeX, nx],
-			[CubeFace.PositiveY, py],
-			[CubeFace.NegativeY, ny],
-			[CubeFace.PositiveZ, pz],
-			[CubeFace.NegativeZ, nz]
-		] as [CubeFace, string][]) {
-			const image = new Image();
-			image.addEventListener("load", () => {
-				loadedImages.set(face, image);
-
-				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
-				if (loadedImages.size >= 6) {
-					for (const [otherFace, otherImage] of loadedImages) {
-						out.setMip(otherImage, 0, otherFace);
-					}
-				}
-			});
-			image.crossOrigin = ""; // CORS
-			image.src = url;
-		}
-
-		return out;
-	}
-
-	/**
-	 * Create a cube mapped texture from the data in the images at the given URLs.
-	 * @param context - The rendering context of the texture.
-	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
-	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
-	 * @param py - The URL of the image for the face on the Y-axis in the positive direction.
-	 * @param ny - The URL of the image for the face on the Y-axis in the negative direction.
-	 * @param pz - The URL of the image for the face on the Z-axis in the positive direction.
-	 * @param nz - The URL of the image for the face on the Z-axis in the negative direction.
-	 * @returns The texture.
-	 */
-	public static fromImageUrlsPromise(
-		context: Context,
-		px: string,
-		nx: string,
-		py: string,
-		ny: string,
-		pz: string,
-		nz: string
-	): Promise<TextureCubemap> {
-		// Create a new cube mapped texture.
-		const out = new TextureCubemap(context);
-
-		// Fill each face with one magenta texel until the image loads.
-		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
-		out.setMip(magenta, 0, CubeFace.PositiveX, [0, 0, 1, 1]);
-		out.setMip(magenta, 0, CubeFace.NegativeX);
-		out.setMip(magenta, 0, CubeFace.PositiveY);
-		out.setMip(magenta, 0, CubeFace.NegativeY);
-		out.setMip(magenta, 0, CubeFace.PositiveZ);
-		out.setMip(magenta, 0, CubeFace.NegativeZ);
-
-		// Load the images.
-		return new Promise((resolve) => {
-			const loadedImages = new Map<CubeFace, HTMLImageElement>();
-			for (const [face, url] of [
-				[CubeFace.PositiveX, px],
-				[CubeFace.NegativeX, nx],
-				[CubeFace.PositiveY, py],
-				[CubeFace.NegativeY, ny],
-				[CubeFace.PositiveZ, pz],
-				[CubeFace.NegativeZ, nz]
-			] as [CubeFace, string][]) {
-				const image = new Image();
-				image.addEventListener("load", () => {
-					loadedImages.set(face, image);
-
-					// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
-					if (loadedImages.size >= 6) {
-						for (const [otherFace, otherImage] of loadedImages) {
-							out.setMip(otherImage, 0, otherFace);
-							resolve(out);
-						}
-					}
-				});
-				image.crossOrigin = ""; // CORS
-				image.src = url;
-			}
-		});
-	}
-
-	/**
 	 * Create a cube mapped texture.
 	 * @param context - The rendering context of the texture.
 	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
@@ -183,6 +62,127 @@ export default class TextureCubemap extends Texture {
 
 		// Immutable-format.
 		super(context, TextureTarget.TEXTURE_CUBE_MAP, levels, format, [dim]);
+	}
+
+	/**
+	 * Create a cube mapped texture from the data in the images at the given URLs. The texture is initially filled with magenta and is later filled with the images once they load.
+	 * @param context - The rendering context of the texture.
+	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
+	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
+	 * @param py - The URL of the image for the face on the Y-axis in the positive direction.
+	 * @param ny - The URL of the image for the face on the Y-axis in the negative direction.
+	 * @param pz - The URL of the image for the face on the Z-axis in the positive direction.
+	 * @param nz - The URL of the image for the face on the Z-axis in the negative direction.
+	 * @returns The texture.
+	 */
+	public static fromImageUrls(
+		context: Context,
+		px: string,
+		nx: string,
+		py: string,
+		ny: string,
+		pz: string,
+		nz: string
+	): TextureCubemap {
+		// Create a new cube mapped texture.
+		const out = new TextureCubemap(context);
+
+		// Fill each face with one magenta texel until the image loads.
+		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_X, [0, 0, 1, 1]);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_X);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_Y);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_Y);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_Z);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_Z);
+
+		// Load the images.
+		const loadedImages = new Map<CubeFace, HTMLImageElement>();
+		for (const [face, url] of [
+			[CubeFace.POSITIVE_X, px],
+			[CubeFace.NEGATIVE_X, nx],
+			[CubeFace.POSITIVE_Y, py],
+			[CubeFace.NEGATIVE_Y, ny],
+			[CubeFace.POSITIVE_Z, pz],
+			[CubeFace.NEGATIVE_Z, nz]
+		] as [CubeFace, string][]) {
+			const image = new Image();
+			image.addEventListener("load", () => {
+				loadedImages.set(face, image);
+
+				// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
+				if (loadedImages.size >= 6) {
+					for (const [otherFace, otherImage] of loadedImages) {
+						out.setMip(otherImage, 0, otherFace);
+					}
+				}
+			});
+			image.crossOrigin = ""; // CORS
+			image.src = url;
+		}
+
+		return out;
+	}
+
+	/**
+	 * Create a cube mapped texture from the data in the images at the given URLs.
+	 * @param context - The rendering context of the texture.
+	 * @param px - The URL of the image for the face on the X-axis in the positive direction.
+	 * @param nx - The URL of the image for the face on the X-axis in the negative direction.
+	 * @param py - The URL of the image for the face on the Y-axis in the positive direction.
+	 * @param ny - The URL of the image for the face on the Y-axis in the negative direction.
+	 * @param pz - The URL of the image for the face on the Z-axis in the positive direction.
+	 * @param nz - The URL of the image for the face on the Z-axis in the negative direction.
+	 * @returns The texture.
+	 */
+	public static async fromImageUrlsPromise(
+		context: Context,
+		px: string,
+		nx: string,
+		py: string,
+		ny: string,
+		pz: string,
+		nz: string
+	): Promise<TextureCubemap> {
+		// Create a new cube mapped texture.
+		const out = new TextureCubemap(context);
+
+		// Fill each face with one magenta texel until the image loads.
+		const magenta = new Uint8Array([0xff, 0x00, 0xff, 0xff]);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_X, [0, 0, 1, 1]);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_X);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_Y);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_Y);
+		out.setMip(magenta, 0, CubeFace.POSITIVE_Z);
+		out.setMip(magenta, 0, CubeFace.NEGATIVE_Z);
+
+		// Load the images.
+		return new Promise((resolve) => {
+			const loadedImages = new Map<CubeFace, HTMLImageElement>();
+			for (const [face, url] of [
+				[CubeFace.POSITIVE_X, px],
+				[CubeFace.NEGATIVE_X, nx],
+				[CubeFace.POSITIVE_Y, py],
+				[CubeFace.NEGATIVE_Y, ny],
+				[CubeFace.POSITIVE_Z, pz],
+				[CubeFace.NEGATIVE_Z, nz]
+			] as [CubeFace, string][]) {
+				const image = new Image();
+				image.addEventListener("load", () => {
+					loadedImages.set(face, image);
+
+					// Switch out the sources only after all of the images are loaded so that face sizes remain consistent.
+					if (loadedImages.size >= 6) {
+						for (const [otherFace, otherImage] of loadedImages) {
+							out.setMip(otherImage, 0, otherFace);
+							resolve(out);
+						}
+					}
+				});
+				image.crossOrigin = ""; // CORS
+				image.src = url;
+			}
+		});
 	}
 
 	/**
@@ -400,22 +400,34 @@ export default class TextureCubemap extends Texture {
 	): void {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
-		// https://caniuse.com/mdn-api_videoframe
-		// `const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));`
-		// `const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));`
 		const width =
 			bounds?.[2] ??
-			(data as HTMLImageElement | undefined)?.width ?? // Use `as` to cheat and reduce file size - all types with a `width` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedWidth : data?.width) ??
 			this.getSizeOfMip(level)[0] ??
 			1;
 		const height =
 			bounds?.[3] ??
-			(data as HTMLImageElement | undefined)?.height ?? // Use `as` to cheat and reduce file size - all types with a `height` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedHeight : data?.height) ??
 			this.getSizeOfMip(level)[1] ??
 			1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {
+			if (!data) {
+				this.gl.texSubImage2D(
+					target,
+					level,
+					x,
+					y,
+					width,
+					height,
+					format,
+					type,
+					null
+				);
+				return;
+			}
+
 			this.gl.texSubImage2D(
 				target,
 				level,
@@ -425,7 +437,7 @@ export default class TextureCubemap extends Texture {
 				height,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
+				data
 			);
 			return;
 		}
@@ -435,6 +447,19 @@ export default class TextureCubemap extends Texture {
 		if (!bounds && data) {
 			// Undefined bounds. Resize to match data.
 			this.gl.texImage2D(target, level, this.format, format, type, data);
+		} else if (data) {
+			// Defined bounds. Resize to match bounds.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				dim,
+				dim,
+				0,
+				format,
+				type,
+				data
+			);
 		} else {
 			// Defined bounds. Resize to match bounds.
 			this.gl.texImage2D(
@@ -446,7 +471,7 @@ export default class TextureCubemap extends Texture {
 				0,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
+				null
 			);
 		}
 

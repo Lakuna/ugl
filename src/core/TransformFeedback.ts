@@ -20,10 +20,56 @@ export default class TransformFeedback extends ContextDependent {
 	 * The currently-bound transform feedback cache.
 	 * @internal
 	 */
-	private static bindingsCache = new Map<
+	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLTransformFeedback | null
 	>();
+
+	/** The shader program associated with this transform feedback. */
+	public readonly program: Program;
+
+	/**
+	 * The API interface of this transform feedback.
+	 * @internal
+	 */
+	public readonly internal: WebGLTransformFeedback;
+
+	/**
+	 * The values of varyings in this transform feedback.
+	 * @internal
+	 */
+	private readonly varyingsCache: Map<string, VaryingValue>;
+
+	/**
+	 * Create a transform feedback.
+	 * @param program - The program to create the transform feedback for.
+	 * @param varyings - The output buffers to attach to the transform feedback.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createTransformFeedback | createTransformFeedback}
+	 */
+	public constructor(program: Program, varyings?: VaryingMap) {
+		super(program.context);
+		this.program = program;
+
+		this.internal = this.gl.createTransformFeedback();
+
+		this.varyingsCache = new Map();
+		if (!varyings) {
+			return;
+		}
+
+		for (const [key, value] of Object.entries(varyings)) {
+			if (!Object.hasOwn(varyings, key)) {
+				continue;
+			}
+
+			this.setVarying(key, value);
+		}
+	}
+
+	/** The values of varyings in this transform feedback. */
+	public get varyings(): ReadonlyMap<string, VaryingValue> {
+		return this.varyingsCache;
+	}
 
 	/**
 	 * Get the currently-bound transform feedback.
@@ -35,11 +81,11 @@ export default class TransformFeedback extends ContextDependent {
 		let boundTf = TransformFeedback.bindingsCache.get(context.gl);
 		if (typeof boundTf === "undefined") {
 			boundTf =
-				context.doPrefillCache ? null : (
-					(context.gl.getParameter(
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
 						TRANSFORM_FEEDBACK_BINDING
-					) as WebGLTransformFeedback | null)
-				);
+					) as WebGLTransformFeedback | null);
 			TransformFeedback.bindingsCache.set(context.gl, boundTf);
 		}
 
@@ -81,52 +127,6 @@ export default class TransformFeedback extends ContextDependent {
 
 		// Unbind the transform feedback.
 		TransformFeedback.bindGl(context, null);
-	}
-
-	/**
-	 * Create a transform feedback.
-	 * @param program - The program to create the transform feedback for.
-	 * @param varyings - The output buffers to attach to the transform feedback.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createTransformFeedback | createTransformFeedback}
-	 */
-	public constructor(program: Program, varyings?: VaryingMap) {
-		super(program.context);
-		this.program = program;
-
-		this.internal = this.gl.createTransformFeedback();
-
-		this.varyingsCache = new Map();
-		if (!varyings) {
-			return;
-		}
-
-		for (const [key, value] of Object.entries(varyings)) {
-			if (!Object.hasOwn(varyings, key)) {
-				continue;
-			}
-
-			this.setVarying(key, value);
-		}
-	}
-
-	/** The shader program associated with this transform feedback. */
-	public readonly program: Program;
-
-	/**
-	 * The API interface of this transform feedback.
-	 * @internal
-	 */
-	public readonly internal: WebGLTransformFeedback;
-
-	/**
-	 * The values of varyings in this transform feedback.
-	 * @internal
-	 */
-	private readonly varyingsCache: Map<string, VaryingValue>;
-
-	/** The values of varyings in this transform feedback. */
-	public get varyings(): ReadonlyMap<string, VaryingValue> {
-		return this.varyingsCache;
 	}
 
 	/**

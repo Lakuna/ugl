@@ -98,22 +98,22 @@ enum VariableType {
 	INT_SAMPLER_2D_ARRAY = 0x8dcf,
 
 	/** A matrix of 32-bit signed floating-point values with two rows and three columns. */
-	FLOAT_MAT2x3 = 0x8b65,
+	FLOAT_MAT2X3 = 0x8b65,
 
 	/** A matrix of 32-bit signed floating-point values with two rows and four columns. */
-	FLOAT_MAT2x4 = 0x8b66,
+	FLOAT_MAT2X4 = 0x8b66,
 
 	/** A matrix of 32-bit signed floating-point values with three rows and two columns. */
-	FLOAT_MAT3x2 = 0x8b67,
+	FLOAT_MAT3X2 = 0x8b67,
 
 	/** A matrix of 32-bit signed floating-point values with three rows and four columns. */
-	FLOAT_MAT3x4 = 0x8b68,
+	FLOAT_MAT3X4 = 0x8b68,
 
 	/** A matrix of 32-bit signed floating-point values with four rows and two columns. */
-	FLOAT_MAT4x2 = 0x8b69,
+	FLOAT_MAT4X2 = 0x8b69,
 
 	/** A matrix of 32-bit signed floating-point values with four rows and three columns. */
-	FLOAT_MAT4x3 = 0x8b6a
+	FLOAT_MAT4X3 = 0x8b6a
 }
 
 export default VariableType;

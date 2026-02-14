@@ -11,6 +11,24 @@ import type VertexBuffer from "../../buffers/VertexBuffer.js";
  */
 export default abstract class Attribute extends Variable {
 	/**
+	 * The location of this attribute.
+	 * @internal
+	 */
+	public readonly location: number;
+
+	/**
+	 * The value of this attribute.
+	 * @internal
+	 */
+	protected valueCache?: AttributeValue;
+
+	/**
+	 * The VAOs for which this attribute can read data from a buffer.
+	 * @internal
+	 */
+	private readonly enabledVaosCache: WebGLVertexArrayObject[];
+
+	/**
 	 * Create an attribute.
 	 * @param program - The shader program that the attribute belongs to.
 	 * @param activeInfo - The information of the attribute.
@@ -21,25 +39,6 @@ export default abstract class Attribute extends Variable {
 		this.location = this.gl.getAttribLocation(program.internal, this.name);
 		this.enabledVaosCache = [];
 	}
-
-	/**
-	 * The location of this attribute.
-	 * @internal
-	 */
-	public readonly location: number;
-
-	/**
-	 * Set the value of this attribute.
-	 * @param value - The value to pass to the attribute.
-	 * @internal
-	 */
-	protected abstract setterInternal(value: AttributeValue): void;
-
-	/**
-	 * The VAOs for which this attribute can read data from a buffer.
-	 * @internal
-	 */
-	private enabledVaosCache: WebGLVertexArrayObject[];
 
 	/**
 	 * Whether or not this attribute can read data from a buffer.
@@ -79,13 +78,8 @@ export default abstract class Attribute extends Variable {
 		}
 	}
 
-	/**
-	 * The value of this attribute.
-	 * @internal
-	 */
-	protected valueCache?: AttributeValue;
-
 	/** The value that is stored in this attribute. */
+	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public override get value(): Readonly<AttributeValue> | undefined {
 		return this.valueCache;
 	}
@@ -123,4 +117,11 @@ export default abstract class Attribute extends Variable {
 		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER, false);
 		this.setterInternal(realValue);
 	}
+
+	/**
+	 * Set the value of this attribute.
+	 * @param value - The value to pass to the attribute.
+	 * @internal
+	 */
+	protected abstract setterInternal(value: AttributeValue): void;
 }

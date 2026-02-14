@@ -9,6 +9,12 @@ import getSizeOfDataType from "../../../utility/internal/getSizeOfDataType.js";
  */
 export default class MatrixAttribute extends Attribute {
 	/**
+	 * The side length of values passed to this attribute.
+	 * @internal
+	 */
+	private readonly dim: 1 | 2 | 3 | 4;
+
+	/**
 	 * Create a matrix attribute.
 	 * @param program - The shader program that the attribute belongs to.
 	 * @param activeInfo - The information of the attribute.
@@ -23,12 +29,6 @@ export default class MatrixAttribute extends Attribute {
 		super(program, activeInfo);
 		this.dim = dim;
 	}
-
-	/**
-	 * The side length of values passed to this attribute.
-	 * @internal
-	 */
-	private readonly dim: 1 | 2 | 3 | 4;
 
 	/**
 	 * Set the value of this attribute.

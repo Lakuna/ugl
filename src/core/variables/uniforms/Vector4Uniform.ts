@@ -7,6 +7,12 @@ import type Program from "../../Program.js";
  */
 export default abstract class Vector4Uniform extends MultipleValuedUniform {
 	/**
+	 * The value that is stored in this vector uniform.
+	 * @internal
+	 */
+	protected vectorValueCache: [number, number, number, number];
+
+	/**
 	 * Create a scalar uniform.
 	 * @param program - The shader program that the uniform belongs to.
 	 * @param activeInfo - The information of the uniform.
@@ -19,12 +25,6 @@ export default abstract class Vector4Uniform extends MultipleValuedUniform {
 		this.valueCache = [0, 0, 0, 0];
 		this.vectorValueCache = [0, 0, 0, 0];
 	}
-
-	/**
-	 * The value that is stored in this vector uniform.
-	 * @internal
-	 */
-	protected vectorValueCache: [number, number, number, number];
 
 	/**
 	 * Set the value of this uniform if the value is iterable.

@@ -1,7 +1,7 @@
 import type { AttributeMap } from "../types/AttributeMap.js";
 import type AttributeValue from "../types/AttributeValue.js";
 import BadValueError from "../utility/BadValueError.js";
-import Context from "./Context.js";
+import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import ElementBuffer from "./buffers/ElementBuffer.js";
 import type Program from "./Program.js";
@@ -18,10 +18,95 @@ export default class VertexArray extends ContextDependent {
 	 * The currently-bound VAO cache.
 	 * @internal
 	 */
-	private static bindingsCache = new Map<
+	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLVertexArrayObject | null
 	>();
+
+	/** The shader program associated with this VAO. */
+	public readonly program: Program;
+
+	/**
+	 * The API interface of this VAO.
+	 * @internal
+	 */
+	public readonly internal: WebGLVertexArrayObject;
+
+	/**
+	 * The values of attributes in this VAO.
+	 * @internal
+	 */
+	private readonly attributesCache: Map<string, AttributeValue>;
+
+	/**
+	 * The element buffer object of this VAO.
+	 * @internal
+	 */
+	private eboCache?: ElementBuffer;
+
+	/**
+	 * Create a VAO.
+	 * @param program - The shader program associated with the VAO.
+	 * @param attributes - The attributes to attach to the VAO.
+	 * @param ebo - The element buffer object to attach to the VAO.
+	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
+	 */
+	public constructor(
+		program: Program,
+		attributes?: AttributeMap,
+		ebo?: ElementBuffer
+	) {
+		super(program.context);
+		this.program = program;
+
+		this.internal = this.gl.createVertexArray();
+
+		// Set the initial attribute values.
+		this.attributesCache = new Map();
+		if (attributes) {
+			for (const [key, value] of Object.entries(attributes)) {
+				if (!Object.hasOwn(attributes, key)) {
+					continue;
+				}
+
+				this.setAttribute(key, value);
+			}
+		}
+
+		// Set the initial EBO.
+		this.ebo = ebo;
+	}
+
+	/**
+	 * The values of attributes in this VAO.
+	 * @internal
+	 */
+	public get attributes(): ReadonlyMap<string, AttributeValue> {
+		return this.attributesCache;
+	}
+
+	/** The element buffer object that is attached to this VAO. */
+	public get ebo(): ElementBuffer | undefined {
+		return this.eboCache;
+	}
+
+	public set ebo(value: ElementBuffer | undefined) {
+		if (value === this.ebo) {
+			return;
+		}
+
+		// Remove EBO.
+		if (!value) {
+			ElementBuffer.unbindGl(this.context, this.internal);
+			delete this.eboCache;
+			return;
+		}
+
+		// Add or update EBO.
+		value.bind(this);
+		this.eboCache = value;
+	}
 
 	/**
 	 * Get the currently-bound VAO.
@@ -33,11 +118,11 @@ export default class VertexArray extends ContextDependent {
 		let boundVao = VertexArray.bindingsCache.get(context.gl);
 		if (typeof boundVao === "undefined") {
 			boundVao =
-				context.doPrefillCache ? null : (
-					(context.gl.getParameter(
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
 						VERTEX_ARRAY_BINDING
-					) as WebGLVertexArrayObject | null)
-				);
+					) as WebGLVertexArrayObject | null);
 			VertexArray.bindingsCache.set(context.gl, boundVao);
 		}
 
@@ -82,63 +167,6 @@ export default class VertexArray extends ContextDependent {
 	}
 
 	/**
-	 * Create a VAO.
-	 * @param program - The shader program associated with the VAO.
-	 * @param attributes - The attributes to attach to the VAO.
-	 * @param ebo - The element buffer object to attach to the VAO.
-	 * @throws {@link BadValueError} if an attribute is passed `undefined` as a value or if an unknown attribute is specified.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
-	 */
-	public constructor(
-		program: Program,
-		attributes?: AttributeMap,
-		ebo?: ElementBuffer
-	) {
-		super(program.context);
-		this.program = program;
-
-		this.internal = this.gl.createVertexArray();
-
-		// Set the initial attribute values.
-		this.attributesCache = new Map();
-		if (attributes) {
-			for (const [key, value] of Object.entries(attributes)) {
-				if (!Object.hasOwn(attributes, key)) {
-					continue;
-				}
-
-				this.setAttribute(key, value);
-			}
-		}
-
-		// Set the initial EBO.
-		this.ebo = ebo;
-	}
-
-	/** The shader program associated with this VAO. */
-	public readonly program: Program;
-
-	/**
-	 * The API interface of this VAO.
-	 * @internal
-	 */
-	public readonly internal: WebGLVertexArrayObject;
-
-	/**
-	 * The values of attributes in this VAO.
-	 * @internal
-	 */
-	private readonly attributesCache: Map<string, AttributeValue>;
-
-	/**
-	 * The values of attributes in this VAO.
-	 * @internal
-	 */
-	public get attributes(): ReadonlyMap<string, AttributeValue> {
-		return this.attributesCache;
-	}
-
-	/**
 	 * Set the value of an attribute in this VAO.
 	 * @param name - The name of the attribute.
 	 * @param value - The value to pass to the attribute.
@@ -157,34 +185,6 @@ export default class VertexArray extends ContextDependent {
 		const realValue = "vbo" in value ? value : { vbo: value };
 		attribute.value = realValue;
 		this.attributesCache.set(name, realValue);
-	}
-
-	/**
-	 * The element buffer object of this VAO.
-	 * @internal
-	 */
-	private eboCache?: ElementBuffer;
-
-	/** The element buffer object that is attached to this VAO. */
-	public get ebo(): ElementBuffer | undefined {
-		return this.eboCache;
-	}
-
-	public set ebo(value: ElementBuffer | undefined) {
-		if (value === this.ebo) {
-			return;
-		}
-
-		// Remove EBO.
-		if (!value) {
-			ElementBuffer.unbindGl(this.context, this.internal);
-			delete this.eboCache;
-			return;
-		}
-
-		// Add or update EBO.
-		value.bind(this);
-		this.eboCache = value;
 	}
 
 	/**

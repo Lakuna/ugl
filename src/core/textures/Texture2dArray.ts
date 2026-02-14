@@ -284,23 +284,37 @@ export default class Texture2dArray extends Texture {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
 		const z = bounds?.[4] ?? 0;
-		// https://caniuse.com/mdn-api_videoframe
-		// `const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));`
-		// `const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));`
 		const width =
 			bounds?.[2] ??
-			(data as HTMLImageElement | undefined)?.width ?? // Use `as` to cheat and reduce file size - all types with a `width` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedWidth : data?.width) ??
 			this.getSizeOfMip(level)[0] ??
 			1;
 		const height =
 			bounds?.[3] ??
-			(data as HTMLImageElement | undefined)?.height ?? // Use `as` to cheat and reduce file size - all types with a `height` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedHeight : data?.height) ??
 			this.getSizeOfMip(level)[1] ??
 			1;
 		const depth = bounds?.[5] ?? this.getSizeOfMip(level)[2] ?? 1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions if they exist.
 		if (this.isImmutableFormat || level > 0) {
+			if (!data) {
+				this.gl.texSubImage3D(
+					target,
+					level,
+					x,
+					y,
+					z,
+					width,
+					height,
+					depth,
+					format,
+					type,
+					null
+				);
+				return;
+			}
+
 			this.gl.texSubImage3D(
 				target,
 				level,
@@ -312,24 +326,39 @@ export default class Texture2dArray extends Texture {
 				depth,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
+				data
 			);
 			return;
 		}
 
 		// Mutable-format.
-		this.gl.texImage3D(
-			target,
-			level,
-			this.format,
-			width,
-			height,
-			depth,
-			0,
-			format,
-			type,
-			(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
-		);
+		if (data) {
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				width,
+				height,
+				depth,
+				0,
+				format,
+				type,
+				data
+			);
+		} else {
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				width,
+				height,
+				depth,
+				0,
+				format,
+				type,
+				null
+			);
+		}
 
 		// Update dimensions.
 		this.setWidth(width);

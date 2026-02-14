@@ -7,20 +7,6 @@ import type Program from "../../Program.js";
  */
 export default abstract class MatrixUniform9 extends MatrixUniform {
 	/**
-	 * Create a scalar uniform.
-	 * @param program - The shader program that the uniform belongs to.
-	 * @param activeInfo - The information of the uniform.
-	 * @throws {@link UnsupportedOperationError} if the location of the uniform cannot be retrieved.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
-	 * @internal
-	 */
-	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
-		super(program, activeInfo);
-		this.valueCache = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-		this.matrixValueCache = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-	}
-
-	/**
 	 * The value that is stored in this matrix uniform.
 	 * @internal
 	 */
@@ -35,6 +21,20 @@ export default abstract class MatrixUniform9 extends MatrixUniform {
 		number,
 		number
 	];
+
+	/**
+	 * Create a scalar uniform.
+	 * @param program - The shader program that the uniform belongs to.
+	 * @param activeInfo - The information of the uniform.
+	 * @throws {@link UnsupportedOperationError} if the location of the uniform cannot be retrieved.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
+	 * @internal
+	 */
+	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
+		super(program, activeInfo);
+		this.valueCache = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+		this.matrixValueCache = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+	}
 
 	/**
 	 * Set the value of this uniform if the value is iterable.

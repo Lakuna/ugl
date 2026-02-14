@@ -14,6 +14,42 @@ export default abstract class Buffer<
 	T extends ArrayBufferView = ArrayBufferView
 > extends ContextDependent {
 	/**
+	 * The API interface of this buffer.
+	 * @internal
+	 */
+	public readonly internal: WebGLBuffer;
+
+	/**
+	 * The intended usage of this buffer.
+	 * @internal
+	 */
+	protected usageCache?: BufferUsage;
+
+	/**
+	 * The data contained in this buffer.
+	 * @internal
+	 */
+	protected dataCache?: T;
+
+	/**
+	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
+	 * @internal
+	 */
+	protected isCacheValid: boolean;
+
+	/**
+	 * The type of the data in this buffer.
+	 * @internal
+	 */
+	protected typeCache?: DataType;
+
+	/**
+	 * The size of this buffer's data store in bytes.
+	 * @internal
+	 */
+	protected sizeCache?: number;
+
+	/**
 	 * Create a buffer.
 	 * @param context - The rendering context.
 	 * @param usage - The intended usage of the buffer.
@@ -30,24 +66,6 @@ export default abstract class Buffer<
 		this.isCacheValid = false;
 	}
 
-	/**
-	 * The API interface of this buffer.
-	 * @internal
-	 */
-	public readonly internal: WebGLBuffer;
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	public abstract get target(): BufferTarget;
-
-	/**
-	 * The intended usage of this buffer.
-	 * @internal
-	 */
-	protected usageCache?: BufferUsage;
-
 	/** The intended usage of this buffer. */
 	public get usage(): BufferUsage {
 		if (this.usageCache) {
@@ -61,17 +79,29 @@ export default abstract class Buffer<
 		));
 	}
 
-	/**
-	 * The data contained in this buffer.
-	 * @internal
-	 */
-	protected dataCache?: T;
+	/** The type of the data in this buffer. */
+	public get type(): DataType {
+		return (this.typeCache ??= DataType.UNSIGNED_BYTE);
+	}
+
+	/** The size of this buffer's data store in bytes. */
+	public get size(): number {
+		if (typeof this.sizeCache === "number") {
+			return this.sizeCache;
+		}
+
+		this.bind();
+		return (this.sizeCache ??= this.gl.getBufferParameter(
+			this.target,
+			BUFFER_SIZE
+		));
+	}
 
 	/**
-	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
+	 * The binding point of this buffer.
 	 * @internal
 	 */
-	protected isCacheValid: boolean;
+	public abstract get target(): BufferTarget;
 
 	/**
 	 * The data contained in this buffer.
@@ -90,33 +120,11 @@ export default abstract class Buffer<
 	}
 
 	/**
-	 * The type of the data in this buffer.
-	 * @internal
+	 * Delete this buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteBuffer | deleteBuffer}
 	 */
-	protected typeCache?: DataType;
-
-	/** The type of the data in this buffer. */
-	public get type(): DataType {
-		return (this.typeCache ??= DataType.UNSIGNED_BYTE);
-	}
-
-	/**
-	 * The size of this buffer's data store in bytes.
-	 * @internal
-	 */
-	protected sizeCache?: number;
-
-	/** The size of this buffer's data store in bytes. */
-	public get size(): number {
-		if (typeof this.sizeCache === "number") {
-			return this.sizeCache;
-		}
-
-		this.bind();
-		return (this.sizeCache ??= this.gl.getBufferParameter(
-			this.target,
-			BUFFER_SIZE
-		));
+	public delete(): void {
+		this.gl.deleteBuffer(this.internal);
 	}
 
 	/**
@@ -145,14 +153,6 @@ export default abstract class Buffer<
 		length?: number,
 		dstOffset?: number
 	): void;
-
-	/**
-	 * Delete this buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteBuffer | deleteBuffer}
-	 */
-	public delete(): void {
-		this.gl.deleteBuffer(this.internal);
-	}
 
 	/**
 	 * Bind this buffer to its binding point.

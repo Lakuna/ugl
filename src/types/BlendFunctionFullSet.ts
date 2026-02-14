@@ -6,14 +6,18 @@ import type BlendFunction from "../constants/BlendFunction.js";
  */
 export default interface BlendFunctionFullSet {
 	/** The source RGB blend function. */
-	0: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 0: BlendFunction;
 
 	/** The destination RGB blend function. */
-	1: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 1: BlendFunction;
 
 	/** The source alpha blend function. */
-	2: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 2: BlendFunction;
 
 	/** The destination alpha blend function. */
-	3: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 3: BlendFunction;
 }

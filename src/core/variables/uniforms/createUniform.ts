@@ -92,17 +92,17 @@ export default function createUniform(
 			return new FloatMatrix3x3Uniform(program, activeInfo);
 		case VariableType.FLOAT_MAT4:
 			return new FloatMatrix4x4Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT2x3:
+		case VariableType.FLOAT_MAT2X3:
 			return new FloatMatrix2x3Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT2x4:
+		case VariableType.FLOAT_MAT2X4:
 			return new FloatMatrix2x4Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT3x2:
+		case VariableType.FLOAT_MAT3X2:
 			return new FloatMatrix3x2Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT3x4:
+		case VariableType.FLOAT_MAT3X4:
 			return new FloatMatrix3x4Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT4x2:
+		case VariableType.FLOAT_MAT4X2:
 			return new FloatMatrix4x2Uniform(program, activeInfo);
-		case VariableType.FLOAT_MAT4x3:
+		case VariableType.FLOAT_MAT4X3:
 		default: // Not possible as long as this function is only called internally.
 			return new FloatMatrix4x3Uniform(program, activeInfo);
 	}

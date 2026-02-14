@@ -11,6 +11,12 @@ import type VertexBuffer from "../buffers/VertexBuffer.js";
  */
 export default class Varying extends Variable {
 	/**
+	 * The value of this varying.
+	 * @internal
+	 */
+	private valueCache?: VaryingValue;
+
+	/**
 	 * Create a transform feedback varying.
 	 * @param program - The shader program that this transform feedback varying belongs to.
 	 * @param index - The index of this transform feedback varying.
@@ -31,12 +37,6 @@ export default class Varying extends Variable {
 
 		super(program, activeInfo);
 	}
-
-	/**
-	 * The value of this varying.
-	 * @internal
-	 */
-	private valueCache?: VaryingValue;
 
 	/** The value that is stored in this varying. */
 	public override get value(): Readonly<VaryingValue> | undefined {

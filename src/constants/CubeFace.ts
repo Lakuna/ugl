@@ -4,22 +4,22 @@
  */
 enum CubeFace {
 	/** The face on the X-axis in the positive direction. */
-	PositiveX,
+	POSITIVE_X = 0,
 
 	/** The face on the Y-axis in the positive direction. */
-	PositiveY,
+	POSITIVE_Y = 1,
 
 	/** The face on the Z-axis in the positive direction. */
-	PositiveZ,
+	POSITIVE_Z = 2,
 
 	/** The face on the X-axis in the negative direction. */
-	NegativeX,
+	NEGATIVE_X = 3,
 
 	/** The face on the Y-axis in the negative direction. */
-	NegativeY,
+	NEGATIVE_Y = 4,
 
 	/** The face on the Z-axis in the negative direction. */
-	NegativeZ
+	NEGATIVE_Z = 5
 }
 
 export default CubeFace;

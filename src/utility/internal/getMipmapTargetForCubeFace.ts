@@ -20,17 +20,17 @@ export default function getMipmapTargetForCubeFace(
 			return MipmapTarget.TEXTURE_3D;
 		case TextureTarget.TEXTURE_CUBE_MAP:
 			switch (face) {
-				case CubeFace.NegativeX:
+				case CubeFace.NEGATIVE_X:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_X;
-				case CubeFace.NegativeY:
+				case CubeFace.NEGATIVE_Y:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Y;
-				case CubeFace.NegativeZ:
+				case CubeFace.NEGATIVE_Z:
 					return MipmapTarget.TEXTURE_CUBE_MAP_NEGATIVE_Z;
-				case CubeFace.PositiveX:
+				case CubeFace.POSITIVE_X:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_X;
-				case CubeFace.PositiveY:
+				case CubeFace.POSITIVE_Y:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Y;
-				case CubeFace.PositiveZ:
+				case CubeFace.POSITIVE_Z:
 				default:
 					return MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z;
 			}

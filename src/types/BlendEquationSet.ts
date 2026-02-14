@@ -6,8 +6,10 @@ import type BlendEquation from "../constants/BlendEquation.js";
  */
 export default interface BlendEquationSet {
 	/** The RGB blend equation. */
-	0: BlendEquation;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 0: BlendEquation;
 
 	/** The alpha blend equation. */
-	1: BlendEquation;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 1: BlendEquation;
 }

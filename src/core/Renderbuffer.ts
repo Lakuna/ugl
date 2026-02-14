@@ -1,5 +1,5 @@
 import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
-import Context from "./Context.js";
+import type Context from "./Context.js";
 import ContextDependent from "./internal/ContextDependent.js";
 import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
 import getExtensionForRenderbufferFormat from "../utility/internal/getExtensionForRenderbufferFormat.js";
@@ -14,10 +14,57 @@ export default class Renderbuffer extends ContextDependent {
 	 * The currently-bound renderbuffer cache.
 	 * @internal
 	 */
-	private static bindingsCache = new Map<
+	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
 		WebGLRenderbuffer | null
 	>();
+
+	/**
+	 * The API interface of this renderbuffer.
+	 * @internal
+	 */
+	public readonly internal: WebGLRenderbuffer;
+
+	/** The format of this renderbuffer. */
+	public readonly format: RenderbufferFormat;
+
+	/** The width of this renderbuffer. */
+	public readonly width: number;
+
+	/** The height of this renderbuffer. */
+	public readonly height: number;
+
+	/**
+	 * Create a renderbuffer.
+	 * @param context - The rendering context.
+	 * @param format - The format of the renderbuffer.
+	 * @param width - The width of the renderbuffer.
+	 * @param height - The height of the renderbuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer | createRenderbuffer}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
+	 */
+	public constructor(
+		context: Context,
+		format: RenderbufferFormat,
+		width: number,
+		height: number
+	) {
+		super(context);
+
+		this.internal = this.gl.createRenderbuffer();
+
+		// Enable the extension that is required for the given format, if any.
+		const extension = getExtensionForRenderbufferFormat(format);
+		if (extension) {
+			this.context.enableExtension(extension);
+		}
+
+		this.bind();
+		this.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
+		this.format = format;
+		this.width = width;
+		this.height = height;
+	}
 
 	/**
 	 * Get the currently-bound renderbuffer.
@@ -30,11 +77,11 @@ export default class Renderbuffer extends ContextDependent {
 		let boundRenderbuffer = Renderbuffer.bindingsCache.get(context.gl);
 		if (typeof boundRenderbuffer === "undefined") {
 			boundRenderbuffer =
-				context.doPrefillCache ? null : (
-					(context.gl.getParameter(
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
 						RENDERBUFFER_BINDING
-					) as WebGLRenderbuffer | null)
-				);
+					) as WebGLRenderbuffer | null);
 			Renderbuffer.bindingsCache.set(context.gl, boundRenderbuffer);
 		}
 
@@ -80,53 +127,6 @@ export default class Renderbuffer extends ContextDependent {
 		// Unbind the renderbuffer.
 		Renderbuffer.bindGl(context, null);
 	}
-
-	/**
-	 * Create a renderbuffer.
-	 * @param context - The rendering context.
-	 * @param format - The format of the renderbuffer.
-	 * @param width - The width of the renderbuffer.
-	 * @param height - The height of the renderbuffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createRenderbuffer | createRenderbuffer}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
-	 */
-	public constructor(
-		context: Context,
-		format: RenderbufferFormat,
-		width: number,
-		height: number
-	) {
-		super(context);
-
-		this.internal = this.gl.createRenderbuffer();
-
-		// Enable the extension that is required for the given format, if any.
-		const extension = getExtensionForRenderbufferFormat(format);
-		if (extension) {
-			this.context.enableExtension(extension);
-		}
-
-		this.bind();
-		this.gl.renderbufferStorage(RENDERBUFFER, format, width, height);
-		this.format = format;
-		this.width = width;
-		this.height = height;
-	}
-
-	/**
-	 * The API interface of this renderbuffer.
-	 * @internal
-	 */
-	public readonly internal: WebGLRenderbuffer;
-
-	/** The format of this renderbuffer. */
-	public readonly format: RenderbufferFormat;
-
-	/** The width of this renderbuffer. */
-	public readonly width: number;
-
-	/** The height of this renderbuffer. */
-	public readonly height: number;
 
 	/**
 	 * Delete this renderbuffer.

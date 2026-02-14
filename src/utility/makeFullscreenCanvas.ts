@@ -1,6 +1,6 @@
 import UnsupportedOperationError from "./UnsupportedOperationError.js";
 
-const recursiveFullscreen = (element: HTMLElement) => {
+const recursiveFullscreen = (element: HTMLElement): void => {
 	element.style.width = "100%";
 	element.style.height = "100%";
 	element.style.margin = "0px";

@@ -21,6 +21,9 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
  * @public
  */
 export default class Sync extends ContextDependent {
+	/** The internal WebGL representation of this object. */
+	private readonly internal: WebGLSync;
+
 	/**
 	 * Create a sync object.
 	 * @param context - The rendering context.
@@ -40,8 +43,6 @@ export default class Sync extends ContextDependent {
 		this.internal = internal;
 	}
 
-	private internal: WebGLSync;
-
 	/** Whether or not this is a valid sync object. */
 	public get isValid(): boolean {
 		return this.gl.isSync(this.internal);
@@ -51,6 +52,7 @@ export default class Sync extends ContextDependent {
 	public get type(): typeof SYNC_FENCE {
 		return this.context.doPrefillCache ?
 				SYNC_FENCE
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			:	(this.gl.getSyncParameter(
 					this.internal,
 					OBJECT_TYPE
@@ -59,6 +61,7 @@ export default class Sync extends ContextDependent {
 
 	/** The status of this sync object. */
 	public get status(): SyncStatus {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 		return this.gl.getSyncParameter(this.internal, SYNC_STATUS) as SyncStatus;
 	}
 
@@ -66,6 +69,7 @@ export default class Sync extends ContextDependent {
 	public get condition(): typeof SYNC_GPU_COMMANDS_COMPLETE {
 		return this.context.doPrefillCache ?
 				SYNC_GPU_COMMANDS_COMPLETE
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			:	(this.gl.getSyncParameter(
 					this.internal,
 					SYNC_CONDITION
@@ -76,6 +80,7 @@ export default class Sync extends ContextDependent {
 	public get flags(): 0 {
 		return this.context.doPrefillCache ?
 				0
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			:	(this.gl.getSyncParameter(this.internal, SYNC_FLAGS) as 0);
 	}
 
@@ -113,7 +118,7 @@ export default class Sync extends ContextDependent {
 		timeout?: number
 	): Promise<SyncClientStatus> {
 		return new Promise((resolve) => {
-			const f = () => {
+			const f = (): void => {
 				const out = this.clientWait(flush, timeout);
 
 				// If the timeout expired, try again next update.

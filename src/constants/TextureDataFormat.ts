@@ -115,88 +115,88 @@ const enum TextureDataFormat {
 	COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8c03,
 
 	/** An ASTC-compressed texture format with four-by-four blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_4x4_KHR = 0x93b0,
+	COMPRESSED_RGBA_ASTC_4X4_KHR = 0x93b0,
 
 	/** An ASTC-compressed texture format with four-by-four blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR = 0x93d0,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR = 0x93d0,
 
 	/** An ASTC-compressed texture format with five-by-four blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_5x4_KHR = 0x93b1,
+	COMPRESSED_RGBA_ASTC_5X4_KHR = 0x93b1,
 
 	/** An ASTC-compressed texture format with five-by-four blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR = 0x93d1,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR = 0x93d1,
 
 	/** An ASTC-compressed texture format with five-by-five blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_5x5_KHR = 0x93b2,
+	COMPRESSED_RGBA_ASTC_5X5_KHR = 0x93b2,
 
 	/** An ASTC-compressed texture format with five-by-five blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR = 0x93d2,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR = 0x93d2,
 
 	/** An ASTC-compressed texture format with six-by-five blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_6x5_KHR = 0x93b3,
+	COMPRESSED_RGBA_ASTC_6X5_KHR = 0x93b3,
 
 	/** An ASTC-compressed texture format with six-by-five blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR = 0x93d3,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR = 0x93d3,
 
 	/** An ASTC-compressed texture format with six-by-six blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_6x6_KHR = 0x93b4,
+	COMPRESSED_RGBA_ASTC_6X6_KHR = 0x93b4,
 
 	/** An ASTC-compressed texture format with six-by-six blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR = 0x93d4,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR = 0x93d4,
 
 	/** An ASTC-compressed texture format with eight-by-five blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_8x5_KHR = 0x93b5,
+	COMPRESSED_RGBA_ASTC_8X5_KHR = 0x93b5,
 
 	/** An ASTC-compressed texture format with eight-by-five blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR = 0x93d5,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR = 0x93d5,
 
 	/** An ASTC-compressed texture format with eight-by-six blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_8x6_KHR = 0x93b6,
+	COMPRESSED_RGBA_ASTC_8X6_KHR = 0x93b6,
 
 	/** An ASTC-compressed texture format with eight-by-six blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR = 0x93d6,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR = 0x93d6,
 
 	/** An ASTC-compressed texture format with eight-by-eight blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_8x8_KHR = 0x93b7,
+	COMPRESSED_RGBA_ASTC_8X8_KHR = 0x93b7,
 
 	/** An ASTC-compressed texture format with eight-by-eight blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR = 0x93d7,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR = 0x93d7,
 
 	/** An ASTC-compressed texture format with ten-by-five blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_10x5_KHR = 0x93b8,
+	COMPRESSED_RGBA_ASTC_10X5_KHR = 0x93b8,
 
 	/** An ASTC-compressed texture format with ten-by-five blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR = 0x93d8,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR = 0x93d8,
 
 	/** An ASTC-compressed texture format with ten-by-six blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_10x6_KHR = 0x93b9,
+	COMPRESSED_RGBA_ASTC_10X6_KHR = 0x93b9,
 
 	/** An ASTC-compressed texture format with ten-by-six blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR = 0x93d9,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR = 0x93d9,
 
 	/** An ASTC-compressed texture format with ten-by-eight blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_10x8_KHR = 0x93ba,
+	COMPRESSED_RGBA_ASTC_10X8_KHR = 0x93ba,
 
 	/** An ASTC-compressed texture format with ten-by-eight blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR = 0x93da,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR = 0x93da,
 
 	/** An ASTC-compressed texture format with ten-by-ten blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_10x10_KHR = 0x93bb,
+	COMPRESSED_RGBA_ASTC_10X10_KHR = 0x93bb,
 
 	/** An ASTC-compressed texture format with ten-by-ten blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR = 0x93db,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR = 0x93db,
 
 	/** An ASTC-compressed texture format with twelve-by-ten blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_12x10_KHR = 0x93bc,
+	COMPRESSED_RGBA_ASTC_12X10_KHR = 0x93bc,
 
 	/** An ASTC-compressed texture format with twelve-by-ten blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR = 0x93dc,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR = 0x93dc,
 
 	/** An ASTC-compressed texture format with twelve-by-twelve blocks for RGBA data. */
-	COMPRESSED_RGBA_ASTC_12x12_KHR = 0x93bd,
+	COMPRESSED_RGBA_ASTC_12X12_KHR = 0x93bd,
 
 	/** An ASTC-compressed texture format with twelve-by-twelve blocks for sRGBA data. */
-	COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR = 0x93dd,
+	COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR = 0x93dd,
 
 	/** Compressed 8-bit fixed-point data in which each four-by-four block of texels consists of 128 bits of RGBA data. */
 	COMPRESSED_RGBA_BPTC_UNORM_EXT = 0x8e8c,

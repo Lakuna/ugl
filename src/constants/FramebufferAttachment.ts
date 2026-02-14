@@ -4,13 +4,13 @@
  */
 enum FramebufferAttachment {
 	/** The depth attachment. */
-	Depth = -1,
+	DEPTH = -1,
 
 	/** The stencil attachment. */
-	Stencil = -2,
+	STENCIL = -2,
 
 	/** The depth stencil attachment. */
-	DepthStencil = -3
+	DEPTH_STENCIL = -3
 }
 
 export default FramebufferAttachment;

@@ -18,7 +18,7 @@ export default function getExtensionForRenderbufferFormat(
 		case RenderbufferFormat.RG32F:
 		case RenderbufferFormat.RGBA32F:
 		case RenderbufferFormat.R11F_G11F_B10F:
-			return Extension.ExtColorBufferFloat;
+			return Extension.EXT_COLOR_BUFFER_FLOAT;
 		default:
 			return null;
 	}

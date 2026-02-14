@@ -6,8 +6,10 @@ import type Rectangle from "./Rectangle.js";
  */
 export default interface Prism extends Rectangle {
 	/** The Z-coordinate of the prism. */
-	4: number;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 4: number;
 
 	/** The depth of the prism. */
-	5: number;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 5: number;
 }

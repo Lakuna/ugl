@@ -7,6 +7,12 @@ import Uniform from "./Uniform.js";
  */
 export default abstract class ScalarUniform extends Uniform {
 	/**
+	 * The value that is stored in this scalar uniform.
+	 * @internal
+	 */
+	protected scalarValueCache: number;
+
+	/**
 	 * Create a scalar uniform.
 	 * @param program - The shader program that the uniform belongs to.
 	 * @param activeInfo - The information of the uniform.
@@ -19,12 +25,6 @@ export default abstract class ScalarUniform extends Uniform {
 		this.valueCache = 0;
 		this.scalarValueCache = 0;
 	}
-
-	/**
-	 * The value that is stored in this scalar uniform.
-	 * @internal
-	 */
-	protected scalarValueCache: number;
 
 	/**
 	 * Set the value of this uniform if the value is iterable.
@@ -44,14 +44,6 @@ export default abstract class ScalarUniform extends Uniform {
 	}
 
 	/**
-	 * Set the value of this uniform if the value is iterable.
-	 * @param value - The value to pass to the uniform.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
-	 * @internal
-	 */
-	public abstract iterableSetterInternal(value: Iterable<number>): void;
-
-	/**
 	 * Set the value of this uniform if the value is not iterable.
 	 * @param value - The value to pass to the uniform.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
@@ -65,6 +57,14 @@ export default abstract class ScalarUniform extends Uniform {
 		this.setterInternal(value);
 		this.scalarValueCache = value;
 	}
+
+	/**
+	 * Set the value of this uniform if the value is iterable.
+	 * @param value - The value to pass to the uniform.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
+	 * @internal
+	 */
+	public abstract iterableSetterInternal(value: Iterable<number>): void;
 
 	/**
 	 * Set the value of this uniform if the value is not iterable.

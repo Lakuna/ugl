@@ -6,8 +6,10 @@ import type BlendFunction from "../constants/BlendFunction.js";
  */
 export default interface BlendFunctionSet {
 	/** The source blend function. */
-	0: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 0: BlendFunction;
 
 	/** The destination blend function. */
-	1: BlendFunction;
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	readonly 1: BlendFunction;
 }

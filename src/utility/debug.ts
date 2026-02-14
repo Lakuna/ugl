@@ -51,6 +51,9 @@ import {
 	VERTEX_ATTRIB_ARRAY_TYPE
 } from "../constants/constants.js";
 import type DebugInfo from "../types/DebugInfo.js";
+import isCallable from "./isCallable.js";
+import isIterable from "./isIterable.js";
+import isRecord from "./isRecord.js";
 
 // Map of WebGL API method names to lists of which of the corresponding methods' arguments (and/or return values) should be interpreted as enumerated values. `-1` indicates the method's return value.
 const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
@@ -217,7 +220,10 @@ export default function debug(
 	const unknowns: unknown[] = [];
 
 	// Treat the rendering context as a `Record` so that we can access it unsafely. `Object.entries` does not work on `WebGL2RenderingContext`s.
-	const object = gl as unknown as Record<string, unknown>;
+	const object: object = gl;
+	if (!isRecord(object)) {
+		throw new Error("Not possible.");
+	}
 
 	// Create a map of enumeration values to WebGL constant names.
 	const enumMap = new Map<number, string[]>();
@@ -243,7 +249,7 @@ export default function debug(
 		enumMap.set(value, [key]);
 	}
 
-	const enumName = (value: number, prefs?: string[]): string => {
+	const enumName = (value: number, prefs?: readonly string[]): string => {
 		/*
 		A few WebGL constant names are mapped to the same value. It's more helpful if the name of the relevant constant is printed for affected functions, so they're tracked in `isEnumMap`. These constants are:
 		- `0`: `POINTS`, `ZERO`, `NO_ERROR`, and `NONE`.
@@ -267,7 +273,7 @@ export default function debug(
 	const stringify = (
 		value: unknown,
 		isEnum = false,
-		prefs?: string[]
+		prefs?: readonly string[]
 	): string => {
 		switch (typeof value) {
 			case "undefined":
@@ -328,9 +334,9 @@ export default function debug(
 					return `BigUint64Array${stringify([...value], isEnum, prefs)}`;
 				}
 
-				if (Symbol.iterator in value) {
+				if (isIterable(value)) {
 					try {
-						return `Iterable${stringify([...(value as Iterable<unknown>)], isEnum, prefs)}`;
+						return `Iterable${stringify([...value], isEnum, prefs)}`;
 					} catch {
 						// Not iterable; proceed to other guesses.
 					}
@@ -507,8 +513,14 @@ export default function debug(
 		}
 
 		// For each method, call the method then log the method's name, arguments, and return value.
-		const method = value.bind(gl) as (...args: unknown[]) => unknown;
-		object[key] = (...args: unknown[]) => {
+		const method: unknown = value.bind(gl);
+		if (!isCallable(method)) {
+			throw new Error("Impossible.");
+		}
+
+		object[key] = (
+			...args: Parameters<typeof method>
+		): ReturnType<typeof method> => {
 			if (!debugInfo.isActive) {
 				// Just execute the original method.
 				return method(...args);

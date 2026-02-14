@@ -20,68 +20,6 @@ import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataF
  */
 export default class Texture2d extends Texture {
 	/**
-	 * Create a two-dimensional texture from the data in the image at the given URL. The texture is initially filled with magenta and is later filled with the image once it loads.
-	 * @param context - The rendering context of the texture.
-	 * @param url - The URL of the image.
-	 * @returns The texture.
-	 */
-	public static fromImageUrl(context: Context, url: string): Texture2d {
-		// Create a new 2D texture.
-		const out = new Texture2d(context);
-
-		// Fill it with one magenta texel until the image loads.
-		out.setMip(
-			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
-			0,
-			void 0,
-			[0, 0, 1, 1]
-		);
-
-		// Load the image.
-		const image = new Image();
-		image.addEventListener("load", () => {
-			out.setMip(image);
-		});
-		image.crossOrigin = ""; // CORS
-		image.src = url;
-
-		return out;
-	}
-
-	/**
-	 * Create a two-dimensional texture from the data in the image at the given URL.
-	 * @param context - The rendering context of the texture.
-	 * @param url - The URL of the image.
-	 * @returns The texture.
-	 */
-	public static fromImageUrlPromise(
-		context: Context,
-		url: string
-	): Promise<Texture2d> {
-		// Create a new 2D texture.
-		const out = new Texture2d(context);
-
-		// Fill it with one magenta texel until the image loads.
-		out.setMip(
-			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
-			0,
-			void 0,
-			[0, 0, 1, 1]
-		);
-
-		// Load the image.
-		return new Promise((resolve) => {
-			const image = new Image();
-			image.addEventListener("load", () => {
-				out.setMip(image);
-				resolve(out);
-			});
-			image.crossOrigin = ""; // CORS
-			image.src = url;
-		});
-	}
-
-	/**
 	 * Create a two-dimensional texture.
 	 * @param context - The rendering context of the texture.
 	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
@@ -127,6 +65,68 @@ export default class Texture2d extends Texture {
 
 		// Immutable-format.
 		super(context, TextureTarget.TEXTURE_2D, levels, format, [width, height]);
+	}
+
+	/**
+	 * Create a two-dimensional texture from the data in the image at the given URL. The texture is initially filled with magenta and is later filled with the image once it loads.
+	 * @param context - The rendering context of the texture.
+	 * @param url - The URL of the image.
+	 * @returns The texture.
+	 */
+	public static fromImageUrl(context: Context, url: string): Texture2d {
+		// Create a new 2D texture.
+		const out = new Texture2d(context);
+
+		// Fill it with one magenta texel until the image loads.
+		out.setMip(
+			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
+			0,
+			void 0,
+			[0, 0, 1, 1]
+		);
+
+		// Load the image.
+		const image = new Image();
+		image.addEventListener("load", () => {
+			out.setMip(image);
+		});
+		image.crossOrigin = ""; // CORS
+		image.src = url;
+
+		return out;
+	}
+
+	/**
+	 * Create a two-dimensional texture from the data in the image at the given URL.
+	 * @param context - The rendering context of the texture.
+	 * @param url - The URL of the image.
+	 * @returns The texture.
+	 */
+	public static async fromImageUrlPromise(
+		context: Context,
+		url: string
+	): Promise<Texture2d> {
+		// Create a new 2D texture.
+		const out = new Texture2d(context);
+
+		// Fill it with one magenta texel until the image loads.
+		out.setMip(
+			new Uint8Array([0xff, 0x00, 0xff, 0xff]),
+			0,
+			void 0,
+			[0, 0, 1, 1]
+		);
+
+		// Load the image.
+		return new Promise((resolve) => {
+			const image = new Image();
+			image.addEventListener("load", () => {
+				out.setMip(image);
+				resolve(out);
+			});
+			image.crossOrigin = ""; // CORS
+			image.src = url;
+		});
 	}
 
 	/**
@@ -339,22 +339,34 @@ export default class Texture2d extends Texture {
 	): void {
 		const x = bounds?.[0] ?? 0;
 		const y = bounds?.[1] ?? 0;
-		// https://caniuse.com/mdn-api_videoframe
-		// `const width = bounds?.[2] ?? (data instanceof VideoFrame ? data.codedWidth : (data?.width ?? 1));`
-		// `const height = bounds?.[3] ?? (data instanceof VideoFrame ? data.codedHeight : (data?.height ?? 1));`
 		const width =
 			bounds?.[2] ??
-			(data as HTMLImageElement | undefined)?.width ?? // Use `as` to cheat and reduce file size - all types with a `width` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedWidth : data?.width) ??
 			this.getSizeOfMip(level)[0] ??
 			1;
 		const height =
 			bounds?.[3] ??
-			(data as HTMLImageElement | undefined)?.height ?? // Use `as` to cheat and reduce file size - all types with a `height` use it to measure the same thing.
+			(data instanceof VideoFrame ? data.codedHeight : data?.height) ??
 			this.getSizeOfMip(level)[1] ??
 			1;
 
 		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
 		if (this.isImmutableFormat || level > 0) {
+			if (!data) {
+				this.gl.texSubImage2D(
+					target,
+					level,
+					x,
+					y,
+					width,
+					height,
+					format,
+					type,
+					null
+				);
+				return;
+			}
+
 			this.gl.texSubImage2D(
 				target,
 				level,
@@ -364,7 +376,7 @@ export default class Texture2d extends Texture {
 				height,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
+				data
 			);
 			return;
 		}
@@ -373,6 +385,19 @@ export default class Texture2d extends Texture {
 		if (!bounds && data) {
 			// Undefined bounds. Resize to match data.
 			this.gl.texImage2D(target, level, this.format, format, type, data);
+		} else if (data) {
+			// Defined bounds. Resize to match bounds.
+			this.gl.texImage2D(
+				target,
+				level,
+				this.format,
+				width,
+				height,
+				0,
+				format,
+				type,
+				data
+			);
 		} else {
 			// Defined bounds. Resize to match bounds.
 			this.gl.texImage2D(
@@ -384,7 +409,7 @@ export default class Texture2d extends Texture {
 				0,
 				format,
 				type,
-				(data ?? null) as unknown as TexImageSource // Use `as` to cheat the overloads to make the code less verbose.
+				null
 			);
 		}
 

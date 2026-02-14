@@ -18,15 +18,23 @@ export default class Shader extends ContextDependent {
 	public static existingShaders = new Map<WebGLShader, Shader>();
 
 	/**
-	 * Create a `Shader` or get an existing `Shader` if one already exists for the given `WebGLShader`.
-	 * @param context - The rendering context of the new shader if one must be created.
-	 * @param shader - The raw WebGL API shader.
-	 * @returns The corresponding `Shader`.
+	 * The API interface of this shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader | WebGLShader}
 	 * @internal
 	 */
-	public static get(context: Context, shader: WebGLShader): Shader {
-		return Shader.existingShaders.get(shader) ?? new Shader(context, shader);
-	}
+	public readonly internal: WebGLShader;
+
+	/**
+	 * The type of this shader.
+	 * @internal
+	 */
+	private typeCache?: ShaderType;
+
+	/**
+	 * The source code of this shader.
+	 * @internal
+	 */
+	private sourceCache?: string | null;
 
 	/**
 	 * Create a shader.
@@ -84,19 +92,7 @@ export default class Shader extends ContextDependent {
 		Shader.existingShaders.set(this.internal, this);
 	}
 
-	/**
-	 * The API interface of this shader.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader | WebGLShader}
-	 * @internal
-	 */
-	public readonly internal: WebGLShader;
-
-	/**
-	 * The type of this shader.
-	 * @internal
-	 */
-	private typeCache?: ShaderType;
-
+	/** The type of this shader. */
 	public get type(): ShaderType {
 		return (this.typeCache ??= this.gl.getShaderParameter(
 			this.internal,
@@ -104,11 +100,19 @@ export default class Shader extends ContextDependent {
 		));
 	}
 
+	/** The compilation status of this shader. */
+	public get compileStatus(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
+	}
+
 	/**
-	 * The source code of this shader.
-	 * @internal
+	 * The information log of this shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog | getShaderInfoLog}
 	 */
-	private sourceCache?: string | null;
+	public get infoLog(): string | null {
+		return this.gl.getShaderInfoLog(this.internal);
+	}
 
 	/**
 	 * The source code of this shader.
@@ -125,6 +129,17 @@ export default class Shader extends ContextDependent {
 	}
 
 	/**
+	 * Create a `Shader` or get an existing `Shader` if one already exists for the given `WebGLShader`.
+	 * @param context - The rendering context of the new shader if one must be created.
+	 * @param shader - The raw WebGL API shader.
+	 * @returns The corresponding `Shader`.
+	 * @internal
+	 */
+	public static get(context: Context, shader: WebGLShader): Shader {
+		return Shader.existingShaders.get(shader) ?? new Shader(context, shader);
+	}
+
+	/**
 	 * Compile this shader.
 	 * @throws {@link ShaderCompileError} if the shader fails to compile.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader | compileShader}
@@ -134,19 +149,6 @@ export default class Shader extends ContextDependent {
 		if (!this.compileStatus) {
 			throw new ShaderCompileError(this.infoLog ?? void 0);
 		}
-	}
-
-	/** The compilation status of this shader. */
-	public get compileStatus(): boolean {
-		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
-	}
-
-	/**
-	 * The information log of this shader.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog | getShaderInfoLog}
-	 */
-	public get infoLog(): string | null {
-		return this.gl.getShaderInfoLog(this.internal);
 	}
 
 	/**

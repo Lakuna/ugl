@@ -110,7 +110,7 @@ enum RenderbufferFormat {
 
 	/**
 	 * A 32-bit floating-point number each for red, green, and blue.
-	 * @deprecated Use the constant from {@link Extension.ExtColorBufferFloat} instead.
+	 * @deprecated Use the constant from {@link Extension.EXT_COLOR_BUFFER_FLOAT} instead.
 	 */
 	RGB32F_EXT = 0x8815,
 

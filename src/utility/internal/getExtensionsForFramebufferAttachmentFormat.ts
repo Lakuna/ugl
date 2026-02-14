@@ -18,7 +18,7 @@ export default function getExtensionsForFramebufferAttachmentFormat(
 		case TextureFormat.RG32F:
 		case TextureFormat.RGBA32F:
 		case TextureFormat.R11F_G11F_B10F:
-			return [Extension.ExtColorBufferFloat, Extension.FloatBlend];
+			return [Extension.EXT_COLOR_BUFFER_FLOAT, Extension.FLOAT_BLEND];
 		default:
 			return [];
 	}

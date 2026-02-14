@@ -6,6 +6,9 @@ import type Context from "../Context.js";
  * @public
  */
 export default abstract class ContextDependent extends ApiInterface {
+	/** The rendering context. */
+	public readonly context: Context;
+
 	/**
 	 * Initializes the context-dependent API interface.
 	 * @param context - The rendering context.
@@ -15,7 +18,4 @@ export default abstract class ContextDependent extends ApiInterface {
 		super(context.gl);
 		this.context = context;
 	}
-
-	/** The rendering context. */
-	public readonly context: Context;
 }

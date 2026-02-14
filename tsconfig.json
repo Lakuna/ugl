@@ -16,7 +16,7 @@
 
 		// Modules
 		"module": "nodenext",
-		"resolveJsonModule": true,
+		"noUncheckedSideEffectImports": true,
 		"rootDir": "src",
 
 		// Emit
@@ -39,7 +39,10 @@
 		// N/A
 
 		// Language and Environment
-		"target": "esnext",
+		// N/A
+
+		// Compiler Diagnostics
+		// N/A
 
 		// Projects
 		"composite": true,

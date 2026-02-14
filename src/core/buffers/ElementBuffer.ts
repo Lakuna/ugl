@@ -1,7 +1,7 @@
 import Buffer from "./Buffer.js";
 import BufferTarget from "../../constants/BufferTarget.js";
-import BufferUsage from "../../constants/BufferUsage.js";
-import Context from "../Context.js";
+import type BufferUsage from "../../constants/BufferUsage.js";
+import type Context from "../Context.js";
 import DataType from "../../constants/DataType.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
 import Sync from "../Sync.js";
@@ -24,10 +24,81 @@ export default class ElementBuffer extends Buffer<
 	 * The currently-bound element array buffer cache.
 	 * @internal
 	 */
-	private static bindingsCache = new Map<
+	private static readonly bindingsCache = new Map<
 		WebGLVertexArrayObject | null,
 		WebGLBuffer | null
 	>();
+
+	/**
+	 * Create a buffer to be used as an element array buffer.
+	 * @param context - The rendering context.
+	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
+	 */
+	public constructor(
+		context: Context,
+		data: Uint8Array | Uint16Array | Uint32Array | number = 0,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number
+	) {
+		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
+		VertexArray.unbindGl(context);
+		super(context);
+		this.setData(data, usage, offset, length);
+	}
+
+	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	// eslint-disable-next-line @typescript-eslint/class-methods-use-this
+	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
+		return BufferTarget.ELEMENT_ARRAY_BUFFER;
+	}
+
+	/**
+	 * The data contained in this buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
+	 */
+	public get data(): Uint8Array | Uint16Array | Uint32Array {
+		// Cache case.
+		if (this.dataCache && this.isCacheValid) {
+			return this.dataCache;
+		}
+
+		// Create a new typed array to store the data cache if it has been resized.
+		if (this.dataCache?.byteLength !== this.size) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
+				this.size / getSizeOfDataType(this.type)
+			) as Uint8Array | Uint16Array | Uint32Array;
+		}
+
+		// Element buffer objects can't be copied through vertex buffers.
+		if (!isReadable(this.usage)) {
+			throw new UnsupportedOperationError(
+				"Reading from an element buffer object without a readable usage pattern can incur pipeline stalls."
+			);
+		}
+
+		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
+		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
+
+		// Read the buffer data into a typed array.
+		this.bind();
+		this.gl.getBufferSubData(this.target, 0, this.dataCache);
+
+		return this.dataCache;
+	}
+
+	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
+		this.setData(value);
+	}
 
 	/**
 	 * Get the currently-bound buffer for a VAO.
@@ -47,6 +118,7 @@ export default class ElementBuffer extends Buffer<
 				boundBuffer = null;
 			} else {
 				VertexArray.bindGl(context, vao);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				boundBuffer = context.gl.getParameter(
 					ELEMENT_ARRAY_BUFFER_BINDING
 				) as WebGLBuffer | null;
@@ -114,76 +186,6 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	/**
-	 * Create a buffer to be used as an element array buffer.
-	 * @param context - The rendering context.
-	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the initial data at.
-	 * @param length - The length of the initial data to read into the buffer.
-	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
-	 */
-	public constructor(
-		context: Context,
-		data: Uint8Array | Uint16Array | Uint32Array | number = 0,
-		usage?: BufferUsage,
-		offset?: number,
-		length?: number
-	) {
-		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
-		VertexArray.unbindGl(context);
-		super(context);
-		this.setData(data, usage, offset, length);
-	}
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	// eslint-disable-next-line class-methods-use-this
-	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
-		return BufferTarget.ELEMENT_ARRAY_BUFFER;
-	}
-
-	/**
-	 * The data contained in this buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
-	 */
-	public get data(): Uint8Array | Uint16Array | Uint32Array {
-		// Cache case.
-		if (this.dataCache && this.isCacheValid) {
-			return this.dataCache;
-		}
-
-		// Create a new typed array to store the data cache if it has been resized.
-		if (this.dataCache?.byteLength !== this.size) {
-			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
-				this.size / getSizeOfDataType(this.type)
-			) as Uint8Array | Uint16Array | Uint32Array;
-		}
-
-		// Element buffer objects can't be copied through vertex buffers.
-		if (!isReadable(this.usage)) {
-			throw new UnsupportedOperationError(
-				"Reading from an element buffer object without a readable usage pattern can incur pipeline stalls."
-			);
-		}
-
-		// Reading from a buffer without checking for previous command completion likely causes pipeline stalls.
-		this.context.finish(); // Use `finish` rather than `fenceSync` to make this synchronous. In general, it's better to use the asynchronous version.
-
-		// Read the buffer data into a typed array.
-		this.bind();
-		this.gl.getBufferSubData(this.target, 0, this.dataCache);
-
-		return this.dataCache;
-	}
-
-	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
-		this.setData(value);
-	}
-
-	/**
 	 * Get the data contained in this buffer.
 	 * @returns The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
@@ -196,6 +198,7 @@ export default class ElementBuffer extends Buffer<
 
 		// Create a new typed array to store the data cache if it has been resized.
 		if (this.dataCache?.byteLength !== this.size) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
 			) as Uint8Array | Uint16Array | Uint32Array;
