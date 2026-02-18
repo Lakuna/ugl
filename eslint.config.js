@@ -29,7 +29,10 @@ export default defineConfig(
 				{ format: ["strictCamelCase", "UPPER_CASE"], selector: "variable" },
 				{ format: ["StrictPascalCase"], selector: "typeLike" },
 				{ format: ["UPPER_CASE"], selector: "enumMember" },
-				{ selector: ["objectLiteralMethod", "objectLiteralProperty"] }
+				{
+								format: [],
+								selector: ["objectLiteralMethod", "objectLiteralProperty"]
+				}
 			],
 			"@typescript-eslint/no-magic-numbers": "off", // WebGL is basically all magic numbers...
 			"@typescript-eslint/prefer-readonly-parameter-types": "off", // Many μGL functions modify DOM elements and/or WebGL contexts.
