@@ -29,18 +29,8 @@ export default function getChannelsForTextureFormat(
 		case TextureDataFormat.RG:
 		case TextureDataFormat.RG_INTEGER:
 			return 2;
-		case TextureDataFormat.COMPRESSED_RGB8_ETC2:
-		case TextureDataFormat.COMPRESSED_RGBA8_ETC2_EAC:
-		case TextureDataFormat.COMPRESSED_RGB_PVRTC_2BPPV1_IMG:
-		case TextureDataFormat.COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
-		case TextureDataFormat.COMPRESSED_RGB_S3TC_DXT1_EXT:
-		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
-		case TextureDataFormat.COMPRESSED_SRGB8_ETC2:
-		case TextureDataFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT:
-		case TextureDataFormat.RGB:
-		case TextureDataFormat.RGB_INTEGER:
-		case TextureDataFormat.SRGB:
-			return 3;
+		case TextureDataFormat.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT:
+		case TextureDataFormat.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT:
 		case TextureDataFormat.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
 		case TextureDataFormat.COMPRESSED_RGBA_ASTC_10X10_KHR:
 		case TextureDataFormat.COMPRESSED_RGBA_ASTC_10X5_KHR:
@@ -62,8 +52,10 @@ export default function getChannelsForTextureFormat(
 		case TextureDataFormat.COMPRESSED_RGBA_S3TC_DXT1_EXT:
 		case TextureDataFormat.COMPRESSED_RGBA_S3TC_DXT3_EXT:
 		case TextureDataFormat.COMPRESSED_RGBA_S3TC_DXT5_EXT:
-		case TextureDataFormat.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT:
-		case TextureDataFormat.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT:
+		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT:
+		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
 		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR:
 		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR:
 		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR:
@@ -79,14 +71,22 @@ export default function getChannelsForTextureFormat(
 		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR:
 		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR:
 		case TextureDataFormat.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT:
-		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
-		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
-		case TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
 		case TextureDataFormat.RGBA:
 		case TextureDataFormat.RGBA_INTEGER:
 		case TextureDataFormat.SRGB_ALPHA:
 			return 4;
+		case TextureDataFormat.COMPRESSED_RGB_PVRTC_2BPPV1_IMG:
+		case TextureDataFormat.COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+		case TextureDataFormat.COMPRESSED_RGB_S3TC_DXT1_EXT:
+		case TextureDataFormat.COMPRESSED_RGB8_ETC2:
+		case TextureDataFormat.COMPRESSED_RGBA8_ETC2_EAC:
+		case TextureDataFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT:
+		case TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
+		case TextureDataFormat.COMPRESSED_SRGB8_ETC2:
+		case TextureDataFormat.RGB:
+		case TextureDataFormat.RGB_INTEGER:
+		case TextureDataFormat.SRGB:
+			return 3;
 		default:
 			return format;
 	}

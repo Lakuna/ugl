@@ -1,3 +1,7 @@
+import type Context from "./Context.js";
+import type Attribute from "./variables/attributes/Attribute.js";
+import type Uniform from "./variables/uniforms/Uniform.js";
+
 import {
 	ACTIVE_ATTRIBUTES,
 	ACTIVE_UNIFORMS,
@@ -10,16 +14,13 @@ import {
 	TRANSFORM_FEEDBACK_VARYINGS,
 	VALIDATE_STATUS
 } from "../constants/constants.js";
-import type Attribute from "./variables/attributes/Attribute.js";
-import type Context from "./Context.js";
-import ContextDependent from "./internal/ContextDependent.js";
-import ProgramLinkError from "../utility/ProgramLinkError.js";
-import Shader from "./Shader.js";
 import ShaderType from "../constants/ShaderType.js";
-import type Uniform from "./variables/uniforms/Uniform.js";
-import Varying from "./variables/Varying.js";
+import ProgramLinkError from "../utility/ProgramLinkError.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import Shader from "./Shader.js";
 import createAttribute from "./variables/attributes/createAttribute.js";
 import createUniform from "./variables/uniforms/createUniform.js";
+import Varying from "./variables/Varying.js";
 
 /**
  * A WebGL2 shader program.
@@ -33,7 +34,7 @@ export default class Program extends ContextDependent {
 	 */
 	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
-		WebGLProgram | null
+		null | WebGLProgram
 	>();
 
 	/**
@@ -41,6 +42,153 @@ export default class Program extends ContextDependent {
 	 * @internal
 	 */
 	public readonly internal: WebGLProgram;
+
+	/** The number of active attribute variables in this shader program. */
+	public get activeAttributes(): number {
+		return (this.activeAttributesCache ??=
+			this.attributesCache?.size ??
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			(this.gl.getProgramParameter(
+				this.internal,
+				ACTIVE_ATTRIBUTES
+			) as number));
+	}
+
+	/** The number of active uniform variables in this shader program. */
+	public get activeUniforms(): number {
+		return (this.activeUniformsCache ??=
+			this.uniformsCache?.size ??
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			(this.gl.getProgramParameter(this.internal, ACTIVE_UNIFORMS) as number));
+	}
+
+	/**
+	 * The shaders that are attached to this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getAttachedShaders | getAttachedShaders}
+	 */
+	public get attachedShaders(): readonly Shader[] {
+		return (this.attachedShadersCache ??=
+			this.context.doPrefillCache ?
+				[]
+			:	(this.gl.getAttachedShaders(this.internal) ?? []).map((shader) =>
+					Shader.get(this.context, shader)
+				));
+	}
+
+	/** The number of shaders that are attached to this shader program. */
+	public get attachedShadersCount(): number {
+		return (this.attachedShadersCountCache ??=
+			this.attachedShadersCache?.length ??
+			(this.context.doPrefillCache ?
+				0
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			:	(this.gl.getProgramParameter(
+					this.internal,
+					ATTACHED_SHADERS
+				) as number)));
+	}
+
+	/**
+	 * The attributes in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get attributes(): ReadonlyMap<string, Attribute> {
+		if (!this.attributesCache) {
+			const { activeAttributes } = this;
+			this.attributesCache = new Map();
+			for (let i = 0; i < activeAttributes; i++) {
+				const attribute = createAttribute(this, i);
+				this.attributesCache.set(attribute.name, attribute);
+			}
+		}
+
+		return this.attributesCache;
+	}
+
+	/** The deletion status of this shader program. */
+	public get deleteStatus(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
+	}
+
+	/**
+	 * The information log of this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog | getProgramInfoLog}
+	 */
+	public get infoLog(): null | string {
+		return this.gl.getProgramInfoLog(this.internal);
+	}
+
+	/** The linking status of this shader program. */
+	public get linkStatus(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
+	}
+
+	/** The number of transform feedback varying variables in this shader program. */
+	public get transformFeedbackVaryings(): number {
+		return (this.transformFeedbackVaryingsCache ??=
+			this.varyingsCache?.size ??
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			(this.gl.getProgramParameter(
+				this.internal,
+				TRANSFORM_FEEDBACK_VARYINGS
+			) as number));
+	}
+
+	/**
+	 * The uniforms in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get uniforms(): ReadonlyMap<string, Uniform> {
+		if (!this.uniformsCache) {
+			const { activeUniforms } = this;
+			this.uniformsCache = new Map();
+			for (let i = 0; i < activeUniforms; i++) {
+				const uniform = createUniform(this, i);
+				this.uniformsCache.set(uniform.name, uniform);
+			}
+		}
+
+		return this.uniformsCache;
+	}
+
+	/** The validation status of this shader program. */
+	public get validateStatus(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getProgramParameter(
+			this.internal,
+			VALIDATE_STATUS
+		) as boolean;
+	}
+
+	/**
+	 * The transform feedback varyings in this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
+	 */
+	public get varyings(): ReadonlyMap<string, Varying> {
+		if (!this.varyingsCache) {
+			this.varyingsCache = new Map();
+			for (let i = 0; i < this.transformFeedbackVaryings; i++) {
+				const varying = new Varying(this, i);
+				this.varyingsCache.set(varying.name, varying);
+			}
+		}
+
+		return this.varyingsCache;
+	}
+
+	/**
+	 * The number of active attribute variables in this shader program.
+	 * @internal
+	 */
+	private activeAttributesCache?: number;
+
+	/**
+	 * The number of active uniform variables in this shader program.
+	 * @internal
+	 */
+	private activeUniformsCache?: number;
 
 	/**
 	 * The shaders that are attached to this shader program.
@@ -55,34 +203,22 @@ export default class Program extends ContextDependent {
 	private attachedShadersCountCache?: number;
 
 	/**
-	 * The number of active attribute variables in this shader program.
-	 * @internal
-	 */
-	private activeAttributesCache?: number;
-
-	/**
 	 * The attributes in this shader program.
 	 * @internal
 	 */
 	private attributesCache?: Map<string, Attribute>;
 
 	/**
-	 * The number of active uniform variables in this shader program.
+	 * The number of transform feedback varying variables in this shader program.
 	 * @internal
 	 */
-	private activeUniformsCache?: number;
+	private transformFeedbackVaryingsCache?: number;
 
 	/**
 	 * The uniforms in this shader program.
 	 * @internal
 	 */
 	private uniformsCache?: Map<string, Uniform>;
-
-	/**
-	 * The number of transform feedback varying variables in this shader program.
-	 * @internal
-	 */
-	private transformFeedbackVaryingsCache?: number;
 
 	/**
 	 * The transform feedback varyings in this shader program.
@@ -146,167 +282,13 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
-	 * The shaders that are attached to this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getAttachedShaders | getAttachedShaders}
-	 */
-	public get attachedShaders(): readonly Shader[] {
-		return (this.attachedShadersCache ??=
-			this.context.doPrefillCache ?
-				[]
-			:	(this.gl.getAttachedShaders(this.internal) ?? []).map((shader) =>
-					Shader.get(this.context, shader)
-				));
-	}
-
-	/** The number of shaders that are attached to this shader program. */
-	public get attachedShadersCount(): number {
-		return (this.attachedShadersCountCache ??=
-			this.attachedShadersCache?.length ??
-			(this.context.doPrefillCache ?
-				0
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(this.gl.getProgramParameter(
-					this.internal,
-					ATTACHED_SHADERS
-				) as number)));
-	}
-
-	/** The number of active attribute variables in this shader program. */
-	public get activeAttributes(): number {
-		return (this.activeAttributesCache ??=
-			this.attributesCache?.size ??
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			(this.gl.getProgramParameter(
-				this.internal,
-				ACTIVE_ATTRIBUTES
-			) as number));
-	}
-
-	/**
-	 * The attributes in this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
-	 */
-	public get attributes(): ReadonlyMap<string, Attribute> {
-		if (!this.attributesCache) {
-			const { activeAttributes } = this;
-			this.attributesCache = new Map();
-			for (let i = 0; i < activeAttributes; i++) {
-				const attribute = createAttribute(this, i);
-				this.attributesCache.set(attribute.name, attribute);
-			}
-		}
-
-		return this.attributesCache;
-	}
-
-	/** The number of active uniform variables in this shader program. */
-	public get activeUniforms(): number {
-		return (this.activeUniformsCache ??=
-			this.uniformsCache?.size ??
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			(this.gl.getProgramParameter(this.internal, ACTIVE_UNIFORMS) as number));
-	}
-
-	/**
-	 * The uniforms in this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
-	 */
-	public get uniforms(): ReadonlyMap<string, Uniform> {
-		if (!this.uniformsCache) {
-			const { activeUniforms } = this;
-			this.uniformsCache = new Map();
-			for (let i = 0; i < activeUniforms; i++) {
-				const uniform = createUniform(this, i);
-				this.uniformsCache.set(uniform.name, uniform);
-			}
-		}
-
-		return this.uniformsCache;
-	}
-
-	/** The number of transform feedback varying variables in this shader program. */
-	public get transformFeedbackVaryings(): number {
-		return (this.transformFeedbackVaryingsCache ??=
-			this.varyingsCache?.size ??
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			(this.gl.getProgramParameter(
-				this.internal,
-				TRANSFORM_FEEDBACK_VARYINGS
-			) as number));
-	}
-
-	/**
-	 * The transform feedback varyings in this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getActiveAttrib | getActiveAttrib}
-	 */
-	public get varyings(): ReadonlyMap<string, Varying> {
-		if (!this.varyingsCache) {
-			this.varyingsCache = new Map();
-			for (let i = 0; i < this.transformFeedbackVaryings; i++) {
-				const varying = new Varying(this, i);
-				this.varyingsCache.set(varying.name, varying);
-			}
-		}
-
-		return this.varyingsCache;
-	}
-
-	/** The linking status of this shader program. */
-	public get linkStatus(): boolean {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getProgramParameter(this.internal, LINK_STATUS) as boolean;
-	}
-
-	/**
-	 * The information log of this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getProgramInfoLog | getProgramInfoLog}
-	 */
-	public get infoLog(): string | null {
-		return this.gl.getProgramInfoLog(this.internal);
-	}
-
-	/** The deletion status of this shader program. */
-	public get deleteStatus(): boolean {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getProgramParameter(this.internal, DELETE_STATUS) as boolean;
-	}
-
-	/** The validation status of this shader program. */
-	public get validateStatus(): boolean {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getProgramParameter(
-			this.internal,
-			VALIDATE_STATUS
-		) as boolean;
-	}
-
-	/**
-	 * Get the currently-bound program.
-	 * @param context - The rendering context.
-	 * @internal
-	 */
-	public static getBound(context: Context): WebGLProgram | null {
-		// Get the bound program.
-		let boundProgram = Program.bindingsCache.get(context.gl);
-		if (typeof boundProgram === "undefined") {
-			boundProgram =
-				context.doPrefillCache ? null
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				: (context.gl.getParameter(CURRENT_PROGRAM) as WebGLProgram | null);
-			Program.bindingsCache.set(context.gl, boundProgram);
-		}
-
-		return boundProgram;
-	}
-
-	/**
 	 * Bind a program.
 	 * @param context - The rendering context.
 	 * @param program - The program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram | useProgram}
 	 * @internal
 	 */
-	public static bindGl(context: Context, program: WebGLProgram | null): void {
+	public static bindGl(context: Context, program: null | WebGLProgram): void {
 		// Do nothing if the binding is already correct.
 		if (Program.getBound(context) === program) {
 			return;
@@ -315,22 +297,6 @@ export default class Program extends ContextDependent {
 		// Bind the program.
 		context.gl.useProgram(program);
 		Program.bindingsCache.set(context.gl, program);
-	}
-
-	/**
-	 * Unbind the program that is bound.
-	 * @param context - The rendering context.
-	 * @param program - The program to unbind, or `undefined` to unbind any program.
-	 * @internal
-	 */
-	public static unbindGl(context: Context, program?: WebGLProgram): void {
-		// Do nothing if the program is already unbound.
-		if (program && Program.getBound(context) !== program) {
-			return;
-		}
-
-		// Unbind the VAO.
-		Program.bindGl(context, null);
 	}
 
 	/**
@@ -373,6 +339,41 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
+	 * Get the currently-bound program.
+	 * @param context - The rendering context.
+	 * @internal
+	 */
+	public static getBound(context: Context): null | WebGLProgram {
+		// Get the bound program.
+		let boundProgram = Program.bindingsCache.get(context.gl);
+		if (typeof boundProgram === "undefined") {
+			boundProgram =
+				context.doPrefillCache ? null
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				: (context.gl.getParameter(CURRENT_PROGRAM) as null | WebGLProgram);
+			Program.bindingsCache.set(context.gl, boundProgram);
+		}
+
+		return boundProgram;
+	}
+
+	/**
+	 * Unbind the program that is bound.
+	 * @param context - The rendering context.
+	 * @param program - The program to unbind, or `undefined` to unbind any program.
+	 * @internal
+	 */
+	public static unbindGl(context: Context, program?: WebGLProgram): void {
+		// Do nothing if the program is already unbound.
+		if (program && Program.getBound(context) !== program) {
+			return;
+		}
+
+		// Unbind the VAO.
+		Program.bindGl(context, null);
+	}
+
+	/**
 	 * Attach a shader to this shader program.
 	 * @param shader - The shader.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
@@ -388,6 +389,32 @@ export default class Program extends ContextDependent {
 		if (typeof this.attachedShadersCountCache === "number") {
 			this.attachedShadersCountCache++;
 		}
+	}
+
+	/**
+	 * Bind this program.
+	 * @internal
+	 */
+	public bind(): void {
+		Program.bindGl(this.context, this.internal);
+	}
+
+	/**
+	 * Bind a generic vertex index to an attribute variable. Doing this after linking this program has no effect.
+	 * @param index - The index of the generic vertex to bind.
+	 * @param name - The name of the variable to bind to the generic vertex index.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
+	 */
+	public bindAttributeLocation(index: number, name: string): void {
+		this.gl.bindAttribLocation(this.internal, index, name);
+	}
+
+	/**
+	 * Delete this shader program.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram | deleteProgram}
+	 */
+	public delete(): void {
+		this.gl.deleteProgram(this.internal);
 	}
 
 	/**
@@ -412,33 +439,6 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
-	 * Bind a generic vertex index to an attribute variable. Doing this after linking this program has no effect.
-	 * @param index - The index of the generic vertex to bind.
-	 * @param name - The name of the variable to bind to the generic vertex index.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bindAttribLocation | bindAttribLocation}
-	 */
-	public bindAttributeLocation(index: number, name: string): void {
-		this.gl.bindAttribLocation(this.internal, index, name);
-	}
-
-	/**
-	 * Specify the values to record in transform feedback buffers. Doing this after linking this program has no effect.
-	 * @param varyings - The names of the varyings to use for transform feedback.
-	 * @param interleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
-	 */
-	public setTransformFeedbackVaryings(
-		varyings: Iterable<string>,
-		interleaved: boolean
-	): void {
-		this.gl.transformFeedbackVaryings(
-			this.internal,
-			varyings,
-			interleaved ? INTERLEAVED_ATTRIBS : SEPARATE_ATTRIBS
-		);
-		this.transformFeedbackVaryingsCache = [...varyings].length;
-	}
-
-	/**
 	 * Link this shader program.
 	 * @throws {@link ProgramLinkError} if there is an issue when linking the shader program.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/linkProgram | linkProgram}
@@ -459,19 +459,20 @@ export default class Program extends ContextDependent {
 	}
 
 	/**
-	 * Delete this shader program.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteProgram | deleteProgram}
+	 * Specify the values to record in transform feedback buffers. Doing this after linking this program has no effect.
+	 * @param varyings - The names of the varyings to use for transform feedback.
+	 * @param interleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
 	 */
-	public delete(): void {
-		this.gl.deleteProgram(this.internal);
-	}
-
-	/**
-	 * Bind this program.
-	 * @internal
-	 */
-	public bind(): void {
-		Program.bindGl(this.context, this.internal);
+	public setTransformFeedbackVaryings(
+		varyings: Iterable<string>,
+		interleaved: boolean
+	): void {
+		this.gl.transformFeedbackVaryings(
+			this.internal,
+			varyings,
+			interleaved ? INTERLEAVED_ATTRIBS : SEPARATE_ATTRIBS
+		);
+		this.transformFeedbackVaryingsCache = [...varyings].length;
 	}
 
 	/**

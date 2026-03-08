@@ -1,9 +1,10 @@
 import type AttributeValue from "../../../types/AttributeValue.js";
-import BufferTarget from "../../../constants/BufferTarget.js";
-import type Program from "../../Program.js";
-import Variable from "../Variable.js";
-import VertexArray from "../../VertexArray.js";
 import type VertexBuffer from "../../buffers/VertexBuffer.js";
+import type Program from "../../Program.js";
+
+import BufferTarget from "../../../constants/BufferTarget.js";
+import VertexArray from "../../VertexArray.js";
+import Variable from "../Variable.js";
 
 /**
  * An input variable for a vertex shader.
@@ -15,30 +16,6 @@ export default abstract class Attribute extends Variable {
 	 * @internal
 	 */
 	public readonly location: number;
-
-	/**
-	 * The value of this attribute.
-	 * @internal
-	 */
-	protected valueCache?: AttributeValue;
-
-	/**
-	 * The VAOs for which this attribute can read data from a buffer.
-	 * @internal
-	 */
-	private readonly enabledVaosCache: WebGLVertexArrayObject[];
-
-	/**
-	 * Create an attribute.
-	 * @param program - The shader program that the attribute belongs to.
-	 * @param activeInfo - The information of the attribute.
-	 * @internal
-	 */
-	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
-		super(program, activeInfo);
-		this.location = this.gl.getAttribLocation(program.internal, this.name);
-		this.enabledVaosCache = [];
-	}
 
 	/**
 	 * Whether or not this attribute can read data from a buffer.
@@ -79,14 +56,13 @@ export default abstract class Attribute extends Variable {
 	}
 
 	/** The value that is stored in this attribute. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public override get value(): Readonly<AttributeValue> | undefined {
 		return this.valueCache;
 	}
 
 	// Should only be called from within `VertexArray`.
 	/** @internal */
-	public override set value(value: AttributeValue | VertexBuffer | undefined) {
+	public override set value(value: AttributeValue | undefined | VertexBuffer) {
 		if (!value) {
 			if (!this.value) {
 				return;
@@ -116,6 +92,30 @@ export default abstract class Attribute extends Variable {
 		this.enabled = true;
 		realValue.vbo.bind(BufferTarget.ARRAY_BUFFER, false);
 		this.setterInternal(realValue);
+	}
+
+	/**
+	 * The value of this attribute.
+	 * @internal
+	 */
+	protected valueCache?: AttributeValue;
+
+	/**
+	 * The VAOs for which this attribute can read data from a buffer.
+	 * @internal
+	 */
+	private readonly enabledVaosCache: WebGLVertexArrayObject[];
+
+	/**
+	 * Create an attribute.
+	 * @param program - The shader program that the attribute belongs to.
+	 * @param activeInfo - The information of the attribute.
+	 * @internal
+	 */
+	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
+		super(program, activeInfo);
+		this.location = this.gl.getAttribLocation(program.internal, this.name);
+		this.enabledVaosCache = [];
 	}
 
 	/**

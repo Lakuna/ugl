@@ -1,16 +1,17 @@
-import Buffer from "./Buffer.js";
-import BufferTarget from "../../constants/BufferTarget.js";
 import type BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
-import DataType from "../../constants/DataType.js";
+
+import BufferTarget from "../../constants/BufferTarget.js";
 import { ELEMENT_ARRAY_BUFFER_BINDING } from "../../constants/constants.js";
-import Sync from "../Sync.js";
-import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
-import VertexArray from "../VertexArray.js";
+import DataType from "../../constants/DataType.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 import isReadable from "../../utility/isReadable.js";
+import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import Sync from "../Sync.js";
+import VertexArray from "../VertexArray.js";
+import Buffer from "./Buffer.js";
 
 /**
  * An array of binary data to be used as an element buffer object. Must contain unsigned integers.
@@ -18,54 +19,22 @@ import isReadable from "../../utility/isReadable.js";
  * @public
  */
 export default class ElementBuffer extends Buffer<
-	Uint8Array | Uint16Array | Uint32Array
+	Uint16Array | Uint32Array | Uint8Array
 > {
 	/**
 	 * The currently-bound element array buffer cache.
 	 * @internal
 	 */
 	private static readonly bindingsCache = new Map<
-		WebGLVertexArrayObject | null,
-		WebGLBuffer | null
+		null | WebGLVertexArrayObject,
+		null | WebGLBuffer
 	>();
-
-	/**
-	 * Create a buffer to be used as an element array buffer.
-	 * @param context - The rendering context.
-	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the initial data at.
-	 * @param length - The length of the initial data to read into the buffer.
-	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
-	 */
-	public constructor(
-		context: Context,
-		data: Uint8Array | Uint16Array | Uint32Array | number = 0,
-		usage?: BufferUsage,
-		offset?: number,
-		length?: number
-	) {
-		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
-		VertexArray.unbindGl(context);
-		super(context);
-		this.setData(data, usage, offset, length);
-	}
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	// eslint-disable-next-line @typescript-eslint/class-methods-use-this
-	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
-		return BufferTarget.ELEMENT_ARRAY_BUFFER;
-	}
 
 	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): Uint8Array | Uint16Array | Uint32Array {
+	public get data(): Uint16Array | Uint32Array | Uint8Array {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
 			return this.dataCache;
@@ -76,7 +45,7 @@ export default class ElementBuffer extends Buffer<
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as Uint8Array | Uint16Array | Uint32Array;
+			) as Uint16Array | Uint32Array | Uint8Array;
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
@@ -96,38 +65,40 @@ export default class ElementBuffer extends Buffer<
 		return this.dataCache;
 	}
 
-	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
+	public set data(value: Uint16Array | Uint32Array | Uint8Array) {
 		this.setData(value);
 	}
 
 	/**
-	 * Get the currently-bound buffer for a VAO.
-	 * @param context - The rendering context.
-	 * @param vao - The VAO.
-	 * @returns The buffer.
+	 * The binding point of this buffer.
 	 * @internal
 	 */
-	public static getBound(
+	// eslint-disable-next-line @typescript-eslint/class-methods-use-this
+	public override get target(): BufferTarget.ELEMENT_ARRAY_BUFFER {
+		return BufferTarget.ELEMENT_ARRAY_BUFFER;
+	}
+
+	/**
+	 * Create a buffer to be used as an element array buffer.
+	 * @param context - The rendering context.
+	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
+	 */
+	public constructor(
 		context: Context,
-		vao: WebGLVertexArrayObject | null
-	): WebGLBuffer | null {
-		// Get the bound buffer.
-		let boundBuffer = ElementBuffer.bindingsCache.get(vao);
-		if (typeof boundBuffer === "undefined") {
-			if (context.doPrefillCache) {
-				boundBuffer = null;
-			} else {
-				VertexArray.bindGl(context, vao);
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				boundBuffer = context.gl.getParameter(
-					ELEMENT_ARRAY_BUFFER_BINDING
-				) as WebGLBuffer | null;
-			}
-
-			ElementBuffer.bindingsCache.set(vao, boundBuffer);
-		}
-
-		return boundBuffer;
+		data: number | Uint16Array | Uint32Array | Uint8Array = 0,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number
+	) {
+		// Ensure that the indices for a VAO aren't overwritten. Overwriting the indices of the default VAO is fine since μGL doesn't support using the default VAO anyway.
+		VertexArray.unbindGl(context);
+		super(context);
+		this.setData(data, usage, offset, length);
 	}
 
 	/**
@@ -140,8 +111,8 @@ export default class ElementBuffer extends Buffer<
 	 */
 	public static bindGl(
 		context: Context,
-		vao: WebGLVertexArrayObject | null,
-		buffer: WebGLBuffer | null
+		vao: null | WebGLVertexArrayObject,
+		buffer: null | WebGLBuffer
 	): void {
 		// Do nothing if the binding is already correct.
 		if (ElementBuffer.getBound(context, vao) === buffer) {
@@ -165,6 +136,36 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	/**
+	 * Get the currently-bound buffer for a VAO.
+	 * @param context - The rendering context.
+	 * @param vao - The VAO.
+	 * @returns The buffer.
+	 * @internal
+	 */
+	public static getBound(
+		context: Context,
+		vao: null | WebGLVertexArrayObject
+	): null | WebGLBuffer {
+		// Get the bound buffer.
+		let boundBuffer = ElementBuffer.bindingsCache.get(vao);
+		if (typeof boundBuffer === "undefined") {
+			if (context.doPrefillCache) {
+				boundBuffer = null;
+			} else {
+				VertexArray.bindGl(context, vao);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				boundBuffer = context.gl.getParameter(
+					ELEMENT_ARRAY_BUFFER_BINDING
+				) as null | WebGLBuffer;
+			}
+
+			ElementBuffer.bindingsCache.set(vao, boundBuffer);
+		}
+
+		return boundBuffer;
+	}
+
+	/**
 	 * Unbind the buffer that is bound to the given VAO.
 	 * @param context - The rendering context.
 	 * @param vao - The VAO.
@@ -173,7 +174,7 @@ export default class ElementBuffer extends Buffer<
 	 */
 	public static unbindGl(
 		context: Context,
-		vao: WebGLVertexArrayObject | null,
+		vao: null | WebGLVertexArrayObject,
 		buffer?: WebGLBuffer
 	): void {
 		// Do nothing if the buffer is already unbound.
@@ -186,11 +187,20 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	/**
+	 * Bind this buffer to a VAO.
+	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
+	 * @internal
+	 */
+	public override bind(vao?: null | VertexArray): void {
+		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
+	}
+
+	/**
 	 * Get the data contained in this buffer.
 	 * @returns The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public async getData(): Promise<Uint8Array | Uint16Array | Uint32Array> {
+	public async getData(): Promise<Uint16Array | Uint32Array | Uint8Array> {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
 			return this.dataCache;
@@ -201,7 +211,7 @@ export default class ElementBuffer extends Buffer<
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as Uint8Array | Uint16Array | Uint32Array;
+			) as Uint16Array | Uint32Array | Uint8Array;
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
@@ -224,7 +234,7 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	public override setData(
-		data: number | Uint8Array | Uint16Array | Uint32Array,
+		data: number | Uint16Array | Uint32Array | Uint8Array,
 		usage?: BufferUsage,
 		srcOffset?: number,
 		length?: number,
@@ -267,20 +277,11 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	/**
-	 * Bind this buffer to a VAO.
-	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
-	 * @internal
-	 */
-	public override bind(vao?: VertexArray | null): void {
-		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
-	}
-
-	/**
 	 * Unbind this buffer from a VAO.
 	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the default VAO.
 	 * @internal
 	 */
-	public override unbind(vao?: VertexArray | null): void {
+	public override unbind(vao?: null | VertexArray): void {
 		ElementBuffer.unbindGl(this.context, vao?.internal ?? null, this.internal);
 	}
 }

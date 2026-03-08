@@ -1,5 +1,6 @@
-import ApiInterface from "./ApiInterface.js";
 import type Context from "../Context.js";
+
+import ApiInterface from "./ApiInterface.js";
 
 /**
  * An object with direct access to the WebGL2 API that requires an existing rendering context to instantiate.

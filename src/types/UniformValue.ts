@@ -5,7 +5,7 @@ import type Texture from "../core/textures/Texture.js";
  * @public
  */
 export type UniformValue =
-	| number
 	| Iterable<number>
-	| Texture
-	| Iterable<Texture>;
+	| Iterable<Texture>
+	| number
+	| Texture;

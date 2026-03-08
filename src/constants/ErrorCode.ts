@@ -15,11 +15,11 @@ enum ErrorCode {
 	/** The specified command is not allowed for the current state. */
 	INVALID_OPERATION = 0x0502,
 
-	/** The currently-bound framebuffer is not framebuffer complete. */
-	INVALID_FRAMEBUFFER_OPERATION = 0x0506,
-
 	/** Not enough memory is left to execute the command. */
 	OUT_OF_MEMORY = 0x0505,
+
+	/** The currently-bound framebuffer is not framebuffer complete. */
+	INVALID_FRAMEBUFFER_OPERATION = 0x0506,
 
 	/** The context is lost. */
 	CONTEXT_LOST_WEBGL = 0x9242

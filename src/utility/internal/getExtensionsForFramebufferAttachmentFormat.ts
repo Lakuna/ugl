@@ -11,13 +11,13 @@ export default function getExtensionsForFramebufferAttachmentFormat(
 	format: TextureFormat
 ): Extension[] {
 	switch (format) {
-		case TextureFormat.R16F:
-		case TextureFormat.RG16F:
-		case TextureFormat.RGBA16F:
-		case TextureFormat.R32F:
-		case TextureFormat.RG32F:
-		case TextureFormat.RGBA32F:
 		case TextureFormat.R11F_G11F_B10F:
+		case TextureFormat.R16F:
+		case TextureFormat.R32F:
+		case TextureFormat.RG16F:
+		case TextureFormat.RG32F:
+		case TextureFormat.RGBA16F:
+		case TextureFormat.RGBA32F:
 			return [Extension.EXT_COLOR_BUFFER_FLOAT, Extension.FLOAT_BLEND];
 		default:
 			return [];

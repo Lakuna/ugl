@@ -20,7 +20,8 @@ export default function getParameterForFramebufferTarget(
 		case FramebufferTarget.FRAMEBUFFER:
 			return FRAMEBUFFER_BINDING;
 		case FramebufferTarget.READ_FRAMEBUFFER:
-		default: // Not possible as long as TypeScript is obeyed.
 			return READ_FRAMEBUFFER_BINDING;
+		default:
+			return target;
 	}
 }

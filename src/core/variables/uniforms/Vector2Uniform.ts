@@ -1,5 +1,6 @@
-import MultipleValuedUniform from "./MultipleValuedUniform.js";
 import type Program from "../../Program.js";
+
+import MultipleValuedUniform from "./MultipleValuedUniform.js";
 
 /**
  * A two-dimensional vector global variable in a shader program.

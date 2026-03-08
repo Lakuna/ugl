@@ -1,6 +1,7 @@
-import ContextDependent from "../internal/ContextDependent.js";
-import type Program from "../Program.js";
 import type VariableType from "../../constants/VariableType.js";
+import type Program from "../Program.js";
+
+import ContextDependent from "../internal/ContextDependent.js";
 
 /**
  * A variable in a WebGL shader program.
@@ -8,10 +9,25 @@ import type VariableType from "../../constants/VariableType.js";
  */
 export default abstract class Variable extends ContextDependent {
 	/**
-	 * The shader program that this variable belongs to.
+	 * The value that is stored in this variable.
 	 * @internal
 	 */
-	protected readonly program: Program;
+	public abstract value: unknown;
+
+	/** The name of this variable. */
+	public get name(): string {
+		return this.activeInfo.name;
+	}
+
+	/** The size of this variable in memory in bytes. */
+	public get size(): number {
+		return this.activeInfo.size;
+	}
+
+	/** The type of this variable. */
+	public get type(): VariableType {
+		return this.activeInfo.type;
+	}
 
 	/**
 	 * The active information of this variable.
@@ -20,10 +36,10 @@ export default abstract class Variable extends ContextDependent {
 	protected readonly activeInfo: WebGLActiveInfo;
 
 	/**
-	 * The value that is stored in this variable.
+	 * The shader program that this variable belongs to.
 	 * @internal
 	 */
-	public abstract value: unknown;
+	protected readonly program: Program;
 
 	/**
 	 * Create a variable.
@@ -34,20 +50,5 @@ export default abstract class Variable extends ContextDependent {
 		super(program.context);
 		this.program = program;
 		this.activeInfo = activeInfo;
-	}
-
-	/** The name of this variable. */
-	public get name(): string {
-		return this.activeInfo.name;
-	}
-
-	/** The type of this variable. */
-	public get type(): VariableType {
-		return this.activeInfo.type;
-	}
-
-	/** The size of this variable in memory in bytes. */
-	public get size(): number {
-		return this.activeInfo.size;
 	}
 }

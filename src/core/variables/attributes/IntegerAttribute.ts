@@ -1,5 +1,6 @@
-import Attribute from "./Attribute.js";
 import type AttributeValue from "../../../types/AttributeValue.js";
+
+import Attribute from "./Attribute.js";
 
 /**
  * An integer, unsigned integer, or boolean input variable in a vertex shader.

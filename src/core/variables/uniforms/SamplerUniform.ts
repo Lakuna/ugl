@@ -1,5 +1,6 @@
-import IntegerUniform from "./IntegerUniform.js";
 import type Texture from "../../textures/Texture.js";
+
+import IntegerUniform from "./IntegerUniform.js";
 
 /** A sampler global variable in a WebGL shader program. */
 export default class SamplerUniform extends IntegerUniform {

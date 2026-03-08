@@ -1,5 +1,5 @@
-import Uniform from "./Uniform.js";
 import UnsupportedOperationError from "../../../utility/UnsupportedOperationError.js";
+import Uniform from "./Uniform.js";
 
 /**
  * A global variable that can only hold multiple values in a WebGL shader program.

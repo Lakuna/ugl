@@ -1,9 +1,10 @@
-import { COMPILE_STATUS, SHADER_TYPE } from "../constants/constants.js";
-import type Context from "./Context.js";
-import ContextDependent from "./internal/ContextDependent.js";
-import ShaderCompileError from "../utility/ShaderCompileError.js";
 import type ShaderType from "../constants/ShaderType.js";
+import type Context from "./Context.js";
+
+import { COMPILE_STATUS, SHADER_TYPE } from "../constants/constants.js";
+import ShaderCompileError from "../utility/ShaderCompileError.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import ContextDependent from "./internal/ContextDependent.js";
 
 /**
  * A WebGL2 shader.
@@ -24,17 +25,53 @@ export default class Shader extends ContextDependent {
 	 */
 	public readonly internal: WebGLShader;
 
+	/** The compilation status of this shader. */
+	public get compileStatus(): boolean {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
+	}
+
 	/**
-	 * The type of this shader.
-	 * @internal
+	 * The information log of this shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog | getShaderInfoLog}
 	 */
-	private typeCache?: ShaderType;
+	public get infoLog(): null | string {
+		return this.gl.getShaderInfoLog(this.internal);
+	}
+
+	/**
+	 * The source code of this shader.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource | shaderSource}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderSource | getShaderSource}
+	 */
+	public get source(): string {
+		return (this.sourceCache ??= this.gl.getShaderSource(this.internal) ?? "");
+	}
+
+	public set source(value: string) {
+		this.gl.shaderSource(this.internal, value);
+		this.sourceCache = value;
+	}
+
+	/** The type of this shader. */
+	public get type(): ShaderType {
+		return (this.typeCache ??= this.gl.getShaderParameter(
+			this.internal,
+			SHADER_TYPE
+		));
+	}
 
 	/**
 	 * The source code of this shader.
 	 * @internal
 	 */
-	private sourceCache?: string | null;
+	private sourceCache?: null | string;
+
+	/**
+	 * The type of this shader.
+	 * @internal
+	 */
+	private typeCache?: ShaderType;
 
 	/**
 	 * Create a shader.
@@ -90,42 +127,6 @@ export default class Shader extends ContextDependent {
 		}
 
 		Shader.existingShaders.set(this.internal, this);
-	}
-
-	/** The type of this shader. */
-	public get type(): ShaderType {
-		return (this.typeCache ??= this.gl.getShaderParameter(
-			this.internal,
-			SHADER_TYPE
-		));
-	}
-
-	/** The compilation status of this shader. */
-	public get compileStatus(): boolean {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getShaderParameter(this.internal, COMPILE_STATUS) as boolean;
-	}
-
-	/**
-	 * The information log of this shader.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderInfoLog | getShaderInfoLog}
-	 */
-	public get infoLog(): string | null {
-		return this.gl.getShaderInfoLog(this.internal);
-	}
-
-	/**
-	 * The source code of this shader.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource | shaderSource}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getShaderSource | getShaderSource}
-	 */
-	public get source(): string {
-		return (this.sourceCache ??= this.gl.getShaderSource(this.internal) ?? "");
-	}
-
-	public set source(value: string) {
-		this.gl.shaderSource(this.internal, value);
-		this.sourceCache = value;
 	}
 
 	/**

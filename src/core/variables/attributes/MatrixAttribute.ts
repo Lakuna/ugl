@@ -1,7 +1,8 @@
-import Attribute from "./Attribute.js";
 import type AttributeValue from "../../../types/AttributeValue.js";
 import type Program from "../../Program.js";
+
 import getSizeOfDataType from "../../../utility/internal/getSizeOfDataType.js";
+import Attribute from "./Attribute.js";
 
 /**
  * A matrix input variable in a vertex shader.

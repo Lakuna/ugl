@@ -1,5 +1,5 @@
-import type AttributeValue from "./AttributeValue.js";
 import type VertexBuffer from "../core/buffers/VertexBuffer.js";
+import type AttributeValue from "./AttributeValue.js";
 
 /**
  * An object that maps attribute names to values.

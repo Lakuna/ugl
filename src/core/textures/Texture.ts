@@ -1,3 +1,11 @@
+import type CubeFace from "../../constants/CubeFace.js";
+import type MipmapTarget from "../../constants/MipmapTarget.js";
+import type TextureDataFormat from "../../constants/TextureDataFormat.js";
+import type TextureTarget from "../../constants/TextureTarget.js";
+import type Prism from "../../types/Prism.js";
+import type Rectangle from "../../types/Rectangle.js";
+import type Context from "../Context.js";
+
 import {
 	TEXTURE_BASE_LEVEL,
 	TEXTURE_COMPARE_FUNC,
@@ -12,33 +20,26 @@ import {
 	TEXTURE_WRAP_S,
 	TEXTURE_WRAP_T
 } from "../../constants/constants.js";
-import BadValueError from "../../utility/BadValueError.js";
-import type Context from "../Context.js";
-import ContextDependent from "../internal/ContextDependent.js";
-import type CubeFace from "../../constants/CubeFace.js";
 import Extension from "../../constants/Extension.js";
-import Framebuffer from "../Framebuffer.js";
-import ImmutableError from "../../utility/ImmutableError.js";
-import type MipmapTarget from "../../constants/MipmapTarget.js";
-import type Prism from "../../types/Prism.js";
-import type Rectangle from "../../types/Rectangle.js";
 import TestFunction from "../../constants/TestFunction.js";
 import TextureCompareMode from "../../constants/TextureCompareMode.js";
-import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import TextureDataType from "../../constants/TextureDataType.js";
 import TextureFilter from "../../constants/TextureFilter.js";
 import TextureFormat from "../../constants/TextureFormat.js";
-import TextureFormatError from "../../utility/TextureFormatError.js";
-import type TextureTarget from "../../constants/TextureTarget.js";
-import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
-import VertexBuffer from "../buffers/VertexBuffer.js";
 import WrapMode from "../../constants/WrapMode.js";
+import BadValueError from "../../utility/BadValueError.js";
+import ImmutableError from "../../utility/ImmutableError.js";
 import getExtensionForTextureFormat from "../../utility/internal/getExtensionForTextureFormat.js";
 import getMipmapTargetForCubeFace from "../../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForTextureTarget from "../../utility/internal/getParameterForTextureTarget.js";
 import getTextureDataFormatForTextureFormat from "../../utility/internal/getTextureDataFormatForTextureFormat.js";
 import getTextureDataTypesForTextureFormat from "../../utility/internal/getTextureDataTypesForTextureFormat.js";
 import isTextureFormatSized from "../../utility/internal/isTextureDataFormatSized.js";
+import TextureFormatError from "../../utility/TextureFormatError.js";
+import UnsupportedOperationError from "../../utility/UnsupportedOperationError.js";
+import VertexBuffer from "../buffers/VertexBuffer.js";
+import Framebuffer from "../Framebuffer.js";
+import ContextDependent from "../internal/ContextDependent.js";
 
 /**
  * A randomly-accessible array of data.
@@ -47,21 +48,21 @@ import isTextureFormatSized from "../../utility/internal/isTextureDataFormatSize
  */
 export default abstract class Texture extends ContextDependent {
 	/**
-	 * The currently-bound texture cache.
-	 * @internal
-	 */
-	private static readonly bindingsCache = new Map<
-		WebGL2RenderingContext,
-		Map<TextureTarget, WebGLTexture | null>[]
-	>();
-
-	/**
 	 * The order that texture units should be overwritten in if necessary.
 	 * @internal
 	 */
 	private static readonly bindingOverwriteOrder = new Map<
 		WebGL2RenderingContext,
 		Map<TextureTarget, number[]>
+	>();
+
+	/**
+	 * The currently-bound texture cache.
+	 * @internal
+	 */
+	private static readonly bindingsCache = new Map<
+		WebGL2RenderingContext,
+		Map<TextureTarget, null | WebGLTexture>[]
 	>();
 
 	/**
@@ -76,172 +77,130 @@ export default abstract class Texture extends ContextDependent {
 	 */
 	public readonly target: TextureTarget;
 
-	/**
-	 * The width, height (if applicable), and depth (if applicable) of this texture, respectively.
-	 * @internal
-	 */
-	protected readonly dims: number[];
-
-	/**
-	 * The mipmaps in this texture. Most textures will have only one mipmap, but cubemaps have six (one for each face). Each mipmap is a map of mip levels to boolean values representing whether or not the corresponding mip has been given texture data.
-	 * @internal
-	 */
-	private readonly mipmaps: Map<MipmapTarget, Map<number, boolean>>;
-
-	/**
-	 * The format of this texture.
-	 * @internal
-	 */
-	private formatCache?: TextureFormat;
-
-	/**
-	 * Whether or not this is an immutable-format texture.
-	 * @internal
-	 */
-	private isImmutableFormatCache: boolean;
-
-	/**
-	 * The magnification filter of this texture.
-	 * @internal
-	 */
-	private magFilterCache?: TextureFilter.LINEAR | TextureFilter.NEAREST;
-
-	/**
-	 * The minification filter of this texture.
-	 * @internal
-	 */
-	private minFilterCache?: TextureFilter;
-
-	/**
-	 * The wrapping function on the S-axis of this texture.
-	 * @internal
-	 */
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	private wrapSFunctionCache?: WrapMode;
-
-	/**
-	 * The wrapping function on the T-axis of this texture.
-	 * @internal
-	 */
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	private wrapTFunctionCache?: WrapMode;
-
-	/**
-	 * The desired maximum anisotropy of this texture.
-	 * @internal
-	 */
-	private maxAnisotropyCache?: number;
-
-	/**
-	 * The base mipmap level of this texture.
-	 * @internal
-	 */
-	private baseLevelCache?: number;
-
-	/**
-	 * The comparison function of this texture.
-	 * @internal
-	 */
-	private comparisonFunctionCache?: TestFunction;
-
-	/**
-	 * The comparison mode of this texture.
-	 * @internal
-	 */
-	private comparisonModeCache?: TextureCompareMode;
-
-	/**
-	 * The maximum mipmap level of this texture.
-	 * @internal
-	 */
-	private maxLevelCache?: number;
-
-	/**
-	 * The maximum level of detail of this texture.
-	 * @internal
-	 */
-	private maxLodCache?: number;
-
-	/**
-	 * The minimum level of detail of this texture.
-	 * @internal
-	 */
-	private minLodCache?: number;
-
-	/**
-	 * The wrapping function on the R-axis of this texture.
-	 * @internal
-	 */
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	private wrapRFunctionCache?: WrapMode;
-
-	/**
-	 * Whether or not this texture is texture complete.
-	 * @internal
-	 */
-	private isTextureCompleteCache?: boolean;
-
-	/**
-	 * Create a texture.
-	 * @param context - The rendering context.
-	 * @param target - The target binding point of the texture.
-	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
-	 * @internal
-	 */
-	protected constructor(context: Context, target: TextureTarget);
-
-	/**
-	 * Create an immutable-format texture.
-	 * @param context - The rendering context.
-	 * @param target - The target binding point of the texture.
-	 * @param levels - The number of levels in the texture.
-	 * @param format - The internal format of the texture.
-	 * @param dims - The dimensions of the texture.
-	 * @throws {@link TextureFormatError} if the given format is unsized.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
-	 * @internal
-	 */
-	protected constructor(
-		context: Context,
-		target: TextureTarget,
-		levels: number,
-		format: TextureFormat,
-		dims: number[]
-	);
-
-	protected constructor(
-		context: Context,
-		target: TextureTarget,
-		levels?: number,
-		format?: TextureFormat,
-		dims?: number[]
-	) {
-		super(context);
-
-		this.internal = this.gl.createTexture();
-		this.target = target;
-		this.mipmaps = new Map();
-		this.dims = [];
-		this.isImmutableFormatCache = false;
-		if (typeof levels === "number" && format && dims) {
-			this.makeImmutableFormat(levels, format, dims);
+	/** The base mipmap level of this texture. */
+	public get baseLevel(): number {
+		if (!this.baseLevelCache) {
+			if (this.context.doPrefillCache) {
+				this.baseLevelCache = 0;
+			} else {
+				this.bind();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				this.baseLevelCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_BASE_LEVEL
+				) as number;
+			}
 		}
+
+		return this.baseLevelCache;
 	}
 
-	/** The width of this texture. */
-	public get width(): number {
-		return this.dims[0] ?? 0;
+	public set baseLevel(value: number) {
+		if (this.baseLevel === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_BASE_LEVEL, value);
+		this.baseLevelCache = value;
 	}
 
-	/** The height of this texture. */
-	public get height(): number {
-		return this.dims[1] ?? 0;
+	/** The comparison function of this texture. */
+	public get comparisonFunction(): TestFunction {
+		if (!this.comparisonFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.comparisonFunctionCache = TestFunction.LEQUAL;
+			} else {
+				this.bind();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				this.comparisonFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_COMPARE_FUNC
+				) as TestFunction;
+			}
+		}
+
+		return this.comparisonFunctionCache;
+	}
+
+	public set comparisonFunction(value: TestFunction) {
+		if (this.comparisonFunction === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_COMPARE_FUNC, value);
+		this.comparisonFunctionCache = value;
+	}
+
+	/** The comparison mode of this texture. */
+	public get comparisonMode(): TextureCompareMode {
+		if (!this.comparisonModeCache) {
+			if (this.context.doPrefillCache) {
+				this.comparisonModeCache = TextureCompareMode.NONE;
+			} else {
+				this.bind();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				this.comparisonModeCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_COMPARE_MODE
+				) as TextureCompareMode;
+			}
+		}
+
+		return this.comparisonModeCache;
+	}
+
+	public set comparisonMode(value: TextureCompareMode) {
+		if (this.comparisonMode === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_COMPARE_MODE, value);
+		this.comparisonModeCache = value;
 	}
 
 	/** The depth of this texture. */
 	public get depth(): number {
 		return this.dims[2] ?? 0;
+	}
+
+	/**
+	 * The format of this texture.
+	 * @throws {@link ImmutableError} if the format of an immutable-format texture is changed.
+	 */
+	public get format(): TextureFormat {
+		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
+		this.formatCache ??= TextureFormat.RGBA;
+
+		return this.formatCache;
+	}
+
+	public set format(value: TextureFormat) {
+		if (value === this.format) {
+			return;
+		}
+
+		// Immutable-format textures cannot have their format changed (duh).
+		if (this.isImmutableFormat) {
+			throw new ImmutableError(
+				"Cannot set the format of an immutable-format texture."
+			);
+		}
+
+		// Enable the extension that is required for the given format, if any.
+		const extension = getExtensionForTextureFormat(value);
+		if (extension) {
+			this.context.enableExtension(extension);
+		}
+
+		this.formatCache = value;
+	}
+
+	/** The height of this texture. */
+	public get height(): number {
+		return this.dims[1] ?? 0;
 	}
 
 	/** Whether or not this is an immutable-format texture. */
@@ -291,40 +250,7 @@ export default abstract class Texture extends ContextDependent {
 		return true;
 	}
 
-	/**
-	 * The format of this texture.
-	 * @throws {@link ImmutableError} if the format of an immutable-format texture is changed.
-	 */
-	public get format(): TextureFormat {
-		// We don't have to worry about defaulting to an unsized internal format since the format is always set for immutable-format textures.
-		this.formatCache ??= TextureFormat.RGBA;
-
-		return this.formatCache;
-	}
-
-	public set format(value: TextureFormat) {
-		if (value === this.format) {
-			return;
-		}
-
-		// Immutable-format textures cannot have their format changed (duh).
-		if (this.isImmutableFormat) {
-			throw new ImmutableError(
-				"Cannot set the format of an immutable-format texture."
-			);
-		}
-
-		// Enable the extension that is required for the given format, if any.
-		const extension = getExtensionForTextureFormat(value);
-		if (extension) {
-			this.context.enableExtension(extension);
-		}
-
-		this.formatCache = value;
-	}
-
 	/** The magnification filter of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get magFilter(): TextureFilter.LINEAR | TextureFilter.NEAREST {
 		if (!this.magFilterCache) {
 			if (this.context.doPrefillCache) {
@@ -352,101 +278,11 @@ export default abstract class Texture extends ContextDependent {
 		this.magFilterCache = value;
 	}
 
-	/** The minification filter of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get minFilter(): TextureFilter {
-		if (!this.minFilterCache) {
-			if (this.context.doPrefillCache) {
-				this.minFilterCache = TextureFilter.NEAREST_MIPMAP_LINEAR;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.minFilterCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_MIN_FILTER
-				) as TextureFilter;
-			}
-		}
-
-		return this.minFilterCache;
-	}
-
-	public set minFilter(value: TextureFilter) {
-		if (this.minFilter === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
-		this.minFilterCache = value;
-	}
-
-	/** The wrapping function on the S-axis of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering, @typescript-eslint/naming-convention
-	public get wrapSFunction(): WrapMode {
-		if (!this.wrapSFunctionCache) {
-			if (this.context.doPrefillCache) {
-				this.wrapSFunctionCache = WrapMode.REPEAT;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.wrapSFunctionCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_WRAP_S
-				) as WrapMode;
-			}
-		}
-
-		return this.wrapSFunctionCache;
-	}
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	public set wrapSFunction(value: WrapMode) {
-		if (this.wrapSFunction === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
-		this.wrapSFunctionCache = value;
-	}
-
-	/** The wrapping function on the T-axis of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering, @typescript-eslint/naming-convention
-	public get wrapTFunction(): WrapMode {
-		if (!this.wrapTFunctionCache) {
-			if (this.context.doPrefillCache) {
-				this.wrapTFunctionCache = WrapMode.REPEAT;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.wrapTFunctionCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_WRAP_T
-				) as WrapMode;
-			}
-		}
-
-		return this.wrapTFunctionCache;
-	}
-
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	public set wrapTFunction(value: WrapMode) {
-		if (this.wrapTFunction === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
-		this.wrapTFunctionCache = value;
-	}
-
 	/**
 	 * The desired maximum anisotropy of this texture.
 	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
 	 * @throws {@link BadValueError} if set to a higher value than the current system supports.
 	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get maxAnisotropy(): number {
 		if (!this.context.enableExtension(Extension.TEXTURE_FILTER_ANISOTROPIC)) {
 			throw new UnsupportedOperationError(
@@ -487,95 +323,7 @@ export default abstract class Texture extends ContextDependent {
 		this.maxAnisotropyCache = value;
 	}
 
-	/** The base mipmap level of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get baseLevel(): number {
-		if (!this.baseLevelCache) {
-			if (this.context.doPrefillCache) {
-				this.baseLevelCache = 0;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.baseLevelCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_BASE_LEVEL
-				) as number;
-			}
-		}
-
-		return this.baseLevelCache;
-	}
-
-	public set baseLevel(value: number) {
-		if (this.baseLevel === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_BASE_LEVEL, value);
-		this.baseLevelCache = value;
-	}
-
-	/** The comparison function of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get comparisonFunction(): TestFunction {
-		if (!this.comparisonFunctionCache) {
-			if (this.context.doPrefillCache) {
-				this.comparisonFunctionCache = TestFunction.LEQUAL;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.comparisonFunctionCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_COMPARE_FUNC
-				) as TestFunction;
-			}
-		}
-
-		return this.comparisonFunctionCache;
-	}
-
-	public set comparisonFunction(value: TestFunction) {
-		if (this.comparisonFunction === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_COMPARE_FUNC, value);
-		this.comparisonFunctionCache = value;
-	}
-
-	/** The comparison mode of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get comparisonMode(): TextureCompareMode {
-		if (!this.comparisonModeCache) {
-			if (this.context.doPrefillCache) {
-				this.comparisonModeCache = TextureCompareMode.NONE;
-			} else {
-				this.bind();
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				this.comparisonModeCache = this.gl.getTexParameter(
-					this.target,
-					TEXTURE_COMPARE_MODE
-				) as TextureCompareMode;
-			}
-		}
-
-		return this.comparisonModeCache;
-	}
-
-	public set comparisonMode(value: TextureCompareMode) {
-		if (this.comparisonMode === value) {
-			return;
-		}
-
-		this.bind();
-		this.gl.texParameteri(this.target, TEXTURE_COMPARE_MODE, value);
-		this.comparisonModeCache = value;
-	}
-
 	/** The maximum mipmap level of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get maxLevel(): number {
 		if (!this.maxLevelCache) {
 			if (this.context.doPrefillCache) {
@@ -604,7 +352,6 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/** The maximum level of detail of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get maxLod(): number {
 		if (!this.maxLodCache) {
 			if (this.context.doPrefillCache) {
@@ -632,8 +379,35 @@ export default abstract class Texture extends ContextDependent {
 		this.maxLodCache = value;
 	}
 
+	/** The minification filter of this texture. */
+	public get minFilter(): TextureFilter {
+		if (!this.minFilterCache) {
+			if (this.context.doPrefillCache) {
+				this.minFilterCache = TextureFilter.NEAREST_MIPMAP_LINEAR;
+			} else {
+				this.bind();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				this.minFilterCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_MIN_FILTER
+				) as TextureFilter;
+			}
+		}
+
+		return this.minFilterCache;
+	}
+
+	public set minFilter(value: TextureFilter) {
+		if (this.minFilter === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_MIN_FILTER, value);
+		this.minFilterCache = value;
+	}
+
 	/** The minimum level of detail of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get minLod(): number {
 		if (!this.minLodCache) {
 			if (this.context.doPrefillCache) {
@@ -661,8 +435,13 @@ export default abstract class Texture extends ContextDependent {
 		this.minLodCache = value;
 	}
 
+	/** The width of this texture. */
+	public get width(): number {
+		return this.dims[0] ?? 0;
+	}
+
 	/** The wrapping function on the R-axis of this texture. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering, @typescript-eslint/naming-convention
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	public get wrapRFunction(): WrapMode {
 		if (!this.wrapRFunctionCache) {
 			if (this.context.doPrefillCache) {
@@ -691,47 +470,217 @@ export default abstract class Texture extends ContextDependent {
 		this.wrapRFunctionCache = value;
 	}
 
-	/**
-	 * Get the currently-bound texture for a binding point.
-	 * @param context - The rendering context.
-	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
-	 * @param target - The binding point.
-	 * @returns The texture.
-	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
-	 * @internal
-	 */
-	public static getBound(
-		context: Context,
-		requestedTextureUnit: number | undefined,
-		target: TextureTarget
-	): WebGLTexture | null {
-		// Default to the most desirable texture unit.
-		const textureUnit =
-			requestedTextureUnit ?? Texture.getBestTextureUnit(context, target);
-
-		// Get the texture unit bindings cache.
-		const textureUnitBindingsCache = Texture.getTextureUnitBindingsCache(
-			context.gl,
-			textureUnit
-		);
-
-		// Get the bound texture.
-		let boundTexture = textureUnitBindingsCache.get(target);
-		if (typeof boundTexture === "undefined") {
-			if (context.doPrefillCache) {
-				boundTexture = null;
+	/** The wrapping function on the S-axis of this texture. */
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	public get wrapSFunction(): WrapMode {
+		if (!this.wrapSFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.wrapSFunctionCache = WrapMode.REPEAT;
 			} else {
-				context.activeTexture = textureUnit;
+				this.bind();
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				boundTexture = context.gl.getParameter(
-					getParameterForTextureTarget(target)
-				) as WebGLTexture | null;
+				this.wrapSFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_WRAP_S
+				) as WrapMode;
 			}
-
-			textureUnitBindingsCache.set(target, boundTexture);
 		}
 
-		return boundTexture;
+		return this.wrapSFunctionCache;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	public set wrapSFunction(value: WrapMode) {
+		if (this.wrapSFunction === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_WRAP_S, value);
+		this.wrapSFunctionCache = value;
+	}
+
+	/** The wrapping function on the T-axis of this texture. */
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	public get wrapTFunction(): WrapMode {
+		if (!this.wrapTFunctionCache) {
+			if (this.context.doPrefillCache) {
+				this.wrapTFunctionCache = WrapMode.REPEAT;
+			} else {
+				this.bind();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				this.wrapTFunctionCache = this.gl.getTexParameter(
+					this.target,
+					TEXTURE_WRAP_T
+				) as WrapMode;
+			}
+		}
+
+		return this.wrapTFunctionCache;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	public set wrapTFunction(value: WrapMode) {
+		if (this.wrapTFunction === value) {
+			return;
+		}
+
+		this.bind();
+		this.gl.texParameteri(this.target, TEXTURE_WRAP_T, value);
+		this.wrapTFunctionCache = value;
+	}
+
+	/**
+	 * The width, height (if applicable), and depth (if applicable) of this texture, respectively.
+	 * @internal
+	 */
+	protected readonly dims: number[];
+
+	/**
+	 * The base mipmap level of this texture.
+	 * @internal
+	 */
+	private baseLevelCache?: number;
+
+	/**
+	 * The comparison function of this texture.
+	 * @internal
+	 */
+	private comparisonFunctionCache?: TestFunction;
+
+	/**
+	 * The comparison mode of this texture.
+	 * @internal
+	 */
+	private comparisonModeCache?: TextureCompareMode;
+
+	/**
+	 * The format of this texture.
+	 * @internal
+	 */
+	private formatCache?: TextureFormat;
+
+	/**
+	 * Whether or not this is an immutable-format texture.
+	 * @internal
+	 */
+	private isImmutableFormatCache: boolean;
+
+	/**
+	 * Whether or not this texture is texture complete.
+	 * @internal
+	 */
+	private isTextureCompleteCache?: boolean;
+
+	/**
+	 * The magnification filter of this texture.
+	 * @internal
+	 */
+	private magFilterCache?: TextureFilter.LINEAR | TextureFilter.NEAREST;
+
+	/**
+	 * The desired maximum anisotropy of this texture.
+	 * @internal
+	 */
+	private maxAnisotropyCache?: number;
+
+	/**
+	 * The maximum mipmap level of this texture.
+	 * @internal
+	 */
+	private maxLevelCache?: number;
+
+	/**
+	 * The maximum level of detail of this texture.
+	 * @internal
+	 */
+	private maxLodCache?: number;
+
+	/**
+	 * The minification filter of this texture.
+	 * @internal
+	 */
+	private minFilterCache?: TextureFilter;
+
+	/**
+	 * The minimum level of detail of this texture.
+	 * @internal
+	 */
+	private minLodCache?: number;
+
+	/**
+	 * The mipmaps in this texture. Most textures will have only one mipmap, but cubemaps have six (one for each face). Each mipmap is a map of mip levels to boolean values representing whether or not the corresponding mip has been given texture data.
+	 * @internal
+	 */
+	private readonly mipmaps: Map<MipmapTarget, Map<number, boolean>>;
+
+	/**
+	 * The wrapping function on the R-axis of this texture.
+	 * @internal
+	 */
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private wrapRFunctionCache?: WrapMode;
+
+	/**
+	 * The wrapping function on the S-axis of this texture.
+	 * @internal
+	 */
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private wrapSFunctionCache?: WrapMode;
+
+	/**
+	 * The wrapping function on the T-axis of this texture.
+	 * @internal
+	 */
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	private wrapTFunctionCache?: WrapMode;
+
+	/**
+	 * Create a texture.
+	 * @param context - The rendering context.
+	 * @param target - The target binding point of the texture.
+	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
+	 * @internal
+	 */
+	protected constructor(context: Context, target: TextureTarget);
+
+	/**
+	 * Create an immutable-format texture.
+	 * @param context - The rendering context.
+	 * @param target - The target binding point of the texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
+	 * @throws {@link TextureFormatError} if the given format is unsized.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
+	 * @internal
+	 */
+	protected constructor(
+		context: Context,
+		target: TextureTarget,
+		levels: number,
+		format: TextureFormat,
+		dims: number[]
+	);
+
+	protected constructor(
+		context: Context,
+		target: TextureTarget,
+		levels?: number,
+		format?: TextureFormat,
+		dims?: number[]
+	) {
+		super(context);
+
+		this.internal = this.gl.createTexture();
+		this.target = target;
+		this.mipmaps = new Map();
+		this.dims = [];
+		this.isImmutableFormatCache = false;
+		if (typeof levels === "number" && format && dims) {
+			this.makeImmutableFormat(levels, format, dims);
+		}
 	}
 
 	/**
@@ -750,7 +699,7 @@ export default abstract class Texture extends ContextDependent {
 		context: Context,
 		requestedTextureUnit: number | undefined,
 		target: TextureTarget,
-		texture: WebGLTexture | null,
+		texture: null | WebGLTexture,
 		queryOnly = false
 	): number {
 		// Default to the most desirable texture unit.
@@ -793,6 +742,49 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
+	 * Get the currently-bound texture for a binding point.
+	 * @param context - The rendering context.
+	 * @param requestedTextureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
+	 * @param target - The binding point.
+	 * @returns The texture.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
+	 * @internal
+	 */
+	public static getBound(
+		context: Context,
+		requestedTextureUnit: number | undefined,
+		target: TextureTarget
+	): null | WebGLTexture {
+		// Default to the most desirable texture unit.
+		const textureUnit =
+			requestedTextureUnit ?? Texture.getBestTextureUnit(context, target);
+
+		// Get the texture unit bindings cache.
+		const textureUnitBindingsCache = Texture.getTextureUnitBindingsCache(
+			context.gl,
+			textureUnit
+		);
+
+		// Get the bound texture.
+		let boundTexture = textureUnitBindingsCache.get(target);
+		if (typeof boundTexture === "undefined") {
+			if (context.doPrefillCache) {
+				boundTexture = null;
+			} else {
+				context.activeTexture = textureUnit;
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				boundTexture = context.gl.getParameter(
+					getParameterForTextureTarget(target)
+				) as null | WebGLTexture;
+			}
+
+			textureUnitBindingsCache.set(target, boundTexture);
+		}
+
+		return boundTexture;
+	}
+
+	/**
 	 * Unbinds the given texture from the given binding point.
 	 * @param context - The rendering context.
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
@@ -831,46 +823,43 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Get the texture bindings cache for a rendering context.
-	 * @param gl - The rendering context.
-	 * @returns The texture bindings cache.
+	 * Determine the most desirable (least-recently used) texture unit to bind to.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @param texture - The texture to be bound.
+	 * @returns The most desirable texture unit to bind to.
 	 * @internal
 	 */
-	private static getContextBindingsCache(
-		gl: WebGL2RenderingContext
-	): Map<TextureTarget, WebGLTexture | null>[] {
-		// Get the context bindings cache.
-		let contextBindingsCache = Texture.bindingsCache.get(gl);
-		if (typeof contextBindingsCache === "undefined") {
-			contextBindingsCache = [];
-			Texture.bindingsCache.set(gl, contextBindingsCache);
+	private static getBestTextureUnit(
+		context: Context,
+		target: TextureTarget,
+		texture?: null | WebGLTexture
+	): number {
+		// Check if the texture is already bound.
+		if (texture) {
+			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
+				if (Texture.getBound(context, i, target) === texture) {
+					return i;
+				}
+			}
 		}
 
-		return contextBindingsCache;
-	}
+		// Get the texture target binding overwrite order.
+		const targetBindingOverwriteOrder = Texture.getTargetBindingOverwriteOrder(
+			context.gl,
+			target
+		);
 
-	/**
-	 * Get the texture bindings cache for a texture unit.
-	 * @param gl - The rendering context.
-	 * @param textureUnit - The texture unit.
-	 * @returns The texture bindings cache.
-	 * @internal
-	 */
-	private static getTextureUnitBindingsCache(
-		gl: WebGL2RenderingContext,
-		textureUnit: number
-	): Map<TextureTarget, WebGLTexture | null> {
-		// Get the context bindings cache.
-		const contextBindingsCache = Texture.getContextBindingsCache(gl);
-
-		// Get the texture unit bindings cache.
-		let textureUnitBindingsCache = contextBindingsCache[textureUnit];
-		if (!textureUnitBindingsCache) {
-			textureUnitBindingsCache = new Map();
-			contextBindingsCache[textureUnit] = textureUnitBindingsCache;
+		// Check for any unused texture units.
+		for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
+			if (!targetBindingOverwriteOrder.includes(i)) {
+				return i;
+			}
 		}
 
-		return textureUnitBindingsCache;
+		// Return the least recently used texture unit. Apparent typescript-eslint bug since version 8.29.0.
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		return (targetBindingOverwriteOrder[0] ??= 0);
 	}
 
 	/**
@@ -890,6 +879,25 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		return contextBindingOverwriteOrder;
+	}
+
+	/**
+	 * Get the texture bindings cache for a rendering context.
+	 * @param gl - The rendering context.
+	 * @returns The texture bindings cache.
+	 * @internal
+	 */
+	private static getContextBindingsCache(
+		gl: WebGL2RenderingContext
+	): Map<TextureTarget, null | WebGLTexture>[] {
+		// Get the context bindings cache.
+		let contextBindingsCache = Texture.bindingsCache.get(gl);
+		if (typeof contextBindingsCache === "undefined") {
+			contextBindingsCache = [];
+			Texture.bindingsCache.set(gl, contextBindingsCache);
+		}
+
+		return contextBindingsCache;
 	}
 
 	/**
@@ -918,43 +926,93 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Determine the most desirable (least-recently used) texture unit to bind to.
-	 * @param context - The rendering context.
-	 * @param target - The binding point.
-	 * @param texture - The texture to be bound.
-	 * @returns The most desirable texture unit to bind to.
+	 * Get the texture bindings cache for a texture unit.
+	 * @param gl - The rendering context.
+	 * @param textureUnit - The texture unit.
+	 * @returns The texture bindings cache.
 	 * @internal
 	 */
-	private static getBestTextureUnit(
-		context: Context,
-		target: TextureTarget,
-		texture?: WebGLTexture | null
-	): number {
-		// Check if the texture is already bound.
-		if (texture) {
-			for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
-				if (Texture.getBound(context, i, target) === texture) {
-					return i;
-				}
-			}
+	private static getTextureUnitBindingsCache(
+		gl: WebGL2RenderingContext,
+		textureUnit: number
+	): Map<TextureTarget, null | WebGLTexture> {
+		// Get the context bindings cache.
+		const contextBindingsCache = Texture.getContextBindingsCache(gl);
+
+		// Get the texture unit bindings cache.
+		let textureUnitBindingsCache = contextBindingsCache[textureUnit];
+		if (!textureUnitBindingsCache) {
+			textureUnitBindingsCache = new Map();
+			contextBindingsCache[textureUnit] = textureUnitBindingsCache;
 		}
 
-		// Get the texture target binding overwrite order.
-		const targetBindingOverwriteOrder = Texture.getTargetBindingOverwriteOrder(
-			context.gl,
-			target
+		return textureUnitBindingsCache;
+	}
+
+	/**
+	 * Bind this texture to its binding point.
+	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
+	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated is the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
+	 * @returns The used texture unit.
+	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
+	 * @internal
+	 */
+	public bind(textureUnit?: number, queryOnly = false): number {
+		return Texture.bindGl(
+			this.context,
+			textureUnit,
+			this.target,
+			this.internal,
+			queryOnly
 		);
+	}
 
-		// Check for any unused texture units.
-		for (let i = 0; i < context.maxCombinedTextureImageUnits; i++) {
-			if (!targetBindingOverwriteOrder.includes(i)) {
-				return i;
+	/**
+	 * Delete this texture.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture | deleteTexture}
+	 */
+	public delete(): void {
+		this.gl.deleteTexture(this.internal);
+	}
+
+	/**
+	 * Generate a mipmap for this texture. Overwrites all mips except those at the top level. Does nothing for immutable-format textures.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap | generateMipmap}
+	 */
+	public generateMipmap(): void {
+		// Does nothing for immutable-format textures anyway.
+		if (this.isImmutableFormat) {
+			return;
+		}
+
+		this.bind();
+		this.gl.generateMipmap(this.target);
+
+		// Overwrite cached mip data.
+		let level = -1;
+		while (Math.min(...this.getSizeOfMip(++level)) > 0) {
+			for (const mipmap of this.mipmaps.values()) {
+				mipmap.set(level, true);
 			}
 		}
 
-		// Return the least recently used texture unit. Apparent typescript-eslint bug since version 8.29.0.
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-		return (targetBindingOverwriteOrder[0] ??= 0);
+		this.isTextureCompleteCache = true;
+	}
+
+	/**
+	 * Get the dimensions of the mip at the given level.
+	 * @param level - The level of the mip.
+	 * @returns The width, height (if applicable), and depth (if applicable) of the mip, in that order.
+	 */
+	public getSizeOfMip(level: number): readonly number[] {
+		const dims = [...this.dims];
+		for (let i = 0; i < level; i++) {
+			for (let dim = 0; dim < dims.length; dim++) {
+				dims[dim] = Math.floor((dims[dim] ?? 0) / 2);
+			}
+		}
+
+		return dims;
 	}
 
 	/**
@@ -1032,7 +1090,6 @@ export default abstract class Texture extends ContextDependent {
 		unpackAlignment?: 1 | 2 | 4 | 8,
 		area?: Prism | Rectangle
 	): void;
-
 	/**
 	 * Copy the data in a buffer into one of this texture's mips.
 	 * @param buffer - The buffer to copy into the mip.
@@ -1055,7 +1112,6 @@ export default abstract class Texture extends ContextDependent {
 		size: number,
 		offset: number
 	): void;
-
 	/**
 	 * Copy data into one of this texture's mips.
 	 * @param data - The data to copy into the mip.
@@ -1074,7 +1130,6 @@ export default abstract class Texture extends ContextDependent {
 		type?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8
 	): void;
-
 	/**
 	 * Copy the data in an array into one of this texture's mips.
 	 * @param array - The array to copy into the mip.
@@ -1097,16 +1152,15 @@ export default abstract class Texture extends ContextDependent {
 		offset?: number,
 		length?: number
 	): void;
-
 	public setMip(
-		data?: Framebuffer | null | VertexBuffer | TexImageSource | ArrayBufferView,
+		data?: ArrayBufferView | Framebuffer | null | TexImageSource | VertexBuffer,
 		requestedLevel?: number,
 		face?: CubeFace,
 		requestedBounds?: Prism | Rectangle,
 		requestedType?: TextureDataType,
 		unpackAlignment?: 1 | 2 | 4 | 8,
-		shape1?: Prism | Rectangle | number, // Meaning depends on data type; see overloads.
-		shape2?: number | boolean // Meaning depends on data type; see overloads.
+		shape1?: number | Prism | Rectangle, // Meaning depends on data type; see overloads.
+		shape2?: boolean | number // Meaning depends on data type; see overloads.
 	): void {
 		const level = requestedLevel ?? 0;
 
@@ -1238,72 +1292,6 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Get the dimensions of the mip at the given level.
-	 * @param level - The level of the mip.
-	 * @returns The width, height (if applicable), and depth (if applicable) of the mip, in that order.
-	 */
-	public getSizeOfMip(level: number): readonly number[] {
-		const dims = [...this.dims];
-		for (let i = 0; i < level; i++) {
-			for (let dim = 0; dim < dims.length; dim++) {
-				dims[dim] = Math.floor((dims[dim] ?? 0) / 2);
-			}
-		}
-
-		return dims;
-	}
-
-	/**
-	 * Generate a mipmap for this texture. Overwrites all mips except those at the top level. Does nothing for immutable-format textures.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/generateMipmap | generateMipmap}
-	 */
-	public generateMipmap(): void {
-		// Does nothing for immutable-format textures anyway.
-		if (this.isImmutableFormat) {
-			return;
-		}
-
-		this.bind();
-		this.gl.generateMipmap(this.target);
-
-		// Overwrite cached mip data.
-		let level = -1;
-		while (Math.min(...this.getSizeOfMip(++level)) > 0) {
-			for (const mipmap of this.mipmaps.values()) {
-				mipmap.set(level, true);
-			}
-		}
-
-		this.isTextureCompleteCache = true;
-	}
-
-	/**
-	 * Delete this texture.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteTexture | deleteTexture}
-	 */
-	public delete(): void {
-		this.gl.deleteTexture(this.internal);
-	}
-
-	/**
-	 * Bind this texture to its binding point.
-	 * @param textureUnit - The texture unit, or `undefined` for the least-recently used texture unit.
-	 * @param queryOnly - Indicates that the this method is being called to query for a texture unit and that the active texture unit does not need to be updated is the texture already has a texture unit. This is usually used for setting the value of a sampler uniform.
-	 * @returns The used texture unit.
-	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
-	 * @internal
-	 */
-	public bind(textureUnit?: number, queryOnly = false): number {
-		return Texture.bindGl(
-			this.context,
-			textureUnit,
-			this.target,
-			this.internal,
-			queryOnly
-		);
-	}
-
-	/**
 	 * Unbind this texture from its binding point.
 	 * @param textureUnit - The texture unit, or `undefined` for all texture units.
 	 * @throws {@link BadValueError} if the texture unit is set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
@@ -1314,19 +1302,32 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Set the width of this texture.
+	 * Make this texture into an immutable-format texture.
+	 * @param levels - The number of levels in the texture.
+	 * @param format - The internal format of the texture.
+	 * @param dims - The dimensions of the texture.
+	 * @internal
+	 */
+	protected abstract makeImmutableFormatInternal(
+		levels: number,
+		format: TextureFormat,
+		dims: readonly number[]
+	): void;
+
+	/**
+	 * Set the depth of this texture.
 	 * @param value - The new width of the texture.
 	 * @throws {@link ImmutableError} if this texture is immutable-format.
 	 * @internal
 	 */
-	protected setWidth(value: number): void {
+	protected setDepth(value: number): void {
 		if (this.isImmutableFormat) {
 			throw new ImmutableError(
-				"Cannot update the width of an immutable-format texture."
+				"Cannot update the depth of an immutable-format texture."
 			);
 		}
 
-		this.dims[0] = value;
+		this.dims[2] = value;
 	}
 
 	/**
@@ -1346,49 +1347,26 @@ export default abstract class Texture extends ContextDependent {
 	}
 
 	/**
-	 * Set the depth of this texture.
-	 * @param value - The new width of the texture.
-	 * @throws {@link ImmutableError} if this texture is immutable-format.
-	 * @internal
-	 */
-	protected setDepth(value: number): void {
-		if (this.isImmutableFormat) {
-			throw new ImmutableError(
-				"Cannot update the depth of an immutable-format texture."
-			);
-		}
-
-		this.dims[2] = value;
-	}
-
-	/**
-	 * Make this texture into an immutable-format texture.
-	 * @param levels - The number of levels in the texture.
-	 * @param format - The internal format of the texture.
-	 * @param dims - The dimensions of the texture.
-	 * @internal
-	 */
-	protected abstract makeImmutableFormatInternal(
-		levels: number,
-		format: TextureFormat,
-		dims: readonly number[]
-	): void;
-
-	/**
-	 * Copy the data in a framebuffer into one of this texture's mips.
+	 * Copy the data in an array into one of this texture's mips.
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
-	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @param format - The format of the data in the array.
+	 * @param type - The type of the data in the array.
+	 * @param array - The array to copy into the mip.
+	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
+	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
 	 * @internal
 	 */
-	protected abstract setMipFromFramebuffer(
+	protected abstract setMipFromArray(
 		target: MipmapTarget,
 		level: number,
-		bounds?: Prism | Rectangle,
-		framebuffer?: Framebuffer | null,
-		area?: Rectangle
+		bounds: Prism | Rectangle,
+		format: TextureDataFormat,
+		type: TextureDataType,
+		array: ArrayBufferView,
+		offset?: number,
+		length?: number
 	): void;
 
 	/**
@@ -1434,25 +1412,35 @@ export default abstract class Texture extends ContextDependent {
 	): void;
 
 	/**
-	 * Copy the data in an array into one of this texture's mips.
+	 * Copy the data in a framebuffer into one of this texture's mips.
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param format - The format of the data in the array.
-	 * @param type - The type of the data in the array.
-	 * @param array - The array to copy into the mip.
-	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
-	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
+	 * @param area - The area of the framebuffer to copy into the mip.
 	 * @internal
 	 */
-	protected abstract setMipFromArray(
+	protected abstract setMipFromFramebuffer(
 		target: MipmapTarget,
 		level: number,
-		bounds: Prism | Rectangle,
-		format: TextureDataFormat,
-		type: TextureDataType,
-		array: ArrayBufferView,
-		offset?: number,
-		length?: number
+		bounds?: Prism | Rectangle,
+		framebuffer?: Framebuffer | null,
+		area?: Rectangle
 	): void;
+
+	/**
+	 * Set the width of this texture.
+	 * @param value - The new width of the texture.
+	 * @throws {@link ImmutableError} if this texture is immutable-format.
+	 * @internal
+	 */
+	protected setWidth(value: number): void {
+		if (this.isImmutableFormat) {
+			throw new ImmutableError(
+				"Cannot update the width of an immutable-format texture."
+			);
+		}
+
+		this.dims[0] = value;
+	}
 }

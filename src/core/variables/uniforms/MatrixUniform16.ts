@@ -1,5 +1,6 @@
-import MatrixUniform from "./MatrixUniform.js";
 import type Program from "../../Program.js";
+
+import MatrixUniform from "./MatrixUniform.js";
 
 /**
  * A sixteen-value matrix global variable in a shader program.

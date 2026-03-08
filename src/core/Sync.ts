@@ -1,3 +1,6 @@
+import type SyncStatus from "../constants/SyncStatus.js";
+import type Context from "./Context.js";
+
 import {
 	OBJECT_TYPE,
 	SYNC_CONDITION,
@@ -8,12 +11,10 @@ import {
 	SYNC_STATUS,
 	TIMEOUT_IGNORED
 } from "../constants/constants.js";
-import BadValueError from "../utility/BadValueError.js";
-import type Context from "./Context.js";
-import ContextDependent from "./internal/ContextDependent.js";
 import SyncClientStatus from "../constants/SyncClientStatus.js";
-import type SyncStatus from "../constants/SyncStatus.js";
+import BadValueError from "../utility/BadValueError.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
+import ContextDependent from "./internal/ContextDependent.js";
 
 /**
  * A sync object.
@@ -21,6 +22,47 @@ import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
  * @public
  */
 export default class Sync extends ContextDependent {
+	/** The condition of this sync object. Always `SYNC_GPU_COMMANDS_COMPLETE`. */
+	public get condition(): typeof SYNC_GPU_COMMANDS_COMPLETE {
+		return this.context.doPrefillCache ?
+				SYNC_GPU_COMMANDS_COMPLETE
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			:	(this.gl.getSyncParameter(
+					this.internal,
+					SYNC_CONDITION
+				) as typeof SYNC_GPU_COMMANDS_COMPLETE);
+	}
+
+	/** The flags with which this sync object was created. Always `0` since no flags are supported. */
+	public get flags(): 0 {
+		return this.context.doPrefillCache ?
+				0
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			:	(this.gl.getSyncParameter(this.internal, SYNC_FLAGS) as 0);
+	}
+
+	/** Whether or not this is a valid sync object. */
+	public get isValid(): boolean {
+		return this.gl.isSync(this.internal);
+	}
+
+	/** The status of this sync object. */
+	public get status(): SyncStatus {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getSyncParameter(this.internal, SYNC_STATUS) as SyncStatus;
+	}
+
+	/** The type of this sync object. Always `SYNC_FENCE`. */
+	public get type(): typeof SYNC_FENCE {
+		return this.context.doPrefillCache ?
+				SYNC_FENCE
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			:	(this.gl.getSyncParameter(
+					this.internal,
+					OBJECT_TYPE
+				) as typeof SYNC_FENCE);
+	}
+
 	/** The internal WebGL representation of this object. */
 	private readonly internal: WebGLSync;
 
@@ -41,47 +83,6 @@ export default class Sync extends ContextDependent {
 		}
 
 		this.internal = internal;
-	}
-
-	/** Whether or not this is a valid sync object. */
-	public get isValid(): boolean {
-		return this.gl.isSync(this.internal);
-	}
-
-	/** The type of this sync object. Always `SYNC_FENCE`. */
-	public get type(): typeof SYNC_FENCE {
-		return this.context.doPrefillCache ?
-				SYNC_FENCE
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(this.gl.getSyncParameter(
-					this.internal,
-					OBJECT_TYPE
-				) as typeof SYNC_FENCE);
-	}
-
-	/** The status of this sync object. */
-	public get status(): SyncStatus {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getSyncParameter(this.internal, SYNC_STATUS) as SyncStatus;
-	}
-
-	/** The condition of this sync object. Always `SYNC_GPU_COMMANDS_COMPLETE`. */
-	public get condition(): typeof SYNC_GPU_COMMANDS_COMPLETE {
-		return this.context.doPrefillCache ?
-				SYNC_GPU_COMMANDS_COMPLETE
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(this.gl.getSyncParameter(
-					this.internal,
-					SYNC_CONDITION
-				) as typeof SYNC_GPU_COMMANDS_COMPLETE);
-	}
-
-	/** The flags with which this sync object was created. Always `0` since no flags are supported. */
-	public get flags(): 0 {
-		return this.context.doPrefillCache ?
-				0
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(this.gl.getSyncParameter(this.internal, SYNC_FLAGS) as 0);
 	}
 
 	/**
@@ -135,19 +136,19 @@ export default class Sync extends ContextDependent {
 	}
 
 	/**
+	 * Delete this sync object.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteSync | deleteSync}
+	 */
+	public delete(): void {
+		this.gl.deleteSync(this.internal);
+	}
+
+	/**
 	 * Wait on the GL server for this sync object to become signaled.
 	 * @returns This sync object's status.
 	 */
 	public wait(): void {
 		this.gl.flush();
 		this.gl.waitSync(this.internal, 0, TIMEOUT_IGNORED);
-	}
-
-	/**
-	 * Delete this sync object.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/deleteSync | deleteSync}
-	 */
-	public delete(): void {
-		this.gl.deleteSync(this.internal);
 	}
 }

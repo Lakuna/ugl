@@ -1,3 +1,5 @@
+import type DebugInfo from "../types/DebugInfo.js";
+
 import {
 	ACTIVE_TEXTURE,
 	BLEND_DST_ALPHA,
@@ -50,7 +52,6 @@ import {
 	UNPACK_COLORSPACE_CONVERSION_WEBGL,
 	VERTEX_ATTRIB_ARRAY_TYPE
 } from "../constants/constants.js";
-import type DebugInfo from "../types/DebugInfo.js";
 import isCallable from "./isCallable.js";
 import isIterable from "./isIterable.js";
 import isRecord from "./isRecord.js";
@@ -58,13 +59,18 @@ import isRecord from "./isRecord.js";
 // Map of WebGL API method names to lists of which of the corresponding methods' arguments (and/or return values) should be interpreted as enumerated values. `-1` indicates the method's return value.
 const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
 	["activeTexture", { enums: [0] }],
+	["beginQuery", { enums: [0] }],
+	["beginTransformFeedback", { enums: [0], prefs: ["POINTS", "LINES"] }],
 	[
 		"bindBuffer",
 		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
 	],
+	["bindBufferBase", { enums: [0] }],
+	["bindBufferRange", { enums: [0] }],
 	["bindFramebuffer", { enums: [0], prefs: ["FRAMEBUFFER_BINDING"] }],
 	["bindRenderbuffer", { enums: [0] }],
 	["bindTexture", { enums: [0] }],
+	["bindTransformFeedback", { enums: [0] }],
 	["blendEquation", { enums: [0], prefs: ["BLEND_EQUATION_RGB"] }],
 	["blendEquationSeparate", { enums: [0, 1], prefs: ["BLEND_EQUATION_RGB"] }],
 	["blendFunc", { enums: [0, 1], prefs: ["ZERO", "ONE"] }],
@@ -78,27 +84,54 @@ const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
 		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
 	],
 	["checkFramebufferStatus", { enums: [-1, 0] }],
+	["clearBufferfi", { enums: [0] }],
+	["clearBufferfv", { enums: [0] }],
+	["clearBufferiv", { enums: [0] }],
+	["clearBufferuiv", { enums: [0] }],
+	["clientWaitSync", { enums: [-1], prefs: ["SYNC_FLUSH_COMMANDS_BIT"] }],
 	["compressedTexImage2D", { enums: [0, 2] }],
+	["compressedTexImage3D", { enums: [0, 2] }],
 	["compressedTexSubImage2D", { enums: [0, 6] }],
+	["compressedTexSubImage3D", { enums: [0, 8] }],
+	[
+		"copyBufferSubData",
+		{ enums: [0, 1], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
 	["copyTexImage2D", { enums: [0, 2] }],
 	["copyTexSubImage2D", { enums: [0] }],
+	["copyTexSubImage3D", { enums: [0] }],
 	["createShader", { enums: [0] }],
 	["cullFace", { enums: [0] }],
 	["depthFunc", { enums: [0] }],
 	["disable", { enums: [0] }],
 	["drawArrays", { enums: [0], prefs: ["POINTS", "LINES"] }],
+	["drawArraysInstanced", { enums: [0], prefs: ["POINTS", "LINES"] }],
+	["drawBuffers", { enums: [0], prefs: ["NONE"] }],
 	["drawElements", { enums: [0, 2], prefs: ["POINTS", "LINES"] }],
+	["drawElementsInstanced", { enums: [0, 2], prefs: ["POINTS", "LINES"] }],
+	["drawRangeElements", { enums: [0, 4], prefs: ["POINTS", "LINES"] }],
 	["enable", { enums: [0] }],
+	["endQuery", { enums: [0] }],
+	["fenceSync", { enums: [0] }], // Second argument is a bitfield but can only be zero.
 	["framebufferRenderbuffer", { enums: [0, 1, 2] }],
 	["framebufferTexture2D", { enums: [0, 1, 2] }],
+	["framebufferTextureLayer", { enums: [0, 1] }],
 	["frontFace", { enums: [0] }],
 	["generateMipmap", { enums: [0] }],
+	["getActiveUniformBlockParameter", { enums: [2] }],
+	["getActiveUniforms", { enums: [2] }],
 	[
 		"getBufferParameter",
 		{ enums: [0, 1], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
 	],
+	[
+		"getBufferSubData",
+		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
+	],
 	["getError", { enums: [-1], prefs: ["NO_ERROR"] }],
 	["getFramebufferAttachmentParameter", { enums: [0, 1, 2], prefs: ["NONE"] }],
+	["getIndexedParameter", { enums: [0], prefs: ["BLEND_EQUATION_RGB"] }],
+	["getInternalFormatParameter", { enums: [0, 1, 2] }],
 	[
 		"getParameter",
 		{
@@ -115,71 +148,39 @@ const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
 		}
 	],
 	["getProgramParameter", { enums: [1] }],
+	["getQuery", { enums: [0, 1] }],
+	["getQueryParameter", { enums: [1] }],
 	["getRenderbufferParameter", { enums: [0, 1] }],
+	["getSamplerParameter", { enums: [1] }],
 	["getShaderParameter", { enums: [-1, 1] }], // Return value may not be enumerated but is never a non-enumerated number or array.
 	["getShaderPrecisionFormat", { enums: [0, 1] }],
+	["getSyncParameter", { enums: [1] }],
 	["getTexParameter", { enums: [0, 1], prefs: ["NONE"] }],
 	["getVertexAttrib", { enums: [1] }],
 	["getVertexAttribOffset", { enums: [1] }],
 	["hint", { enums: [0, 1] }],
+	["invalidateFramebuffer", { enums: [0, 1] }],
+	["invalidateSubFramebuffer", { enums: [0, 1] }],
 	["isEnabled", { enums: [0] }],
 	["pixelStorei", { prefs: ["NONE"] }],
+	["readBuffer", { enums: [0], prefs: ["NONE"] }],
 	["readPixels", { enums: [4, 5] }],
 	["renderbufferStorage", { enums: [0, 1] }],
+	["renderbufferStorageMultisample", { enums: [0, 2] }],
 	["stencilFunc", { enums: [0] }],
 	["stencilFuncSeparate", { enums: [0, 1] }],
 	["stencilMaskSeparate", { enums: [0] }],
 	["stencilOp", { enums: [0, 1, 2], prefs: ["ZERO"] }],
 	["stencilOpSeparate", { enums: [0, 1, 2, 3], prefs: ["ZERO"] }],
+	["texImage3D", { enums: [0, 2, 7, 8] }],
 	["texParameterf", { prefs: ["NONE"] }],
 	["texParameteri", { prefs: ["NONE"] }],
-	["vertexAttribPointer", { enums: [2] }],
-	["beginQuery", { enums: [0] }],
-	["beginTransformFeedback", { enums: [0], prefs: ["POINTS", "LINES"] }],
-	["bindBufferBase", { enums: [0] }],
-	["bindBufferRange", { enums: [0] }],
-	["bindTransformFeedback", { enums: [0] }],
-	["clearBufferfv", { enums: [0] }],
-	["clearBufferiv", { enums: [0] }],
-	["clearBufferuiv", { enums: [0] }],
-	["clearBufferfi", { enums: [0] }],
-	["clientWaitSync", { enums: [-1], prefs: ["SYNC_FLUSH_COMMANDS_BIT"] }],
-	["compressedTexImage3D", { enums: [0, 2] }],
-	["compressedTexSubImage3D", { enums: [0, 8] }],
-	[
-		"copyBufferSubData",
-		{ enums: [0, 1], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
-	],
-	["copyTexSubImage3D", { enums: [0] }],
-	["drawArraysInstanced", { enums: [0], prefs: ["POINTS", "LINES"] }],
-	["drawBuffers", { enums: [0], prefs: ["NONE"] }],
-	["drawElementsInstanced", { enums: [0, 2], prefs: ["POINTS", "LINES"] }],
-	["drawRangeElements", { enums: [0, 4], prefs: ["POINTS", "LINES"] }],
-	["endQuery", { enums: [0] }],
-	["fenceSync", { enums: [0] }], // Second argument is a bitfield but can only be zero.
-	["framebufferTextureLayer", { enums: [0, 1] }],
-	["getActiveUniformBlockParameter", { enums: [2] }],
-	["getActiveUniforms", { enums: [2] }],
-	[
-		"getBufferSubData",
-		{ enums: [0], prefs: ["COPY_READ_BUFFER", "COPY_WRITE_BUFFER"] }
-	],
-	["getIndexedParameter", { enums: [0], prefs: ["BLEND_EQUATION_RGB"] }],
-	["getInternalFormatParameter", { enums: [0, 1, 2] }],
-	["getQuery", { enums: [0, 1] }],
-	["getQueryParameter", { enums: [1] }],
-	["getSamplerParameter", { enums: [1] }],
-	["getSyncParameter", { enums: [1] }],
-	["invalidateFramebuffer", { enums: [0, 1] }],
-	["invalidateSubFramebuffer", { enums: [0, 1] }],
-	["readBuffer", { enums: [0], prefs: ["NONE"] }],
-	["renderbufferStorageMultisample", { enums: [0, 2] }],
-	["texImage3D", { enums: [0, 2, 7, 8] }],
 	["texStorage2D", { enums: [0, 2] }],
 	["texStorage3D", { enums: [0, 2] }],
 	["texSubImage3D", { enums: [0, 8, 9] }],
 	["transformFeedbackVaryings", { enums: [2] }],
 	["vertexAttribIPointer", { enums: [2] }],
+	["vertexAttribPointer", { enums: [2] }],
 	["waitSync", { enums: [2] }] // Second argument is a bitfield but can only be zero.
 ]);
 
@@ -276,10 +277,15 @@ export default function debug(
 		prefs?: readonly string[]
 	): string => {
 		switch (typeof value) {
-			case "undefined":
-				return "undefined";
+			case "bigint":
+				return `${value.toString()}n`;
+			case "boolean":
+			case "symbol":
+				return value.toString();
 			case "function":
 				return "function";
+			case "number":
+				return isEnum ? enumName(value, prefs) : value.toString();
 			case "object":
 				if (value === null) {
 					return "null";
@@ -485,13 +491,8 @@ export default function debug(
 				return `Object#${stringify(objects.indexOf(value))}`;
 			case "string":
 				return `"${value}"`;
-			case "number":
-				return isEnum ? enumName(value, prefs) : value.toString();
-			case "bigint":
-				return `${value.toString()}n`;
-			case "boolean":
-			case "symbol":
-				return value.toString();
+			case "undefined":
+				return "undefined";
 			default:
 				if (!unknowns.includes(value)) {
 					unknowns.push(value);
@@ -504,8 +505,11 @@ export default function debug(
 	// Make an object for controlling the debugger.
 	const debugInfo = { doLogErrors: true, isActive: true };
 
-	// eslint-disable-next-line guard-for-in
 	for (const key in object) {
+		if (typeof key !== "string") {
+			continue;
+		}
+
 		// Check each property to see if it's a method.
 		const value = object[key];
 		if (typeof value !== "function") {
@@ -537,6 +541,31 @@ export default function debug(
 
 				// Handle special cases where specific arguments are bit fields or may or may not be enumerated values.
 				switch (key) {
+					case "blitFramebuffer": {
+						if (i !== 8 || typeof arg !== "number") {
+							isEnum = i === 9;
+							break;
+						}
+
+						const parts = [];
+						if (arg & COLOR_BUFFER_BIT) {
+							parts.push("COLOR_BUFFER_BIT");
+						}
+
+						if (arg & DEPTH_BUFFER_BIT) {
+							parts.push("DEPTH_BUFFER_BIT");
+						}
+
+						if (arg & STENCIL_BUFFER_BIT) {
+							parts.push("STENCIL_BUFFER_BIT");
+						}
+
+						report += `${parts.length > 0 ? parts.join(" | ") : "0"}${argumentDivider}`;
+						continue;
+					}
+					case "clientWaitSync":
+						isEnum = i === 1 && arg === SYNC_FLUSH_COMMANDS_BIT;
+						break;
 					case "clear": {
 						if (i !== 0 || typeof arg !== "number") {
 							break;
@@ -562,6 +591,18 @@ export default function debug(
 						isEnum =
 							i === 0 ||
 							(i === 1 && arg === UNPACK_COLORSPACE_CONVERSION_WEBGL);
+						break;
+					case "samplerParameterf":
+					case "samplerParameteri":
+						isEnum =
+							i === 1 ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_FUNC) ||
+							(i === 2 && args[1] === TEXTURE_COMPARE_MODE) ||
+							(i === 2 && args[1] === TEXTURE_MAG_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_MIN_FILTER) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_R) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_S) ||
+							(i === 2 && args[1] === TEXTURE_WRAP_T);
 						break;
 					case "texImage2D":
 						isEnum =
@@ -593,43 +634,6 @@ export default function debug(
 							i === 6 ||
 							i === 7;
 						break;
-					case "blitFramebuffer": {
-						if (i !== 8 || typeof arg !== "number") {
-							isEnum = i === 9;
-							break;
-						}
-
-						const parts = [];
-						if (arg & COLOR_BUFFER_BIT) {
-							parts.push("COLOR_BUFFER_BIT");
-						}
-
-						if (arg & DEPTH_BUFFER_BIT) {
-							parts.push("DEPTH_BUFFER_BIT");
-						}
-
-						if (arg & STENCIL_BUFFER_BIT) {
-							parts.push("STENCIL_BUFFER_BIT");
-						}
-
-						report += `${parts.length > 0 ? parts.join(" | ") : "0"}${argumentDivider}`;
-						continue;
-					}
-					case "clientWaitSync":
-						isEnum = i === 1 && arg === SYNC_FLUSH_COMMANDS_BIT;
-						break;
-					case "samplerParameteri":
-					case "samplerParameterf":
-						isEnum =
-							i === 1 ||
-							(i === 2 && args[1] === TEXTURE_COMPARE_FUNC) ||
-							(i === 2 && args[1] === TEXTURE_COMPARE_MODE) ||
-							(i === 2 && args[1] === TEXTURE_MAG_FILTER) ||
-							(i === 2 && args[1] === TEXTURE_MIN_FILTER) ||
-							(i === 2 && args[1] === TEXTURE_WRAP_R) ||
-							(i === 2 && args[1] === TEXTURE_WRAP_S) ||
-							(i === 2 && args[1] === TEXTURE_WRAP_T);
-						break;
 					default:
 						break;
 				}
@@ -649,6 +653,9 @@ export default function debug(
 
 				// Handle special cases where the return value is a bit field or may or may not be an enumerated value.
 				switch (key) {
+					case "getActiveUniforms":
+						isEnum = args[2] === UNIFORM_TYPE;
+						break;
 					case "getBufferParameter":
 						isEnum = args[1] === BUFFER_USAGE;
 						break;
@@ -659,6 +666,15 @@ export default function debug(
 							args[2] === FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING ||
 							args[2] === FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE ||
 							args[2] === FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT;
+						break;
+					case "getIndexedParameter":
+						isEnum =
+							args[0] === BLEND_EQUATION_RGB ||
+							args[0] === BLEND_EQUATION_ALPHA ||
+							args[0] === BLEND_SRC_RGB ||
+							args[0] === BLEND_SRC_ALPHA ||
+							args[0] === BLEND_DST_RGB ||
+							args[0] === BLEND_DST_ALPHA;
 						break;
 					case "getParameter":
 						isEnum =
@@ -697,8 +713,8 @@ export default function debug(
 					case "getRenderbufferParameter":
 						isEnum = args[1] === RENDERBUFFER_INTERNAL_FORMAT;
 						break;
-					case "getTexParameter":
 					case "getSamplerParameter":
+					case "getTexParameter":
 						isEnum =
 							args[1] === TEXTURE_COMPARE_FUNC ||
 							args[1] === TEXTURE_COMPARE_MODE ||
@@ -708,26 +724,14 @@ export default function debug(
 							args[1] === TEXTURE_WRAP_S ||
 							args[1] === TEXTURE_WRAP_T;
 						break;
-					case "getVertexAttrib":
-						isEnum = args[1] === VERTEX_ATTRIB_ARRAY_TYPE;
-						break;
-					case "getActiveUniforms":
-						isEnum = args[2] === UNIFORM_TYPE;
-						break;
-					case "getIndexedParameter":
-						isEnum =
-							args[0] === BLEND_EQUATION_RGB ||
-							args[0] === BLEND_EQUATION_ALPHA ||
-							args[0] === BLEND_SRC_RGB ||
-							args[0] === BLEND_SRC_ALPHA ||
-							args[0] === BLEND_DST_RGB ||
-							args[0] === BLEND_DST_ALPHA;
-						break;
 					case "getSyncParameter":
 						isEnum =
 							args[1] === OBJECT_TYPE ||
 							args[1] === SYNC_STATUS ||
 							args[1] === SYNC_CONDITION;
+						break;
+					case "getVertexAttrib":
+						isEnum = args[1] === VERTEX_ATTRIB_ARRAY_TYPE;
 						break;
 					default:
 						break;

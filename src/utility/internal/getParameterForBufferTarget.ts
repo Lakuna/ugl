@@ -1,3 +1,4 @@
+import BufferTarget from "../../constants/BufferTarget.js";
 import {
 	ARRAY_BUFFER_BINDING,
 	COPY_READ_BUFFER_BINDING,
@@ -8,7 +9,6 @@ import {
 	TRANSFORM_FEEDBACK_BUFFER_BINDING,
 	UNIFORM_BUFFER_BINDING
 } from "../../constants/constants.js";
-import BufferTarget from "../../constants/BufferTarget.js";
 
 /**
  * Get the constant value representing the context property of the given buffer binding point.
@@ -35,7 +35,8 @@ export default function getParameterForBufferTarget(
 		case BufferTarget.TRANSFORM_FEEDBACK_BUFFER:
 			return TRANSFORM_FEEDBACK_BUFFER_BINDING;
 		case BufferTarget.UNIFORM_BUFFER:
-		default: // Not possible as long as TypeScript is obeyed.
 			return UNIFORM_BUFFER_BINDING;
+		default:
+			return target;
 	}
 }

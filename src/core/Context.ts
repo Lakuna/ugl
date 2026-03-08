@@ -1,3 +1,15 @@
+import type BlendEquationSet from "../types/BlendEquationSet.js";
+import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
+import type BlendFunctionSet from "../types/BlendFunctionSet.js";
+import type Color from "../types/Color.js";
+import type ColorMask from "../types/ColorMask.js";
+import type { ExtensionObject } from "../types/ExtensionObject.js";
+import type Pair from "../types/Pair.js";
+import type Rectangle from "../types/Rectangle.js";
+import type Stencil from "../types/Stencil.js";
+
+import BlendEquation from "../constants/BlendEquation.js";
+import BlendFunction from "../constants/BlendFunction.js";
 import {
 	ACTIVE_TEXTURE,
 	BLEND,
@@ -47,27 +59,16 @@ import {
 	UNPACK_ALIGNMENT,
 	VIEWPORT
 } from "../constants/constants.js";
-import ApiInterface from "./internal/ApiInterface.js";
-import BadValueError from "../utility/BadValueError.js";
-import BlendEquation from "../constants/BlendEquation.js";
-import type BlendEquationSet from "../types/BlendEquationSet.js";
-import BlendFunction from "../constants/BlendFunction.js";
-import type BlendFunctionFullSet from "../types/BlendFunctionFullSet.js";
-import type BlendFunctionSet from "../types/BlendFunctionSet.js";
-import type Color from "../types/Color.js";
-import type ColorMask from "../types/ColorMask.js";
 import ErrorCode from "../constants/ErrorCode.js";
 import Extension from "../constants/Extension.js";
-import type { ExtensionObject } from "../types/ExtensionObject.js";
 import Face from "../constants/Face.js";
-import Framebuffer from "./Framebuffer.js";
 import Orientation from "../constants/Orientation.js";
-import type Pair from "../types/Pair.js";
-import type Rectangle from "../types/Rectangle.js";
-import type Stencil from "../types/Stencil.js";
 import TestFunction from "../constants/TestFunction.js";
+import BadValueError from "../utility/BadValueError.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import WebglError from "../utility/WebglError.js";
+import Framebuffer from "./Framebuffer.js";
+import ApiInterface from "./internal/ApiInterface.js";
 
 /**
  * A WebGL2 rendering context.
@@ -97,16 +98,912 @@ export default class Context extends ApiInterface {
 	public readonly fbo: Framebuffer;
 
 	/**
-	 * The color space of the drawing buffer of this rendering context.
+	 * The active texture unit.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture | activeTexture}
+	 * @throws {@link BadValueError} if set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
 	 * @internal
 	 */
-	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
+	public get activeTexture(): number {
+		return (this.activeTextureCache ??=
+			this.doPrefillCache ? 0 : (
+				this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0
+			));
+	}
+
+	public set activeTexture(value: number) {
+		if (this.activeTexture === value) {
+			return;
+		}
+
+		if (value < 0 || value >= this.maxCombinedTextureImageUnits) {
+			throw new BadValueError(
+				`Invalid texture unit (${value.toString()} must be positive and below ${this.maxCombinedTextureImageUnits.toString()}).`
+			);
+		}
+
+		this.gl.activeTexture(value + TEXTURE0);
+		this.activeTextureCache = value;
+	}
 
 	/**
 	 * The attributes of this rendering context, or `null` if this rendering context is lost.
-	 * @internal
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getContextAttributes | getContextAttributes}
 	 */
-	private attributesCache?: WebGLContextAttributes | null;
+	public get attributes(): null | WebGLContextAttributes {
+		return (this.attributesCache ??= this.gl.getContextAttributes());
+	}
+
+	/**
+	 * The back stencil test function, reference, and mask.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
+	 */
+	public get backStencil(): Stencil {
+		return (this.backStencilCache ??=
+			this.doPrefillCache ?
+				[TestFunction.ALWAYS, 0, 0x7fffffff]
+			:	[
+					this.gl.getParameter(STENCIL_BACK_FUNC),
+					this.gl.getParameter(STENCIL_BACK_REF),
+					this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
+				]);
+	}
+
+	public set backStencil(value: Stencil) {
+		if (
+			this.backStencil[0] === value[0] &&
+			this.backStencil[1] === value[1] &&
+			this.backStencil[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFuncSeparate(Face.BACK, value[0], value[1], value[2]);
+	}
+
+	/**
+	 * The blend color.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor | blendColor}
+	 */
+	public get blendColor(): Color {
+		return (this.blendColorCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 0, 0, 0])
+			:	this.gl.getParameter(BLEND_COLOR));
+	}
+
+	public set blendColor(value: Color) {
+		if (
+			this.blendColor[0] === value[0] &&
+			this.blendColor[1] === value[1] &&
+			this.blendColor[2] === value[2] &&
+			this.blendColor[3] === value[3]
+		) {
+			return;
+		}
+
+		this.gl.blendColor(value[0], value[1], value[2], value[3]);
+		this.blendColorCache = value;
+	}
+
+	/**
+	 * The RGB and alpha blend equations.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation | blendEquation}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate | blendEquationSeparate}
+	 */
+	public get blendEquation(): BlendEquationSet {
+		return (this.blendEquationCache ??= this.makeBlendEquationCache());
+	}
+
+	public set blendEquation(value: BlendEquation | BlendEquationSet) {
+		// One value.
+		if (typeof value === "number") {
+			if (this.blendEquation[0] === value && this.blendEquation[1] === value) {
+				return;
+			}
+
+			this.gl.blendEquation(value);
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			this.blendEquationCache = new Uint8Array([
+				value,
+				value
+			]) as BlendEquationSet & Uint8Array;
+
+			return;
+		}
+
+		// Set of values.
+		if (
+			this.blendEquation[0] === value[0] &&
+			this.blendEquation[1] === value[1]
+		) {
+			return;
+		}
+
+		this.gl.blendEquationSeparate(value[0], value[1]);
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		this.blendEquationCache = new Uint8Array([
+			value[0],
+			value[1]
+		]) as BlendEquationSet & Uint8Array;
+	}
+
+	/** The alpha blend equation. */
+	public get blendEquationAlpha(): BlendEquation {
+		return (this.blendEquationCache ??= this.makeBlendEquationCache())[1];
+	}
+
+	/** The RGB blend equation. */
+	public get blendEquationRgb(): BlendEquation {
+		return (this.blendEquationCache ??= this.makeBlendEquationCache())[0];
+	}
+
+	/**
+	 * The source and destination RGB and alpha blend functions.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc | blendFunc}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate | blendFuncSeparate}
+	 */
+	public get blendFunction(): BlendFunctionFullSet {
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache());
+	}
+
+	public set blendFunction(value: BlendFunctionFullSet | BlendFunctionSet) {
+		// Full set.
+		if (2 in value) {
+			if (
+				this.blendFunction[0] === value[0] &&
+				this.blendFunction[1] === value[1] &&
+				this.blendFunction[2] === value[2] &&
+				this.blendFunction[3] === value[3]
+			) {
+				return;
+			}
+
+			this.gl.blendFuncSeparate(value[0], value[1], value[2], value[3]);
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			this.blendFunctionCache = new Uint8Array([
+				value[0],
+				value[1],
+				value[2],
+				value[3]
+			]) as BlendFunctionFullSet & Uint8Array;
+
+			return;
+		}
+
+		// Half set.
+		if (
+			this.blendFunction[0] === value[0] &&
+			this.blendFunction[1] === value[1] &&
+			this.blendFunction[2] === value[0] &&
+			this.blendFunction[3] === value[1]
+		) {
+			return;
+		}
+
+		this.gl.blendFunc(value[0], value[1]);
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		this.blendFunctionCache = new Uint8Array([
+			value[0],
+			value[1],
+			value[0],
+			value[1]
+		]) as BlendFunctionFullSet & Uint8Array;
+	}
+
+	/** The destination alpha blend function. */
+	public get blendFunctionDestinationAlpha(): BlendFunction {
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[3];
+	}
+
+	/** The destination RGB blend function. */
+	public get blendFunctionDestinationRgb(): BlendFunction {
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[1];
+	}
+
+	/** The source alpha blend function. */
+	public get blendFunctionSourceAlpha(): BlendFunction {
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[2];
+	}
+
+	/** The source RGB blend function. */
+	public get blendFunctionSourceRgb(): BlendFunction {
+		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[0];
+	}
+
+	/**
+	 * The value to store in the color buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor | clearColor}
+	 */
+	public get clearColor(): Color {
+		return (this.clearColorCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 0, 0, 0])
+			:	this.gl.getParameter(COLOR_CLEAR_VALUE));
+	}
+
+	public set clearColor(value: Color) {
+		if (
+			this.clearColor[0] === value[0] &&
+			this.clearColor[1] === value[1] &&
+			this.clearColor[2] === value[2] &&
+			this.clearColor[3] === value[3]
+		) {
+			return;
+		}
+
+		this.gl.clearColor(value[0], value[1], value[2], value[3]);
+		this.clearColorCache = value;
+	}
+
+	/**
+	 * The value to store in the depth buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth | clearDepth}
+	 */
+	public get clearDepth(): number {
+		return (this.clearDepthCache ??=
+			this.doPrefillCache ? 1 : this.gl.getParameter(DEPTH_CLEAR_VALUE));
+	}
+
+	public set clearDepth(value: number) {
+		if (this.clearDepth === value) {
+			return;
+		}
+
+		this.gl.clearDepth(value);
+		this.clearDepthCache = value;
+	}
+
+	/**
+	 * The value to store in the stencil buffer when clearing it.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil | clearStencil}
+	 */
+	public get clearStencil(): number {
+		return (this.clearStencilCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(STENCIL_CLEAR_VALUE));
+	}
+
+	public set clearStencil(value: number) {
+		if (this.clearStencil === value) {
+			return;
+		}
+
+		this.gl.clearStencil(value);
+		this.clearStencilCache = value;
+	}
+
+	/**
+	 * The mask that specifies which components to enable or disable when rendering to a framebuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask | colorMask}
+	 */
+	public get colorMask(): ColorMask {
+		return (this.colorMaskCache ??=
+			this.doPrefillCache ?
+				[true, true, true, true]
+			:	this.gl.getParameter(COLOR_WRITEMASK));
+	}
+
+	public set colorMask(value: ColorMask) {
+		if (
+			this.colorMask[0] === value[0] &&
+			this.colorMask[1] === value[1] &&
+			this.colorMask[2] === value[2] &&
+			this.colorMask[3] === value[3]
+		) {
+			return;
+		}
+
+		this.gl.colorMask(value[0], value[1], value[2], value[3]);
+		this.colorMaskCache = value;
+	}
+
+	/**
+	 * The direction that polygons should face if they are to be culled.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
+	 */
+	public get cullFace(): Face {
+		return (this.cullFaceCache ??=
+			this.doPrefillCache ? Face.BACK : this.gl.getParameter(CULL_FACE_MODE));
+	}
+
+	public set cullFace(value: Face) {
+		if (this.cullFace === value) {
+			return;
+		}
+
+		this.gl.cullFace(value);
+		this.cullFaceCache = value;
+	}
+
+	/**
+	 * The depth comparison function to use.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc | depthFunc}
+	 */
+	public get depthFunction(): TestFunction {
+		return (this.depthFunctionCache ??=
+			this.doPrefillCache ?
+				TestFunction.LESS
+			:	this.gl.getParameter(DEPTH_FUNC));
+	}
+
+	public set depthFunction(value: TestFunction) {
+		if (this.depthFunction === value) {
+			return;
+		}
+
+		this.gl.depthFunc(value);
+		this.depthFunctionCache = value;
+	}
+
+	/** Whether or not the depth buffer can be written to. */
+	public get depthMask(): boolean {
+		return (this.depthMaskCache ??=
+			this.doPrefillCache ? true : this.gl.getParameter(DEPTH_WRITEMASK));
+	}
+
+	public set depthMask(value: boolean) {
+		if (this.depthMask === value) {
+			return;
+		}
+
+		this.gl.depthMask(value);
+		this.depthMaskCache = value;
+	}
+
+	/**
+	 * The depth range mapping from normalized device coordinates to window or viewport coordinates.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthRange | depthRange}
+	 */
+	public get depthRange(): Pair {
+		return (this.depthRangeCache ??=
+			this.doPrefillCache ?
+				new Float32Array([0, 1])
+			:	this.gl.getParameter(DEPTH_RANGE));
+	}
+
+	public set depthRange(value: Pair) {
+		if (this.depthRange[0] === value[0] && this.depthRange[1] === value[1]) {
+			return;
+		}
+
+		this.gl.depthRange(value[0], value[1]);
+		this.depthRangeCache = value;
+	}
+
+	/** Whether or not blending is enabled. */
+	public get doBlend(): boolean {
+		return (this.doBlendCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(BLEND));
+	}
+
+	public set doBlend(value: boolean) {
+		if (this.doBlend === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(BLEND);
+		} else {
+			this.gl.disable(BLEND);
+		}
+
+		this.doBlendCache = value;
+	}
+
+	/** Whether or not polygon culling is enabled. */
+	public get doCullFace(): boolean {
+		return (this.doCullFaceCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(CULL_FACE));
+	}
+
+	public set doCullFace(value: boolean) {
+		if (this.doCullFace === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(CULL_FACE);
+		} else {
+			this.gl.disable(CULL_FACE);
+		}
+
+		this.doCullFaceCache = value;
+	}
+
+	/** Whether or not depth testing is enabled. */
+	public get doDepthTest(): boolean {
+		return (this.doDepthTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(DEPTH_TEST));
+	}
+
+	public set doDepthTest(value: boolean) {
+		if (this.doDepthTest === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(DEPTH_TEST);
+		} else {
+			this.gl.disable(DEPTH_TEST);
+		}
+
+		this.doDepthTestCache = value;
+	}
+
+	/** Whether or not dithering is enabled. */
+	public get doDither(): boolean {
+		return (this.doDitherCache ??=
+			this.doPrefillCache ? true : this.gl.isEnabled(DITHER));
+	}
+
+	public set doDither(value: boolean) {
+		if (this.doDither === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(DITHER);
+		} else {
+			this.gl.disable(DITHER);
+		}
+
+		this.doDitherCache = value;
+	}
+
+	/** Whether or not adding an offset to depth values of polygon fragments is enabled. */
+	public get doPolygonOffsetFill(): boolean {
+		return (this.doPolygonOffsetFillCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(POLYGON_OFFSET_FILL));
+	}
+
+	public set doPolygonOffsetFill(value: boolean) {
+		if (this.doPolygonOffsetFill === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(POLYGON_OFFSET_FILL);
+		} else {
+			this.gl.disable(POLYGON_OFFSET_FILL);
+		}
+
+		this.doPolygonOffsetFillCache = value;
+	}
+
+	/** Whether or not primitives are discarded immediately before the rasterization stage. */
+	public get doRasterizerDiscard(): boolean {
+		return (this.doRasterizerDiscardCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(RASTERIZER_DISCARD));
+	}
+
+	public set doRasterizerDiscard(value: boolean) {
+		if (this.doRasterizerDiscard === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(RASTERIZER_DISCARD);
+		} else {
+			this.gl.disable(RASTERIZER_DISCARD);
+		}
+
+		this.doRasterizerDiscardCache = value;
+	}
+
+	/** Whether or not to compute the computation of a temporary coverage value determined by the alpha value. */
+	public get doSampleAlphaToCoverage(): boolean {
+		return (this.doSampleAlphaToCoverageCache ??=
+			this.doPrefillCache ? false : (
+				this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE)
+			));
+	}
+
+	public set doSampleAlphaToCoverage(value: boolean) {
+		if (this.doSampleAlphaToCoverage === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
+		} else {
+			this.gl.disable(SAMPLE_ALPHA_TO_COVERAGE);
+		}
+
+		this.doSampleAlphaToCoverageCache = value;
+	}
+
+	/** Whether or not to AND the fragment's coverage with the temporary coverage value. */
+	public get doSampleCoverage(): boolean {
+		return (this.doSampleCoverageCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(SAMPLE_COVERAGE));
+	}
+
+	public set doSampleCoverage(value: boolean) {
+		if (this.doSampleCoverage === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(SAMPLE_COVERAGE);
+		} else {
+			this.gl.disable(SAMPLE_COVERAGE);
+		}
+
+		this.doSampleCoverageCache = value;
+	}
+
+	/** Whether or not the scissor test is enabled. */
+	public get doScissorTest(): boolean {
+		return (this.doScissorTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(SCISSOR_TEST));
+	}
+
+	public set doScissorTest(value: boolean) {
+		if (this.doScissorTest === value) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(SCISSOR_TEST);
+		} else {
+			this.gl.disable(SCISSOR_TEST);
+		}
+
+		this.doScissorTestCache = value;
+	}
+
+	/** Whether or not stencil testing is enabled. */
+	public get doStencilTest(): boolean {
+		return (this.doStencilTestCache ??=
+			this.doPrefillCache ? false : this.gl.isEnabled(STENCIL_TEST));
+	}
+
+	public set doStencilTest(value: boolean) {
+		if (value === this.doStencilTest) {
+			return;
+		}
+
+		if (value) {
+			this.gl.enable(STENCIL_TEST);
+		} else {
+			this.gl.disable(STENCIL_TEST);
+		}
+
+		this.doStencilTestCache = value;
+	}
+
+	/**
+	 * The color space of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace | drawingBufferColorSpace}
+	 */
+	public get drawingBufferColorSpace(): PredefinedColorSpace {
+		return (this.drawingBufferColorSpaceCache ??=
+			this.gl.drawingBufferColorSpace);
+	}
+
+	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
+		if (this.drawingBufferColorSpace === value) {
+			return;
+		}
+
+		this.gl.drawingBufferColorSpace = value;
+		this.drawingBufferColorSpaceCache = value;
+	}
+
+	/**
+	 * The actual height of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight | drawingBufferHeight}
+	 */
+	public get drawingBufferHeight(): number {
+		return this.gl.drawingBufferHeight;
+	}
+
+	/**
+	 * The actual width of the drawing buffer of this rendering context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth | drawingBufferWidth}
+	 */
+	public get drawingBufferWidth(): number {
+		return this.gl.drawingBufferWidth;
+	}
+
+	/**
+	 * The code of the most recent WebGL error that has occurred in this context.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError | getError}
+	 */
+	public get error(): ErrorCode {
+		return this.gl.getError();
+	}
+
+	/**
+	 * The rotational orientation of front-facing polygons.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
+	 */
+	public get frontFace(): Orientation {
+		return (this.frontFaceCache ??=
+			this.doPrefillCache ? Orientation.CCW : this.gl.getParameter(FRONT_FACE));
+	}
+
+	public set frontFace(value: Orientation) {
+		if (this.frontFace === value) {
+			return;
+		}
+
+		this.gl.frontFace(value);
+		this.frontFaceCache = value;
+	}
+
+	/**
+	 * The front stencil test function, reference, and mask.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
+	 */
+	public get frontStencil(): Stencil {
+		return (this.frontStencilCache ??=
+			this.doPrefillCache ?
+				[TestFunction.ALWAYS, 0, 0x7fffffff]
+			:	[
+					this.gl.getParameter(STENCIL_FUNC),
+					this.gl.getParameter(STENCIL_REF),
+					this.gl.getParameter(STENCIL_VALUE_MASK)
+				]);
+	}
+
+	public set frontStencil(value: Stencil) {
+		if (
+			this.frontStencil[0] === value[0] &&
+			this.frontStencil[1] === value[1] &&
+			this.frontStencil[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFuncSeparate(Face.FRONT, value[0], value[1], value[2]);
+	}
+
+	/** The maximum allowed time in nanoseconds for a sync object to wait on the client. */
+	public get maxClientWaitTimeout(): number {
+		// Cannot be prefilled (different for every system).
+		return (this.maxClientWaitTimeoutCache ??= this.gl.getParameter(
+			MAX_CLIENT_WAIT_TIMEOUT_WEBGL
+		));
+	}
+
+	/** The maximum number of texture units that can be used. Effectively all systems support at least `8`. */
+	public get maxCombinedTextureImageUnits(): number {
+		// Cannot be prefilled (different for every system).
+		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
+			MAX_COMBINED_TEXTURE_IMAGE_UNITS
+		));
+	}
+
+	/** The maximum number of draw buffers. */
+	public get maxDrawBuffers(): number {
+		// Cannot be prefilled (different for every system).
+		return (this.maxDrawBuffersCache ??=
+			this.gl.getParameter(MAX_DRAW_BUFFERS));
+	}
+
+	/**
+	 * The maximum available anisotropy.
+	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
+	 */
+	public get maxTextureMaxAnisotropy(): number {
+		if (!this.enableExtension(Extension.TEXTURE_FILTER_ANISOTROPIC)) {
+			throw new UnsupportedOperationError(
+				"The environment does not support anisotropic filtering."
+			);
+		}
+
+		// Cannot be prefilled (different for every system).
+		return (this.maxTextureMaxAnisotropyCache ??= this.gl.getParameter(
+			MAX_TEXTURE_MAX_ANISOTROPY_EXT
+		));
+	}
+
+	/** The maximum dimensions of the viewport. Effectively all systems support at least `[4096, 4096]`. */
+	public get maxViewportDims(): Pair {
+		// Cannot be prefilled (different for every system).
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return (this.maxViewportDimsCache ??= this.gl.getParameter(
+			MAX_VIEWPORT_DIMS
+		) as Int32Array & Pair);
+	}
+
+	/** The alignment to use when packing pixel data into memory. */
+	public get packAlignment(): 1 | 2 | 4 | 8 {
+		return (this.packAlignmentCache ??=
+			this.doPrefillCache ? 4 : this.gl.getParameter(PACK_ALIGNMENT));
+	}
+
+	public set packAlignment(value: 1 | 2 | 4 | 8) {
+		if (this.packAlignment === value) {
+			return;
+		}
+
+		this.gl.pixelStorei(PACK_ALIGNMENT, value);
+		this.packAlignmentCache = value;
+	}
+
+	/**
+	 * The scale factor for the variable depth offset for each polygon.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
+	 */
+	public get polygonOffsetFactor(): number {
+		return (this.polygonOffsetFactorCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_FACTOR));
+	}
+
+	public set polygonOffsetFactor(value: number) {
+		if (value === this.polygonOffsetFactor) {
+			return;
+		}
+
+		this.gl.polygonOffset(value, this.polygonOffsetUnits);
+		this.polygonOffsetFactorCache = value;
+	}
+
+	/**
+	 * The multiplier with which an implementation-specific value is multiplied to create a constant depth offset.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
+	 */
+	public get polygonOffsetUnits(): number {
+		return (this.polygonOffsetUnitsCache ??=
+			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_UNITS));
+	}
+
+	public set polygonOffsetUnits(value: number) {
+		if (value === this.polygonOffsetUnits) {
+			return;
+		}
+
+		this.gl.polygonOffset(this.polygonOffsetFactor, value);
+		this.polygonOffsetUnitsCache = value;
+	}
+
+	/**
+	 * Whether or not the coverage masks should be inverted.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
+	 */
+	public get sampleCoverageInvert(): boolean {
+		return (this.sampleCoverageInvertCache ??=
+			this.doPrefillCache ? false : (
+				this.gl.getParameter(SAMPLE_COVERAGE_INVERT)
+			));
+	}
+
+	public set sampleCoverageInvert(value: boolean) {
+		if (value === this.sampleCoverageInvert) {
+			return;
+		}
+
+		this.gl.sampleCoverage(this.sampleCoverageValue, value);
+		this.sampleCoverageInvertCache = value;
+	}
+
+	/**
+	 * A single floating-point coverage value.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
+	 */
+	public get sampleCoverageValue(): number {
+		return (this.sampleCoverageValueCache ??=
+			this.doPrefillCache ? 1 : this.gl.getParameter(SAMPLE_COVERAGE_VALUE));
+	}
+
+	public set sampleCoverageValue(value: number) {
+		if (value === this.sampleCoverageValue) {
+			return;
+		}
+
+		this.gl.sampleCoverage(value, this.sampleCoverageInvert);
+		this.sampleCoverageValueCache = value;
+	}
+
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor | scissor}
+	 */
+	public get scissorBox(): Rectangle {
+		// Cannot be prefilled (depends on initial canvas size).
+		return (this.scissorBoxCache ??= this.gl.getParameter(SCISSOR_BOX));
+	}
+
+	public set scissorBox(value: Rectangle) {
+		if (
+			this.scissorBox[0] === value[0] &&
+			this.scissorBox[1] === value[1] &&
+			this.scissorBox[2] === value[2] &&
+			this.scissorBox[3] === value[3]
+		) {
+			return;
+		}
+
+		this.gl.scissor(value[0], value[1], value[2], value[3]);
+		this.scissorBoxCache = value;
+	}
+
+	/**
+	 * The front and back stencil test functions, references, and masks.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc | stencilFunc}
+	 */
+	public get stencil(): Stencil {
+		return this.frontStencil;
+	}
+
+	public set stencil(value: Stencil) {
+		if (
+			this.frontStencil[0] === value[0] &&
+			this.frontStencil[1] === value[1] &&
+			this.frontStencil[2] === value[2] &&
+			this.backStencil[0] === value[0] &&
+			this.backStencil[1] === value[1] &&
+			this.backStencil[2] === value[2]
+		) {
+			return;
+		}
+
+		this.gl.stencilFunc(value[0], value[1], value[2]);
+		this.frontStencilCache = value;
+		this.backStencilCache = value;
+	}
+
+	/**
+	 * A list of supported extensions.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions | getSupportedExtensions}
+	 */
+	public get supportedExtensions(): readonly Extension[] {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return this.gl.getSupportedExtensions() as readonly Extension[];
+	}
+
+	/** The alignment to use when unpacking pixel data from memory. */
+	public get unpackAlignment(): 1 | 2 | 4 | 8 {
+		return (this.unpackAlignmentCache ??=
+			this.doPrefillCache ? 4 : this.gl.getParameter(UNPACK_ALIGNMENT));
+	}
+
+	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
+		if (this.unpackAlignment === value) {
+			return;
+		}
+
+		this.gl.pixelStorei(UNPACK_ALIGNMENT, value);
+		this.unpackAlignmentCache = value;
+	}
+
+	/**
+	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport | viewport}
+	 * @throws {@link BadValueError} if set larger than `MAX_VIEWPORT_DIMS`.
+	 */
+	public get viewport(): Rectangle {
+		// Cannot be prefilled (depends on initial canvas size).
+		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
+	}
+
+	public set viewport(value: Rectangle) {
+		if (
+			this.viewport[0] === value[0] &&
+			this.viewport[1] === value[1] &&
+			this.viewport[2] === value[2] &&
+			this.viewport[3] === value[3]
+		) {
+			return;
+		}
+
+		if (
+			value[0] + value[2] > this.maxViewportDims[0] ||
+			value[1] + value[3] > this.maxViewportDims[1]
+		) {
+			throw new BadValueError(
+				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`
+			);
+		}
+
+		this.gl.viewport(value[0], value[1], value[2], value[3]);
+		this.viewportCache = value;
+	}
 
 	/**
 	 * The active texture unit.
@@ -116,28 +1013,16 @@ export default class Context extends ApiInterface {
 	private activeTextureCache?: number;
 
 	/**
-	 * Whether or not to compute the computation of a temporary coverage value determined by the alpha value.
+	 * The attributes of this rendering context, or `null` if this rendering context is lost.
 	 * @internal
 	 */
-	private doSampleAlphaToCoverageCache?: boolean;
+	private attributesCache?: null | WebGLContextAttributes;
 
 	/**
-	 * Whether or not to AND the fragment's coverage with the temporary coverage value.
+	 * The back stencil test function, reference, and mask.
 	 * @internal
 	 */
-	private doSampleCoverageCache?: boolean;
-
-	/**
-	 * A single floating-point coverage value.
-	 * @internal
-	 */
-	private sampleCoverageValueCache?: number;
-
-	/**
-	 * Whether or not the coverage masks should be inverted.
-	 * @internal
-	 */
-	private sampleCoverageInvertCache?: boolean;
+	private backStencilCache?: Stencil;
 
 	/**
 	 * The blend color.
@@ -150,12 +1035,6 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private blendEquationCache?: BlendEquationSet;
-
-	/**
-	 * Whether or not blending is enabled.
-	 * @internal
-	 */
-	private doBlendCache?: boolean;
 
 	/**
 	 * The source and destination RGB and alpha blend functions.
@@ -188,40 +1067,10 @@ export default class Context extends ApiInterface {
 	private colorMaskCache?: ColorMask;
 
 	/**
-	 * The maximum number of texture units that can be used.
-	 * @internal
-	 */
-	private maxCombinedTextureImageUnitsCache?: number;
-
-	/**
-	 * Whether or not polygon culling is enabled.
-	 * @internal
-	 */
-	private doCullFaceCache?: boolean;
-
-	/**
 	 * The direction that polygons should face if they are to be culled.
 	 * @internal
 	 */
 	private cullFaceCache?: Face;
-
-	/**
-	 * Whether or not dithering is enabled.
-	 * @internal
-	 */
-	private doDitherCache?: boolean;
-
-	/**
-	 * Whether or not depth testing is enabled.
-	 * @internal
-	 */
-	private doDepthTestCache?: boolean;
-
-	/**
-	 * Whether or not the depth buffer can be written to.
-	 * @internal
-	 */
-	private depthMaskCache?: boolean;
 
 	/**
 	 * The depth comparison function to use.
@@ -230,76 +1079,46 @@ export default class Context extends ApiInterface {
 	private depthFunctionCache?: TestFunction;
 
 	/**
+	 * Whether or not the depth buffer can be written to.
+	 * @internal
+	 */
+	private depthMaskCache?: boolean;
+
+	/**
 	 * The depth range mapping from normalized device coordinates to window or viewport coordinates.
 	 * @internal
 	 */
 	private depthRangeCache?: Pair;
 
 	/**
-	 * The alignment to use when unpacking pixel data from memory.
+	 * Whether or not blending is enabled.
 	 * @internal
 	 */
-	private unpackAlignmentCache?: 1 | 2 | 4 | 8;
+	private doBlendCache?: boolean;
 
 	/**
-	 * The alignment to use when packing pixel data into memory.
+	 * Whether or not polygon culling is enabled.
 	 * @internal
 	 */
-	private packAlignmentCache?: 1 | 2 | 4 | 8;
+	private doCullFaceCache?: boolean;
 
 	/**
-	 * A map of already-enabled WebGL extensions.
+	 * Whether or not depth testing is enabled.
 	 * @internal
 	 */
-	private readonly enabledExtensions: Map<Extension, ExtensionObject | null>;
+	private doDepthTestCache?: boolean;
 
 	/**
-	 * Whether or not the scissor test is enabled.
+	 * Whether or not dithering is enabled.
 	 * @internal
 	 */
-	private doScissorTestCache?: boolean;
+	private doDitherCache?: boolean;
 
 	/**
-	 * The scissor box, which limits drawing to a specified rectangle.
+	 * Whether or not adding an offset to depth values of polygon fragments is enabled.
 	 * @internal
 	 */
-	private scissorBoxCache?: Rectangle;
-
-	/**
-	 * The maximum dimensions of the viewport.
-	 * @internal
-	 */
-	private maxViewportDimsCache?: Pair;
-
-	/**
-	 * The maximum available anisotropy.
-	 * @internal
-	 */
-	private maxTextureMaxAnisotropyCache?: number;
-
-	/**
-	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @internal
-	 */
-	private viewportCache?: Rectangle;
-
-	/**
-	 * Whether or not stencil testing is enabled.
-	 * @internal
-	 */
-	private doStencilTestCache?: boolean;
-
-	/**
-	 * The front stencil test function, reference, and mask.
-	 * @internal
-	 */
-	private frontStencilCache?: Stencil;
-
-	/**
-	 * The back stencil test function, reference, and mask.
-	 * @internal
-	 */
-	private backStencilCache?: Stencil;
+	private doPolygonOffsetFillCache?: boolean;
 
 	/**
 	 * Whether or not primitives are discarded immediately before the rasterization stage.
@@ -308,16 +1127,88 @@ export default class Context extends ApiInterface {
 	private doRasterizerDiscardCache?: boolean;
 
 	/**
+	 * Whether or not to compute the computation of a temporary coverage value determined by the alpha value.
+	 * @internal
+	 */
+	private doSampleAlphaToCoverageCache?: boolean;
+
+	/**
+	 * Whether or not to AND the fragment's coverage with the temporary coverage value.
+	 * @internal
+	 */
+	private doSampleCoverageCache?: boolean;
+
+	/**
+	 * Whether or not the scissor test is enabled.
+	 * @internal
+	 */
+	private doScissorTestCache?: boolean;
+
+	/**
+	 * Whether or not stencil testing is enabled.
+	 * @internal
+	 */
+	private doStencilTestCache?: boolean;
+
+	/**
+	 * The color space of the drawing buffer of this rendering context.
+	 * @internal
+	 */
+	private drawingBufferColorSpaceCache?: PredefinedColorSpace;
+
+	/**
+	 * A map of already-enabled WebGL extensions.
+	 * @internal
+	 */
+	private readonly enabledExtensions: Map<Extension, ExtensionObject | null>;
+
+	/**
 	 * The rotational orientation of front-facing polygons.
 	 * @internal
 	 */
 	private frontFaceCache?: Orientation;
 
 	/**
-	 * Whether or not adding an offset to depth values of polygon fragments is enabled.
+	 * The front stencil test function, reference, and mask.
 	 * @internal
 	 */
-	private doPolygonOffsetFillCache?: boolean;
+	private frontStencilCache?: Stencil;
+
+	/**
+	 * The maximum allowed time in nanoseconds for a sync object to wait on the client.
+	 * @internal
+	 */
+	private maxClientWaitTimeoutCache?: number;
+
+	/**
+	 * The maximum number of texture units that can be used.
+	 * @internal
+	 */
+	private maxCombinedTextureImageUnitsCache?: number;
+
+	/**
+	 * The maximum number of draw buffers.
+	 * @internal
+	 */
+	private maxDrawBuffersCache?: number;
+
+	/**
+	 * The maximum available anisotropy.
+	 * @internal
+	 */
+	private maxTextureMaxAnisotropyCache?: number;
+
+	/**
+	 * The maximum dimensions of the viewport.
+	 * @internal
+	 */
+	private maxViewportDimsCache?: Pair;
+
+	/**
+	 * The alignment to use when packing pixel data into memory.
+	 * @internal
+	 */
+	private packAlignmentCache?: 1 | 2 | 4 | 8;
 
 	/**
 	 * The scale factor for the variable depth offset for each polygon.
@@ -332,16 +1223,34 @@ export default class Context extends ApiInterface {
 	private polygonOffsetUnitsCache?: number;
 
 	/**
-	 * The maximum allowed time in nanoseconds for a sync object to wait on the client.
+	 * Whether or not the coverage masks should be inverted.
 	 * @internal
 	 */
-	private maxClientWaitTimeoutCache?: number;
+	private sampleCoverageInvertCache?: boolean;
 
 	/**
-	 * The maximum number of draw buffers.
+	 * A single floating-point coverage value.
 	 * @internal
 	 */
-	private maxDrawBuffersCache?: number;
+	private sampleCoverageValueCache?: number;
+
+	/**
+	 * The scissor box, which limits drawing to a specified rectangle.
+	 * @internal
+	 */
+	private scissorBoxCache?: Rectangle;
+
+	/**
+	 * The alignment to use when unpacking pixel data from memory.
+	 * @internal
+	 */
+	private unpackAlignmentCache?: 1 | 2 | 4 | 8;
+
+	/**
+	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
+	 * @internal
+	 */
+	private viewportCache?: Rectangle;
 
 	/**
 	 * Create a wrapper for a WebGL2 rendering context.
@@ -366,7 +1275,7 @@ export default class Context extends ApiInterface {
 	);
 
 	public constructor(
-		source: WebGL2RenderingContext | HTMLCanvasElement | OffscreenCanvas,
+		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
 		options?: WebGLContextAttributes,
 		doPrefillCache = true
 	) {
@@ -400,953 +1309,12 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * The actual height of the drawing buffer of this rendering context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferHeight | drawingBufferHeight}
-	 */
-	public get drawingBufferHeight(): number {
-		return this.gl.drawingBufferHeight;
-	}
-
-	/**
-	 * The actual width of the drawing buffer of this rendering context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferWidth | drawingBufferWidth}
-	 */
-	public get drawingBufferWidth(): number {
-		return this.gl.drawingBufferWidth;
-	}
-
-	/**
-	 * The attributes of this rendering context, or `null` if this rendering context is lost.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getContextAttributes | getContextAttributes}
-	 */
-	public get attributes(): WebGLContextAttributes | null {
-		return (this.attributesCache ??= this.gl.getContextAttributes());
-	}
-
-	/** The RGB blend equation. */
-	public get blendEquationRgb(): BlendEquation {
-		return (this.blendEquationCache ??= this.makeBlendEquationCache())[0];
-	}
-
-	/** The alpha blend equation. */
-	public get blendEquationAlpha(): BlendEquation {
-		return (this.blendEquationCache ??= this.makeBlendEquationCache())[1];
-	}
-
-	/** The source RGB blend function. */
-	public get blendFunctionSourceRgb(): BlendFunction {
-		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[0];
-	}
-
-	/** The destination RGB blend function. */
-	public get blendFunctionDestinationRgb(): BlendFunction {
-		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[1];
-	}
-
-	/** The source alpha blend function. */
-	public get blendFunctionSourceAlpha(): BlendFunction {
-		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[2];
-	}
-
-	/** The destination alpha blend function. */
-	public get blendFunctionDestinationAlpha(): BlendFunction {
-		return (this.blendFunctionCache ??= this.makeBlendFunctionCache())[3];
-	}
-
-	/**
-	 * The code of the most recent WebGL error that has occurred in this context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError | getError}
-	 */
-	public get error(): ErrorCode {
-		return this.gl.getError();
-	}
-
-	/** The maximum number of texture units that can be used. Effectively all systems support at least `8`. */
-	public get maxCombinedTextureImageUnits(): number {
-		// Cannot be prefilled (different for every system).
-		return (this.maxCombinedTextureImageUnitsCache ??= this.gl.getParameter(
-			MAX_COMBINED_TEXTURE_IMAGE_UNITS
-		));
-	}
-
-	/**
-	 * A list of supported extensions.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getSupportedExtensions | getSupportedExtensions}
-	 */
-	public get supportedExtensions(): readonly Extension[] {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return this.gl.getSupportedExtensions() as readonly Extension[];
-	}
-
-	/** The maximum dimensions of the viewport. Effectively all systems support at least `[4096, 4096]`. */
-	public get maxViewportDims(): Pair {
-		// Cannot be prefilled (different for every system).
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return (this.maxViewportDimsCache ??= this.gl.getParameter(
-			MAX_VIEWPORT_DIMS
-		) as Int32Array & Pair);
-	}
-
-	/**
-	 * The maximum available anisotropy.
-	 * @throws {@link UnsupportedOperationError} if the anisotropic filtering extension is not available.
-	 */
-	public get maxTextureMaxAnisotropy(): number {
-		if (!this.enableExtension(Extension.TEXTURE_FILTER_ANISOTROPIC)) {
-			throw new UnsupportedOperationError(
-				"The environment does not support anisotropic filtering."
-			);
-		}
-
-		// Cannot be prefilled (different for every system).
-		return (this.maxTextureMaxAnisotropyCache ??= this.gl.getParameter(
-			MAX_TEXTURE_MAX_ANISOTROPY_EXT
-		));
-	}
-
-	/** The maximum allowed time in nanoseconds for a sync object to wait on the client. */
-	public get maxClientWaitTimeout(): number {
-		// Cannot be prefilled (different for every system).
-		return (this.maxClientWaitTimeoutCache ??= this.gl.getParameter(
-			MAX_CLIENT_WAIT_TIMEOUT_WEBGL
-		));
-	}
-
-	/** The maximum number of draw buffers. */
-	public get maxDrawBuffers(): number {
-		// Cannot be prefilled (different for every system).
-		return (this.maxDrawBuffersCache ??=
-			this.gl.getParameter(MAX_DRAW_BUFFERS));
-	}
-
-	/**
-	 * The active texture unit.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/activeTexture | activeTexture}
-	 * @throws {@link BadValueError} if set to a value outside of the range `[0, MAX_COMBINED_TEXTURE_IMAGE_UNITS)`.
-	 * @internal
-	 */
-	public get activeTexture(): number {
-		return (this.activeTextureCache ??=
-			this.doPrefillCache ? 0 : (
-				this.gl.getParameter(ACTIVE_TEXTURE) - TEXTURE0
-			));
-	}
-
-	public set activeTexture(value: number) {
-		if (this.activeTexture === value) {
-			return;
-		}
-
-		if (value < 0 || value >= this.maxCombinedTextureImageUnits) {
-			throw new BadValueError(
-				`Invalid texture unit (${value.toString()} must be positive and below ${this.maxCombinedTextureImageUnits.toString()}).`
-			);
-		}
-
-		this.gl.activeTexture(value + TEXTURE0);
-		this.activeTextureCache = value;
-	}
-
-	/**
-	 * The color space of the drawing buffer of this rendering context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawingBufferColorSpace | drawingBufferColorSpace}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get drawingBufferColorSpace(): PredefinedColorSpace {
-		return (this.drawingBufferColorSpaceCache ??=
-			this.gl.drawingBufferColorSpace);
-	}
-
-	public set drawingBufferColorSpace(value: PredefinedColorSpace) {
-		if (this.drawingBufferColorSpace === value) {
-			return;
-		}
-
-		this.gl.drawingBufferColorSpace = value;
-		this.drawingBufferColorSpaceCache = value;
-	}
-
-	/** Whether or not to compute the computation of a temporary coverage value determined by the alpha value. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doSampleAlphaToCoverage(): boolean {
-		return (this.doSampleAlphaToCoverageCache ??=
-			this.doPrefillCache ? false : (
-				this.gl.isEnabled(SAMPLE_ALPHA_TO_COVERAGE)
-			));
-	}
-
-	public set doSampleAlphaToCoverage(value: boolean) {
-		if (this.doSampleAlphaToCoverage === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(SAMPLE_ALPHA_TO_COVERAGE);
-		} else {
-			this.gl.disable(SAMPLE_ALPHA_TO_COVERAGE);
-		}
-
-		this.doSampleAlphaToCoverageCache = value;
-	}
-
-	/** Whether or not to AND the fragment's coverage with the temporary coverage value. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doSampleCoverage(): boolean {
-		return (this.doSampleCoverageCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(SAMPLE_COVERAGE));
-	}
-
-	public set doSampleCoverage(value: boolean) {
-		if (this.doSampleCoverage === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(SAMPLE_COVERAGE);
-		} else {
-			this.gl.disable(SAMPLE_COVERAGE);
-		}
-
-		this.doSampleCoverageCache = value;
-	}
-
-	/**
-	 * A single floating-point coverage value.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get sampleCoverageValue(): number {
-		return (this.sampleCoverageValueCache ??=
-			this.doPrefillCache ? 1 : this.gl.getParameter(SAMPLE_COVERAGE_VALUE));
-	}
-
-	public set sampleCoverageValue(value: number) {
-		if (value === this.sampleCoverageValue) {
-			return;
-		}
-
-		this.gl.sampleCoverage(value, this.sampleCoverageInvert);
-		this.sampleCoverageValueCache = value;
-	}
-
-	/**
-	 * Whether or not the coverage masks should be inverted.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/sampleCoverage | sampleCoverage}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get sampleCoverageInvert(): boolean {
-		return (this.sampleCoverageInvertCache ??=
-			this.doPrefillCache ? false : (
-				this.gl.getParameter(SAMPLE_COVERAGE_INVERT)
-			));
-	}
-
-	public set sampleCoverageInvert(value: boolean) {
-		if (value === this.sampleCoverageInvert) {
-			return;
-		}
-
-		this.gl.sampleCoverage(this.sampleCoverageValue, value);
-		this.sampleCoverageInvertCache = value;
-	}
-
-	/**
-	 * The blend color.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendColor | blendColor}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get blendColor(): Color {
-		return (this.blendColorCache ??=
-			this.doPrefillCache ?
-				new Float32Array([0, 0, 0, 0])
-			:	this.gl.getParameter(BLEND_COLOR));
-	}
-
-	public set blendColor(value: Color) {
-		if (
-			this.blendColor[0] === value[0] &&
-			this.blendColor[1] === value[1] &&
-			this.blendColor[2] === value[2] &&
-			this.blendColor[3] === value[3]
-		) {
-			return;
-		}
-
-		this.gl.blendColor(value[0], value[1], value[2], value[3]);
-		this.blendColorCache = value;
-	}
-
-	/**
-	 * The RGB and alpha blend equations.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquation | blendEquation}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendEquationSeparate | blendEquationSeparate}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get blendEquation(): BlendEquationSet {
-		return (this.blendEquationCache ??= this.makeBlendEquationCache());
-	}
-
-	public set blendEquation(value: BlendEquation | BlendEquationSet) {
-		// One value.
-		if (typeof value === "number") {
-			if (this.blendEquation[0] === value && this.blendEquation[1] === value) {
-				return;
-			}
-
-			this.gl.blendEquation(value);
-
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			this.blendEquationCache = new Uint8Array([value, value]) as Uint8Array &
-				BlendEquationSet;
-
-			return;
-		}
-
-		// Set of values.
-		if (
-			this.blendEquation[0] === value[0] &&
-			this.blendEquation[1] === value[1]
-		) {
-			return;
-		}
-
-		this.gl.blendEquationSeparate(value[0], value[1]);
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		this.blendEquationCache = new Uint8Array([
-			value[0],
-			value[1]
-		]) as Uint8Array & BlendEquationSet;
-	}
-
-	/** Whether or not blending is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doBlend(): boolean {
-		return (this.doBlendCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(BLEND));
-	}
-
-	public set doBlend(value: boolean) {
-		if (this.doBlend === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(BLEND);
-		} else {
-			this.gl.disable(BLEND);
-		}
-
-		this.doBlendCache = value;
-	}
-
-	/**
-	 * The source and destination RGB and alpha blend functions.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc | blendFunc}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFuncSeparate | blendFuncSeparate}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get blendFunction(): BlendFunctionFullSet {
-		return (this.blendFunctionCache ??= this.makeBlendFunctionCache());
-	}
-
-	public set blendFunction(value: BlendFunctionSet | BlendFunctionFullSet) {
-		// Full set.
-		if (2 in value) {
-			if (
-				this.blendFunction[0] === value[0] &&
-				this.blendFunction[1] === value[1] &&
-				this.blendFunction[2] === value[2] &&
-				this.blendFunction[3] === value[3]
-			) {
-				return;
-			}
-
-			this.gl.blendFuncSeparate(value[0], value[1], value[2], value[3]);
-
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			this.blendFunctionCache = new Uint8Array([
-				value[0],
-				value[1],
-				value[2],
-				value[3]
-			]) as Uint8Array & BlendFunctionFullSet;
-
-			return;
-		}
-
-		// Half set.
-		if (
-			this.blendFunction[0] === value[0] &&
-			this.blendFunction[1] === value[1] &&
-			this.blendFunction[2] === value[0] &&
-			this.blendFunction[3] === value[1]
-		) {
-			return;
-		}
-
-		this.gl.blendFunc(value[0], value[1]);
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		this.blendFunctionCache = new Uint8Array([
-			value[0],
-			value[1],
-			value[0],
-			value[1]
-		]) as Uint8Array & BlendFunctionFullSet;
-	}
-
-	/**
-	 * The value to store in the color buffer when clearing it.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearColor | clearColor}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get clearColor(): Color {
-		return (this.clearColorCache ??=
-			this.doPrefillCache ?
-				new Float32Array([0, 0, 0, 0])
-			:	this.gl.getParameter(COLOR_CLEAR_VALUE));
-	}
-
-	public set clearColor(value: Color) {
-		if (
-			this.clearColor[0] === value[0] &&
-			this.clearColor[1] === value[1] &&
-			this.clearColor[2] === value[2] &&
-			this.clearColor[3] === value[3]
-		) {
-			return;
-		}
-
-		this.gl.clearColor(value[0], value[1], value[2], value[3]);
-		this.clearColorCache = value;
-	}
-
-	/**
-	 * The value to store in the depth buffer when clearing it.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearDepth | clearDepth}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get clearDepth(): number {
-		return (this.clearDepthCache ??=
-			this.doPrefillCache ? 1 : this.gl.getParameter(DEPTH_CLEAR_VALUE));
-	}
-
-	public set clearDepth(value: number) {
-		if (this.clearDepth === value) {
-			return;
-		}
-
-		this.gl.clearDepth(value);
-		this.clearDepthCache = value;
-	}
-
-	/**
-	 * The value to store in the stencil buffer when clearing it.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clearStencil | clearStencil}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get clearStencil(): number {
-		return (this.clearStencilCache ??=
-			this.doPrefillCache ? 0 : this.gl.getParameter(STENCIL_CLEAR_VALUE));
-	}
-
-	public set clearStencil(value: number) {
-		if (this.clearStencil === value) {
-			return;
-		}
-
-		this.gl.clearStencil(value);
-		this.clearStencilCache = value;
-	}
-
-	/**
-	 * The mask that specifies which components to enable or disable when rendering to a framebuffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/colorMask | colorMask}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get colorMask(): ColorMask {
-		return (this.colorMaskCache ??=
-			this.doPrefillCache ?
-				[true, true, true, true]
-			:	this.gl.getParameter(COLOR_WRITEMASK));
-	}
-
-	public set colorMask(value: ColorMask) {
-		if (
-			this.colorMask[0] === value[0] &&
-			this.colorMask[1] === value[1] &&
-			this.colorMask[2] === value[2] &&
-			this.colorMask[3] === value[3]
-		) {
-			return;
-		}
-
-		this.gl.colorMask(value[0], value[1], value[2], value[3]);
-		this.colorMaskCache = value;
-	}
-
-	/** Whether or not polygon culling is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doCullFace(): boolean {
-		return (this.doCullFaceCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(CULL_FACE));
-	}
-
-	public set doCullFace(value: boolean) {
-		if (this.doCullFace === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(CULL_FACE);
-		} else {
-			this.gl.disable(CULL_FACE);
-		}
-
-		this.doCullFaceCache = value;
-	}
-
-	/**
-	 * The direction that polygons should face if they are to be culled.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/cullFace | cullFace}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get cullFace(): Face {
-		return (this.cullFaceCache ??=
-			this.doPrefillCache ? Face.BACK : this.gl.getParameter(CULL_FACE_MODE));
-	}
-
-	public set cullFace(value: Face) {
-		if (this.cullFace === value) {
-			return;
-		}
-
-		this.gl.cullFace(value);
-		this.cullFaceCache = value;
-	}
-
-	/** Whether or not dithering is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doDither(): boolean {
-		return (this.doDitherCache ??=
-			this.doPrefillCache ? true : this.gl.isEnabled(DITHER));
-	}
-
-	public set doDither(value: boolean) {
-		if (this.doDither === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(DITHER);
-		} else {
-			this.gl.disable(DITHER);
-		}
-
-		this.doDitherCache = value;
-	}
-
-	/** Whether or not depth testing is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doDepthTest(): boolean {
-		return (this.doDepthTestCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(DEPTH_TEST));
-	}
-
-	public set doDepthTest(value: boolean) {
-		if (this.doDepthTest === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(DEPTH_TEST);
-		} else {
-			this.gl.disable(DEPTH_TEST);
-		}
-
-		this.doDepthTestCache = value;
-	}
-
-	/** Whether or not the depth buffer can be written to. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get depthMask(): boolean {
-		return (this.depthMaskCache ??=
-			this.doPrefillCache ? true : this.gl.getParameter(DEPTH_WRITEMASK));
-	}
-
-	public set depthMask(value: boolean) {
-		if (this.depthMask === value) {
-			return;
-		}
-
-		this.gl.depthMask(value);
-		this.depthMaskCache = value;
-	}
-
-	/**
-	 * The depth comparison function to use.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthFunc | depthFunc}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get depthFunction(): TestFunction {
-		return (this.depthFunctionCache ??=
-			this.doPrefillCache ?
-				TestFunction.LESS
-			:	this.gl.getParameter(DEPTH_FUNC));
-	}
-
-	public set depthFunction(value: TestFunction) {
-		if (this.depthFunction === value) {
-			return;
-		}
-
-		this.gl.depthFunc(value);
-		this.depthFunctionCache = value;
-	}
-
-	/**
-	 * The depth range mapping from normalized device coordinates to window or viewport coordinates.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/depthRange | depthRange}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get depthRange(): Pair {
-		return (this.depthRangeCache ??=
-			this.doPrefillCache ?
-				new Float32Array([0, 1])
-			:	this.gl.getParameter(DEPTH_RANGE));
-	}
-
-	public set depthRange(value: Pair) {
-		if (this.depthRange[0] === value[0] && this.depthRange[1] === value[1]) {
-			return;
-		}
-
-		this.gl.depthRange(value[0], value[1]);
-		this.depthRangeCache = value;
-	}
-
-	/** The alignment to use when unpacking pixel data from memory. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get unpackAlignment(): 1 | 2 | 4 | 8 {
-		return (this.unpackAlignmentCache ??=
-			this.doPrefillCache ? 4 : this.gl.getParameter(UNPACK_ALIGNMENT));
-	}
-
-	public set unpackAlignment(value: 1 | 2 | 4 | 8) {
-		if (this.unpackAlignment === value) {
-			return;
-		}
-
-		this.gl.pixelStorei(UNPACK_ALIGNMENT, value);
-		this.unpackAlignmentCache = value;
-	}
-
-	/** The alignment to use when packing pixel data into memory. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get packAlignment(): 1 | 2 | 4 | 8 {
-		return (this.packAlignmentCache ??=
-			this.doPrefillCache ? 4 : this.gl.getParameter(PACK_ALIGNMENT));
-	}
-
-	public set packAlignment(value: 1 | 2 | 4 | 8) {
-		if (this.packAlignment === value) {
-			return;
-		}
-
-		this.gl.pixelStorei(PACK_ALIGNMENT, value);
-		this.packAlignmentCache = value;
-	}
-
-	/** Whether or not the scissor test is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doScissorTest(): boolean {
-		return (this.doScissorTestCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(SCISSOR_TEST));
-	}
-
-	public set doScissorTest(value: boolean) {
-		if (this.doScissorTest === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(SCISSOR_TEST);
-		} else {
-			this.gl.disable(SCISSOR_TEST);
-		}
-
-		this.doScissorTestCache = value;
-	}
-
-	/**
-	 * The scissor box, which limits drawing to a specified rectangle.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/scissor | scissor}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get scissorBox(): Rectangle {
-		// Cannot be prefilled (depends on initial canvas size).
-		return (this.scissorBoxCache ??= this.gl.getParameter(SCISSOR_BOX));
-	}
-
-	public set scissorBox(value: Rectangle) {
-		if (
-			this.scissorBox[0] === value[0] &&
-			this.scissorBox[1] === value[1] &&
-			this.scissorBox[2] === value[2] &&
-			this.scissorBox[3] === value[3]
-		) {
-			return;
-		}
-
-		this.gl.scissor(value[0], value[1], value[2], value[3]);
-		this.scissorBoxCache = value;
-	}
-
-	/**
-	 * The viewport box, which specifies the affine transformation of coordinates from normalized device coordinates to window coordinates.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/viewport | viewport}
-	 * @throws {@link BadValueError} if set larger than `MAX_VIEWPORT_DIMS`.
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get viewport(): Rectangle {
-		// Cannot be prefilled (depends on initial canvas size).
-		return (this.viewportCache ??= this.gl.getParameter(VIEWPORT));
-	}
-
-	public set viewport(value: Rectangle) {
-		if (
-			this.viewport[0] === value[0] &&
-			this.viewport[1] === value[1] &&
-			this.viewport[2] === value[2] &&
-			this.viewport[3] === value[3]
-		) {
-			return;
-		}
-
-		if (
-			value[0] + value[2] > this.maxViewportDims[0] ||
-			value[1] + value[3] > this.maxViewportDims[1]
-		) {
-			throw new BadValueError(
-				`The viewport dimensions may not exceed (${this.maxViewportDims[0].toString()}, ${this.maxViewportDims[1].toString()})`
-			);
-		}
-
-		this.gl.viewport(value[0], value[1], value[2], value[3]);
-		this.viewportCache = value;
-	}
-
-	/** Whether or not stencil testing is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doStencilTest(): boolean {
-		return (this.doStencilTestCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(STENCIL_TEST));
-	}
-
-	public set doStencilTest(value: boolean) {
-		if (value === this.doStencilTest) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(STENCIL_TEST);
-		} else {
-			this.gl.disable(STENCIL_TEST);
-		}
-
-		this.doStencilTestCache = value;
-	}
-
-	/**
-	 * The front stencil test function, reference, and mask.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get frontStencil(): Stencil {
-		return (this.frontStencilCache ??=
-			this.doPrefillCache ?
-				[TestFunction.ALWAYS, 0, 0x7fffffff]
-			:	[
-					this.gl.getParameter(STENCIL_FUNC),
-					this.gl.getParameter(STENCIL_REF),
-					this.gl.getParameter(STENCIL_VALUE_MASK)
-				]);
-	}
-
-	public set frontStencil(value: Stencil) {
-		if (
-			this.frontStencil[0] === value[0] &&
-			this.frontStencil[1] === value[1] &&
-			this.frontStencil[2] === value[2]
-		) {
-			return;
-		}
-
-		this.gl.stencilFuncSeparate(Face.FRONT, value[0], value[1], value[2]);
-	}
-
-	/**
-	 * The back stencil test function, reference, and mask.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFuncSeparate | stencilFuncSeparate}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get backStencil(): Stencil {
-		return (this.backStencilCache ??=
-			this.doPrefillCache ?
-				[TestFunction.ALWAYS, 0, 0x7fffffff]
-			:	[
-					this.gl.getParameter(STENCIL_BACK_FUNC),
-					this.gl.getParameter(STENCIL_BACK_REF),
-					this.gl.getParameter(STENCIL_BACK_VALUE_MASK)
-				]);
-	}
-
-	public set backStencil(value: Stencil) {
-		if (
-			this.backStencil[0] === value[0] &&
-			this.backStencil[1] === value[1] &&
-			this.backStencil[2] === value[2]
-		) {
-			return;
-		}
-
-		this.gl.stencilFuncSeparate(Face.BACK, value[0], value[1], value[2]);
-	}
-
-	/**
-	 * The front and back stencil test functions, references, and masks.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/stencilFunc | stencilFunc}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get stencil(): Stencil {
-		return this.frontStencil;
-	}
-
-	public set stencil(value: Stencil) {
-		if (
-			this.frontStencil[0] === value[0] &&
-			this.frontStencil[1] === value[1] &&
-			this.frontStencil[2] === value[2] &&
-			this.backStencil[0] === value[0] &&
-			this.backStencil[1] === value[1] &&
-			this.backStencil[2] === value[2]
-		) {
-			return;
-		}
-
-		this.gl.stencilFunc(value[0], value[1], value[2]);
-		this.frontStencilCache = value;
-		this.backStencilCache = value;
-	}
-
-	/** Whether or not primitives are discarded immediately before the rasterization stage. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doRasterizerDiscard(): boolean {
-		return (this.doRasterizerDiscardCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(RASTERIZER_DISCARD));
-	}
-
-	public set doRasterizerDiscard(value: boolean) {
-		if (this.doRasterizerDiscard === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(RASTERIZER_DISCARD);
-		} else {
-			this.gl.disable(RASTERIZER_DISCARD);
-		}
-
-		this.doRasterizerDiscardCache = value;
-	}
-
-	/**
-	 * The rotational orientation of front-facing polygons.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/frontFace | frontFace}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get frontFace(): Orientation {
-		return (this.frontFaceCache ??=
-			this.doPrefillCache ? Orientation.CCW : this.gl.getParameter(FRONT_FACE));
-	}
-
-	public set frontFace(value: Orientation) {
-		if (this.frontFace === value) {
-			return;
-		}
-
-		this.gl.frontFace(value);
-		this.frontFaceCache = value;
-	}
-
-	/** Whether or not adding an offset to depth values of polygon fragments is enabled. */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get doPolygonOffsetFill(): boolean {
-		return (this.doPolygonOffsetFillCache ??=
-			this.doPrefillCache ? false : this.gl.isEnabled(POLYGON_OFFSET_FILL));
-	}
-
-	public set doPolygonOffsetFill(value: boolean) {
-		if (this.doPolygonOffsetFill === value) {
-			return;
-		}
-
-		if (value) {
-			this.gl.enable(POLYGON_OFFSET_FILL);
-		} else {
-			this.gl.disable(POLYGON_OFFSET_FILL);
-		}
-
-		this.doPolygonOffsetFillCache = value;
-	}
-
-	/**
-	 * The scale factor for the variable depth offset for each polygon.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get polygonOffsetFactor(): number {
-		return (this.polygonOffsetFactorCache ??=
-			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_FACTOR));
-	}
-
-	public set polygonOffsetFactor(value: number) {
-		if (value === this.polygonOffsetFactor) {
-			return;
-		}
-
-		this.gl.polygonOffset(value, this.polygonOffsetUnits);
-		this.polygonOffsetFactorCache = value;
-	}
-
-	/**
-	 * The multiplier with which an implementation-specific value is multiplied to create a constant depth offset.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/polygonOffset | polygonOffset}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get polygonOffsetUnits(): number {
-		return (this.polygonOffsetUnitsCache ??=
-			this.doPrefillCache ? 0 : this.gl.getParameter(POLYGON_OFFSET_UNITS));
-	}
-
-	public set polygonOffsetUnits(value: number) {
-		if (value === this.polygonOffsetUnits) {
-			return;
-		}
-
-		this.gl.polygonOffset(this.polygonOffsetFactor, value);
-		this.polygonOffsetUnitsCache = value;
-	}
-
-	/**
 	 * Create a `Context` or get an existing `Context` if one already exists for the given rendering context. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
 	 * @param gl - The rendering context.
 	 * @returns A rendering context.
 	 * @public
 	 */
 	public static get(gl: WebGL2RenderingContext): Context;
-
 	/**
 	 * Create a `Context` or get an existing `Context` if one already exists for the given canvas. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
 	 * @param canvas - The canvas of the rendering context.
@@ -1360,7 +1328,6 @@ export default class Context extends ApiInterface {
 		options?: WebGLContextAttributes,
 		doPrefillCache?: boolean
 	): Context;
-
 	public static get(
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
 		options?: WebGLContextAttributes,
@@ -1400,14 +1367,11 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Throw a JavaScript error if a WebGL error has occurred.
-	 * @throws {@link WebglError} if a WebGL error has occurred.
+	 * Block execution until all previously-called commands are finished.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/finish | finish}
 	 */
-	public throwIfError(): void {
-		const code = this.error;
-		if (code !== ErrorCode.NO_ERROR) {
-			throw new WebglError(code);
-		}
+	public finish(): void {
+		this.gl.finish();
 	}
 
 	/**
@@ -1448,13 +1412,20 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
+	 * Empty different buffer commands, causing all commands to be executed as quickly as possible.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/flush | flush}
+	 */
+	public flush(): void {
+		this.gl.flush();
+	}
+
+	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given framebuffer.
 	 * @param framebuffer - The framebuffer to fit the size of, or `undefined` for the default framebuffer (canvas).
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(framebuffer?: Framebuffer): boolean;
-
 	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
 	 * @param rectangle - The rectangle that represents the viewport.
@@ -1462,8 +1433,7 @@ export default class Context extends ApiInterface {
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(rectangle: Rectangle): boolean;
-
-	public resize(shape?: Rectangle | Framebuffer): boolean {
+	public resize(shape?: Framebuffer | Rectangle): boolean {
 		const out = this.fitDrawingBuffer();
 
 		if (shape && 0 in shape) {
@@ -1476,19 +1446,14 @@ export default class Context extends ApiInterface {
 	}
 
 	/**
-	 * Block execution until all previously-called commands are finished.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/finish | finish}
+	 * Throw a JavaScript error if a WebGL error has occurred.
+	 * @throws {@link WebglError} if a WebGL error has occurred.
 	 */
-	public finish(): void {
-		this.gl.finish();
-	}
-
-	/**
-	 * Empty different buffer commands, causing all commands to be executed as quickly as possible.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/flush | flush}
-	 */
-	public flush(): void {
-		this.gl.flush();
+	public throwIfError(): void {
+		const code = this.error;
+		if (code !== ErrorCode.NO_ERROR) {
+			throw new WebglError(code);
+		}
 	}
 
 	/**
@@ -1496,18 +1461,18 @@ export default class Context extends ApiInterface {
 	 * @returns The blend equation cache.
 	 * @internal
 	 */
-	private makeBlendEquationCache(): Uint8Array & BlendEquationSet {
+	private makeBlendEquationCache(): BlendEquationSet & Uint8Array {
 		return this.doPrefillCache ?
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				(new Uint8Array([
 					BlendEquation.FUNC_ADD,
 					BlendEquation.FUNC_ADD
-				]) as Uint8Array & BlendEquationSet)
+				]) as BlendEquationSet & Uint8Array)
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			:	(new Uint8Array([
 					this.gl.getParameter(BLEND_EQUATION_RGB),
 					this.gl.getParameter(BLEND_EQUATION_ALPHA)
-				]) as Uint8Array & BlendEquationSet);
+				]) as BlendEquationSet & Uint8Array);
 	}
 
 	/**
@@ -1515,7 +1480,7 @@ export default class Context extends ApiInterface {
 	 * @returns The blend function cache.
 	 * @internal
 	 */
-	private makeBlendFunctionCache(): Uint8Array & BlendFunctionFullSet {
+	private makeBlendFunctionCache(): BlendFunctionFullSet & Uint8Array {
 		return this.doPrefillCache ?
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 				(new Uint8Array([
@@ -1523,13 +1488,13 @@ export default class Context extends ApiInterface {
 					BlendFunction.ZERO,
 					BlendFunction.ONE,
 					BlendFunction.ZERO
-				]) as Uint8Array & BlendFunctionFullSet)
+				]) as BlendFunctionFullSet & Uint8Array)
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			:	(new Uint8Array([
 					this.gl.getParameter(BLEND_SRC_RGB),
 					this.gl.getParameter(BLEND_DST_RGB),
 					this.gl.getParameter(BLEND_SRC_ALPHA),
 					this.gl.getParameter(BLEND_DST_ALPHA)
-				]) as Uint8Array & BlendFunctionFullSet);
+				]) as BlendFunctionFullSet & Uint8Array);
 	}
 }

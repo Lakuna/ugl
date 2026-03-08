@@ -11,13 +11,13 @@ export default function getExtensionForRenderbufferFormat(
 	format: RenderbufferFormat
 ): Extension | null {
 	switch (format) {
-		case RenderbufferFormat.R16F:
-		case RenderbufferFormat.RG16F:
-		case RenderbufferFormat.RGBA16F:
-		case RenderbufferFormat.R32F:
-		case RenderbufferFormat.RG32F:
-		case RenderbufferFormat.RGBA32F:
 		case RenderbufferFormat.R11F_G11F_B10F:
+		case RenderbufferFormat.R16F:
+		case RenderbufferFormat.R32F:
+		case RenderbufferFormat.RG16F:
+		case RenderbufferFormat.RG32F:
+		case RenderbufferFormat.RGBA16F:
+		case RenderbufferFormat.RGBA32F:
 			return Extension.EXT_COLOR_BUFFER_FLOAT;
 		default:
 			return null;

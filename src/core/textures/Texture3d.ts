@@ -1,18 +1,19 @@
-import BadValueError from "../../utility/BadValueError.js";
-import BufferTarget from "../../constants/BufferTarget.js";
-import type Context from "../Context.js";
-import Framebuffer from "../Framebuffer.js";
-import FramebufferTarget from "../../constants/FramebufferTarget.js";
 import type MipmapTarget from "../../constants/MipmapTarget.js";
-import type Prism from "../../types/Prism.js";
-import type Rectangle from "../../types/Rectangle.js";
-import Texture from "./Texture.js";
 import type TextureDataFormat from "../../constants/TextureDataFormat.js";
 import type TextureDataType from "../../constants/TextureDataType.js";
 import type TextureFormat from "../../constants/TextureFormat.js";
-import TextureTarget from "../../constants/TextureTarget.js";
+import type Prism from "../../types/Prism.js";
+import type Rectangle from "../../types/Rectangle.js";
 import type VertexBuffer from "../buffers/VertexBuffer.js";
+import type Context from "../Context.js";
+
+import BufferTarget from "../../constants/BufferTarget.js";
+import FramebufferTarget from "../../constants/FramebufferTarget.js";
+import TextureTarget from "../../constants/TextureTarget.js";
+import BadValueError from "../../utility/BadValueError.js";
 import isTextureDataFormatCompressed from "../../utility/internal/isTextureDataFormatCompressed.js";
+import Framebuffer from "../Framebuffer.js";
+import Texture from "./Texture.js";
 
 /**
  * A three-dimensional texture.
@@ -100,61 +101,121 @@ export default class Texture3d extends Texture {
 	}
 
 	/**
-	 * Copy the data in a framebuffer into one of this texture's mips.
+	 * Copy the data in an array into one of this texture's mips.
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
-	 * @param area - The area of the framebuffer to copy into the mip.
-	 * @throws {@link BadValueError} if the area that is being updated is too small to contain the selected portion of the framebuffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/copyTexSubImage3D | copyTexSubImage3D}
+	 * @param format - The format of the data in the array.
+	 * @param type - The type of the data in the array.
+	 * @param array - The array to copy into the mip.
+	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
+	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D | compressedTexSubImage3D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texSubImage3D | texSubImage3D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D | compressedTexImage[23]D}
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texImage3D | texImage3D}
 	 * @internal
 	 */
-	protected override setMipFromFramebuffer(
+	protected override setMipFromArray(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds?: Prism,
-		framebuffer?: Framebuffer | null,
-		area?: Rectangle
+		bounds: Prism,
+		format: TextureDataFormat,
+		type: TextureDataType,
+		array: ArrayBufferView,
+		offset?: number,
+		length?: number
 	): void {
-		const mipDims = this.getSizeOfMip(level);
+		const isCompressed = isTextureDataFormatCompressed(format);
 
-		const x = bounds?.[0] ?? 0;
-		const y = bounds?.[1] ?? 0;
-		const z = bounds?.[4] ?? 0;
-		const width = bounds?.[2] ?? mipDims[0] ?? 1;
-		const height = bounds?.[3] ?? mipDims[1] ?? 1;
-		const depth = bounds?.[5] ?? mipDims[2] ?? 1;
+		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
+		if (this.isImmutableFormat || level > 0) {
+			// Compressed format.
+			if (isCompressed) {
+				this.gl.compressedTexSubImage3D(
+					target,
+					level,
+					bounds[0],
+					bounds[1],
+					bounds[4],
+					bounds[2],
+					bounds[3],
+					bounds[5],
+					format,
+					array,
+					offset,
+					length
+				);
+				return;
+			}
 
-		const frameX = area?.[0] ?? 0;
-		const frameY = area?.[1] ?? 0;
-		const frameWidth = area?.[2] ?? width;
-		const frameHeight = area?.[3] ?? height;
-
-		// Ensure that the area being copied is no larger than the area being written to.
-		if (frameWidth * frameHeight > width * height * depth) {
-			throw new BadValueError("Bounds are too small.");
+			// Uncompressed format.
+			this.gl.texSubImage3D(
+				target,
+				level,
+				bounds[0],
+				bounds[1],
+				bounds[4],
+				bounds[2],
+				bounds[3],
+				bounds[5],
+				format,
+				type,
+				array
+			);
+			return;
 		}
 
-		// Bind the framebuffer.
-		if (framebuffer) {
-			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		// Mutable-format.
+		if (isCompressed) {
+			// Compressed format.
+			this.gl.compressedTexImage3D(
+				target,
+				level,
+				this.format,
+				bounds[2],
+				bounds[3],
+				bounds[5],
+				0,
+				array,
+				offset,
+				length
+			);
+		} else if (typeof offset === "undefined") {
+			// Uncompressed format without offset.
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				bounds[2],
+				bounds[3],
+				bounds[5],
+				0,
+				format,
+				type,
+				array
+			);
 		} else {
-			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
+			// Uncompressed format with offset.
+			this.gl.texImage3D(
+				target,
+				level,
+				this.format,
+				bounds[2],
+				bounds[3],
+				bounds[5],
+				0,
+				format,
+				type,
+				array,
+				offset
+			);
 		}
 
-		// Since a 2D framebuffer is being copied to a 3D texture, only a portion of the texture can be updated (resizing the texture is not possible).
-		this.gl.copyTexSubImage3D(
-			target,
-			level,
-			x,
-			y,
-			z,
-			frameX,
-			frameY,
-			frameWidth,
-			frameHeight
-		);
+		// Update dimensions.
+		this.setWidth(bounds[2]);
+		this.setHeight(bounds[3]);
+		this.setDepth(bounds[5]);
 	}
 
 	/**
@@ -367,120 +428,60 @@ export default class Texture3d extends Texture {
 	}
 
 	/**
-	 * Copy the data in an array into one of this texture's mips.
+	 * Copy the data in a framebuffer into one of this texture's mips.
 	 * @param target - The mipmap that the mip belongs to.
 	 * @param level - The level of the mip within its mipmap.
 	 * @param bounds - The bounds of the mip to be updated. Defaults to the entire mip if not set.
-	 * @param format - The format of the data in the array.
-	 * @param type - The type of the data in the array.
-	 * @param array - The array to copy into the mip.
-	 * @param offset - The offset from the start of the array to start copying at, or `undefined` for the start of the array.
-	 * @param length - The number of elements to copy from the array, or `undefined` for the entire array.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/compressedTexSubImage3D | compressedTexSubImage3D}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texSubImage3D | texSubImage3D}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D | compressedTexImage[23]D}
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/texImage3D | texImage3D}
+	 * @param framebuffer - The framebuffer to copy into the mip, or `null` for the default framebuffer.
+	 * @param area - The area of the framebuffer to copy into the mip.
+	 * @throws {@link BadValueError} if the area that is being updated is too small to contain the selected portion of the framebuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/copyTexSubImage3D | copyTexSubImage3D}
 	 * @internal
 	 */
-	protected override setMipFromArray(
+	protected override setMipFromFramebuffer(
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
-		bounds: Prism,
-		format: TextureDataFormat,
-		type: TextureDataType,
-		array: ArrayBufferView,
-		offset?: number,
-		length?: number
+		bounds?: Prism,
+		framebuffer?: Framebuffer | null,
+		area?: Rectangle
 	): void {
-		const isCompressed = isTextureDataFormatCompressed(format);
+		const mipDims = this.getSizeOfMip(level);
 
-		// Immutable-format or not top mip. Bounds are guaranteed to fit within existing dimensions and exist.
-		if (this.isImmutableFormat || level > 0) {
-			// Compressed format.
-			if (isCompressed) {
-				this.gl.compressedTexSubImage3D(
-					target,
-					level,
-					bounds[0],
-					bounds[1],
-					bounds[4],
-					bounds[2],
-					bounds[3],
-					bounds[5],
-					format,
-					array,
-					offset,
-					length
-				);
-				return;
-			}
+		const x = bounds?.[0] ?? 0;
+		const y = bounds?.[1] ?? 0;
+		const z = bounds?.[4] ?? 0;
+		const width = bounds?.[2] ?? mipDims[0] ?? 1;
+		const height = bounds?.[3] ?? mipDims[1] ?? 1;
+		const depth = bounds?.[5] ?? mipDims[2] ?? 1;
 
-			// Uncompressed format.
-			this.gl.texSubImage3D(
-				target,
-				level,
-				bounds[0],
-				bounds[1],
-				bounds[4],
-				bounds[2],
-				bounds[3],
-				bounds[5],
-				format,
-				type,
-				array
-			);
-			return;
+		const frameX = area?.[0] ?? 0;
+		const frameY = area?.[1] ?? 0;
+		const frameWidth = area?.[2] ?? width;
+		const frameHeight = area?.[3] ?? height;
+
+		// Ensure that the area being copied is no larger than the area being written to.
+		if (frameWidth * frameHeight > width * height * depth) {
+			throw new BadValueError("Bounds are too small.");
 		}
 
-		// Mutable-format.
-		if (isCompressed) {
-			// Compressed format.
-			this.gl.compressedTexImage3D(
-				target,
-				level,
-				this.format,
-				bounds[2],
-				bounds[3],
-				bounds[5],
-				0,
-				array,
-				offset,
-				length
-			);
-		} else if (typeof offset === "undefined") {
-			// Uncompressed format without offset.
-			this.gl.texImage3D(
-				target,
-				level,
-				this.format,
-				bounds[2],
-				bounds[3],
-				bounds[5],
-				0,
-				format,
-				type,
-				array
-			);
+		// Bind the framebuffer.
+		if (framebuffer) {
+			framebuffer.bind(FramebufferTarget.READ_FRAMEBUFFER);
 		} else {
-			// Uncompressed format with offset.
-			this.gl.texImage3D(
-				target,
-				level,
-				this.format,
-				bounds[2],
-				bounds[3],
-				bounds[5],
-				0,
-				format,
-				type,
-				array,
-				offset
-			);
+			Framebuffer.unbindGl(this.context, FramebufferTarget.READ_FRAMEBUFFER);
 		}
 
-		// Update dimensions.
-		this.setWidth(bounds[2]);
-		this.setHeight(bounds[3]);
-		this.setDepth(bounds[5]);
+		// Since a 2D framebuffer is being copied to a 3D texture, only a portion of the texture can be updated (resizing the texture is not possible).
+		this.gl.copyTexSubImage3D(
+			target,
+			level,
+			x,
+			y,
+			z,
+			frameX,
+			frameY,
+			frameWidth,
+			frameHeight
+		);
 	}
 }

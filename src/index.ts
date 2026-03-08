@@ -1,4 +1,3 @@
-// Constants
 export { default as BlendEquation } from "./constants/BlendEquation.js";
 export { default as BlendFunction } from "./constants/BlendFunction.js";
 export { default as BufferUsage } from "./constants/BufferUsage.js";
@@ -22,40 +21,28 @@ export { default as TextureFilter } from "./constants/TextureFilter.js";
 export { default as TextureFormat } from "./constants/TextureFormat.js";
 export { default as VariableType } from "./constants/VariableType.js";
 export { default as WrapMode } from "./constants/WrapMode.js";
-
-// Core - Buffers
 export { default as Buffer } from "./core/buffers/Buffer.js";
 export { default as ElementBuffer } from "./core/buffers/ElementBuffer.js";
 export { default as VertexBuffer } from "./core/buffers/VertexBuffer.js";
-
-// Core - Internal
+export { default as Context } from "./core/Context.js";
+export { default as Framebuffer } from "./core/Framebuffer.js";
 export { default as ApiInterface } from "./core/internal/ApiInterface.js";
 export { default as ContextDependent } from "./core/internal/ContextDependent.js";
-
-// Core - Textures
+export { default as Program } from "./core/Program.js";
+export { default as Renderbuffer } from "./core/Renderbuffer.js";
+export { default as Shader } from "./core/Shader.js";
+export { default as Sync } from "./core/Sync.js";
 export { default as Texture } from "./core/textures/Texture.js";
 export { default as Texture2d } from "./core/textures/Texture2d.js";
 export { default as Texture2dArray } from "./core/textures/Texture2dArray.js";
 export { default as Texture3d } from "./core/textures/Texture3d.js";
 export { default as TextureCubemap } from "./core/textures/TextureCubemap.js";
-
-// Core - Variables
+export { default as TransformFeedback } from "./core/TransformFeedback.js";
 export { default as Attribute } from "./core/variables/attributes/Attribute.js";
 export { default as Uniform } from "./core/variables/uniforms/Uniform.js";
 export { default as Variable } from "./core/variables/Variable.js";
 export { default as Varying } from "./core/variables/Varying.js";
-
-// Core
-export { default as Context } from "./core/Context.js";
-export { default as Framebuffer } from "./core/Framebuffer.js";
-export { default as Program } from "./core/Program.js";
-export { default as Renderbuffer } from "./core/Renderbuffer.js";
-export { default as Shader } from "./core/Shader.js";
-export { default as Sync } from "./core/Sync.js";
-export { default as TransformFeedback } from "./core/TransformFeedback.js";
 export { default as VertexArray } from "./core/VertexArray.js";
-
-// Types
 export type { AttributeMap } from "./types/AttributeMap.js";
 export type { default as AttributeValue } from "./types/AttributeValue.js";
 export type { default as BlendEquationSet } from "./types/BlendEquationSet.js";
@@ -73,11 +60,9 @@ export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";
 export type { VaryingMap } from "./types/VaryingMap.js";
 export type { default as VaryingValue } from "./types/VaryingValue.js";
-
-// Utility
-export { default as DuplicateContextError } from "./utility/DuplicateContextError.js";
 export { default as BadValueError } from "./utility/BadValueError.js";
 export { default as debug } from "./utility/debug.js";
+export { default as DuplicateContextError } from "./utility/DuplicateContextError.js";
 export { default as ImmutableError } from "./utility/ImmutableError.js";
 export { default as isReadable } from "./utility/isReadable.js";
 export { default as makeFullscreenCanvas } from "./utility/makeFullscreenCanvas.js";

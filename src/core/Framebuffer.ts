@@ -1,3 +1,14 @@
+import type CubeFace from "../constants/CubeFace.js";
+import type FramebufferStatus from "../constants/FramebufferStatus.js";
+import type Color from "../types/Color.js";
+import type Rectangle from "../types/Rectangle.js";
+import type { UniformMap } from "../types/UniformMap.js";
+import type Context from "./Context.js";
+import type Texture2d from "./textures/Texture2d.js";
+import type TextureCubemap from "./textures/TextureCubemap.js";
+import type VertexArray from "./VertexArray.js";
+
+import BufferTarget from "../constants/BufferTarget.js";
 import {
 	BACK,
 	COLOR_ATTACHMENT0,
@@ -14,33 +25,23 @@ import {
 	STENCIL_ATTACHMENT,
 	STENCIL_BUFFER_BIT
 } from "../constants/constants.js";
-import BadValueError from "../utility/BadValueError.js";
-import BufferTarget from "../constants/BufferTarget.js";
-import type Color from "../types/Color.js";
-import type Context from "./Context.js";
-import ContextDependent from "./internal/ContextDependent.js";
-import type CubeFace from "../constants/CubeFace.js";
 import FramebufferAttachment from "../constants/FramebufferAttachment.js";
-import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import FramebufferTarget from "../constants/FramebufferTarget.js";
 import MipmapTarget from "../constants/MipmapTarget.js";
 import Primitive from "../constants/Primitive.js";
-import type Rectangle from "../types/Rectangle.js";
-import Renderbuffer from "./Renderbuffer.js";
-import Texture from "./textures/Texture.js";
-import type Texture2d from "./textures/Texture2d.js";
-import type TextureCubemap from "./textures/TextureCubemap.js";
 import TextureDataFormat from "../constants/TextureDataFormat.js";
 import TextureDataType from "../constants/TextureDataType.js";
-import type { UniformMap } from "../types/UniformMap.js";
-import type VertexArray from "./VertexArray.js";
-import VertexBuffer from "./buffers/VertexBuffer.js";
+import BadValueError from "../utility/BadValueError.js";
 import getChannelsForTextureFormat from "../utility/internal/getChannelsForTextureFormat.js";
 import getExtensionsForFramebufferAttachmentFormat from "../utility/internal/getExtensionsForFramebufferAttachmentFormat.js";
 import getMipmapTargetForCubeFace from "../utility/internal/getMipmapTargetForCubeFace.js";
 import getParameterForFramebufferTarget from "../utility/internal/getParameterForFramebufferTarget.js";
 import getSizeOfDataType from "../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../utility/internal/getTypedArrayConstructorForTextureDataType.js";
+import VertexBuffer from "./buffers/VertexBuffer.js";
+import ContextDependent from "./internal/ContextDependent.js";
+import Renderbuffer from "./Renderbuffer.js";
+import Texture from "./textures/Texture.js";
 
 /**
  * A portion of contiguous memory that contains a collection of buffers that store color, alpha, depth, and stencil information that is used to render an image.
@@ -54,88 +55,14 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
-		Map<FramebufferTarget, WebGLFramebuffer | null>
+		Map<FramebufferTarget, null | WebGLFramebuffer>
 	>();
 
 	/**
 	 * The API interface of this framebuffer. `null` for the default framebuffer.
 	 * @internal
 	 */
-	public readonly internal: WebGLFramebuffer | null;
-
-	/**
-	 * The binding point of this framebuffer.
-	 * @internal
-	 */
-	private targetCache: FramebufferTarget;
-
-	/**
-	 * The attachments on this framebuffer.
-	 * @internal
-	 */
-	private readonly attachmentsCache: Map<
-		FramebufferAttachment | number,
-		Texture | Renderbuffer
-	>;
-
-	/**
-	 * The current read buffer.
-	 * @internal
-	 */
-	private readBufferCache?: number | boolean;
-
-	/**
-	 * The texture data format to use for reading pixel data from this framebuffer.
-	 * @internal
-	 */
-	private implementationColorReadFormatCache?: TextureDataFormat;
-
-	/**
-	 * The texture data type to use for reading pixel data from this framebuffer.
-	 * @internal
-	 */
-	private implementationColorReadTypeCache?: TextureDataType;
-
-	/**
-	 * The current draw buffers.
-	 * @internal
-	 */
-	private drawBuffersCache?: (number | boolean)[];
-
-	/**
-	 * Create a framebuffer.
-	 * @param context - The rendering context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
-	 */
-	public constructor(context: Context);
-
-	/**
-	 * Create a framebuffer.
-	 * @param context - The rendering context.
-	 * @param isDefault - Whether or not this object should represent the default framebuffer for the given rendering context.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
-	 * @internal
-	 */
-	// Hide the second argument from users, since default framebuffer objects should only be created alongside contexts.
-	// eslint-disable-next-line @typescript-eslint/unified-signatures
-	public constructor(context: Context, isDefault?: boolean);
-
-	public constructor(context: Context, isDefault = false) {
-		super(context);
-
-		this.internal = isDefault ? null : this.gl.createFramebuffer();
-		this.targetCache = FramebufferTarget.FRAMEBUFFER;
-		this.attachmentsCache = new Map();
-	}
-
-	/**
-	 * The status of this framebuffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/checkFramebufferStatus | checkFramebufferStatus}
-	 */
-	public get status(): FramebufferStatus {
-		this.bind();
-		return this.gl.checkFramebufferStatus(this.target);
-	}
+	public readonly internal: null | WebGLFramebuffer;
 
 	/**
 	 * The attachments on this framebuffer.
@@ -143,131 +70,9 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public get attachments(): ReadonlyMap<
 		FramebufferAttachment | number,
-		Texture | Renderbuffer
+		Renderbuffer | Texture
 	> {
 		return this.attachmentsCache;
-	}
-
-	/** The width of this framebuffer. */
-	public get width(): number {
-		if (!this.internal) {
-			return this.context.viewport[2];
-		}
-
-		const [firstAttachment] = this.attachmentsCache.values();
-		return firstAttachment ? firstAttachment.width : 0;
-	}
-
-	/** The height of this framebuffer. */
-	public get height(): number {
-		if (!this.internal) {
-			return this.context.viewport[3];
-		}
-
-		const [firstAttachment] = this.attachmentsCache.values();
-		return firstAttachment ? firstAttachment.height : 0;
-	}
-
-	/** The attachment that is currently bound to the current read buffer. */
-	public get readAttachment(): Texture | Renderbuffer | undefined {
-		if (this.readBuffer === false) {
-			return void 0;
-		}
-
-		return this.attachments.get(this.readBuffer === true ? 0 : this.readBuffer);
-	}
-
-	/**
-	 * The texture data format to use for reading pixel data from this framebuffer.
-	 * @internal
-	 */
-	public get implementationColorReadFormat(): TextureDataFormat {
-		if (this.implementationColorReadFormatCache) {
-			return this.implementationColorReadFormatCache;
-		}
-
-		this.bind();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return (this.implementationColorReadFormatCache = this.gl.getParameter(
-			IMPLEMENTATION_COLOR_READ_FORMAT
-		) as TextureDataFormat);
-	}
-
-	/**
-	 * The texture data type to use for reading pixel data from this framebuffer.
-	 * @internal
-	 */
-	public get implementationColorReadType(): TextureDataType {
-		if (this.implementationColorReadTypeCache) {
-			return this.implementationColorReadTypeCache;
-		}
-
-		this.bind();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return (this.implementationColorReadTypeCache = this.gl.getParameter(
-			IMPLEMENTATION_COLOR_READ_TYPE
-		) as TextureDataType);
-	}
-
-	/**
-	 * The binding point of this framebuffer.
-	 * @internal
-	 */
-	public get target(): FramebufferTarget {
-		return this.targetCache;
-	}
-
-	/** @internal */
-	public set target(value: FramebufferTarget) {
-		if (this.target === value) {
-			return;
-		}
-
-		this.unbind();
-		this.targetCache = value;
-	}
-
-	/**
-	 * The current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer | readBuffer}
-	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get readBuffer(): number | boolean {
-		if (typeof this.readBufferCache !== "undefined") {
-			return this.readBufferCache;
-		}
-
-		if (this.context.doPrefillCache) {
-			return (this.readBufferCache = this.internal === null ? true : 0);
-		}
-
-		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		const raw = this.gl.getParameter(READ_BUFFER) as number;
-		this.readBufferCache =
-			raw === BACK ? true
-			: raw === NONE ? false
-			: raw - COLOR_ATTACHMENT0;
-
-		return this.readBufferCache;
-	}
-
-	public set readBuffer(value: number | boolean) {
-		if (this.readBuffer === value) {
-			return;
-		}
-
-		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
-
-		this.gl.readBuffer(
-			value === true ? BACK
-			: value === false ? NONE
-			: COLOR_ATTACHMENT0 + value
-		);
-		this.readBufferCache = value;
-
-		delete this.implementationColorReadFormatCache;
-		delete this.implementationColorReadTypeCache;
 	}
 
 	/**
@@ -275,8 +80,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawBuffers | drawBuffers}
 	 * @throws {@link BadValueError} if too many draw buffers are specified for the current environment.
 	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
-	public get drawBuffers(): readonly (number | boolean)[] {
+	public get drawBuffers(): readonly (boolean | number)[] {
 		if (typeof this.drawBuffersCache !== "undefined") {
 			return this.drawBuffersCache;
 		}
@@ -305,7 +109,7 @@ export default class Framebuffer extends ContextDependent {
 		return (this.drawBuffersCache = out);
 	}
 
-	public set drawBuffers(value: readonly (number | boolean)[]) {
+	public set drawBuffers(value: readonly (boolean | number)[]) {
 		// Throw an error if too many buffers are specified.
 		if (value.length > this.context.maxDrawBuffers) {
 			throw new BadValueError(
@@ -314,7 +118,7 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		// Reorder the input value so that WebGL doesn't warn.
-		const realValue: (number | boolean)[] = [];
+		const realValue: (boolean | number)[] = [];
 		for (const i of value) {
 			if (typeof i === "number") {
 				realValue[i] = i;
@@ -355,35 +159,187 @@ export default class Framebuffer extends ContextDependent {
 		this.drawBuffersCache = realValue;
 	}
 
-	/**
-	 * Get the currently-bound framebuffer for a binding point.
-	 * @param context - The rendering context.
-	 * @param target - The binding point. Note that `FRAMEBUFFER` will return the same value as `DRAW_FRAMEBUFFER`.
-	 * @returns The framebuffer.
-	 * @internal
-	 */
-	public static getBound(
-		context: Context,
-		target: FramebufferTarget
-	): WebGLFramebuffer | null {
-		// Get the context bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(
-			context.gl
-		);
-
-		// Get the bound framebuffer.
-		let boundFramebuffer = contextBindingsCache.get(target);
-		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						getParameterForFramebufferTarget(target)
-					) as WebGLFramebuffer | null);
-			contextBindingsCache.set(target, boundFramebuffer);
+	/** The height of this framebuffer. */
+	public get height(): number {
+		if (!this.internal) {
+			return this.context.viewport[3];
 		}
 
-		return boundFramebuffer;
+		const [firstAttachment] = this.attachmentsCache.values();
+		return firstAttachment ? firstAttachment.height : 0;
+	}
+
+	/**
+	 * The texture data format to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	public get implementationColorReadFormat(): TextureDataFormat {
+		if (this.implementationColorReadFormatCache) {
+			return this.implementationColorReadFormatCache;
+		}
+
+		this.bind();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return (this.implementationColorReadFormatCache = this.gl.getParameter(
+			IMPLEMENTATION_COLOR_READ_FORMAT
+		) as TextureDataFormat);
+	}
+
+	/**
+	 * The texture data type to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	public get implementationColorReadType(): TextureDataType {
+		if (this.implementationColorReadTypeCache) {
+			return this.implementationColorReadTypeCache;
+		}
+
+		this.bind();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		return (this.implementationColorReadTypeCache = this.gl.getParameter(
+			IMPLEMENTATION_COLOR_READ_TYPE
+		) as TextureDataType);
+	}
+
+	/** The attachment that is currently bound to the current read buffer. */
+	public get readAttachment(): Renderbuffer | Texture | undefined {
+		if (this.readBuffer === false) {
+			return void 0;
+		}
+
+		return this.attachments.get(this.readBuffer === true ? 0 : this.readBuffer);
+	}
+
+	/**
+	 * The current read buffer. `false` represents no buffer, `true` represents the back buffer, and an integer represents the corresponding color buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/readBuffer | readBuffer}
+	 */
+	public get readBuffer(): boolean | number {
+		if (typeof this.readBufferCache !== "undefined") {
+			return this.readBufferCache;
+		}
+
+		if (this.context.doPrefillCache) {
+			return (this.readBufferCache = this.internal === null ? true : 0);
+		}
+
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		const raw = this.gl.getParameter(READ_BUFFER) as number;
+		this.readBufferCache =
+			raw === BACK ? true
+			: raw === NONE ? false
+			: raw - COLOR_ATTACHMENT0;
+
+		return this.readBufferCache;
+	}
+
+	public set readBuffer(value: boolean | number) {
+		if (this.readBuffer === value) {
+			return;
+		}
+
+		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
+
+		this.gl.readBuffer(
+			value === true ? BACK
+			: value === false ? NONE
+			: COLOR_ATTACHMENT0 + value
+		);
+		this.readBufferCache = value;
+
+		delete this.implementationColorReadFormatCache;
+		delete this.implementationColorReadTypeCache;
+	}
+
+	/**
+	 * The status of this framebuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/checkFramebufferStatus | checkFramebufferStatus}
+	 */
+	public get status(): FramebufferStatus {
+		this.bind();
+		return this.gl.checkFramebufferStatus(this.target);
+	}
+
+	/**
+	 * The binding point of this framebuffer.
+	 * @internal
+	 */
+	public get target(): FramebufferTarget {
+		return this.targetCache;
+	}
+
+	/** @internal */
+	public set target(value: FramebufferTarget) {
+		if (this.target === value) {
+			return;
+		}
+
+		this.unbind();
+		this.targetCache = value;
+	}
+
+	/** The width of this framebuffer. */
+	public get width(): number {
+		if (!this.internal) {
+			return this.context.viewport[2];
+		}
+
+		const [firstAttachment] = this.attachmentsCache.values();
+		return firstAttachment ? firstAttachment.width : 0;
+	}
+
+	/**
+	 * The attachments on this framebuffer.
+	 * @internal
+	 */
+	private readonly attachmentsCache: Map<
+		FramebufferAttachment | number,
+		Renderbuffer | Texture
+	>;
+
+	/**
+	 * The current draw buffers.
+	 * @internal
+	 */
+	private drawBuffersCache?: (boolean | number)[];
+
+	/**
+	 * The texture data format to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	private implementationColorReadFormatCache?: TextureDataFormat;
+
+	/**
+	 * The texture data type to use for reading pixel data from this framebuffer.
+	 * @internal
+	 */
+	private implementationColorReadTypeCache?: TextureDataType;
+
+	/**
+	 * The current read buffer.
+	 * @internal
+	 */
+	private readBufferCache?: boolean | number;
+
+	/**
+	 * The binding point of this framebuffer.
+	 * @internal
+	 */
+	private targetCache: FramebufferTarget;
+
+	/**
+	 * Create a framebuffer.
+	 * @param context - The rendering context.
+	 * @param isDefault - Whether or not this object should represent the default framebuffer for the given rendering context. You shouldn't need to use this; default framebuffer objects should only be created alongside contexts.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
+	 */
+	public constructor(context: Context, isDefault = false) {
+		super(context);
+
+		this.internal = isDefault ? null : this.gl.createFramebuffer();
+		this.targetCache = FramebufferTarget.FRAMEBUFFER;
+		this.attachmentsCache = new Map();
 	}
 
 	/**
@@ -397,7 +353,7 @@ export default class Framebuffer extends ContextDependent {
 	public static bindGl(
 		context: Context,
 		target: FramebufferTarget,
-		framebuffer: WebGLFramebuffer | null
+		framebuffer: null | WebGLFramebuffer
 	): void {
 		// Do nothing if the binding is already correct.
 		if (Framebuffer.getBound(context, target) === framebuffer) {
@@ -413,6 +369,10 @@ export default class Framebuffer extends ContextDependent {
 		);
 		contextBindingsCache.set(target, framebuffer);
 		switch (target) {
+			case FramebufferTarget.DRAW_FRAMEBUFFER:
+				// For `DRAW_FRAMEBUFFER`, update `FRAMEBUFFER` too (`FRAMEBUFFER_BINDING` always returns `DRAW_FRAMEBUFFER_BINDING`).
+				contextBindingsCache.set(FramebufferTarget.FRAMEBUFFER, framebuffer);
+				break;
 			case FramebufferTarget.FRAMEBUFFER:
 				// For `FRAMEBUFFER`, update all binding points.
 				contextBindingsCache.set(
@@ -424,12 +384,39 @@ export default class Framebuffer extends ContextDependent {
 					framebuffer
 				);
 				break;
-			case FramebufferTarget.DRAW_FRAMEBUFFER:
-				// For `DRAW_FRAMEBUFFER`, update `FRAMEBUFFER` too (`FRAMEBUFFER_BINDING` always returns `DRAW_FRAMEBUFFER_BINDING`).
-				contextBindingsCache.set(FramebufferTarget.FRAMEBUFFER, framebuffer);
-				break;
 			default: // Don't update anything else for `READ_FRAMEBUFFER`.
 		}
+	}
+
+	/**
+	 * Get the currently-bound framebuffer for a binding point.
+	 * @param context - The rendering context.
+	 * @param target - The binding point. Note that `FRAMEBUFFER` will return the same value as `DRAW_FRAMEBUFFER`.
+	 * @returns The framebuffer.
+	 * @internal
+	 */
+	public static getBound(
+		context: Context,
+		target: FramebufferTarget
+	): null | WebGLFramebuffer {
+		// Get the context bindings cache.
+		const contextBindingsCache = Framebuffer.getContextBindingsCache(
+			context.gl
+		);
+
+		// Get the bound framebuffer.
+		let boundFramebuffer = contextBindingsCache.get(target);
+		if (typeof boundFramebuffer === "undefined") {
+			boundFramebuffer =
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
+						getParameterForFramebufferTarget(target)
+					) as null | WebGLFramebuffer);
+			contextBindingsCache.set(target, boundFramebuffer);
+		}
+
+		return boundFramebuffer;
 	}
 
 	/**
@@ -461,7 +448,7 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	private static getContextBindingsCache(
 		gl: WebGL2RenderingContext
-	): Map<FramebufferTarget, WebGLFramebuffer | null> {
+	): Map<FramebufferTarget, null | WebGLFramebuffer> {
 		// Get the context bindings cache.
 		let contextBindingsCache = Framebuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
@@ -470,35 +457,6 @@ export default class Framebuffer extends ContextDependent {
 		}
 
 		return contextBindingsCache;
-	}
-
-	/**
-	 * Delete this framebuffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteFramebuffer | deleteFramebuffer}
-	 */
-	public delete(): void {
-		this.gl.deleteFramebuffer(this.internal);
-	}
-
-	/**
-	 * Bind this framebuffer to its binding point.
-	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
-	 * @internal
-	 */
-	public bind(target?: FramebufferTarget): void {
-		if (target) {
-			this.target = target;
-		}
-
-		Framebuffer.bindGl(this.context, this.target, this.internal);
-	}
-
-	/**
-	 * Unbind this framebuffer from its binding point. For the default framebuffer, this has the same effect as binding this framebuffer.
-	 * @internal
-	 */
-	public unbind(): void {
-		Framebuffer.unbindGl(this.context, this.target, this.internal ?? void 0);
 	}
 
 	/**
@@ -520,7 +478,6 @@ export default class Framebuffer extends ContextDependent {
 		level?: number,
 		layer?: number
 	): void;
-
 	/**
 	 * Attach a face of a cubemapped texture to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
@@ -540,7 +497,6 @@ export default class Framebuffer extends ContextDependent {
 		level?: number,
 		layer?: number
 	): void;
-
 	/**
 	 * Attach a renderbuffer to this framebuffer.
 	 * @param attachment - Specify the depth attachment, the stencil attachment, the depth stencil attachment, or the index of a color attachment.
@@ -553,10 +509,9 @@ export default class Framebuffer extends ContextDependent {
 		attachment: FramebufferAttachment | number,
 		renderbuffer: Renderbuffer
 	): void;
-
 	public attach(
 		attachment: FramebufferAttachment | number,
-		data: Texture | Renderbuffer,
+		data: Renderbuffer | Texture,
 		face: CubeFace | undefined = void 0,
 		level = 0,
 		layer: number | undefined = void 0
@@ -651,6 +606,61 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
+	 * Bind this framebuffer to its binding point.
+	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
+	 * @internal
+	 */
+	public bind(target?: FramebufferTarget): void {
+		if (target) {
+			this.target = target;
+		}
+
+		Framebuffer.bindGl(this.context, this.target, this.internal);
+	}
+
+	/**
+	 * Clear the specified buffers to the specified values.
+	 * @param color - The value to clear the color buffer to or a boolean to use the previous clear color.
+	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
+	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear | clear}
+	 */
+	public clear(
+		color: boolean | Color = true,
+		depth: boolean | number = true,
+		stencil: boolean | number = true
+	): void {
+		let colorBit = color ? COLOR_BUFFER_BIT : 0;
+		if (typeof color !== "boolean") {
+			this.context.clearColor = color;
+			colorBit = COLOR_BUFFER_BIT;
+		}
+
+		let depthBit = depth ? DEPTH_BUFFER_BIT : 0;
+		if (typeof depth !== "boolean") {
+			this.context.clearDepth = depth;
+			depthBit = DEPTH_BUFFER_BIT;
+		}
+
+		let stencilBit = stencil ? STENCIL_BUFFER_BIT : 0;
+		if (typeof stencil !== "boolean") {
+			this.context.clearStencil = stencil;
+			stencilBit = STENCIL_BUFFER_BIT;
+		}
+
+		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
+		this.gl.clear(colorBit | depthBit | stencilBit);
+	}
+
+	/**
+	 * Delete this framebuffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/deleteFramebuffer | deleteFramebuffer}
+	 */
+	public delete(): void {
+		this.gl.deleteFramebuffer(this.internal);
+	}
+
+	/**
 	 * Draw the vertex data contained within a vertex array object.
 	 * @param vao - The vertex array object that contains the data to be drawn.
 	 * @param uniforms - A collection of uniform values to set prior to rasterization.
@@ -730,40 +740,6 @@ export default class Framebuffer extends ContextDependent {
 	}
 
 	/**
-	 * Clear the specified buffers to the specified values.
-	 * @param color - The value to clear the color buffer to or a boolean to use the previous clear color.
-	 * @param depth - The value to clear the depth buffer to or a boolean to use the previous clear depth.
-	 * @param stencil - The value to clear the stencil buffer to or a boolean to use the previous clear stencil.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/clear | clear}
-	 */
-	public clear(
-		color: Color | boolean = true,
-		depth: number | boolean = true,
-		stencil: number | boolean = true
-	): void {
-		let colorBit = color ? COLOR_BUFFER_BIT : 0;
-		if (typeof color !== "boolean") {
-			this.context.clearColor = color;
-			colorBit = COLOR_BUFFER_BIT;
-		}
-
-		let depthBit = depth ? DEPTH_BUFFER_BIT : 0;
-		if (typeof depth !== "boolean") {
-			this.context.clearDepth = depth;
-			depthBit = DEPTH_BUFFER_BIT;
-		}
-
-		let stencilBit = stencil ? STENCIL_BUFFER_BIT : 0;
-		if (typeof stencil !== "boolean") {
-			this.context.clearStencil = stencil;
-			stencilBit = STENCIL_BUFFER_BIT;
-		}
-
-		this.bind(FramebufferTarget.DRAW_FRAMEBUFFER);
-		this.gl.clear(colorBit | depthBit | stencilBit);
-	}
-
-	/**
 	 * Create a new typed array and read pixels from this framebuffer into it.
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
 	 * @param rgba - Whether to output RGBA data (as opposed to using the format of the read buffer). Defaults to `false`.
@@ -780,7 +756,6 @@ export default class Framebuffer extends ContextDependent {
 		out?: undefined,
 		offset?: number
 	): ArrayBufferView;
-
 	/**
 	 * Read pixels from this framebuffer.
 	 * @param rectangle - The rectangle of pixels to read. Defaults to the entire read buffer.
@@ -799,14 +774,13 @@ export default class Framebuffer extends ContextDependent {
 		out: T,
 		offset?: number
 	): T;
-
-	public readPixels<T extends VertexBuffer | ArrayBufferView>(
+	public readPixels<T extends ArrayBufferView | VertexBuffer>(
 		rectangle?: Rectangle,
 		rgba?: boolean,
 		packAlignment?: 1 | 2 | 4 | 8,
 		out?: T,
 		offset = 0
-	): T | ArrayBufferView {
+	): ArrayBufferView | T {
 		// Bind the correct framebuffer.
 		this.bind(FramebufferTarget.READ_FRAMEBUFFER);
 
@@ -881,5 +855,13 @@ export default class Framebuffer extends ContextDependent {
 			offset
 		);
 		return realOut;
+	}
+
+	/**
+	 * Unbind this framebuffer from its binding point. For the default framebuffer, this has the same effect as binding this framebuffer.
+	 * @internal
+	 */
+	public unbind(): void {
+		Framebuffer.unbindGl(this.context, this.target, this.internal ?? void 0);
 	}
 }

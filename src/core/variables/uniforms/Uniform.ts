@@ -1,6 +1,7 @@
+import type { UniformValue } from "../../../types/UniformValue.js";
 import type Program from "../../Program.js";
 import type Texture from "../../textures/Texture.js";
-import type { UniformValue } from "../../../types/UniformValue.js";
+
 import UnsupportedOperationError from "../../../utility/UnsupportedOperationError.js";
 import Variable from "../Variable.js";
 
@@ -15,11 +16,35 @@ export default abstract class Uniform extends Variable {
 	 */
 	public readonly location: WebGLUniformLocation;
 
+	/** The length of the given value. Data is assumed to be tightly-packed if not set or set to zero. */
+	public sourceLength?: number;
+
 	/** The offset from the start of the given value to pass to WebGL. */
 	public sourceOffset?: number;
 
-	/** The length of the given value. Data is assumed to be tightly-packed if not set or set to zero. */
-	public sourceLength?: number;
+	/**
+	 * The value that is stored in this uniform.
+	 * @throws Error if the uniform value has not been cached.
+	 */
+	public override get value(): Readonly<UniformValue> {
+		if (typeof this.valueCache === "undefined") {
+			throw new Error("Attempted to access uncached uniform value.");
+		}
+
+		return this.valueCache;
+	}
+
+	public override set value(value: Readonly<UniformValue>) {
+		this.program.bind();
+
+		if (typeof value !== "number" && Symbol.iterator in value) {
+			this.iterableSetter(value);
+		} else {
+			this.setter(value);
+		}
+
+		this.valueCache = value;
+	}
 
 	/**
 	 * The value that is stored in this uniform.
@@ -52,37 +77,6 @@ export default abstract class Uniform extends Variable {
 	}
 
 	/**
-	 * The value that is stored in this uniform.
-	 * @throws Error if the uniform value has not been cached.
-	 */
-	public override get value(): Readonly<UniformValue> {
-		if (typeof this.valueCache === "undefined") {
-			throw new Error("Attempted to access uncached uniform value.");
-		}
-
-		return this.valueCache;
-	}
-
-	public override set value(value: Readonly<UniformValue>) {
-		this.program.bind();
-
-		if (typeof value !== "number" && Symbol.iterator in value) {
-			this.iterableSetter(value);
-		} else {
-			this.setter(value);
-		}
-
-		this.valueCache = value;
-	}
-
-	/**
-	 * Set the value of this uniform if the value is not iterable.
-	 * @param value - The value to pass to the uniform.
-	 * @internal
-	 */
-	public abstract setter(value: number | Readonly<Texture>): void;
-
-	/**
 	 * Set the value of this uniform if the value is iterable.
 	 * @param value - The value to pass to the uniform.
 	 * @internal
@@ -90,4 +84,11 @@ export default abstract class Uniform extends Variable {
 	public abstract iterableSetter(
 		value: Readonly<Iterable<number | Texture>>
 	): void;
+
+	/**
+	 * Set the value of this uniform if the value is not iterable.
+	 * @param value - The value to pass to the uniform.
+	 * @internal
+	 */
+	public abstract setter(value: number | Readonly<Texture>): void;
 }

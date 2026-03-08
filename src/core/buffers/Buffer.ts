@@ -1,9 +1,10 @@
-import { BUFFER_SIZE, BUFFER_USAGE } from "../../constants/constants.js";
 import type BufferTarget from "../../constants/BufferTarget.js";
 import type BufferUsage from "../../constants/BufferUsage.js";
 import type Context from "../Context.js";
-import ContextDependent from "../internal/ContextDependent.js";
+
+import { BUFFER_SIZE, BUFFER_USAGE } from "../../constants/constants.js";
 import DataType from "../../constants/DataType.js";
+import ContextDependent from "../internal/ContextDependent.js";
 
 /**
  * An array of binary data.
@@ -20,69 +21,12 @@ export default abstract class Buffer<
 	public readonly internal: WebGLBuffer;
 
 	/**
-	 * The intended usage of this buffer.
-	 * @internal
-	 */
-	protected usageCache?: BufferUsage;
-
-	/**
 	 * The data contained in this buffer.
-	 * @internal
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	protected dataCache?: T;
+	public abstract get data(): T;
 
-	/**
-	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
-	 * @internal
-	 */
-	protected isCacheValid: boolean;
-
-	/**
-	 * The type of the data in this buffer.
-	 * @internal
-	 */
-	protected typeCache?: DataType;
-
-	/**
-	 * The size of this buffer's data store in bytes.
-	 * @internal
-	 */
-	protected sizeCache?: number;
-
-	/**
-	 * Create a buffer.
-	 * @param context - The rendering context.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the initial data at.
-	 * @param length - The length of the initial data to read into the buffer.
-	 * @param target - The target binding point of the buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
-	 * @internal
-	 */
-	protected constructor(context: Context) {
-		super(context);
-
-		this.internal = this.gl.createBuffer();
-		this.isCacheValid = false;
-	}
-
-	/** The intended usage of this buffer. */
-	public get usage(): BufferUsage {
-		if (this.usageCache) {
-			return this.usageCache;
-		}
-
-		this.bind();
-		return (this.usageCache ??= this.gl.getBufferParameter(
-			this.target,
-			BUFFER_USAGE
-		));
-	}
-
-	/** The type of the data in this buffer. */
-	public get type(): DataType {
-		return (this.typeCache ??= DataType.UNSIGNED_BYTE);
-	}
+	public abstract set data(value: T);
 
 	/** The size of this buffer's data store in bytes. */
 	public get size(): number {
@@ -103,13 +47,76 @@ export default abstract class Buffer<
 	 */
 	public abstract get target(): BufferTarget;
 
+	/** The type of the data in this buffer. */
+	public get type(): DataType {
+		return (this.typeCache ??= DataType.UNSIGNED_BYTE);
+	}
+
+	/** The intended usage of this buffer. */
+	public get usage(): BufferUsage {
+		if (this.usageCache) {
+			return this.usageCache;
+		}
+
+		this.bind();
+		return (this.usageCache ??= this.gl.getBufferParameter(
+			this.target,
+			BUFFER_USAGE
+		));
+	}
+
 	/**
 	 * The data contained in this buffer.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
+	 * @internal
 	 */
-	public abstract get data(): T;
+	protected dataCache?: T;
 
-	public abstract set data(value: T);
+	/**
+	 * Whether or not the data in the buffer cache hasn't been modified by μGL since it was last cached.
+	 * @internal
+	 */
+	protected isCacheValid: boolean;
+
+	/**
+	 * The size of this buffer's data store in bytes.
+	 * @internal
+	 */
+	protected sizeCache?: number;
+
+	/**
+	 * The type of the data in this buffer.
+	 * @internal
+	 */
+	protected typeCache?: DataType;
+
+	/**
+	 * The intended usage of this buffer.
+	 * @internal
+	 */
+	protected usageCache?: BufferUsage;
+
+	/**
+	 * Create a buffer.
+	 * @param context - The rendering context.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
+	 * @param target - The target binding point of the buffer.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
+	 * @internal
+	 */
+	protected constructor(context: Context) {
+		super(context);
+
+		this.internal = this.gl.createBuffer();
+		this.isCacheValid = false;
+	}
+
+	/**
+	 * Bind this buffer to its binding point.
+	 * @internal
+	 */
+	public abstract bind(): void;
 
 	/**
 	 * Clear this buffer's data cache.
@@ -135,7 +142,6 @@ export default abstract class Buffer<
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData | bufferSubData}
 	 */
 	public abstract setData(data: number, usage?: BufferUsage): void;
-
 	/**
 	 * Replace all of or update a subset of the data in this buffer.
 	 * @param data - The data to store in this buffer.
@@ -153,12 +159,6 @@ export default abstract class Buffer<
 		length?: number,
 		dstOffset?: number
 	): void;
-
-	/**
-	 * Bind this buffer to its binding point.
-	 * @internal
-	 */
-	public abstract bind(): void;
 
 	/**
 	 * Unbind this buffer from its binding point.

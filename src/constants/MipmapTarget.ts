@@ -9,9 +9,6 @@ const enum MipmapTarget {
 	/** A three-dimensional texture. */
 	TEXTURE_3D = 0x806f,
 
-	/** A two-dimensional array texture. */
-	TEXTURE_2D_ARRAY = 0x8c1a,
-
 	/** The positive X-axis face for a cube-mapped texture. */
 	TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515,
 
@@ -28,7 +25,10 @@ const enum MipmapTarget {
 	TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519,
 
 	/** The negative Z-axis face for a cube-mapped texture. */
-	TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851a
+	TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851a,
+
+	/** A two-dimensional array texture. */
+	TEXTURE_2D_ARRAY = 0x8c1a
 }
 
 export default MipmapTarget;

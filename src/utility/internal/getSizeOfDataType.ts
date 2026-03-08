@@ -11,14 +11,9 @@ export default function getSizeOfDataType(
 	type: DataType | TextureDataType
 ): number {
 	switch (type) {
-		case DataType.HALF_FLOAT:
-		case DataType.SHORT:
-		case DataType.UNSIGNED_SHORT:
-		case TextureDataType.HALF_FLOAT_OES:
-		case TextureDataType.UNSIGNED_SHORT_4_4_4_4:
-		case TextureDataType.UNSIGNED_SHORT_5_5_5_1:
-		case TextureDataType.UNSIGNED_SHORT_5_6_5:
-			return 2;
+		case DataType.BYTE:
+		case DataType.UNSIGNED_BYTE:
+			return 1;
 		case DataType.FLOAT:
 		case DataType.INT:
 		case DataType.INT_2_10_10_10_REV:
@@ -29,9 +24,15 @@ export default function getSizeOfDataType(
 		case TextureDataType.UNSIGNED_INT_24_8:
 		case TextureDataType.UNSIGNED_INT_5_9_9_9_REV:
 			return 4;
-		case DataType.BYTE:
-		case DataType.UNSIGNED_BYTE:
-		default: // Not possible if TypeScript is obeyed.
-			return 1;
+		case DataType.HALF_FLOAT:
+		case DataType.SHORT:
+		case DataType.UNSIGNED_SHORT:
+		case TextureDataType.HALF_FLOAT_OES:
+		case TextureDataType.UNSIGNED_SHORT_4_4_4_4:
+		case TextureDataType.UNSIGNED_SHORT_5_5_5_1:
+		case TextureDataType.UNSIGNED_SHORT_5_6_5:
+			return 2;
+		default:
+			return type;
 	}
 }

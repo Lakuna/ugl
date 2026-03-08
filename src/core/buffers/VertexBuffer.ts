@@ -1,14 +1,15 @@
-import Buffer from "./Buffer.js";
+import type Context from "../Context.js";
+
 import BufferTarget from "../../constants/BufferTarget.js";
 import BufferUsage from "../../constants/BufferUsage.js";
-import type Context from "../Context.js";
 import DataType from "../../constants/DataType.js";
-import Sync from "../Sync.js";
 import getDataTypeForTypedArray from "../../utility/internal/getDataTypeForTypedArray.js";
 import getParameterForBufferTarget from "../../utility/internal/getParameterForBufferTarget.js";
 import getSizeOfDataType from "../../utility/internal/getSizeOfDataType.js";
 import getTypedArrayConstructorForDataType from "../../utility/internal/getTypedArrayConstructorForTextureDataType.js";
 import isReadable from "../../utility/isReadable.js";
+import Sync from "../Sync.js";
+import Buffer from "./Buffer.js";
 
 /**
  * An array of binary data to be used as a vertex buffer object.
@@ -22,60 +23,13 @@ export default class VertexBuffer extends Buffer {
 	 */
 	private static readonly bindingsCache = new Map<
 		WebGL2RenderingContext,
-		Map<BufferTarget, WebGLBuffer | null>
+		Map<BufferTarget, null | WebGLBuffer>
 	>();
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	private targetCache: BufferTarget;
-
-	/**
-	 * Create a buffer to be used as anything other than an element array buffer.
-	 * @param context - The rendering context.
-	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
-	 * @param usage - The intended usage of the buffer.
-	 * @param offset - The index of the element to start reading the initial data at.
-	 * @param length - The length of the initial data to read into the buffer.
-	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
-	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
-	 */
-	public constructor(
-		context: Context,
-		data: ArrayBufferView | number | VertexBuffer = 0,
-		usage?: BufferUsage,
-		offset?: number,
-		length?: number
-	) {
-		super(context);
-		this.targetCache = BufferTarget.ARRAY_BUFFER;
-		this.setData(data, usage, offset, length);
-	}
-
-	/**
-	 * The binding point of this buffer.
-	 * @internal
-	 */
-	public override get target(): BufferTarget {
-		return this.targetCache;
-	}
-
-	/** @internal */
-	public set target(value: BufferTarget) {
-		if (this.target === value) {
-			return;
-		}
-
-		this.unbind();
-		this.targetCache = value;
-	}
 
 	/**
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	// eslint-disable-next-line @typescript-eslint/member-ordering
 	public get data(): ArrayBufferView {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
@@ -114,34 +68,49 @@ export default class VertexBuffer extends Buffer {
 	}
 
 	/**
-	 * Get the currently-bound buffer for a binding point.
-	 * @param context - The rendering context.
-	 * @param target - The binding point.
-	 * @returns The buffer.
+	 * The binding point of this buffer.
 	 * @internal
 	 */
-	public static getBound(
-		context: Context,
-		target: BufferTarget
-	): WebGLBuffer | null {
-		// Get the context bindings cache.
-		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
-			context.gl
-		);
+	public override get target(): BufferTarget {
+		return this.targetCache;
+	}
 
-		// Get the bound buffer.
-		let boundBuffer = contextBindingsCache.get(target);
-		if (typeof boundBuffer === "undefined") {
-			boundBuffer =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						getParameterForBufferTarget(target)
-					) as WebGLBuffer | null);
-			contextBindingsCache.set(target, boundBuffer);
+	/** @internal */
+	public set target(value: BufferTarget) {
+		if (this.target === value) {
+			return;
 		}
 
-		return boundBuffer;
+		this.unbind();
+		this.targetCache = value;
+	}
+
+	/**
+	 * The binding point of this buffer.
+	 * @internal
+	 */
+	private targetCache: BufferTarget;
+
+	/**
+	 * Create a buffer to be used as anything other than an element array buffer.
+	 * @param context - The rendering context.
+	 * @param data - The initial data contained in this buffer or the size of this buffer's data store in bytes.
+	 * @param usage - The intended usage of the buffer.
+	 * @param offset - The index of the element to start reading the initial data at.
+	 * @param length - The length of the initial data to read into the buffer.
+	 * @throws {@link UnsupportedOperationError} if a buffer cannot be created.
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
+	 */
+	public constructor(
+		context: Context,
+		data: ArrayBufferView | number | VertexBuffer = 0,
+		usage?: BufferUsage,
+		offset?: number,
+		length?: number
+	) {
+		super(context);
+		this.targetCache = BufferTarget.ARRAY_BUFFER;
+		this.setData(data, usage, offset, length);
 	}
 
 	/**
@@ -155,7 +124,7 @@ export default class VertexBuffer extends Buffer {
 	public static bindGl(
 		context: Context,
 		target: BufferTarget,
-		buffer: WebGLBuffer | null
+		buffer: null | WebGLBuffer
 	): void {
 		// Do nothing if the binding is already correct.
 		if (VertexBuffer.getBound(context, target) === buffer) {
@@ -182,6 +151,37 @@ export default class VertexBuffer extends Buffer {
 		// Bind the buffer to the target.
 		context.gl.bindBuffer(target, buffer);
 		contextBindingsCache.set(target, buffer);
+	}
+
+	/**
+	 * Get the currently-bound buffer for a binding point.
+	 * @param context - The rendering context.
+	 * @param target - The binding point.
+	 * @returns The buffer.
+	 * @internal
+	 */
+	public static getBound(
+		context: Context,
+		target: BufferTarget
+	): null | WebGLBuffer {
+		// Get the context bindings cache.
+		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
+			context.gl
+		);
+
+		// Get the bound buffer.
+		let boundBuffer = contextBindingsCache.get(target);
+		if (typeof boundBuffer === "undefined") {
+			boundBuffer =
+				context.doPrefillCache ?
+					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				:	(context.gl.getParameter(
+						getParameterForBufferTarget(target)
+					) as null | WebGLBuffer);
+			contextBindingsCache.set(target, boundBuffer);
+		}
+
+		return boundBuffer;
 	}
 
 	/**
@@ -213,7 +213,7 @@ export default class VertexBuffer extends Buffer {
 	 */
 	private static getContextBindingsCache(
 		gl: WebGL2RenderingContext
-	): Map<BufferTarget, WebGLBuffer | null> {
+	): Map<BufferTarget, null | WebGLBuffer> {
 		// Get the context bindings cache.
 		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
 		if (!contextBindingsCache) {
@@ -222,6 +222,24 @@ export default class VertexBuffer extends Buffer {
 		}
 
 		return contextBindingsCache;
+	}
+
+	/**
+	 * Bind this buffer to its binding point.
+	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
+	 * @param strict - Bind to the given binding point even if this buffer is already bound to another binding point.
+	 * @internal
+	 */
+	public override bind(target?: BufferTarget, strict = true): void {
+		if (
+			target &&
+			(strict ||
+				VertexBuffer.getBound(this.context, this.target) !== this.internal)
+		) {
+			this.target = target;
+		}
+
+		VertexBuffer.bindGl(this.context, this.target, this.internal);
 	}
 
 	/**
@@ -265,7 +283,7 @@ export default class VertexBuffer extends Buffer {
 	}
 
 	public override setData(
-		data: number | ArrayBufferView | VertexBuffer,
+		data: ArrayBufferView | number | VertexBuffer,
 		usage?: BufferUsage,
 		srcOffset?: number,
 		length?: number,
@@ -339,24 +357,6 @@ export default class VertexBuffer extends Buffer {
 		this.typeCache = getDataTypeForTypedArray(data);
 		this.sizeCache = data.byteLength;
 		this.usageCache = realUsage;
-	}
-
-	/**
-	 * Bind this buffer to its binding point.
-	 * @param target - The new binding point to bind to, or `undefined` for the previous binding point.
-	 * @param strict - Bind to the given binding point even if this buffer is already bound to another binding point.
-	 * @internal
-	 */
-	public override bind(target?: BufferTarget, strict = true): void {
-		if (
-			target &&
-			(strict ||
-				VertexBuffer.getBound(this.context, this.target) !== this.internal)
-		) {
-			this.target = target;
-		}
-
-		VertexBuffer.bindGl(this.context, this.target, this.internal);
 	}
 
 	/**

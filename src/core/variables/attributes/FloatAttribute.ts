@@ -1,5 +1,6 @@
-import Attribute from "./Attribute.js";
 import type AttributeValue from "../../../types/AttributeValue.js";
+
+import Attribute from "./Attribute.js";
 
 /**
  * A floating-point input variable in a WebGL vertex shader.
