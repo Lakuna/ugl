@@ -10,7 +10,9 @@ export default defineConfig(
 	eslint.configs.recommended,
 	{ languageOptions: { globals: globals.browser }, name: "Browser Globals" },
 	{
-		languageOptions: { parserOptions: { impliedStrict: true } },
+		languageOptions: {
+			parserOptions: { ecmaFeatures: { impliedStrict: true } }
+		},
 		name: "Implied Strict"
 	},
 	{
