@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@lakuna/umath": "^2.0.0",
+		"@lakuna/umath": "^3.0.0",
 		"@types/eslint": "^9.6.1",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
