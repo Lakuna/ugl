@@ -19,7 +19,7 @@ import Buffer from "./Buffer.js";
  * @public
  */
 export default class ElementBuffer extends Buffer<
-	Uint16Array | Uint32Array | Uint8Array
+	Uint8Array | Uint16Array | Uint32Array
 > {
 	/**
 	 * The currently-bound element array buffer cache.
@@ -34,7 +34,7 @@ export default class ElementBuffer extends Buffer<
 	 * The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public get data(): Uint16Array | Uint32Array | Uint8Array {
+	public get data(): Uint8Array | Uint16Array | Uint32Array {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
 			return this.dataCache;
@@ -45,7 +45,7 @@ export default class ElementBuffer extends Buffer<
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as Uint16Array | Uint32Array | Uint8Array;
+			) as Uint8Array | Uint16Array | Uint32Array;
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
@@ -65,7 +65,7 @@ export default class ElementBuffer extends Buffer<
 		return this.dataCache;
 	}
 
-	public set data(value: Uint16Array | Uint32Array | Uint8Array) {
+	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
 		this.setData(value);
 	}
 
@@ -90,7 +90,7 @@ export default class ElementBuffer extends Buffer<
 	 */
 	public constructor(
 		context: Context,
-		data: number | Uint16Array | Uint32Array | Uint8Array = 0,
+		data: number | Uint8Array | Uint16Array | Uint32Array = 0,
 		usage?: BufferUsage,
 		offset?: number,
 		length?: number
@@ -200,7 +200,7 @@ export default class ElementBuffer extends Buffer<
 	 * @returns The data contained in this buffer.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getBufferSubData | getBufferSubData}
 	 */
-	public async getData(): Promise<Uint16Array | Uint32Array | Uint8Array> {
+	public async getData(): Promise<Uint8Array | Uint16Array | Uint32Array> {
 		// Cache case.
 		if (this.dataCache && this.isCacheValid) {
 			return this.dataCache;
@@ -211,7 +211,7 @@ export default class ElementBuffer extends Buffer<
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			this.dataCache = new (getTypedArrayConstructorForDataType(this.type))(
 				this.size / getSizeOfDataType(this.type)
-			) as Uint16Array | Uint32Array | Uint8Array;
+			) as Uint8Array | Uint16Array | Uint32Array;
 		}
 
 		// Element buffer objects can't be copied through vertex buffers.
@@ -234,7 +234,7 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	public override setData(
-		data: number | Uint16Array | Uint32Array | Uint8Array,
+		data: number | Uint8Array | Uint16Array | Uint32Array,
 		usage?: BufferUsage,
 		srcOffset?: number,
 		length?: number,

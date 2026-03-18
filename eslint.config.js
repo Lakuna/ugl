@@ -238,6 +238,6 @@ export default defineConfig(
 		plugins: { tsdoc },
 		rules: { "tsdoc/syntax": "error" }
 	},
-	perfectionist.configs["recommended-alphabetical"],
+	perfectionist.configs["recommended-natural"],
 	prettier
 );

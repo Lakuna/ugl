@@ -12,12 +12,12 @@ export default function getTypedArrayConstructorForDataType(
 ):
 	| Float16ArrayConstructor
 	| Float32ArrayConstructor
+	| Int8ArrayConstructor
 	| Int16ArrayConstructor
 	| Int32ArrayConstructor
-	| Int8ArrayConstructor
+	| Uint8ArrayConstructor
 	| Uint16ArrayConstructor
-	| Uint32ArrayConstructor
-	| Uint8ArrayConstructor {
+	| Uint32ArrayConstructor {
 	switch (dataType) {
 		case DataType.BYTE:
 		case TextureDataType.BYTE:
@@ -43,10 +43,10 @@ export default function getTypedArrayConstructorForDataType(
 		case DataType.UNSIGNED_INT:
 		case DataType.UNSIGNED_INT_2_10_10_10_REV:
 		case TextureDataType.UNSIGNED_INT:
-		case TextureDataType.UNSIGNED_INT_10F_11F_11F_REV:
 		case TextureDataType.UNSIGNED_INT_2_10_10_10_REV:
-		case TextureDataType.UNSIGNED_INT_24_8:
 		case TextureDataType.UNSIGNED_INT_5_9_9_9_REV:
+		case TextureDataType.UNSIGNED_INT_10F_11F_11F_REV:
+		case TextureDataType.UNSIGNED_INT_24_8:
 			return Uint32Array;
 		case DataType.UNSIGNED_SHORT:
 		case TextureDataType.UNSIGNED_SHORT:

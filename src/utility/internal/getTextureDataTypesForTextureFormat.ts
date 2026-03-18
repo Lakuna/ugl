@@ -25,6 +25,10 @@ export default function getTextureDataTypesForTextureFormat(
 		case TextureFormat.SRGB8:
 		case TextureFormat.SRGB8_ALPHA8:
 			return [TextureDataType.UNSIGNED_BYTE];
+		case TextureFormat.DEPTH24_STENCIL8:
+			return [TextureDataType.UNSIGNED_INT_24_8];
+		case TextureFormat.DEPTH32F_STENCIL8:
+			return [TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV];
 		case TextureFormat.DEPTH_COMPONENT16:
 			return [TextureDataType.UNSIGNED_SHORT, TextureDataType.UNSIGNED_INT];
 		case TextureFormat.DEPTH_COMPONENT24:
@@ -39,10 +43,15 @@ export default function getTextureDataTypesForTextureFormat(
 		case TextureFormat.RGB32F:
 		case TextureFormat.RGBA32F:
 			return [TextureDataType.FLOAT];
-		case TextureFormat.DEPTH24_STENCIL8:
-			return [TextureDataType.UNSIGNED_INT_24_8];
-		case TextureFormat.DEPTH32F_STENCIL8:
-			return [TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV];
+		case TextureFormat.R8_SNORM:
+		case TextureFormat.R8I:
+		case TextureFormat.RG8_SNORM:
+		case TextureFormat.RG8I:
+		case TextureFormat.RGB8_SNORM:
+		case TextureFormat.RGB8I:
+		case TextureFormat.RGBA8_SNORM:
+		case TextureFormat.RGBA8I:
+			return [TextureDataType.BYTE];
 		case TextureFormat.R11F_G11F_B10F:
 			return [
 				TextureDataType.FLOAT,
@@ -69,24 +78,12 @@ export default function getTextureDataTypesForTextureFormat(
 		case TextureFormat.RGB32I:
 		case TextureFormat.RGBA32I:
 			return [TextureDataType.INT];
-		case TextureFormat.R8_SNORM:
-		case TextureFormat.R8I:
-		case TextureFormat.RG8_SNORM:
-		case TextureFormat.RG8I:
-		case TextureFormat.RGB8_SNORM:
-		case TextureFormat.RGB8I:
-		case TextureFormat.RGBA8_SNORM:
-		case TextureFormat.RGBA8I:
-			return [TextureDataType.BYTE];
 		case TextureFormat.RGB:
 		case TextureFormat.RGB565:
 			return [
 				TextureDataType.UNSIGNED_BYTE,
 				TextureDataType.UNSIGNED_SHORT_5_6_5
 			];
-		case TextureFormat.RGB10_A2:
-		case TextureFormat.RGB10_A2UI:
-			return [TextureDataType.UNSIGNED_INT_2_10_10_10_REV];
 		case TextureFormat.RGB5_A1:
 			return [
 				TextureDataType.UNSIGNED_BYTE,
@@ -99,6 +96,9 @@ export default function getTextureDataTypesForTextureFormat(
 				TextureDataType.UNSIGNED_INT_5_9_9_9_REV,
 				TextureDataType.HALF_FLOAT
 			];
+		case TextureFormat.RGB10_A2:
+		case TextureFormat.RGB10_A2UI:
+			return [TextureDataType.UNSIGNED_INT_2_10_10_10_REV];
 		case TextureFormat.RGBA:
 			return [
 				TextureDataType.UNSIGNED_BYTE,

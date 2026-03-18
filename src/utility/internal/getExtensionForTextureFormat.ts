@@ -42,12 +42,6 @@ export default function getExtensionForTextureFormat(
 		case TextureFormat.COMPRESSED_RGBA_S3TC_DXT3_EXT:
 		case TextureFormat.COMPRESSED_RGBA_S3TC_DXT5_EXT:
 			return Extension.COMPRESSED_TEXTURE_S3TC;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X10_KHR:
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X5_KHR:
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X6_KHR:
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X8_KHR:
-		case TextureFormat.COMPRESSED_RGBA_ASTC_12X10_KHR:
-		case TextureFormat.COMPRESSED_RGBA_ASTC_12X12_KHR:
 		case TextureFormat.COMPRESSED_RGBA_ASTC_4X4_KHR:
 		case TextureFormat.COMPRESSED_RGBA_ASTC_5X4_KHR:
 		case TextureFormat.COMPRESSED_RGBA_ASTC_5X5_KHR:
@@ -56,12 +50,12 @@ export default function getExtensionForTextureFormat(
 		case TextureFormat.COMPRESSED_RGBA_ASTC_8X5_KHR:
 		case TextureFormat.COMPRESSED_RGBA_ASTC_8X6_KHR:
 		case TextureFormat.COMPRESSED_RGBA_ASTC_8X8_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR:
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X5_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X6_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X8_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X10_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_12X10_KHR:
+		case TextureFormat.COMPRESSED_RGBA_ASTC_12X12_KHR:
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR:
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR:
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR:
@@ -70,6 +64,12 @@ export default function getExtensionForTextureFormat(
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR:
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR:
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR:
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR:
 			return Extension.COMPRESSED_TEXTURE_ASTC;
 		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
 		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:

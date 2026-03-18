@@ -20,9 +20,9 @@ export default function getSizeOfDataType(
 		case DataType.UNSIGNED_INT:
 		case DataType.UNSIGNED_INT_2_10_10_10_REV:
 		case TextureDataType.FLOAT_32_UNSIGNED_INT_24_8_REV:
+		case TextureDataType.UNSIGNED_INT_5_9_9_9_REV:
 		case TextureDataType.UNSIGNED_INT_10F_11F_11F_REV:
 		case TextureDataType.UNSIGNED_INT_24_8:
-		case TextureDataType.UNSIGNED_INT_5_9_9_9_REV:
 			return 4;
 		case DataType.HALF_FLOAT:
 		case DataType.SHORT:

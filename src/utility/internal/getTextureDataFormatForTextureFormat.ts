@@ -21,6 +21,10 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_RED_RGTC1_EXT;
 		case TextureFormat.COMPRESSED_RG11_EAC:
 			return TextureDataFormat.COMPRESSED_RG11_EAC;
+		case TextureFormat.COMPRESSED_RGB8_ETC2:
+			return TextureDataFormat.COMPRESSED_RGB8_ETC2;
+		case TextureFormat.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+			return TextureDataFormat.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
 		case TextureFormat.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT:
 			return TextureDataFormat.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT;
 		case TextureFormat.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT:
@@ -31,22 +35,8 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
 		case TextureFormat.COMPRESSED_RGB_S3TC_DXT1_EXT:
 			return TextureDataFormat.COMPRESSED_RGB_S3TC_DXT1_EXT;
-		case TextureFormat.COMPRESSED_RGB8_ETC2:
-			return TextureDataFormat.COMPRESSED_RGB8_ETC2;
-		case TextureFormat.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-			return TextureDataFormat.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X10_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X10_KHR;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X5_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X5_KHR;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X6_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X6_KHR;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_10X8_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X8_KHR;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_12X10_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_12X10_KHR;
-		case TextureFormat.COMPRESSED_RGBA_ASTC_12X12_KHR:
-			return TextureDataFormat.COMPRESSED_RGBA_ASTC_12X12_KHR;
+		case TextureFormat.COMPRESSED_RGBA8_ETC2_EAC:
+			return TextureDataFormat.COMPRESSED_RGBA8_ETC2_EAC;
 		case TextureFormat.COMPRESSED_RGBA_ASTC_4X4_KHR:
 			return TextureDataFormat.COMPRESSED_RGBA_ASTC_4X4_KHR;
 		case TextureFormat.COMPRESSED_RGBA_ASTC_5X4_KHR:
@@ -63,6 +53,18 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_RGBA_ASTC_8X6_KHR;
 		case TextureFormat.COMPRESSED_RGBA_ASTC_8X8_KHR:
 			return TextureDataFormat.COMPRESSED_RGBA_ASTC_8X8_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X5_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X5_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X6_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X6_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X8_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X8_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_10X10_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_10X10_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_12X10_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_12X10_KHR;
+		case TextureFormat.COMPRESSED_RGBA_ASTC_12X12_KHR:
+			return TextureDataFormat.COMPRESSED_RGBA_ASTC_12X12_KHR;
 		case TextureFormat.COMPRESSED_RGBA_BPTC_UNORM_EXT:
 			return TextureDataFormat.COMPRESSED_RGBA_BPTC_UNORM_EXT;
 		case TextureFormat.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG:
@@ -75,8 +77,6 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		case TextureFormat.COMPRESSED_RGBA_S3TC_DXT5_EXT:
 			return TextureDataFormat.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		case TextureFormat.COMPRESSED_RGBA8_ETC2_EAC:
-			return TextureDataFormat.COMPRESSED_RGBA8_ETC2_EAC;
 		case TextureFormat.COMPRESSED_SIGNED_R11_EAC:
 			return TextureDataFormat.COMPRESSED_SIGNED_R11_EAC;
 		case TextureFormat.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT:
@@ -85,28 +85,6 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_SIGNED_RED_RGTC1_EXT;
 		case TextureFormat.COMPRESSED_SIGNED_RG11_EAC:
 			return TextureDataFormat.COMPRESSED_SIGNED_RG11_EAC;
-		case TextureFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT:
-			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT;
-		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
-			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
-			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
-			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-		case TextureFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT:
-			return TextureDataFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR;
-		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR:
-			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR;
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR:
 			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR;
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR:
@@ -123,82 +101,104 @@ export default function getTextureDataFormatForTextureFormat(
 			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR;
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR:
 			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR;
+		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR:
+			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR;
 		case TextureFormat.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
 			return TextureDataFormat.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
 		case TextureFormat.COMPRESSED_SRGB8_ETC2:
 			return TextureDataFormat.COMPRESSED_SRGB8_ETC2;
 		case TextureFormat.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
 			return TextureDataFormat.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+		case TextureFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT:
+			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT;
+		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+		case TextureFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+			return TextureDataFormat.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+		case TextureFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT:
+			return TextureDataFormat.COMPRESSED_SRGB_S3TC_DXT1_EXT;
+		case TextureFormat.DEPTH24_STENCIL8:
+		case TextureFormat.DEPTH32F_STENCIL8:
+			return TextureDataFormat.DEPTH_STENCIL;
 		case TextureFormat.DEPTH_COMPONENT16:
 		case TextureFormat.DEPTH_COMPONENT24:
 		case TextureFormat.DEPTH_COMPONENT32F:
 			return TextureDataFormat.DEPTH_COMPONENT;
-		case TextureFormat.DEPTH24_STENCIL8:
-		case TextureFormat.DEPTH32F_STENCIL8:
-			return TextureDataFormat.DEPTH_STENCIL;
 		case TextureFormat.LUMINANCE:
 			return TextureDataFormat.LUMINANCE;
 		case TextureFormat.LUMINANCE_ALPHA:
 			return TextureDataFormat.LUMINANCE_ALPHA;
-		case TextureFormat.R11F_G11F_B10F:
-		case TextureFormat.RGB:
-		case TextureFormat.RGB16F:
-		case TextureFormat.RGB32F:
-		case TextureFormat.RGB565:
-		case TextureFormat.RGB8:
-		case TextureFormat.RGB8_SNORM:
-		case TextureFormat.RGB9_E5:
-		case TextureFormat.SRGB8:
-			return TextureDataFormat.RGB;
-		case TextureFormat.R16F:
-		case TextureFormat.R32F:
 		case TextureFormat.R8:
 		case TextureFormat.R8_SNORM:
+		case TextureFormat.R16F:
+		case TextureFormat.R32F:
 			return TextureDataFormat.RED;
+		case TextureFormat.R8I:
+		case TextureFormat.R8UI:
 		case TextureFormat.R16I:
 		case TextureFormat.R16UI:
 		case TextureFormat.R32I:
 		case TextureFormat.R32UI:
-		case TextureFormat.R8I:
-		case TextureFormat.R8UI:
 			return TextureDataFormat.RED_INTEGER;
-		case TextureFormat.RG16F:
-		case TextureFormat.RG32F:
+		case TextureFormat.R11F_G11F_B10F:
+		case TextureFormat.RGB:
+		case TextureFormat.RGB8:
+		case TextureFormat.RGB8_SNORM:
+		case TextureFormat.RGB9_E5:
+		case TextureFormat.RGB16F:
+		case TextureFormat.RGB32F:
+		case TextureFormat.RGB565:
+		case TextureFormat.SRGB8:
+			return TextureDataFormat.RGB;
 		case TextureFormat.RG8:
 		case TextureFormat.RG8_SNORM:
+		case TextureFormat.RG16F:
+		case TextureFormat.RG32F:
 			return TextureDataFormat.RG;
+		case TextureFormat.RG8I:
+		case TextureFormat.RG8UI:
 		case TextureFormat.RG16I:
 		case TextureFormat.RG16UI:
 		case TextureFormat.RG32I:
 		case TextureFormat.RG32UI:
-		case TextureFormat.RG8I:
-		case TextureFormat.RG8UI:
 			return TextureDataFormat.RG_INTEGER;
-		case TextureFormat.RGB10_A2:
 		case TextureFormat.RGB5_A1:
+		case TextureFormat.RGB10_A2:
 		case TextureFormat.RGBA:
-		case TextureFormat.RGBA16F:
-		case TextureFormat.RGBA32F:
 		case TextureFormat.RGBA4:
 		case TextureFormat.RGBA8:
 		case TextureFormat.RGBA8_SNORM:
+		case TextureFormat.RGBA16F:
+		case TextureFormat.RGBA32F:
 		case TextureFormat.SRGB8_ALPHA8:
 			return TextureDataFormat.RGBA;
-		case TextureFormat.RGB10_A2UI:
-		case TextureFormat.RGBA16I:
-		case TextureFormat.RGBA16UI:
-		case TextureFormat.RGBA32I:
-		case TextureFormat.RGBA32UI:
-		case TextureFormat.RGBA8I:
-		case TextureFormat.RGBA8UI:
-			return TextureDataFormat.RGBA_INTEGER;
+		case TextureFormat.RGB8I:
+		case TextureFormat.RGB8UI:
 		case TextureFormat.RGB16I:
 		case TextureFormat.RGB16UI:
 		case TextureFormat.RGB32I:
 		case TextureFormat.RGB32UI:
-		case TextureFormat.RGB8I:
-		case TextureFormat.RGB8UI:
 			return TextureDataFormat.RGB_INTEGER;
+		case TextureFormat.RGB10_A2UI:
+		case TextureFormat.RGBA8I:
+		case TextureFormat.RGBA8UI:
+		case TextureFormat.RGBA16I:
+		case TextureFormat.RGBA16UI:
+		case TextureFormat.RGBA32I:
+		case TextureFormat.RGBA32UI:
+			return TextureDataFormat.RGBA_INTEGER;
 		case TextureFormat.SRGB:
 			return TextureDataFormat.SRGB;
 		case TextureFormat.SRGB_ALPHA:
