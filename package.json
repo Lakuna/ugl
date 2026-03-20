@@ -30,10 +30,10 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint src",
-		"serve": "serve",
 		"doc": "typedoc",
-		"beautify": "prettier . --write"
+		"fix": "eslint src --fix",
+		"lint": "eslint src",
+		"serve": "serve"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
