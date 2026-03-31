@@ -17,6 +17,7 @@ import MatrixAttribute from "./MatrixAttribute.js";
  * @internal
  */
 export default function createAttribute(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	program: Program,
 	index: number
 ): Attribute {

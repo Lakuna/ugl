@@ -34,6 +34,7 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program, activeInfo);
 		this.valueCache = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -46,6 +47,7 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override iterableSetter(value: Iterable<number>): void {
 		// Can only accept twelve values.
 		const [i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11] = [...value];
@@ -88,5 +90,6 @@ export default abstract class MatrixUniform12 extends MatrixUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public abstract iterableSetterInternal(value: Iterable<number>): void;
 }

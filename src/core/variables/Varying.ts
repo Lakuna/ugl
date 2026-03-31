@@ -18,6 +18,7 @@ export default class Varying extends Variable {
 
 	// Should only be called from within `TransformFeedback`.
 	/** @internal */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override set value(value: undefined | VaryingValue | VertexBuffer) {
 		if (!value) {
 			return;
@@ -65,6 +66,7 @@ export default class Varying extends Variable {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/getTransformFeedbackVarying | getTransformFeedbackVarying}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, index: number) {
 		const activeInfo = program.context.gl.getTransformFeedbackVarying(
 			program.internal,

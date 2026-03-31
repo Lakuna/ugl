@@ -27,6 +27,7 @@ export default class Texture3d extends Texture {
 	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context);
 
 	/**
@@ -42,6 +43,7 @@ export default class Texture3d extends Texture {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels: number,
 		format: TextureFormat,
@@ -51,6 +53,7 @@ export default class Texture3d extends Texture {
 	);
 
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels?: number,
 		format?: TextureFormat,
@@ -88,6 +91,7 @@ export default class Texture3d extends Texture {
 	protected override makeImmutableFormatInternal(
 		levels: number,
 		format: TextureFormat,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		dims: [number, number, number]
 	): void {
 		this.gl.texStorage3D(
@@ -122,6 +126,7 @@ export default class Texture3d extends Texture {
 		bounds: Prism,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
@@ -240,6 +245,7 @@ export default class Texture3d extends Texture {
 		bounds: Prism,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
@@ -340,6 +346,7 @@ export default class Texture3d extends Texture {
 		bounds: Prism | undefined,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: TexImageSource
 	): void {
 		const x = bounds?.[0] ?? 0;
@@ -442,6 +449,7 @@ export default class Texture3d extends Texture {
 		target: MipmapTarget.TEXTURE_3D,
 		level: number,
 		bounds?: Prism,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	): void {

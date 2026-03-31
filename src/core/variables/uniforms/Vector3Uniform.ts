@@ -21,6 +21,7 @@ export default abstract class Vector3Uniform extends MultipleValuedUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program, activeInfo);
 		this.valueCache = [0, 0, 0];
@@ -33,6 +34,7 @@ export default abstract class Vector3Uniform extends MultipleValuedUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override iterableSetter(value: Iterable<number>): void {
 		// Can only accept three values.
 		const [x, y, z] = [...value];
@@ -57,5 +59,6 @@ export default abstract class Vector3Uniform extends MultipleValuedUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public abstract iterableSetterInternal(value: Iterable<number>): void;
 }

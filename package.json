@@ -1,49 +1,23 @@
 {
-	"name": "@lakuna/ugl",
-	"version": "26.1.6",
-	"description": "A lightweight WebGL2 library.",
-	"keywords": [
-		"front-end"
-	],
-	"homepage": "https://ugl.lakuna.pw",
-	"bugs": {
-		"url": "https://github.com/Lakuna/ugl/issues",
-		"email": "travis@lakuna.pw"
-	},
-	"license": "MIT",
 	"author": {
-		"name": "Travis Martin",
 		"email": "travis@lakuna.pw",
+		"name": "Travis Martin",
 		"url": "https://www.lakuna.pw/"
 	},
-	"funding": {
-		"type": "individual",
-		"url": "https://github.com/sponsors/Lakuna"
+	"bugs": {
+		"email": "travis@lakuna.pw",
+		"url": "https://github.com/Lakuna/ugl/issues"
 	},
-	"files": [
-		"dist",
-		"src"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Lakuna/ugl.git"
-	},
-	"scripts": {
-		"build": "tsc",
-		"doc": "typedoc",
-		"fix": "eslint src --fix",
-		"lint": "eslint src",
-		"serve": "serve"
-	},
+	"description": "A lightweight WebGL2 library.",
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@lakuna/umath": "^3.0.0",
+		"@lakuna/umath": "^4.0.5",
 		"@types/eslint": "^9.6.1",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.12",
 		"@types/webxr": "^0.5.24",
-		"eslint": "^10.0.3",
+		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-perfectionist": "^5.7.0",
 		"eslint-plugin-prettier": "^5.5.5",
@@ -51,12 +25,38 @@
 		"globals": "^17.4.0",
 		"prettier": "^3.8.1",
 		"serve": "^14.2.6",
-		"typedoc": "^0.28.17",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.57.1"
+		"typedoc": "^0.28.18",
+		"typescript": "^6.0.2",
+		"typescript-eslint": "^8.58.0"
 	},
 	"exports": "./dist/index.js",
-	"typings": "./dist/index.d.ts",
+	"files": [
+		"dist",
+		"src"
+	],
+	"funding": {
+		"type": "individual",
+		"url": "https://github.com/sponsors/Lakuna"
+	},
+	"homepage": "https://ugl.lakuna.pw/",
+	"keywords": [
+		"front-end"
+	],
+	"license": "MIT",
+	"name": "@lakuna/ugl",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Lakuna/ugl.git"
+	},
+	"scripts": {
+		"build": "tsc",
+		"doc": "typedoc",
+		"fix": "eslint --fix",
+		"lint": "eslint",
+		"serve": "serve"
+	},
+	"sideEffects": false,
 	"type": "module",
-	"sideEffects": false
+	"typings": "./dist/index.d.ts",
+	"version": "27.0.0"
 }

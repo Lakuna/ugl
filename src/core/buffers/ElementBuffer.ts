@@ -65,6 +65,7 @@ export default class ElementBuffer extends Buffer<
 		return this.dataCache;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public set data(value: Uint8Array | Uint16Array | Uint32Array) {
 		this.setData(value);
 	}
@@ -89,7 +90,9 @@ export default class ElementBuffer extends Buffer<
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data: number | Uint8Array | Uint16Array | Uint32Array = 0,
 		usage?: BufferUsage,
 		offset?: number,
@@ -110,6 +113,7 @@ export default class ElementBuffer extends Buffer<
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		vao: null | WebGLVertexArrayObject,
 		buffer: null | WebGLBuffer
@@ -143,26 +147,25 @@ export default class ElementBuffer extends Buffer<
 	 * @internal
 	 */
 	public static getBound(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		vao: null | WebGLVertexArrayObject
 	): null | WebGLBuffer {
-		// Get the bound buffer.
-		let boundBuffer = ElementBuffer.bindingsCache.get(vao);
-		if (typeof boundBuffer === "undefined") {
-			if (context.doPrefillCache) {
-				boundBuffer = null;
-			} else {
+		return ElementBuffer.bindingsCache.getOrInsertComputed(vao, () => {
+			let value: unknown = null;
+			if (!context.doPrefillCache) {
 				VertexArray.bindGl(context, vao);
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				boundBuffer = context.gl.getParameter(
-					ELEMENT_ARRAY_BUFFER_BINDING
-				) as null | WebGLBuffer;
+				value = context.gl.getParameter(ELEMENT_ARRAY_BUFFER_BINDING);
 			}
 
-			ElementBuffer.bindingsCache.set(vao, boundBuffer);
-		}
+			if (value !== null && !(value instanceof WebGLBuffer)) {
+				throw new Error(
+					"An incorrectly-typed value was returned for `ELEMENT_ARRAY_BUFFER_BINDING`."
+				);
+			}
 
-		return boundBuffer;
+			return value;
+		});
 	}
 
 	/**
@@ -173,6 +176,7 @@ export default class ElementBuffer extends Buffer<
 	 * @internal
 	 */
 	public static unbindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		vao: null | WebGLVertexArrayObject,
 		buffer?: WebGLBuffer
@@ -191,6 +195,7 @@ export default class ElementBuffer extends Buffer<
 	 * @param vao - The new VAO to bind to, or `undefined` to bind to the default VAO.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override bind(vao?: null | VertexArray): void {
 		ElementBuffer.bindGl(this.context, vao?.internal ?? null, this.internal);
 	}
@@ -234,6 +239,7 @@ export default class ElementBuffer extends Buffer<
 	}
 
 	public override setData(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data: number | Uint8Array | Uint16Array | Uint32Array,
 		usage?: BufferUsage,
 		srcOffset?: number,
@@ -281,6 +287,7 @@ export default class ElementBuffer extends Buffer<
 	 * @param vao - The VAO to unbind from, or `undefined` to unbind from the default VAO.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override unbind(vao?: null | VertexArray): void {
 		ElementBuffer.unbindGl(this.context, vao?.internal ?? null, this.internal);
 	}

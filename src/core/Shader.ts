@@ -82,6 +82,7 @@ export default class Shader extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createShader | createShader}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context, shader: WebGLShader);
 
 	/**
@@ -95,9 +96,11 @@ export default class Shader extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/shaderSource | shaderSource}
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compileShader | compileShader}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context, type: ShaderType, source?: string);
 
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		type: ShaderType | WebGLShader,
 		source?: string
@@ -136,6 +139,7 @@ export default class Shader extends ContextDependent {
 	 * @returns The corresponding `Shader`.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static get(context: Context, shader: WebGLShader): Shader {
 		return Shader.existingShaders.get(shader) ?? new Shader(context, shader);
 	}

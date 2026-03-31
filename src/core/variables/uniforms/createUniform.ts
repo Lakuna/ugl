@@ -36,6 +36,7 @@ import UnsignedIntegerVector4Uniform from "./UnsignedIntegerVector4Uniform.js";
  * @internal
  */
 export default function createUniform(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	program: Program,
 	index: number
 ): Uniform {

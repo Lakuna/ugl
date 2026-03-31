@@ -63,6 +63,7 @@ export default class VertexBuffer extends Buffer {
 		return this.dataCache;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public set data(value: ArrayBufferView) {
 		this.setData(value);
 	}
@@ -102,7 +103,9 @@ export default class VertexBuffer extends Buffer {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data: ArrayBufferView | number | VertexBuffer = 0,
 		usage?: BufferUsage,
 		offset?: number,
@@ -122,6 +125,7 @@ export default class VertexBuffer extends Buffer {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: BufferTarget,
 		buffer: null | WebGLBuffer
@@ -161,27 +165,26 @@ export default class VertexBuffer extends Buffer {
 	 * @internal
 	 */
 	public static getBound(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: BufferTarget
 	): null | WebGLBuffer {
-		// Get the context bindings cache.
-		const contextBindingsCache = VertexBuffer.getContextBindingsCache(
-			context.gl
+		return VertexBuffer.getContextBindingsCache(context.gl).getOrInsertComputed(
+			target,
+			() => {
+				const value: unknown =
+					context.doPrefillCache ? null : (
+						context.gl.getParameter(getParameterForBufferTarget(target))
+					);
+				if (value !== null && !(value instanceof WebGLBuffer)) {
+					throw new Error(
+						`An incorrectly-typed value was returned for \`${getParameterForBufferTarget(target).toString()}\`.`
+					);
+				}
+
+				return value;
+			}
 		);
-
-		// Get the bound buffer.
-		let boundBuffer = contextBindingsCache.get(target);
-		if (typeof boundBuffer === "undefined") {
-			boundBuffer =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						getParameterForBufferTarget(target)
-					) as null | WebGLBuffer);
-			contextBindingsCache.set(target, boundBuffer);
-		}
-
-		return boundBuffer;
 	}
 
 	/**
@@ -192,6 +195,7 @@ export default class VertexBuffer extends Buffer {
 	 * @internal
 	 */
 	public static unbindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: BufferTarget,
 		buffer?: WebGLBuffer
@@ -212,16 +216,10 @@ export default class VertexBuffer extends Buffer {
 	 * @internal
 	 */
 	private static getContextBindingsCache(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext
 	): Map<BufferTarget, null | WebGLBuffer> {
-		// Get the context bindings cache.
-		let contextBindingsCache = VertexBuffer.bindingsCache.get(gl);
-		if (!contextBindingsCache) {
-			contextBindingsCache = new Map();
-			VertexBuffer.bindingsCache.set(gl, contextBindingsCache);
-		}
-
-		return contextBindingsCache;
+		return VertexBuffer.bindingsCache.getOrInsertComputed(gl, () => new Map());
 	}
 
 	/**
@@ -283,6 +281,7 @@ export default class VertexBuffer extends Buffer {
 	}
 
 	public override setData(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data: ArrayBufferView | number | VertexBuffer,
 		usage?: BufferUsage,
 		srcOffset?: number,

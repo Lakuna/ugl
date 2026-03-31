@@ -46,6 +46,7 @@ export default abstract class Variable extends ContextDependent {
 	 * @param program - The shader program that this variable belongs to.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program.context);
 		this.program = program;

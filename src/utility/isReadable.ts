@@ -4,7 +4,7 @@ import BufferUsage from "../constants/BufferUsage.js";
  * Determine whether or not the given buffer usage pattern is readable.
  * @param usage - The buffer usage pattern.
  * @returns Whether or not the given buffer usage pattern is readable.
- * @public
+ * @internal
  */
 export default function isReadable(usage: BufferUsage): boolean {
 	return (

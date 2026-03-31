@@ -46,6 +46,7 @@ export default class VertexArray extends ContextDependent {
 		return this.eboCache;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public set ebo(value: ElementBuffer | undefined) {
 		if (value === this.ebo) {
 			return;
@@ -84,8 +85,11 @@ export default class VertexArray extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createVertexArray | createVertexArray}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		program: Program,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		attributes?: AttributeMap,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		ebo?: ElementBuffer
 	) {
 		super(program.context);
@@ -117,6 +121,7 @@ export default class VertexArray extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		vao: null | WebGLVertexArrayObject
 	): void {
@@ -135,20 +140,21 @@ export default class VertexArray extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static getBound(context: Context): null | WebGLVertexArrayObject {
-		// Get the bound VAO.
-		let boundVao = VertexArray.bindingsCache.get(context.gl);
-		if (typeof boundVao === "undefined") {
-			boundVao =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						VERTEX_ARRAY_BINDING
-					) as null | WebGLVertexArrayObject);
-			VertexArray.bindingsCache.set(context.gl, boundVao);
-		}
+		return VertexArray.bindingsCache.getOrInsertComputed(context.gl, () => {
+			const value: unknown =
+				context.doPrefillCache ? null : (
+					context.gl.getParameter(VERTEX_ARRAY_BINDING)
+				);
+			if (value !== null && !(value instanceof WebGLVertexArrayObject)) {
+				throw new Error(
+					"An incorrectly-typed value was returned for `VERTEX_ARRAY_BINDING`."
+				);
+			}
 
-		return boundVao;
+			return value;
+		});
 	}
 
 	/**
@@ -157,6 +163,7 @@ export default class VertexArray extends ContextDependent {
 	 * @param vao - The VAO to unbind, or `undefined` to unbind any VAO.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static unbindGl(context: Context, vao?: WebGLVertexArrayObject): void {
 		// Do nothing if the VAO is already unbound.
 		if (vao && VertexArray.getBound(context) !== vao) {
@@ -183,6 +190,7 @@ export default class VertexArray extends ContextDependent {
 	 */
 	public setAttribute(
 		name: string,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		value: AttributeValue | VertexBuffer
 	): void {
 		const attribute = this.program.attributes.get(name);

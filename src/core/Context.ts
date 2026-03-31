@@ -81,7 +81,7 @@ export default class Context extends ApiInterface {
 	 * @internal
 	 */
 	private static readonly existingContexts = new Map<
-		HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+		WebGL2RenderingContext,
 		Context
 	>();
 
@@ -1257,6 +1257,7 @@ export default class Context extends ApiInterface {
 	 * @param gl - The rendering context.
 	 * @throws {@link DuplicateContextError} if a `Context` already exists for `gl`.
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(gl: WebGL2RenderingContext);
 
 	/**
@@ -1269,37 +1270,40 @@ export default class Context extends ApiInterface {
 	 * @throws {@link DuplicateContextError} if a `Context` already exists for `canvas`.
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		canvas: HTMLCanvasElement | OffscreenCanvas,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		options?: WebGLContextAttributes,
 		doPrefillCache?: boolean
 	);
 
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		options?: WebGLContextAttributes,
 		doPrefillCache = true
 	) {
-		if (Context.existingContexts.has(source)) {
+		const gl =
+			source instanceof WebGL2RenderingContext ? source : (
+				source.getContext("webgl2", options)
+			);
+		if (!gl) {
+			throw new UnsupportedOperationError(
+				"The environment does not support WebGL2."
+			);
+		}
+
+		if (Context.existingContexts.has(gl)) {
 			throw new Error(
 				"A `Context` already exists for that canvas. Consider using `Context.get` instead."
 			);
 		}
 
-		if (source instanceof WebGL2RenderingContext) {
-			super(source);
-		} else {
-			const gl = source.getContext("webgl2", options);
-			if (!gl) {
-				throw new UnsupportedOperationError(
-					"The environment does not support WebGL2."
-				);
-			}
+		super(gl);
 
-			super(gl);
-
-			if (options) {
-				this.attributesCache = options;
-			}
+		if (options) {
+			this.attributesCache = options;
 		}
 
 		this.canvas = this.gl.canvas;
@@ -1314,6 +1318,7 @@ export default class Context extends ApiInterface {
 	 * @returns A rendering context.
 	 * @public
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static get(gl: WebGL2RenderingContext): Context;
 	/**
 	 * Create a `Context` or get an existing `Context` if one already exists for the given canvas. This is preferable to calling the `Context` constructor in cases where multiple `Context`s may be created for the same canvas (i.e. in a Next.js page).
@@ -1324,28 +1329,34 @@ export default class Context extends ApiInterface {
 	 * @public
 	 */
 	public static get(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		canvas: HTMLCanvasElement | OffscreenCanvas,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		options?: WebGLContextAttributes,
 		doPrefillCache?: boolean
 	): Context;
 	public static get(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		options?: WebGLContextAttributes,
 		doPrefillCache?: boolean
 	): Context {
-		const { existingContexts } = Context;
-		const existingContext = existingContexts.get(source);
-		if (existingContext) {
-			return existingContext;
+		const gl =
+			source instanceof WebGL2RenderingContext ? source : (
+				source.getContext("webgl2")
+			);
+		if (!gl) {
+			throw new UnsupportedOperationError(
+				"The environment does not support WebGL2."
+			);
 		}
 
-		const out =
+		return Context.existingContexts.getOrInsertComputed(gl, () =>
 			source instanceof WebGL2RenderingContext ?
 				new Context(source)
-			:	new Context(source, options, doPrefillCache);
-		existingContexts.set(out.canvas, out);
-		existingContexts.set(out.gl, out);
-		return out;
+			:	new Context(source, options, doPrefillCache)
+		);
 	}
 
 	/**
@@ -1355,15 +1366,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension | getExtension}
 	 */
 	public enableExtension(extension: Extension): ExtensionObject | null {
-		let out = this.enabledExtensions.get(extension);
-		if (typeof out !== "undefined") {
-			return out;
-		}
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		out = this.gl.getExtension(extension) as ExtensionObject | null;
-		this.enabledExtensions.set(extension, out);
-		return out;
+		return this.enabledExtensions.getOrInsertComputed(extension, () =>
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+			this.gl.getExtension(extension)
+		);
 	}
 
 	/**
@@ -1404,6 +1410,7 @@ export default class Context extends ApiInterface {
 	 * @param framebuffer - The framebuffer to fit the size of, or `undefined` for the default framebuffer (canvas).
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public fitViewport(framebuffer?: Framebuffer): void {
 		this.viewport =
 			framebuffer ?
@@ -1425,6 +1432,7 @@ export default class Context extends ApiInterface {
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public resize(framebuffer?: Framebuffer): boolean;
 	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
@@ -1433,6 +1441,7 @@ export default class Context extends ApiInterface {
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(rectangle: Rectangle): boolean;
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public resize(shape?: Framebuffer | Rectangle): boolean {
 		const out = this.fitDrawingBuffer();
 

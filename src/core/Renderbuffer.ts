@@ -45,6 +45,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/renderbufferStorage | renderbufferStorage}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		format: RenderbufferFormat,
 		width: number,
@@ -75,6 +76,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		renderbuffer: null | WebGLRenderbuffer
 	): void {
@@ -94,20 +96,21 @@ export default class Renderbuffer extends ContextDependent {
 	 * @returns The renderbuffer.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static getBound(context: Context): null | WebGLRenderbuffer {
-		// Get the bound renderbuffer.
-		let boundRenderbuffer = Renderbuffer.bindingsCache.get(context.gl);
-		if (typeof boundRenderbuffer === "undefined") {
-			boundRenderbuffer =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						RENDERBUFFER_BINDING
-					) as null | WebGLRenderbuffer);
-			Renderbuffer.bindingsCache.set(context.gl, boundRenderbuffer);
-		}
+		return Renderbuffer.bindingsCache.getOrInsertComputed(context.gl, () => {
+			const value: unknown =
+				context.doPrefillCache ? null : (
+					context.gl.getParameter(RENDERBUFFER_BINDING)
+				);
+			if (value !== null && !(value instanceof WebGLRenderbuffer)) {
+				throw new Error(
+					"An incorrectly-typed value was returned for `RENDERBUFFER_BINDING`."
+				);
+			}
 
-		return boundRenderbuffer;
+			return value;
+		});
 	}
 
 	/**
@@ -117,6 +120,7 @@ export default class Renderbuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static unbindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		renderbuffer?: WebGLRenderbuffer
 	): void {

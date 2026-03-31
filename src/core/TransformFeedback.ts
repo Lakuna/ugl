@@ -52,6 +52,7 @@ export default class TransformFeedback extends ContextDependent {
 	 * @param varyings - The output buffers to attach to the transform feedback.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/createTransformFeedback | createTransformFeedback}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, varyings?: VaryingMap) {
 		super(program.context);
 		this.program = program;
@@ -80,6 +81,7 @@ export default class TransformFeedback extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		tf: null | WebGLTransformFeedback
 	): void {
@@ -98,20 +100,24 @@ export default class TransformFeedback extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static getBound(context: Context): null | WebGLTransformFeedback {
-		// Get the bound transform feedback.
-		let boundTf = TransformFeedback.bindingsCache.get(context.gl);
-		if (typeof boundTf === "undefined") {
-			boundTf =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						TRANSFORM_FEEDBACK_BINDING
-					) as null | WebGLTransformFeedback);
-			TransformFeedback.bindingsCache.set(context.gl, boundTf);
-		}
+		return TransformFeedback.bindingsCache.getOrInsertComputed(
+			context.gl,
+			() => {
+				const value: unknown =
+					context.doPrefillCache ? null : (
+						context.gl.getParameter(TRANSFORM_FEEDBACK_BINDING)
+					);
+				if (value !== null && !(value instanceof WebGLTransformFeedback)) {
+					throw new Error(
+						"An incorrectly-typed value was returned for `TRANSFORM_FEEDBACK_BINDING`."
+					);
+				}
 
-		return boundTf;
+				return value;
+			}
+		);
 	}
 
 	/**
@@ -120,6 +126,7 @@ export default class TransformFeedback extends ContextDependent {
 	 * @param tf - The transform feedback to unbind, or `undefined` to unbind any transform feedback.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static unbindGl(context: Context, tf?: WebGLTransformFeedback): void {
 		// Do nothing if the transform feedback is already unbound.
 		if (tf && TransformFeedback.getBound(context) !== tf) {
@@ -169,6 +176,7 @@ export default class TransformFeedback extends ContextDependent {
 	 * @param name - The name of the varying.
 	 * @param value - The buffer to bind to the varying.
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public setVarying(name: string, value: VaryingValue | VertexBuffer): void {
 		const varying = this.program.varyings.get(name);
 		if (!varying) {

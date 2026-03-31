@@ -334,6 +334,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @param isDefault - Whether or not this object should represent the default framebuffer for the given rendering context. You shouldn't need to use this; default framebuffer objects should only be created alongside contexts.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createFramebuffer | createFramebuffer}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context, isDefault = false) {
 		super(context);
 
@@ -351,6 +352,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer: null | WebGLFramebuffer
@@ -396,27 +398,26 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static getBound(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: FramebufferTarget
 	): null | WebGLFramebuffer {
-		// Get the context bindings cache.
-		const contextBindingsCache = Framebuffer.getContextBindingsCache(
-			context.gl
+		return Framebuffer.getContextBindingsCache(context.gl).getOrInsertComputed(
+			target,
+			() => {
+				const value: unknown =
+					context.doPrefillCache ? null : (
+						context.gl.getParameter(getParameterForFramebufferTarget(target))
+					);
+				if (value !== null && !(value instanceof WebGLFramebuffer)) {
+					throw new Error(
+						`An incorrectly-typed value was returned for \`${getParameterForFramebufferTarget(target).toString()}\`.`
+					);
+				}
+
+				return value;
+			}
 		);
-
-		// Get the bound framebuffer.
-		let boundFramebuffer = contextBindingsCache.get(target);
-		if (typeof boundFramebuffer === "undefined") {
-			boundFramebuffer =
-				context.doPrefillCache ?
-					null // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				:	(context.gl.getParameter(
-						getParameterForFramebufferTarget(target)
-					) as null | WebGLFramebuffer);
-			contextBindingsCache.set(target, boundFramebuffer);
-		}
-
-		return boundFramebuffer;
 	}
 
 	/**
@@ -427,6 +428,7 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	public static unbindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: FramebufferTarget,
 		framebuffer?: WebGLFramebuffer
@@ -447,16 +449,10 @@ export default class Framebuffer extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingsCache(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext
 	): Map<FramebufferTarget, null | WebGLFramebuffer> {
-		// Get the context bindings cache.
-		let contextBindingsCache = Framebuffer.bindingsCache.get(gl);
-		if (!contextBindingsCache) {
-			contextBindingsCache = new Map();
-			Framebuffer.bindingsCache.set(gl, contextBindingsCache);
-		}
-
-		return contextBindingsCache;
+		return Framebuffer.bindingsCache.getOrInsertComputed(gl, () => new Map());
 	}
 
 	/**
@@ -473,6 +469,7 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		texture: Texture2d,
 		face?: unknown,
 		level?: number,
@@ -492,6 +489,7 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		texture: TextureCubemap,
 		face: CubeFace,
 		level?: number,
@@ -507,10 +505,12 @@ export default class Framebuffer extends ContextDependent {
 	 */
 	public attach(
 		attachment: FramebufferAttachment | number,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		renderbuffer: Renderbuffer
 	): void;
 	public attach(
 		attachment: FramebufferAttachment | number,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data: Renderbuffer | Texture,
 		face: CubeFace | undefined = void 0,
 		level = 0,
@@ -672,7 +672,9 @@ export default class Framebuffer extends ContextDependent {
 	 * @throws {@link BadValueError} if a uniform is passed `undefined` as a value or if an unknown uniform is specified.
 	 */
 	public draw(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		vao: VertexArray,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		uniforms?: UniformMap,
 		primitive: Primitive = Primitive.TRIANGLES,
 		offset = 0,

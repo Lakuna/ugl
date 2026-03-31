@@ -1,4 +1,4 @@
+*.tsbuildinfo
 dist
 docs
 node_modules
-*.tsbuildinfo

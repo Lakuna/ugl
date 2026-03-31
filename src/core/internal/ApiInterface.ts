@@ -14,6 +14,7 @@ export default abstract class ApiInterface {
 	 * @param gl - The API interface object.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
 	}

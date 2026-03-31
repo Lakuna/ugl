@@ -105,6 +105,7 @@ export default abstract class Buffer<
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createBuffer | createBuffer}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected constructor(context: Context) {
 		super(context);
 

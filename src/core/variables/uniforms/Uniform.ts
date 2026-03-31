@@ -34,6 +34,7 @@ export default abstract class Uniform extends Variable {
 		return this.valueCache;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override set value(value: Readonly<UniformValue>) {
 		this.program.bind();
 
@@ -60,6 +61,7 @@ export default abstract class Uniform extends Variable {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getUniformLocation | getUniformLocation}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program, activeInfo);
 
@@ -90,5 +92,6 @@ export default abstract class Uniform extends Variable {
 	 * @param value - The value to pass to the uniform.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public abstract setter(value: number | Readonly<Texture>): void;
 }

@@ -13,6 +13,7 @@ export default class FloatAttribute extends Attribute {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer | vertexAttribPointer}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected override setterInternal(value: AttributeValue): void {
 		this.gl.vertexAttribPointer(
 			this.location,

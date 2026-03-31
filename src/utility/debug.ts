@@ -192,7 +192,9 @@ const isEnumMap = new Map<string, { enums?: number[]; prefs?: string[] }>([
  * @public
  */
 export default function debug(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	gl: WebGL2RenderingContext,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	out: Console = console
 ): DebugInfo {
 	// Lists of previously-mentioned objects so that all WebGL objects can be uniquely identified.
@@ -241,13 +243,7 @@ export default function debug(
 		}
 
 		// If the key already exists in the map, append the value to the existing value.
-		const existingValue = enumMap.get(value);
-		if (existingValue) {
-			existingValue.push(key);
-			continue;
-		}
-
-		enumMap.set(value, [key]);
+		enumMap.getOrInsertComputed(value, () => []).push(key);
 	}
 
 	const enumName = (value: number, prefs?: readonly string[]): string => {
@@ -262,13 +258,13 @@ export default function debug(
 		*/
 
 		const names = enumMap.get(value);
-		if (!names || names.length < 1) {
+		if (!names?.length) {
 			return value.toString();
 		}
 
 		const preferredNames =
 			prefs?.length ? names.filter((name) => prefs.includes(name)) : [];
-		return (preferredNames.length > 0 ? preferredNames : names).join("/");
+		return (preferredNames.length ? preferredNames : names).join("/");
 	};
 
 	const stringify = (
@@ -523,6 +519,7 @@ export default function debug(
 		}
 
 		object[key] = (
+			// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 			...args: Parameters<typeof method>
 		): ReturnType<typeof method> => {
 			if (!debugInfo.isActive) {

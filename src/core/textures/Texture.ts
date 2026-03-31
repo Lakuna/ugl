@@ -643,6 +643,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected constructor(context: Context, target: TextureTarget);
 
 	/**
@@ -657,18 +658,22 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	protected constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: TextureTarget,
 		levels: number,
 		format: TextureFormat,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		dims: number[]
 	);
 
 	protected constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: TextureTarget,
 		levels?: number,
 		format?: TextureFormat,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		dims?: number[]
 	) {
 		super(context);
@@ -696,6 +701,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	public static bindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		requestedTextureUnit: number | undefined,
 		target: TextureTarget,
@@ -751,6 +757,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	public static getBound(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		requestedTextureUnit: number | undefined,
 		target: TextureTarget
@@ -759,29 +766,25 @@ export default abstract class Texture extends ContextDependent {
 		const textureUnit =
 			requestedTextureUnit ?? Texture.getBestTextureUnit(context, target);
 
-		// Get the texture unit bindings cache.
-		const textureUnitBindingsCache = Texture.getTextureUnitBindingsCache(
+		// Get the bound texture.
+		return Texture.getTextureUnitBindingsCache(
 			context.gl,
 			textureUnit
-		);
-
-		// Get the bound texture.
-		let boundTexture = textureUnitBindingsCache.get(target);
-		if (typeof boundTexture === "undefined") {
-			if (context.doPrefillCache) {
-				boundTexture = null;
-			} else {
+		).getOrInsertComputed(target, () => {
+			let value: unknown = null;
+			if (!context.doPrefillCache) {
 				context.activeTexture = textureUnit;
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				boundTexture = context.gl.getParameter(
-					getParameterForTextureTarget(target)
-				) as null | WebGLTexture;
+				value = context.gl.getParameter(getParameterForTextureTarget(target));
 			}
 
-			textureUnitBindingsCache.set(target, boundTexture);
-		}
+			if (value !== null && !(value instanceof WebGLTexture)) {
+				throw new Error(
+					`An incorrectly-typed value was returned for \`${getParameterForTextureTarget(target).toString()}\`.`
+				);
+			}
 
-		return boundTexture;
+			return value;
+		});
 	}
 
 	/**
@@ -794,6 +797,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	public static unbindGl(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		textureUnit: number | undefined,
 		target: TextureTarget,
@@ -831,6 +835,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getBestTextureUnit(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		target: TextureTarget,
 		texture?: null | WebGLTexture
@@ -869,16 +874,13 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingOverwriteOrder(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext
 	): Map<TextureTarget, number[]> {
-		// Get the context binding overwrite order.
-		let contextBindingOverwriteOrder = Texture.bindingOverwriteOrder.get(gl);
-		if (!contextBindingOverwriteOrder) {
-			contextBindingOverwriteOrder = new Map();
-			Texture.bindingOverwriteOrder.set(gl, contextBindingOverwriteOrder);
-		}
-
-		return contextBindingOverwriteOrder;
+		return Texture.bindingOverwriteOrder.getOrInsertComputed(
+			gl,
+			() => new Map()
+		);
 	}
 
 	/**
@@ -888,16 +890,10 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getContextBindingsCache(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext
 	): Map<TextureTarget, null | WebGLTexture>[] {
-		// Get the context bindings cache.
-		let contextBindingsCache = Texture.bindingsCache.get(gl);
-		if (typeof contextBindingsCache === "undefined") {
-			contextBindingsCache = [];
-			Texture.bindingsCache.set(gl, contextBindingsCache);
-		}
-
-		return contextBindingsCache;
+		return Texture.bindingsCache.getOrInsertComputed(gl, () => []);
 	}
 
 	/**
@@ -908,21 +904,14 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getTargetBindingOverwriteOrder(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext,
 		target: TextureTarget
 	): number[] {
-		// Get the context binding overwrite order.
-		const contextBindingOverwriteOrder =
-			Texture.getContextBindingOverwriteOrder(gl);
-
-		// Get the binding point binding overwrite order.
-		let targetBindingOverwriteOrder = contextBindingOverwriteOrder.get(target);
-		if (typeof targetBindingOverwriteOrder === "undefined") {
-			targetBindingOverwriteOrder = [];
-			contextBindingOverwriteOrder.set(target, targetBindingOverwriteOrder);
-		}
-
-		return targetBindingOverwriteOrder;
+		return Texture.getContextBindingOverwriteOrder(gl).getOrInsertComputed(
+			target,
+			() => []
+		);
 	}
 
 	/**
@@ -933,6 +922,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @internal
 	 */
 	private static getTextureUnitBindingsCache(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		gl: WebGL2RenderingContext,
 		textureUnit: number
 	): Map<TextureTarget, null | WebGLTexture> {
@@ -1082,6 +1072,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		framebuffer: Framebuffer | null,
 		level?: number,
 		face?: CubeFace,
@@ -1103,6 +1094,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		buffer: VertexBuffer,
 		level: number | undefined,
 		face: CubeFace | undefined,
@@ -1123,6 +1115,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: TexImageSource,
 		level?: number,
 		face?: CubeFace,
@@ -1143,6 +1136,7 @@ export default abstract class Texture extends ContextDependent {
 	 * @throws {@link TextureFormatError} if the given data type is incompatible with this texture's format.
 	 */
 	public setMip(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		array: ArrayBufferView,
 		level?: number,
 		face?: CubeFace,
@@ -1153,6 +1147,7 @@ export default abstract class Texture extends ContextDependent {
 		length?: number
 	): void;
 	public setMip(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: ArrayBufferView | Framebuffer | null | TexImageSource | VertexBuffer,
 		requestedLevel?: number,
 		face?: CubeFace,
@@ -1279,13 +1274,7 @@ export default abstract class Texture extends ContextDependent {
 		}
 
 		// Mark the mip as having data.
-		let mipmap = this.mipmaps.get(target);
-		if (!mipmap) {
-			mipmap = new Map();
-			this.mipmaps.set(target, mipmap);
-		}
-
-		mipmap.set(level, true);
+		this.mipmaps.getOrInsertComputed(target, () => new Map()).set(level, true);
 
 		// Unmark this texture as being texture complete.
 		delete this.isTextureCompleteCache;
@@ -1364,6 +1353,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
@@ -1387,6 +1377,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
@@ -1408,6 +1399,7 @@ export default abstract class Texture extends ContextDependent {
 		bounds: Prism | Rectangle | undefined,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: TexImageSource
 	): void;
 
@@ -1424,6 +1416,7 @@ export default abstract class Texture extends ContextDependent {
 		target: MipmapTarget,
 		level: number,
 		bounds?: Prism | Rectangle,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	): void;

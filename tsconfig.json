@@ -1,10 +1,13 @@
 {
-	"exclude": ["dist", "docs", "node_modules"],
 	"compilerOptions": {
-		// Type Checking
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
+		"composite": true,
+		"declarationMap": true,
 		"exactOptionalPropertyTypes": true,
+		"isolatedDeclarations": true,
+		"lib": ["DOM", "ESNext"],
+		"module": "nodenext",
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
@@ -12,51 +15,12 @@
 		"noUncheckedIndexedAccess": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"strict": true,
-
-		// Modules
-		"module": "nodenext",
-		"noUncheckedSideEffectImports": true,
-		"rootDir": "src",
-
-		// Emit
-		"declarationMap": true,
 		"outDir": "dist",
+		"rootDir": "src",
+		"skipLibCheck": true,
 		"sourceMap": true,
 		"stripInternal": true,
-
-		// JavaScript Support
-		// N/A
-
-		// Editor Support
-		// N/A
-
-		// Interop Constraints
-		"isolatedDeclarations": true,
-		"verbatimModuleSyntax": true,
-
-		// Backwards Compatibility
-		// N/A
-
-		// Language and Environment
-		// N/A
-
-		// Compiler Diagnostics
-		// N/A
-
-		// Projects
-		"composite": true,
-
-		// Output Formatting
-		// N/A
-
-		// Completeness
-		"skipLibCheck": true
-
-		// Command Line
-		// N/A
-
-		// Watch Options
-		// N/A
-	}
+		"verbatimModuleSyntax": true
+	},
+	"exclude": ["dist", "docs", "node_modules"]
 }

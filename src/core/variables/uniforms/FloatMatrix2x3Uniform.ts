@@ -11,6 +11,7 @@ export default class FloatMatrix2x3Uniform extends MatrixUniform6 {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniformMatrix | uniformMatrix[234]x[234]fv}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override iterableSetterInternal(value: Iterable<number>): void {
 		this.gl.uniformMatrix2x3fv(
 			this.location,

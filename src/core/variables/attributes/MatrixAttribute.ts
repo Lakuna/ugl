@@ -23,6 +23,7 @@ export default class MatrixAttribute extends Attribute {
 	 * @internal
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		program: Program,
 		activeInfo: WebGLActiveInfo,
 		dim: 1 | 2 | 3 | 4
@@ -37,6 +38,7 @@ export default class MatrixAttribute extends Attribute {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer | vertexAttribPointer}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected override setterInternal(value: AttributeValue): void {
 		const normalized = value.normalized ?? false;
 		const stride = value.stride ?? 0;

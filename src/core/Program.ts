@@ -237,9 +237,13 @@ export default class Program extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createProgram | createProgram}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		shaders?: readonly Shader[],
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		attributeLocations?: ReadonlyMap<string, number>,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		feedbackVaryings?: Iterable<string>,
 		feedbackInterleaved = false
 	) {
@@ -288,6 +292,7 @@ export default class Program extends ContextDependent {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/useProgram | useProgram}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static bindGl(context: Context, program: null | WebGLProgram): void {
 		// Do nothing if the binding is already correct.
 		if (Program.getBound(context) === program) {
@@ -314,10 +319,13 @@ export default class Program extends ContextDependent {
 	 * @returns The shader program.
 	 */
 	public static fromSource(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		vss: string,
 		fss: string,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		attributeLocations?: ReadonlyMap<string, number>,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		feedbackVaryings?: Iterable<string>,
 		feedbackInterleaved?: boolean
 	): Program {
@@ -343,18 +351,21 @@ export default class Program extends ContextDependent {
 	 * @param context - The rendering context.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static getBound(context: Context): null | WebGLProgram {
-		// Get the bound program.
-		let boundProgram = Program.bindingsCache.get(context.gl);
-		if (typeof boundProgram === "undefined") {
-			boundProgram =
-				context.doPrefillCache ? null
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				: (context.gl.getParameter(CURRENT_PROGRAM) as null | WebGLProgram);
-			Program.bindingsCache.set(context.gl, boundProgram);
-		}
+		return Program.bindingsCache.getOrInsertComputed(context.gl, () => {
+			const value: unknown =
+				context.doPrefillCache ? null : (
+					context.gl.getParameter(CURRENT_PROGRAM)
+				);
+			if (value !== null && !(value instanceof WebGLProgram)) {
+				throw new Error(
+					"An incorrectly-typed value was returned for `CURRENT_PROGRAM`."
+				);
+			}
 
-		return boundProgram;
+			return value;
+		});
 	}
 
 	/**
@@ -363,6 +374,7 @@ export default class Program extends ContextDependent {
 	 * @param program - The program to unbind, or `undefined` to unbind any program.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static unbindGl(context: Context, program?: WebGLProgram): void {
 		// Do nothing if the program is already unbound.
 		if (program && Program.getBound(context) !== program) {
@@ -378,6 +390,7 @@ export default class Program extends ContextDependent {
 	 * @param shader - The shader.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/attachShader | attachShader}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public attachShader(shader: Shader): void {
 		if (this.attachedShaders.includes(shader)) {
 			return;
@@ -422,6 +435,7 @@ export default class Program extends ContextDependent {
 	 * @param shader - The shader to detach.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/detachShader | detachShader}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public detachShader(shader: Shader): void {
 		if (!this.attachedShaders.includes(shader)) {
 			return;
@@ -464,6 +478,7 @@ export default class Program extends ContextDependent {
 	 * @param interleaved - Whether to use interleaved attributes (as opposed to separate attributes) when capturing transform feedback varyings.
 	 */
 	public setTransformFeedbackVaryings(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		varyings: Iterable<string>,
 		interleaved: boolean
 	): void {

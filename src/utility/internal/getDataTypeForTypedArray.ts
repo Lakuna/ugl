@@ -7,6 +7,7 @@ import DataType from "../../constants/DataType.js";
  * @internal
  */
 export default function getDataTypeForTypedArray(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	array: ArrayBufferView
 ): DataType {
 	return (
@@ -18,6 +19,6 @@ export default function getDataTypeForTypedArray(
 		: array instanceof Int32Array ? DataType.INT
 		: array instanceof Uint32Array ? DataType.UNSIGNED_INT
 		: array instanceof Float16Array ? DataType.HALF_FLOAT
-		: DataType.FLOAT
-	); // `Float32Array`.
+		: DataType.FLOAT // `Float32Array`.
+	);
 }

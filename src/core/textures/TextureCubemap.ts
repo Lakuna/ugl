@@ -27,6 +27,7 @@ export default class TextureCubemap extends Texture {
 	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context);
 
 	/**
@@ -40,6 +41,7 @@ export default class TextureCubemap extends Texture {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels: number,
 		format: TextureFormat,
@@ -47,6 +49,7 @@ export default class TextureCubemap extends Texture {
 	);
 
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels?: number,
 		format?: TextureFormat,
@@ -77,6 +80,7 @@ export default class TextureCubemap extends Texture {
 	 * @returns The texture.
 	 */
 	public static fromImageUrls(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		px: string,
 		nx: string,
@@ -137,6 +141,7 @@ export default class TextureCubemap extends Texture {
 	 * @returns The texture.
 	 */
 	public static async fromImageUrlsPromise(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		px: string,
 		nx: string,
@@ -197,6 +202,7 @@ export default class TextureCubemap extends Texture {
 	protected override makeImmutableFormatInternal(
 		levels: number,
 		format: TextureFormat,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		dims: [number]
 	): void {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[0]);
@@ -224,6 +230,7 @@ export default class TextureCubemap extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
@@ -335,6 +342,7 @@ export default class TextureCubemap extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
@@ -429,6 +437,7 @@ export default class TextureCubemap extends Texture {
 		bounds: Rectangle | undefined,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: TexImageSource
 	): void {
 		const x = bounds?.[0] ?? 0;
@@ -535,6 +544,7 @@ export default class TextureCubemap extends Texture {
 			| MipmapTarget.TEXTURE_CUBE_MAP_POSITIVE_Z,
 		level: number,
 		bounds?: Rectangle,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	): void {

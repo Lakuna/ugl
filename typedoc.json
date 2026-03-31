@@ -1,0 +1,6 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"hostedBaseUrl": "https://ugl.lakuna.pw/",
+	"name": "μGL",
+	"navigationLinks": { "GitHub": "https://github.com/Lakuna/ugl" }
+}

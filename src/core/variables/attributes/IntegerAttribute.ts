@@ -13,6 +13,7 @@ export default class IntegerAttribute extends Attribute {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/vertexAttribIPointer | vertexAttribIPointer}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected override setterInternal(value: AttributeValue): void {
 		this.gl.vertexAttribIPointer(
 			this.location,

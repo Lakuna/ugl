@@ -62,6 +62,7 @@ export default abstract class Attribute extends Variable {
 
 	// Should only be called from within `VertexArray`.
 	/** @internal */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override set value(value: AttributeValue | undefined | VertexBuffer) {
 		if (!value) {
 			if (!this.value) {
@@ -112,6 +113,7 @@ export default abstract class Attribute extends Variable {
 	 * @param activeInfo - The information of the attribute.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(program: Program, activeInfo: WebGLActiveInfo) {
 		super(program, activeInfo);
 		this.location = this.gl.getAttribLocation(program.internal, this.name);
@@ -123,5 +125,6 @@ export default abstract class Attribute extends Variable {
 	 * @param value - The value to pass to the attribute.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	protected abstract setterInternal(value: AttributeValue): void;
 }

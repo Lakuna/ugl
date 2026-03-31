@@ -72,6 +72,7 @@ export default class Sync extends ContextDependent {
 	 * @throws {@link UnsupportedOperationError} if the sync object can't be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/fenceSync | fenceSync}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context) {
 		super(context);
 

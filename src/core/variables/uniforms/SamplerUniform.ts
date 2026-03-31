@@ -11,6 +11,7 @@ export default class SamplerUniform extends IntegerUniform {
 	 * @internal
 	 */
 	public override iterableSetter(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		value: Iterable<number> | Iterable<Texture>
 	): void {
 		const textureUnits = [];
@@ -50,6 +51,7 @@ export default class SamplerUniform extends IntegerUniform {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/uniform | uniform[1234][uif][v]}
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public override setter(value: number | Texture): void {
 		// If a texture unit was passed, just fall back to integer behavior.
 		if (typeof value === "number") {

@@ -1,5 +1,6 @@
 import UnsupportedOperationError from "./UnsupportedOperationError.js";
 
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 const recursiveFullscreen = (element: HTMLElement): void => {
 	element.style.width = "100%";
 	element.style.height = "100%";

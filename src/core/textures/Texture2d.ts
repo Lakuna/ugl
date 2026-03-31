@@ -26,6 +26,7 @@ export default class Texture2d extends Texture {
 	 * @throws {@link UnsupportedOperationError} if a texture cannot be created.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public constructor(context: Context);
 
 	/**
@@ -40,6 +41,7 @@ export default class Texture2d extends Texture {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/createTexture | createTexture}
 	 */
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels: number,
 		format: TextureFormat,
@@ -48,6 +50,7 @@ export default class Texture2d extends Texture {
 	);
 
 	public constructor(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		levels?: number,
 		format?: TextureFormat,
@@ -74,6 +77,7 @@ export default class Texture2d extends Texture {
 	 * @param url - The URL of the image.
 	 * @returns The texture.
 	 */
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	public static fromImageUrl(context: Context, url: string): Texture2d {
 		// Create a new 2D texture.
 		const out = new Texture2d(context);
@@ -104,6 +108,7 @@ export default class Texture2d extends Texture {
 	 * @returns The texture.
 	 */
 	public static async fromImageUrlPromise(
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		context: Context,
 		url: string
 	): Promise<Texture2d> {
@@ -141,6 +146,7 @@ export default class Texture2d extends Texture {
 	protected override makeImmutableFormatInternal(
 		levels: number,
 		format: TextureFormat,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		dims: [number, number]
 	): void {
 		this.gl.texStorage2D(this.target, levels, format, dims[0], dims[1]);
@@ -168,6 +174,7 @@ export default class Texture2d extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		array: ArrayBufferView,
 		offset?: number,
 		length?: number
@@ -278,6 +285,7 @@ export default class Texture2d extends Texture {
 		bounds: Rectangle,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		buffer: VertexBuffer,
 		size: number,
 		offset: number
@@ -371,6 +379,7 @@ export default class Texture2d extends Texture {
 		bounds: Rectangle | undefined,
 		format: TextureDataFormat,
 		type: TextureDataType,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		data?: TexImageSource
 	): void {
 		const x = bounds?.[0] ?? 0;
@@ -470,6 +479,7 @@ export default class Texture2d extends Texture {
 		target: MipmapTarget.TEXTURE_2D,
 		level: number,
 		bounds?: Rectangle,
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		framebuffer?: Framebuffer | null,
 		area?: Rectangle
 	): void {
