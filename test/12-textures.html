@@ -8,6 +8,16 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="./assets/favicon.ico" />
 
+		<!-- Import map. -->
+		<script type="importmap">
+			{
+				"imports": {
+					"@lakuna/ugl": "../dist/index.js",
+					"@lakuna/umath/Matrix4": "../node_modules/@lakuna/umath/dist/linalg/Matrix4.js"
+				}
+			}
+		</script>
+
 		<!-- Test script. -->
 		<script type="module">
 			import {
@@ -17,12 +27,12 @@
 				Texture2d,
 				VertexArray,
 				VertexBuffer
-			} from "../dist/index.js";
+			} from "@lakuna/ugl";
 			import {
 				createMatrix4Like,
 				identity,
 				scale
-			} from "../node_modules/@lakuna/umath/dist/linalg/Matrix4.js";
+			} from "@lakuna/umath/Matrix4";
 
 			const vss = `\
 #version 300 es

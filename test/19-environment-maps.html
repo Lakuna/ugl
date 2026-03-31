@@ -8,6 +8,18 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="./assets/favicon.ico" />
 
+		<!-- Import map. -->
+		<script type="importmap">
+			{
+				"imports": {
+					"@lakuna/ugl": "../dist/index.js",
+					"@lakuna/umath/Matrix3": "../node_modules/@lakuna/umath/dist/linalg/Matrix3.js",
+					"@lakuna/umath/Matrix4": "../node_modules/@lakuna/umath/dist/linalg/Matrix4.js",
+					"@lakuna/umath/Vector3": "../node_modules/@lakuna/umath/dist/linalg/Vector3.js"
+				}
+			}
+		</script>
+
 		<!-- Test script. -->
 		<script type="module">
 			import {
@@ -18,11 +30,11 @@
 				TextureFilter,
 				VertexArray,
 				VertexBuffer
-			} from "../dist/index.js";
+			} from "@lakuna/ugl";
 			import {
 				createMatrix3Like,
 				normalFromMatrix4
-			} from "../node_modules/@lakuna/umath/dist/linalg/Matrix3.js";
+			} from "@lakuna/umath/Matrix3";
 			import {
 				createMatrix4Like,
 				getTranslation,
@@ -33,8 +45,8 @@
 				rotateY,
 				rotateZ,
 				translate
-			} from "../node_modules/@lakuna/umath/dist/linalg/Matrix4.js";
-			import { createVector3Like } from "../node_modules/@lakuna/umath/dist/linalg/Vector3.js";
+			} from "@lakuna/umath/Matrix4";
+			import { createVector3Like } from "@lakuna/umath/Vector3";
 
 			const vss = `\
 #version 300 es

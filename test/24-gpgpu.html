@@ -8,6 +8,11 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="./assets/favicon.ico" />
 
+		<!-- Import map. -->
+		<script type="importmap">
+			{ "imports": { "@lakuna/ugl": "../dist/index.js" } }
+		</script>
+
 		<!-- Test script. -->
 		<script type="module">
 			import {
@@ -25,7 +30,7 @@
 				TransformFeedback,
 				VertexArray,
 				VertexBuffer
-			} from "../dist/index.js";
+			} from "@lakuna/ugl";
 
 			const vss = `\
 #version 300 es
