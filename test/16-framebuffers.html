@@ -360,7 +360,7 @@ void main() {
 
 				const framebuffer = new Framebuffer(gl);
 				framebuffer.attach(0, renderTexture);
-				framebuffer.attach(FramebufferAttachment.Depth, renderDepth);
+				framebuffer.attach(FramebufferAttachment.DEPTH, renderDepth);
 
 				const camMat = createMatrix4Like();
 				identity(camMat);
