@@ -580,7 +580,7 @@ void main() {
 				projTex.magFilter = TextureFilter.NEAREST;
 
 				const framebuffer = new Framebuffer(gl);
-				framebuffer.attach(FramebufferAttachment.Depth, projTex);
+				framebuffer.attach(FramebufferAttachment.DEPTH, projTex);
 
 				const planeMat = identity(createMatrix4Like());
 				rotateX(planeMat, (Math.PI * 3) / 2, planeMat);
