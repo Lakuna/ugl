@@ -28,6 +28,7 @@ export default function createAttribute(
 		);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 	switch (activeInfo.type as VariableType) {
 		case VariableType.BOOL:
 		case VariableType.BOOL_VEC2:

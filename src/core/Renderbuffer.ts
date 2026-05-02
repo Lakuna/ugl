@@ -1,4 +1,5 @@
 import type RenderbufferFormat from "../constants/RenderbufferFormat.js";
+import type Sized from "../types/Sized.js";
 import type Context from "./Context.js";
 
 import { RENDERBUFFER, RENDERBUFFER_BINDING } from "../constants/constants.js";
@@ -10,7 +11,7 @@ import ContextDependent from "./internal/ContextDependent.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderbuffer | WebGLRenderbuffer}
  * @public
  */
-export default class Renderbuffer extends ContextDependent {
+export default class Renderbuffer extends ContextDependent implements Sized {
 	/**
 	 * The currently-bound renderbuffer cache.
 	 * @internal

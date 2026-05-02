@@ -2,6 +2,7 @@ import type CubeFace from "../constants/CubeFace.js";
 import type FramebufferStatus from "../constants/FramebufferStatus.js";
 import type Color from "../types/Color.js";
 import type Rectangle from "../types/Rectangle.js";
+import type Sized from "../types/Sized.js";
 import type { UniformMap } from "../types/UniformMap.js";
 import type Context from "./Context.js";
 import type Texture2d from "./textures/Texture2d.js";
@@ -48,7 +49,7 @@ import Texture from "./textures/Texture.js";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLFramebuffer | WebGLFramebuffer}
  * @public
  */
-export default class Framebuffer extends ContextDependent {
+export default class Framebuffer extends ContextDependent implements Sized {
 	/**
 	 * The currently-bound framebufferbuffer cache.
 	 * @internal
@@ -533,6 +534,7 @@ export default class Framebuffer extends ContextDependent {
 
 		// Determine the actual WebGL constant value of the attachment.
 		let attachmentValue = attachment;
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 		switch (attachment as FramebufferAttachment) {
 			case FramebufferAttachment.DEPTH:
 				attachmentValue = DEPTH_ATTACHMENT;

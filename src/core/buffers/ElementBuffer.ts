@@ -253,7 +253,7 @@ export default class ElementBuffer extends Buffer<
 		// Set size of buffer (empty data).
 		if (typeof data === "number") {
 			this.gl.bufferData(this.target, data, realUsage);
-			this.dataCache = new Uint8Array(data) as Uint8Array;
+			this.dataCache = new Uint8Array(data);
 			this.typeCache = DataType.UNSIGNED_BYTE;
 			this.sizeCache = data;
 			this.usageCache = realUsage;

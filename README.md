@@ -1,5 +1,3 @@
-[![Test](https://github.com/Lakuna/ugl/actions/workflows/test.yml/badge.svg)](https://github.com/Lakuna/ugl/actions/workflows/test.yml)
-
 # μGL
 
 A lightweight WebGL2 library. Includes a variety of classes which are useful for developing two- and three-dimensional games, animations, and simulations.
@@ -8,4 +6,4 @@ Documentation is automatically generated and uploaded to [the website](https://u
 
 The source code can be found on [the GitHub repository](https://github.com/Lakuna/ugl).
 
-A complete introductory guide to WebGL2 with μGL is available on [my website](https://www.lakuna.pw/a/webgl).
+If you are new to WebGL, I recommend reading by introductory guide to WebGL2 with μGL [here](https://www.lakuna.pw/a/webgl). If you are already familiar with WebGL, I instead recommend reading my high-level overview of μGL [here](https://www.lakuna.pw/a/ugl).

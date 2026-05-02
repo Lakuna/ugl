@@ -12,22 +12,20 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@lakuna/umath": "^4.0.5",
-		"@types/eslint": "^9.6.1",
-		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/offscreencanvas": "^2019.7.3",
 		"@types/webgl2": "^0.0.12",
 		"@types/webxr": "^0.5.24",
-		"eslint": "^10.1.0",
+		"eslint": "^10.3.0",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-perfectionist": "^5.7.0",
+		"eslint-plugin-perfectionist": "^5.9.0",
 		"eslint-plugin-prettier": "^5.5.5",
 		"eslint-plugin-tsdoc": "^0.5.2",
-		"globals": "^17.4.0",
-		"prettier": "^3.8.1",
+		"globals": "^17.6.0",
+		"prettier": "^3.8.3",
 		"serve": "^14.2.6",
-		"typedoc": "^0.28.18",
-		"typescript": "^6.0.2",
-		"typescript-eslint": "^8.58.0"
+		"typedoc": "^0.28.19",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.59.1"
 	},
 	"exports": "./dist/index.js",
 	"files": [
@@ -58,5 +56,5 @@
 	"sideEffects": false,
 	"type": "module",
 	"typings": "./dist/index.d.ts",
-	"version": "27.0.0"
+	"version": "27.1.0"
 }

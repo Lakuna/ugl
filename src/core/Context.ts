@@ -6,6 +6,7 @@ import type ColorMask from "../types/ColorMask.js";
 import type { ExtensionObject } from "../types/ExtensionObject.js";
 import type Pair from "../types/Pair.js";
 import type Rectangle from "../types/Rectangle.js";
+import type Sized from "../types/Sized.js";
 import type Stencil from "../types/Stencil.js";
 
 import BlendEquation from "../constants/BlendEquation.js";
@@ -65,6 +66,8 @@ import Face from "../constants/Face.js";
 import Orientation from "../constants/Orientation.js";
 import TestFunction from "../constants/TestFunction.js";
 import BadValueError from "../utility/BadValueError.js";
+import makeBlendEquationSet from "../utility/makeBlendEquationSet.js";
+import makeBlendFunctionFullSet from "../utility/makeBlendFunctionFullSet.js";
 import UnsupportedOperationError from "../utility/UnsupportedOperationError.js";
 import WebglError from "../utility/WebglError.js";
 import Framebuffer from "./Framebuffer.js";
@@ -202,13 +205,7 @@ export default class Context extends ApiInterface {
 			}
 
 			this.gl.blendEquation(value);
-
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			this.blendEquationCache = new Uint8Array([
-				value,
-				value
-			]) as BlendEquationSet & Uint8Array;
-
+			this.blendEquationCache = makeBlendEquationSet(value);
 			return;
 		}
 
@@ -221,12 +218,7 @@ export default class Context extends ApiInterface {
 		}
 
 		this.gl.blendEquationSeparate(value[0], value[1]);
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		this.blendEquationCache = new Uint8Array([
-			value[0],
-			value[1]
-		]) as BlendEquationSet & Uint8Array;
+		this.blendEquationCache = makeBlendEquationSet(value[0], value[1]);
 	}
 
 	/** The alpha blend equation. */
@@ -261,15 +253,12 @@ export default class Context extends ApiInterface {
 			}
 
 			this.gl.blendFuncSeparate(value[0], value[1], value[2], value[3]);
-
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			this.blendFunctionCache = new Uint8Array([
+			this.blendFunctionCache = makeBlendFunctionFullSet(
 				value[0],
 				value[1],
 				value[2],
 				value[3]
-			]) as BlendFunctionFullSet & Uint8Array;
-
+			);
 			return;
 		}
 
@@ -284,14 +273,7 @@ export default class Context extends ApiInterface {
 		}
 
 		this.gl.blendFunc(value[0], value[1]);
-
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		this.blendFunctionCache = new Uint8Array([
-			value[0],
-			value[1],
-			value[0],
-			value[1]
-		]) as BlendFunctionFullSet & Uint8Array;
+		this.blendFunctionCache = makeBlendFunctionFullSet(value[0], value[1]);
 	}
 
 	/** The destination alpha blend function. */
@@ -1272,16 +1254,14 @@ export default class Context extends ApiInterface {
 	public constructor(
 		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		canvas: HTMLCanvasElement | OffscreenCanvas,
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-		options?: WebGLContextAttributes,
+		options?: Readonly<WebGLContextAttributes>,
 		doPrefillCache?: boolean
 	);
 
 	public constructor(
 		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-		options?: WebGLContextAttributes,
+		options?: Readonly<WebGLContextAttributes>,
 		doPrefillCache = true
 	) {
 		const gl =
@@ -1331,15 +1311,13 @@ export default class Context extends ApiInterface {
 	public static get(
 		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		canvas: HTMLCanvasElement | OffscreenCanvas,
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-		options?: WebGLContextAttributes,
+		options?: Readonly<WebGLContextAttributes>,
 		doPrefillCache?: boolean
 	): Context;
 	public static get(
 		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		source: HTMLCanvasElement | OffscreenCanvas | WebGL2RenderingContext,
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-		options?: WebGLContextAttributes,
+		options?: Readonly<WebGLContextAttributes>,
 		doPrefillCache?: boolean
 	): Context {
 		const gl =
@@ -1366,9 +1344,10 @@ export default class Context extends ApiInterface {
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getExtension | getExtension}
 	 */
 	public enableExtension(extension: Extension): ExtensionObject | null {
-		return this.enabledExtensions.getOrInsertComputed(extension, () =>
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			this.gl.getExtension(extension)
+		return this.enabledExtensions.getOrInsertComputed(
+			extension,
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			() => this.gl.getExtension(extension) as ExtensionObject
 		);
 	}
 
@@ -1410,12 +1389,8 @@ export default class Context extends ApiInterface {
 	 * @param framebuffer - The framebuffer to fit the size of, or `undefined` for the default framebuffer (canvas).
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 */
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	public fitViewport(framebuffer?: Framebuffer): void {
-		this.viewport =
-			framebuffer ?
-				[0, 0, framebuffer.width, framebuffer.height]
-			:	[0, 0, this.canvas.width, this.canvas.height];
+	public fitViewport(framebuffer: Sized = this.canvas): void {
+		this.viewport = [0, 0, framebuffer.width, framebuffer.height];
 	}
 
 	/**
@@ -1432,8 +1407,8 @@ export default class Context extends ApiInterface {
 	 * @throws {@link BadValueError} if the framebuffer is larger than `MAX_VIEWPORT_DIMS`.
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	public resize(framebuffer?: Framebuffer): boolean;
+
+	public resize(framebuffer?: Sized): boolean;
 	/**
 	 * Resize this rendering context's canvas' drawing buffer to match its physical size and resizes the viewport to match the given size.
 	 * @param rectangle - The rectangle that represents the viewport.
@@ -1441,8 +1416,7 @@ export default class Context extends ApiInterface {
 	 * @returns Whether or not the drawing buffer was resized.
 	 */
 	public resize(rectangle: Rectangle): boolean;
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	public resize(shape?: Framebuffer | Rectangle): boolean {
+	public resize(shape?: Rectangle | Sized): boolean {
 		const out = this.fitDrawingBuffer();
 
 		if (shape && 0 in shape) {
@@ -1472,16 +1446,13 @@ export default class Context extends ApiInterface {
 	 */
 	private makeBlendEquationCache(): BlendEquationSet & Uint8Array {
 		return this.doPrefillCache ?
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				(new Uint8Array([
-					BlendEquation.FUNC_ADD,
-					BlendEquation.FUNC_ADD
-				]) as BlendEquationSet & Uint8Array)
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(new Uint8Array([
-					this.gl.getParameter(BLEND_EQUATION_RGB),
-					this.gl.getParameter(BLEND_EQUATION_ALPHA)
-				]) as BlendEquationSet & Uint8Array);
+				makeBlendEquationSet(BlendEquation.FUNC_ADD)
+			:	makeBlendEquationSet(
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_EQUATION_RGB) as BlendEquation,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_EQUATION_ALPHA) as BlendEquation
+				);
 	}
 
 	/**
@@ -1491,19 +1462,16 @@ export default class Context extends ApiInterface {
 	 */
 	private makeBlendFunctionCache(): BlendFunctionFullSet & Uint8Array {
 		return this.doPrefillCache ?
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				(new Uint8Array([
-					BlendFunction.ONE,
-					BlendFunction.ZERO,
-					BlendFunction.ONE,
-					BlendFunction.ZERO
-				]) as BlendFunctionFullSet & Uint8Array)
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			:	(new Uint8Array([
-					this.gl.getParameter(BLEND_SRC_RGB),
-					this.gl.getParameter(BLEND_DST_RGB),
-					this.gl.getParameter(BLEND_SRC_ALPHA),
-					this.gl.getParameter(BLEND_DST_ALPHA)
-				]) as BlendFunctionFullSet & Uint8Array);
+				makeBlendFunctionFullSet(BlendFunction.ONE, BlendFunction.ZERO)
+			:	makeBlendFunctionFullSet(
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_SRC_RGB) as BlendFunction,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_DST_RGB) as BlendFunction,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_SRC_ALPHA) as BlendFunction,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+					this.gl.getParameter(BLEND_DST_ALPHA) as BlendFunction
+				);
 	}
 }

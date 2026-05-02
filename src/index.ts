@@ -55,6 +55,7 @@ export type { ExtensionObject } from "./types/ExtensionObject.js";
 export type { default as Pair } from "./types/Pair.js";
 export type { default as Prism } from "./types/Prism.js";
 export type { default as Rectangle } from "./types/Rectangle.js";
+export type { default as Sized } from "./types/Sized.js";
 export type { default as Stencil } from "./types/Stencil.js";
 export type { UniformMap } from "./types/UniformMap.js";
 export type { UniformValue } from "./types/UniformValue.js";

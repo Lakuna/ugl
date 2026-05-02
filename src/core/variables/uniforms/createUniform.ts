@@ -47,6 +47,7 @@ export default function createUniform(
 		);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 	switch (activeInfo.type as VariableType) {
 		case VariableType.BOOL:
 		case VariableType.INT:
