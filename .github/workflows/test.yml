@@ -1,11 +1,8 @@
 name: Test
 
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-  push:
+  pull_request
+  push
 
 jobs:
   test:
